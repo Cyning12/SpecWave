@@ -6,6 +6,7 @@
 
 | slug | 路径 | 状态 | 一句话 |
 |------|------|------|--------|
+| `1x-mvp` | [`1x-mvp/`](./1x-mvp/) | **signed** · HG-SPEC-SIGNOFF=approved（2026-09-09 · 整包） | 1.x MVP 五路线 SPEC 系列（F1 S2 真源 / F2 门禁语义 / F3 迁移治理 / F4 目录方案 B / F5 版本钉） |
 | `doc-health` | [`doc-health/`](./doc-health/) | draft · HG-SPEC-SIGNOFF=pending | 文档健康度 + CLOSE 强绑定 · 试点 ops-desk-api |
 | `self-tech-graph` | [`self-tech-graph/`](./self-tech-graph/) | **signed** · **W0–W4 CLOSE** · **已发 1.9.1**（npm `latest` · tag `v1.9.1`） | kit 自身三层技术图谱 + 外置三树迁留 · 读序见 [`self-tech-graph/README.md`](./self-tech-graph/README.md) |
 

@@ -43,7 +43,7 @@ async function writeRel(root: string, rel: string, body: string): Promise<string
 async function seedManifest(root: string): Promise<void> {
   await writeRel(
     root,
-    '.cyning-harness/manifest.json',
+    '.coding-kit/manifest.json',
     JSON.stringify(
       { version: '1.0.0', preset: 'harness-only', ide: [], from_version: null, upgraded_at: '2026-01-01T00:00:00Z' },
       null,

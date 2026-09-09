@@ -1,8 +1,7 @@
 import { existsSync, mkdirSync, readdirSync, readFileSync, appendFileSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
-import { parseHumanGates } from './cli-shared.ts'
+import { isS2RelPath, kitLayoutJoin, legacyLayoutJoin, parseHumanGates, resolveLayoutFile } from './cli-shared.ts'
 
-const HGM_DIR = '.cyning-harness'
 const EVENTS_DIR = 'events'
 const SNAPSHOT_FILE = 'graph/snapshot.json'
 
@@ -35,7 +34,8 @@ export type HgmSnapshot = {
 }
 
 export function eventsDir(target: string): string {
-  return path.join(target, HGM_DIR, EVENTS_DIR)
+  // 写：现行 .coding-kit；读侧 load 事件时另有 resolve
+  return kitLayoutJoin(target, EVENTS_DIR)
 }
 
 export function eventsFileForMonth(target: string, date = new Date()): string {
@@ -45,7 +45,7 @@ export function eventsFileForMonth(target: string, date = new Date()): string {
 }
 
 export function snapshotPath(target: string): string {
-  return path.join(target, HGM_DIR, SNAPSHOT_FILE)
+  return kitLayoutJoin(target, SNAPSHOT_FILE)
 }
 
 function ensureDir(dir: string): void {
@@ -69,14 +69,19 @@ export function appendEvent(target: string, event: HgmEvent): string {
 }
 
 export function loadEvents(target: string): HgmEvent[] {
-  const dir = eventsDir(target)
-  if (!existsSync(dir)) return []
+  // kit 现行 + legacy 只读并集；同名月分片优先 kit
+  const dirs = [eventsDir(target), legacyLayoutJoin(target, EVENTS_DIR)]
+  const fileMap = new Map<string, string>() // basename -> abs
+  for (const dir of dirs) {
+    if (!existsSync(dir)) continue
+    for (const n of readdirSync(dir)) {
+      if (!n.endsWith('.jsonl')) continue
+      if (!fileMap.has(n)) fileMap.set(n, path.join(dir, n))
+    }
+  }
   const events: HgmEvent[] = []
-  const files = readdirSync(dir)
-    .filter((n) => n.endsWith('.jsonl'))
-    .sort()
-  for (const f of files) {
-    const raw = readFileSync(path.join(dir, f), 'utf8')
+  for (const f of [...fileMap.keys()].sort()) {
+    const raw = readFileSync(fileMap.get(f)!, 'utf8')
     for (const line of raw.split('\n')) {
       const trimmed = line.trim()
       if (!trimmed) continue
@@ -95,6 +100,7 @@ export function loadEvents(target: string): HgmEvent[] {
   )
   return events
 }
+
 
 export function parseTaskMarkdown(content: string, fileName: string): {
   task_slug: string
@@ -156,9 +162,9 @@ export function ingestRepo(
       priorGateStatus.set(e.subject, String(e.data?.new_status ?? 'pending'))
     }
   }
-  const manifestPath = path.join(target, HGM_DIR, 'manifest.json')
-  if (existsSync(manifestPath)) {
-    const manifest = JSON.parse(readFileSync(manifestPath, 'utf8')) as {
+  const manifestHit = resolveLayoutFile(target, 'manifest.json')
+  if (manifestHit.source !== 'none') {
+    const manifest = JSON.parse(readFileSync(manifestHit.abs, 'utf8')) as {
       version?: string
       preset?: string
       ide?: string[]
@@ -364,12 +370,11 @@ export function checkAxioms(
     }
   }
   violations.push(...checkRejectedToDraft(events))
-  const s2Prefixes = ['docs/tasks/', 'reviews/', 'invokes/by-task/', 'docs/harness/reviews/', 'docs/harness/invokes/by-task/']
   for (const edge of edges) {
     if (edge.type === 'SYNCED') {
       const files = (edge.files_touched as string[]) || []
       for (const f of files) {
-        if (s2Prefixes.some((p) => f.startsWith(p))) {
+        if (isS2RelPath(f)) {
           violations.push({
             axiom: 'S2',
             severity: 'error',

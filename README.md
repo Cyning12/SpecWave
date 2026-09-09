@@ -2,7 +2,7 @@
 
 [简体中文](README.zh-CN.md) | English
 
-**dsh-coding-kit@1.10.0** is a **bundle plugin** for DeepSeek Harness (DSH), shipping a **P0 gate CLI** and the **G1–G7 process commands**. The discipline assets remain ICVO (Inform · Constrain · Verify · Orchestrate).
+**dsh-coding-kit@1.11.0** is a **bundle plugin** for DeepSeek Harness (DSH), shipping a **P0 gate CLI** and the **G1–G7 process commands**. The discipline assets remain ICVO (Inform · Constrain · Verify · Orchestrate).
 
 > **Loading ≠ injecting.** Installing or loading this plugin does **not** automatically rewrite the system prompt. `apply()` only registers tools. Only after you or the model calls `apply_coding_standards` will later turns' runtime context contain `# Coding Standards`.
 
@@ -13,7 +13,7 @@
 | DSH session / model calling tools | `dsh plugin add dsh-coding-kit` | Don't just `npm install` (without the bundle layer the tools won't appear) |
 | Cursor / CI / daily gates on existing repos | `npx dsh-coding-kit` | Don't treat the plugin `init_coding_kit` and the CLI `init` as the same entry |
 
-Both entries ship from the same npm package **`dsh-coding-kit@1.10.0`**. The plugin surface and the CLI surface do not replace each other.
+Both entries ship from the same npm package **`dsh-coding-kit@1.11.0`**. The plugin surface and the CLI surface do not replace each other.
 
 The `@deepseek-ai/cordis` and `@deepseek-ai/dsh-tools` entries in `peerDependencies` are the **DSH host plugin contract** (needed only when the host loads this package as a plugin; not needed for CLI-only use), and are marked **optional** in `peerDependenciesMeta`.
 
@@ -106,7 +106,7 @@ npx dsh-coding-kit task check --file PATH
 
 This **source repo** dogfoods `graph yaml compile|check|export` against `docs/_tech_graph/` (**not** shipped in the npm package; https://github.com/Cyning12/dsh-coding-kit/tree/main/docs/_tech_graph).
 
-`init` / `upgrade` / `sync index` / `skills build` never overwrite the S2 process domain (`docs/tasks/`, `reviews/`, `invokes/by-task/`). `sync prompts` writes only the Starter whitelist under `docs/harness/prompts/` (**11** files) and `docs/harness/templates/TASK_TEMPLATE.md` — default dry-run; existing files with different content are listed as conflicts and are not overwritten unless you pass `--force`.
+`init` / `upgrade` / `sync index` / `skills build` never overwrite the S2 process domain (`docs/tasks/`, `docs/harness/reviews/`, `docs/harness/invokes/by-task/`, plus legacy bare `reviews/` / `invokes/by-task/`). **S2 prefix truth is a single shared constant** (`S2_TRUTH_PREFIXES` in `cli-shared`; F1 / 1.x MVP). `sync prompts` writes only the Starter whitelist under `docs/harness/prompts/` (**11** files) and `docs/harness/templates/TASK_TEMPLATE.md` — default dry-run; existing files with different content are listed as conflicts and are not overwritten unless you pass `--force`.
 
 `verify --with-wiki-lint` (opt-in, non-breaking): appends the `lint-wiki-delta` check (default tier, `scope=all`) on top of the existing gates — effective in both `--task` and `--spec` modes. On a gap, verify is BLOCKED, lists the issues (which may come from sibling active/done tasks), and prints the exact same rerun command as PR CI: `npx --yes dsh-coding-kit task lint-wiki-delta --target .` (see `assets/ci/samples/lint-wiki-delta.yml.example`). `--json` gains a `wiki_lint` block (`ok` / `issues` / `scanned`). A target without `docs/tasks/` directories scans 0 files and never false-blocks. Without the flag, `verify` behaves exactly as before.
 
@@ -132,7 +132,7 @@ IDE blocks embedded by the wizard marker merge in the old `@cyning/harness` era 
 
 - **Discipline**: marker lines and out-of-block content stay byte-untouched; `<!-- cyning-harness-local:begin -->` blocks are never rewritten; `docs/tasks/`, `docs/harness/reviews/`, `docs/harness/invokes/by-task/` (S2) are always write-refused.
 - **preflight (--yes-only fail-fast, exit 2, zero writes)**: a dirty git tree / mixed old-and-new literals in one file (MIXED) / malformed marker pairing (MALFORMED) / any S2 assertion gate hit → refuse to write. The dirty-tree check follows `git status --porcelain` semantics — **untracked files count as dirty**, so commit or `git stash -u` before `--yes`.
-- **Backup and rollback**: before `--yes` writes, the original bytes are backed up to `.cyning-harness/backups/refresh-ide-blocks/<UTCts>/` (keeping the latest 5 generations); for rollback prefer `git checkout -- <path>`, or copy back from the backup in non-git repos. Backups are for local rollback only — consumers should add `.cyning-harness/backups/` to `.gitignore` (do not commit them).
+- **Backup and rollback**: before `--yes` writes, the original bytes are backed up to `.coding-kit/backups/refresh-ide-blocks/<UTCts>/` (keeping the latest 5 generations); for rollback prefer `git checkout -- <path>`, or copy back from the backup in non-git repos. Backups are for local rollback only — consumers should add `.coding-kit/backups/` to `.gitignore` (do not commit them). Legacy `.cyning-harness/backups/` may still exist on older trees; new writes do not target it.
 - **Marker-less files (report-only, never rewritten)**: discovery-surface files with 0 product blocks are scanned read-only with the same A/B rule set; hits appear in a "无 marker 检出（仅报告，不刷写）" human-report section and in the top-level `plain_mentions: [{path, rule, count}]` JSON field (schema stays `@1` — additive, backward-compatible). They never trigger the preflight fail-fast and never change the exit code.
 - **Idempotent**: re-running on already-refreshed files yields 0 group-A hits, `files_written=0`, unchanged bytes, exit 0.
 - `--json` prints a single-line machine report (schema `dsh-coding-kit/refresh-ide-blocks-report@1`; since 1.5.2 it additively includes `plain_mentions` / `totals.plain_mentions`).
@@ -156,15 +156,37 @@ When a task declares `test_strategy=required`, `audit` / `verify` run the D5 har
 - Detection depth is 3 levels from the repo root; for deeper monorepo layouts or custom test commands (e.g. `make test`) that miss the whitelist, drop any strong-signal file into the repo (e.g. a `tests/` directory, `*_test.py`).
 - **WARN transition hardened (1.5.0)**: the transitional branch from 1.3.0–1.4.0 — "new detection fails but the old heuristic passes → `D5: WARN transition` exit 0, non-blocking" — has been removed; since 1.5.0 that situation is always a **FAIL** (verify BLOCKED / audit FAIL, exit 2). Before upgrading, add real test artifacts to the repo (e.g. `tests/`, `*_test.py`, `*.test.ts`, or CI with a test step).
 
+
+### P0 gate exit codes (failClosed · F2 / 1.x MVP)
+
+| Code | Meaning | Typical commands |
+|------|---------|------------------|
+| **0** | Pass / informational | `check` **always** exits 0 (version advice only) |
+| **1** | Usage error or non-blocking failure | Missing required flags, unknown args |
+| **2** | **Gate BLOCKED** — failClosed; do not proceed | `verify` / `gate-check` / `audit` P0 failure; D5 missing artifacts when `test_strategy=required` |
+
+**failClosed**: a P0 gate failure exits **2**. CI and agents must treat 2 as hard stop (same family as Claude Code hook exit 2). Do not remap 2→0 locally to “keep going”.
+
+**Layered enforcement (document-level · 1.x — no cloud policy engine)**:
+
+1. Mechanical gate result in the consumer repo (`verify` / `gate-check` / `audit` exit 2) outranks local habit of skipping gates.  
+2. Task `HG-AUDIT-R1=approved` is required before hat 30 may change code.  
+3. Host hooks are **not** required for kit P0 — judgment is in-process CLI logic.
+
+
 ## Migrating from @cyning/harness
 
-After pinning **dsh-coding-kit@1.10.0** you can drop `@cyning/harness`. Minimal path, three steps (required, in order):
+Full checklist, layout rules (F4 scheme B), and **proposed** EOS / deprecate calendar (pending maintainer gates): see [`MIGRATION.md`](./MIGRATION.md).
 
-1. Replace the `devDependency` `@cyning/harness` with `dsh-coding-kit` (pin `1.10.0`).
-2. Run `npx dsh-coding-kit upgrade --yes` at the repo root (reads the old `.cyning-harness/manifest.json`; `version` pinned at 1.10.0, `from_version` records the old number).
+After pinning **dsh-coding-kit@1.11.0** you can drop `@cyning/harness`. Minimal path, three steps (required, in order):
+
+1. Replace the `devDependency` `@cyning/harness` with `dsh-coding-kit` (pin `1.11.0`).
+2. Run `npx dsh-coding-kit upgrade --yes` at the repo root (reads `.coding-kit/manifest.json` if present, else legacy `.cyning-harness/manifest.json`; **writes** `.coding-kit/manifest.json` with `version` pinned at 1.11.0 and `from_version` recording the old number; **does not delete** `.cyning-harness/`).
 3. In CI / scripts, replace `npx @cyning/harness` with `npx dsh-coding-kit`.
 
-Skill installation is **recommended, not required** (the minimal path does not depend on DSH scanning skills). Commands are always `npx dsh-coding-kit`.
+**Layout**: new kit process files land under **`.coding-kit/`**. `.cyning-harness/` remains **legacy read-only**. Do not treat `.cyning-harness` as the new standard root.
+
+Skill installation is **recommended, not required** (the minimal path does not depend on DSH scanning skills). Commands are always `npx dsh-coding-kit`. **`npm deprecate` of the old package is maintainer-only** and not executed until `HG-EOS-DATE` / `HG-PUBLISH` are approved.
 
 ### FAQ · pnpm peer
 
@@ -175,14 +197,15 @@ If pnpm install still fails on the peer chain (e.g. resolving to an unpublished 
 Paste the whole block:
 
 ````text
-You = the maintenance agent of this repository. Migrate this repo from @cyning/harness to dsh-coding-kit@1.10.0.
+You = the maintenance agent of this repository. Migrate this repo from @cyning/harness to dsh-coding-kit@1.11.0.
 
 Minimal path (required, in order):
-1. package.json devDependency: delete @cyning/harness, replace with dsh-coding-kit (pinned at 1.10.0).
+1. package.json devDependency: delete @cyning/harness, replace with dsh-coding-kit (pinned at 1.11.0).
 2. Run at the repo root: npx dsh-coding-kit upgrade --yes
-   (reads the old .cyning-harness/manifest.json; version pinned at 1.10.0, from_version records the old number; never overwrites docs/tasks, reviews, invokes/by-task.)
+   (reads .coding-kit/manifest.json or legacy .cyning-harness/manifest.json; writes .coding-kit/manifest.json; version pinned at 1.11.0, from_version records the old number; never deletes .cyning-harness/; never overwrites docs/tasks, reviews, invokes/by-task.)
 3. Replace every npx @cyning/harness in CI and scripts with npx dsh-coding-kit.
 Commands are always npx dsh-coding-kit. Never write npx @cyning/harness skills build again.
+See MIGRATION.md for layout (.coding-kit vs legacy) and EOS calendar (pending human gates).
 
 Recommended (not required · skill installation):
 - In-repo: npx dsh-coding-kit skills install
@@ -243,7 +266,7 @@ Three surfaces, not interchangeable: **System/Re-anchor** = short identity; **fu
 
 ## Releasing (maintainers)
 
-Release process: see [RELEASING.md](RELEASING.md) — hard pre-publish checklist (commit-before-publish · four green gates · version pins · pack dry-run · human-only publish; institutionalizes the DEF-001 lesson).
+Release process: see [RELEASING.md](RELEASING.md) — hard pre-publish checklist (commit-before-publish · four green gates · version pins · Agent may bump/tag · **human-only `npm publish`**; institutionalizes the DEF-001 lesson).
 
 ## GitHub topics
 

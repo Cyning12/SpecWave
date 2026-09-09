@@ -1,13 +1,18 @@
 # SPEC：dsh-coding-kit@1.2.0 · 迁入 SPEC B §2.2 延期 CLI（v1）
 
-> **状态**：`signed`（20-spec-audit R1 pass · 人签）  
+> **ARCHIVED EPIC · 非现行包版本契约（F5 方案 B）**  
+> 本文钉的是**历史已签/已发** epic `dsh-coding-kit@1.2.0`。标题与「拟发版」数字**不得**再被解读为当前 npm 包版本。  
+> **现行包版本真值** = `package.json#version`。发布前版本钉闸只校验：`assets/ontology.yaml#product_semver` · `assets/harness/discipline-coverage.yaml#as_of_package_version` · README 双文件中的 `dsh-coding-kit@x.y.z` —— **不**要求本文件与包版本对齐。  
+> 现行能力 / 迁移 / 1.x MVP：`README.md` · `MIGRATION.md` · `assets/ontology.yaml` · `docs/spec/1x-mvp/`
+
+> **状态**：`signed` · **archived epic**（20-spec-audit R1 pass · 人签 · 已发版史实保留）  
 > **track**：`epic`  
-> **拟发版**：`dsh-coding-kit@1.2.0`  
+> **拟发版**：`dsh-coding-kit@1.2.0`（**史实钉** · 非现行）  
 > **人闸**：`HG-SPEC-SIGNOFF` = **approved**（2026-08-16 维护者对话「签收」）· `HG-PUBLISH-1.2.0` = **approved**（2026-08-16 人确认「已发版」+ `npm view=1.2.0`）  
 > **过程根**（工作区 · 禁止写入本仓）：`docs/dsh_coding_kit_init/`  
 > **过程指针**：`docs/dsh_coding_kit_init/spec/POINTER_dsh-coding-kit-SPEC-1.2.0.md`  
 > **Open Folder（实现）**：`dsh-coding-kit/`  
-> **本文件**：产品仓根公开规格；**git 保留**；**不进** `package.json` `files` / npm tarball
+> **本文件**：产品仓根**历史**公开规格；**git 保留**；**不进** `package.json` `files` / npm tarball
 
 ---
 

@@ -6,23 +6,7 @@ import { cmdGraph } from './cli-graph.ts'
 import { cmdRefreshIdeBlocks, countStaleIdeLiterals } from './cli-refresh-ide-blocks.ts'
 import { cmdDiscipline, cmdLifecycle } from './cli-lifecycle.ts'
 import { cmdSkills } from './cli-skills.ts'
-import {
-  buildDoneSnapshot,
-  CliError,
-  evaluateMayStart30,
-  extractSection,
-  extractTaskSlug,
-  fail,
-  findGate,
-  normalizeSlug,
-  packageRoot,
-  parseHarnessMeta,
-  parseHumanGates,
-  resolveTarget,
-  resolveTaskPath,
-  STATUS_RE,
-  takeOption,
-} from './cli-shared.ts'
+import { buildDoneSnapshot, CliError, evaluateMayStart30, extractSection, extractTaskSlug, fail, findGate, kitLayoutJoin, KIT_LAYOUT_DIR, LEGACY_LAYOUT_DIR, legacyLayoutHint, normalizeSlug, packageRoot, parseHarnessMeta, parseHumanGates, resolveLayoutFile, resolveTarget, resolveTaskPath, STATUS_RE, takeOption } from './cli-shared.ts'
 import {
   checkPre30InvokeHats,
   evalCloseGuard,
@@ -106,17 +90,28 @@ function usage(version: string): void {
     诊断码: wiki_delta_missing（缺字段）· wiki_delta_wrong_section（字段写在 ## Harness 元信息 之外的节 · 替代 missing 不双报）
     --strict 追加: wiki_delta_invalid / wiki_delta_path_missing；task lint --file E8 同口径查 wiki_delta 存在性
   npx dsh-coding-kit task check --file PATH
+
+Exit codes (P0 gates · failClosed):
+  0  pass / informational (check always exits 0)
+  1  usage error or non-blocking failure
+  2  gate BLOCKED — do not proceed (verify / gate-check / audit / D5)
 `)
 }
 
+/** 新写入路径（F4：一律 .coding-kit） */
+function manifestWritePath(target: string): string {
+  return kitLayoutJoin(target, 'manifest.json')
+}
+
+/** 解析路径（读：新优先，legacy 回退） */
 function manifestPath(target: string): string {
-  return path.join(target, '.cyning-harness', 'manifest.json')
+  return resolveLayoutFile(target, 'manifest.json').abs
 }
 
 async function readManifest(target: string): Promise<Manifest | null> {
-  const file = manifestPath(target)
-  if (!existsSync(file)) return null
-  return JSON.parse(await readFile(file, 'utf8')) as Manifest
+  const hit = resolveLayoutFile(target, 'manifest.json')
+  if (hit.source === 'none') return null
+  return JSON.parse(await readFile(hit.abs, 'utf8')) as Manifest
 }
 
 function nowUtc(): string {
@@ -176,7 +171,7 @@ async function cmdInit(args: string[], pkgVersion: string): Promise<void> {
     from_version: null,
     upgraded_at: nowUtc(),
   }
-  const dest = manifestPath(target)
+  const dest = manifestWritePath(target)
   mkdirSync(path.dirname(dest), { recursive: true })
   await writeFile(dest, `${JSON.stringify(mf, null, 2)}\n`, 'utf8')
   console.log(`已写入 manifest: ${dest}`)
@@ -198,7 +193,7 @@ async function cmdUpgrade(args: string[], pkgVersion: string): Promise<void> {
   const target = resolveTarget(process.cwd(), targetArg)
   const current = await readManifest(target)
   if (!current) {
-    fail(`未接入（无 .cyning-harness/manifest.json）。建议: npx dsh-coding-kit init --preset harness-only --yes`)
+    fail('未接入（无 .coding-kit/manifest.json 或 legacy .cyning-harness/manifest.json）。建议: npx dsh-coding-kit init --preset harness-only --yes')
   }
   const next: Manifest = {
     version: pkgVersion,
@@ -207,9 +202,13 @@ async function cmdUpgrade(args: string[], pkgVersion: string): Promise<void> {
     from_version: current.version === pkgVersion ? current.from_version : current.version,
     upgraded_at: nowUtc(),
   }
-  await writeFile(manifestPath(target), `${JSON.stringify(next, null, 2)}\n`, 'utf8')
+  const dest = manifestWritePath(target)
+  mkdirSync(path.dirname(dest), { recursive: true })
+  await writeFile(dest, `${JSON.stringify(next, null, 2)}\n`, 'utf8')
   console.log(`upgrade: ${current.version} → ${pkgVersion}`)
-  console.log(`manifest: ${manifestPath(target)}`)
+  console.log(`manifest: ${dest}`)
+  const legHint = legacyLayoutHint(target)
+  if (legHint) console.log(legHint)
   if (!yes) console.log('upgrade 完成（S2 路径未写入）。')
   // R-07 §5.2：upgrade 内嵌 dry-run 只读提示（不写 IDE 文件、不改 exit 码；扫描异常吞为提示级）
   try {
@@ -241,7 +240,7 @@ async function cmdCheck(args: string[], pkgVersion: string): Promise<void> {
   console.log(`目标: ${target}`)
   console.log(`包版本: ${pkgVersion}`)
   if (!manifest) {
-    console.log('状态: 未接入（无 .cyning-harness/manifest.json）')
+    console.log('状态: 未接入（无 .coding-kit/manifest.json 或 legacy .cyning-harness/manifest.json）')
     console.log('建议: npx dsh-coding-kit init --preset harness-only --yes')
     return
   }

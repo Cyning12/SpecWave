@@ -81,8 +81,18 @@ async function seedS2(dir: string): Promise<Record<string, string>> {
 }
 
 async function readManifest(dir: string): Promise<Record<string, unknown>> {
-  const raw = await readFile(path.join(dir, '.cyning-harness', 'manifest.json'), 'utf8')
+  // F4：upgrade/init 新写 .coding-kit；legacy 仅种子/只读
+  const kit = path.join(dir, '.coding-kit', 'manifest.json')
+  const raw = await readFile(kit, 'utf8')
   return JSON.parse(raw) as Record<string, unknown>
+}
+
+async function assertLegacyPreserved(dir: string): Promise<void> {
+  assert.equal(
+    existsSync(path.join(dir, '.cyning-harness', 'manifest.json')),
+    true,
+    'legacy .cyning-harness/manifest.json 不得被删除',
+  )
 }
 
 async function assertS2Unchanged(dir: string, hashes: Record<string, string>): Promise<void> {
@@ -96,7 +106,7 @@ async function assertS2Unchanged(dir: string, hashes: Record<string, string>): P
 }
 
 describe('C2 CLI upgrade compat', { concurrency: 1 }, () => {
-  it('C2: from_version 单列 — 1.2.0 fixture upgrade --yes 钉 1.10.0 且 from_version=1.2.0', async () => {
+  it('C2: from_version 单列 — 1.2.0 fixture upgrade --yes 钉 1.11.0 且 from_version=1.2.0', async () => {
     await withTemp(async (dir) => {
       await writeRel(
         dir,
@@ -117,27 +127,29 @@ describe('C2 CLI upgrade compat', { concurrency: 1 }, () => {
       const r = runCli(['upgrade', '--yes'], dir)
       assert.equal(r.status, 0, r.combined)
       const mf = await readManifest(dir)
-      assert.equal(mf.version, '1.10.0')
+      assert.equal(mf.version, '1.11.0')
       assert.equal(Object.prototype.hasOwnProperty.call(mf, 'from_version'), true)
       assert.equal(mf.from_version, '1.2.0')
       assert.notEqual(mf.from_version, null)
+      await assertLegacyPreserved(dir)
       await assertS2Unchanged(dir, hashes)
     })
   })
 
-  it('C2: 旧 manifest + S2 上 upgrade --yes 钉 1.10.0，from_version=旧号，S2 哈希不变', async () => {
+  it('C2: 旧 manifest + S2 上 upgrade --yes 钉 1.11.0，from_version=旧号，S2 哈希不变', async () => {
     await withTemp(async (dir) => {
       await seedOldManifest(dir)
       const hashes = await seedS2(dir)
       const r = runCli(['upgrade', '--yes'], dir)
       assert.equal(r.status, 0, r.combined)
       const mf = await readManifest(dir)
-      assert.equal(mf.version, '1.10.0')
+      assert.equal(mf.version, '1.11.0')
       assert.notEqual(mf.version, '1.0.0')
       assert.notEqual(mf.version, '0.1.0')
       assert.equal(Object.prototype.hasOwnProperty.call(mf, 'from_version'), true)
       assert.equal(mf.from_version, OLD_VERSION)
       assert.notEqual(mf.from_version, null)
+      await assertLegacyPreserved(dir)
       await assertS2Unchanged(dir, hashes)
     })
   })
@@ -151,16 +163,17 @@ describe('C2 CLI upgrade compat', { concurrency: 1 }, () => {
       const second = runCli(['upgrade', '--yes'], dir)
       assert.equal(second.status, 0, second.combined)
       const mf = await readManifest(dir)
-      assert.equal(mf.version, '1.10.0')
+      assert.equal(mf.version, '1.11.0')
       assert.equal(mf.from_version, OLD_VERSION)
       assert.notEqual(mf.from_version, null)
+      await assertLegacyPreserved(dir)
       await assertS2Unchanged(dir, hashes)
     })
   })
 
-  it('check: 已钉 1.10.0 → 已是最新 exit 0；旧 version → 可升级', async () => {
+  it('check: 已钉 1.11.0 → 已是最新 exit 0；旧 version → 可升级', async () => {
     await withTemp(async (dir) => {
-      // DEF-013：OLD_VERSION=2.24.0 数值上高于包版本 1.10.0，三向判定后属高版本分支；
+      // DEF-013：OLD_VERSION=2.24.0 数值上高于包版本 1.11.0，三向判定后属高版本分支；
       // 本用例钉「低版本 → 可升级」语义，fixture 改用真实低版本 1.2.0（断言不变）
       await writeRel(
         dir,
@@ -196,19 +209,20 @@ describe('C2 CLI upgrade compat', { concurrency: 1 }, () => {
     })
   })
 
-  it('C2 freeze: sync index 无 --out 必须写出 .cyning-harness/invoke_index.json；禁第二默认路径；S2 不变', async () => {
+  it('C2 freeze: sync index 无 --out 必须写出 .coding-kit/invoke_index.json；禁第二默认路径；S2 不变', async () => {
     await withTemp(async (dir) => {
       await seedOldManifest(dir)
       const hashes = await seedS2(dir)
       const r = runCli(['sync', 'index', '--target', dir], dir)
       assert.equal(r.status, 0, r.combined)
-      const freezeRel = path.join('.cyning-harness', 'invoke_index.json')
+      const freezeRel = path.join('.coding-kit', 'invoke_index.json')
       const freezeAbs = path.join(dir, freezeRel)
-      assert.equal(existsSync(freezeAbs), true, '缺 freeze 默认路径 .cyning-harness/invoke_index.json')
+      assert.equal(existsSync(freezeAbs), true, '缺 freeze 默认路径 .coding-kit/invoke_index.json')
+      assert.equal(existsSync(path.join(dir, '.cyning-harness', 'invoke_index.json')), false, '不得默认写 legacy invoke_index')
       const idx = JSON.parse(await readFile(freezeAbs, 'utf8')) as { schema_version?: string }
       assert.equal(typeof idx.schema_version, 'string')
       const printed = r.combined.replace(/\\/g, '/')
-      assert.match(printed, /\.cyning-harness\/invoke_index\.json/)
+      assert.match(printed, /\.coding-kit\/invoke_index\.json/)
       const forbiddenDefaults = [
         'invoke_index.json',
         path.join('docs', 'harness', 'invoke_index.json'),

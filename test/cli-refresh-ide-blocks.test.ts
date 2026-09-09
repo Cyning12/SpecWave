@@ -204,7 +204,7 @@ describe('R-07 refresh-ide-blocks', { concurrency: 1 }, () => {
         const ry = runCli(['refresh-ide-blocks', '--yes', '--target', dir], dir)
         assert.equal(ry.status, 2, `${name} --yes: ${ry.combined}`)
         assert.equal(await readFile(path.join(dir, 'AGENTS.md'), 'utf8'), body, `${name} 零写入`)
-        assert.equal(existsSync(path.join(dir, '.cyning-harness', 'backups')), false, `${name} 不产生备份`)
+        assert.equal(existsSync(path.join(dir, '.coding-kit', 'backups')), false, `${name} 不产生备份`)
       })
     }
   })
@@ -267,7 +267,7 @@ describe('R-07 refresh-ide-blocks', { concurrency: 1 }, () => {
       assert.equal(r.status, 2, r.combined)
       assert.match(r.combined, /脏|dirty|git status/i)
       assert.equal(await readFile(path.join(dir, 'AGENTS.md'), 'utf8'), dirty, '零写入')
-      assert.equal(existsSync(path.join(dir, '.cyning-harness', 'backups')), false, '备份目录不产生')
+      assert.equal(existsSync(path.join(dir, '.coding-kit', 'backups')), false, '备份目录不产生')
     })
   })
 
@@ -427,7 +427,7 @@ describe('R-07 refresh-ide-blocks', { concurrency: 1 }, () => {
     await withTemp(async (dir) => {
       await writeRel(
         dir,
-        '.cyning-harness/manifest.json',
+        '.coding-kit/manifest.json',
         `${JSON.stringify({ version: '1.2.0', preset: 'harness-only', ide: [], from_version: null, upgraded_at: '2026-08-16T00:00:00Z' }, null, 2)}\n`,
       )
       await writeRel(dir, 'AGENTS.md', M01_BODY)
@@ -436,15 +436,15 @@ describe('R-07 refresh-ide-blocks', { concurrency: 1 }, () => {
       assert.match(r.combined, /refresh-ide-blocks --yes/, 'upgrade 后须含提示行')
       assert.match(r.combined, /检测到 \d+ 处 IDE 块内旧命令字面/)
       assert.equal(await readFile(path.join(dir, 'AGENTS.md'), 'utf8'), M01_BODY, 'upgrade 不写 IDE 文件')
-      const mf = JSON.parse(await readFile(path.join(dir, '.cyning-harness', 'manifest.json'), 'utf8')) as { version: string }
-      assert.equal(mf.version, '1.10.0', 'upgrade 既有 manifest 语义不变')
+      const mf = JSON.parse(await readFile(path.join(dir, '.coding-kit', 'manifest.json'), 'utf8')) as { version: string }
+      assert.equal(mf.version, '1.11.0', 'upgrade 既有 manifest 语义不变')
     })
   })
 
   it('M19b: 备份与回滚 — 备份字节等于改前、恢复后等于原始、保留 5 代', async () => {
     await withTemp(async (dir) => {
       await writeRel(dir, 'AGENTS.md', M01_BODY)
-      const backupsRoot = path.join(dir, '.cyning-harness', 'backups', 'refresh-ide-blocks')
+      const backupsRoot = path.join(dir, '.coding-kit', 'backups', 'refresh-ide-blocks')
       const blockLine = (n: number) => [PB, `- 第${n}轮 \`npx @cyning/harness verify\``, PE, ''].join('\n')
       // 首轮：M01_BODY → 备份须等于 M01_BODY
       const r1 = runCli(['refresh-ide-blocks', '--yes', '--target', dir], dir)
@@ -500,7 +500,7 @@ describe('DEF-029 无 marker 文件旧字面仅报告（plain_mentions · 只读
       assert.equal(ry.status, 0, ry.combined)
       assert.match(ry.combined, /无 marker 检出（仅报告，不刷写）/, ry.combined)
       assert.equal(await readFile(path.join(dir, rel), 'utf8'), PLAIN_BODY, '--yes 下无 marker 文件仍零写入')
-      assert.equal(existsSync(path.join(dir, '.cyning-harness', 'backups')), false, '仅报告不产生备份')
+      assert.equal(existsSync(path.join(dir, '.coding-kit', 'backups')), false, '仅报告不产生备份')
     })
   })
 
@@ -552,7 +552,7 @@ describe('DEF-029 无 marker 文件旧字面仅报告（plain_mentions · 只读
       assert.equal(r.status, 0, r.combined)
       assert.match(r.combined, /无 marker 检出（仅报告，不刷写）/, r.combined)
       assert.equal(await readFile(path.join(dir, rel), 'utf8'), PLAIN_BODY, '零写入')
-      assert.equal(existsSync(path.join(dir, '.cyning-harness', 'backups')), false, '零备份')
+      assert.equal(existsSync(path.join(dir, '.coding-kit', 'backups')), false, '零备份')
     })
   })
 })

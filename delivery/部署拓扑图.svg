@@ -1,0 +1,90 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1240 520" width="1240" height="520" font-family="-apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#4a4a4a"/>
+    </marker>
+    <marker id="arrowDash" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#8a8a8a"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="1240" height="520" fill="#ffffff"/>
+  <text x="40" y="32" font-size="16" font-weight="700" fill="#1f2d3d">dsh-coding-kit 分发拓扑（A 档语义适配：本地 CLI + npm 分发 · 零云资源）</text>
+  <text x="40" y="52" font-size="10.5" fill="#6b7785">节点命名与 §2.2 资源编号 / §3.1.2 拓扑要素 / §3.2 链路表（L1–L5）严格一致 · platform-architect（毕落地）· 2026-09-08</text>
+
+  <!-- 分组标签 -->
+  <text x="60" y="78" font-size="11" font-weight="700" fill="#3b6ea5">发布侧 · 维护者与平台</text>
+  <text x="400" y="160" font-size="11" font-weight="700" fill="#2f7d5d">分发面 · npm registry</text>
+  <text x="780" y="78" font-size="11" font-weight="700" fill="#a5762f">消费者侧 · 单机（无服务端）</text>
+
+  <!-- 发布侧 -->
+  <rect x="60" y="90" width="240" height="56" rx="6" fill="#e8f1fb" stroke="#3b6ea5" stroke-width="1.4"/>
+  <text x="74" y="112" font-size="11.5" font-weight="600" fill="#1f2d3d">维护者本机（dev · R-C-001）</text>
+  <text x="74" y="130" font-size="10" fill="#42566b">npm publish（仅人）· RELEASING ①–⑨</text>
+
+  <rect x="60" y="200" width="240" height="56" rx="6" fill="#e8f1fb" stroke="#3b6ea5" stroke-width="1.4"/>
+  <text x="74" y="222" font-size="11.5" font-weight="600" fill="#1f2d3d">GitHub Actions runner（int · R-C-002）</text>
+  <text x="74" y="240" font-size="10" fill="#42566b">ci.yml + tech-graph.yml（node 22.x / 24.x）</text>
+
+  <rect x="60" y="310" width="240" height="56" rx="6" fill="#e8f1fb" stroke="#3b6ea5" stroke-width="1.4"/>
+  <text x="74" y="332" font-size="11.5" font-weight="600" fill="#1f2d3d">GitHub Releases（R-S-002）</text>
+  <text x="74" y="350" font-size="10" fill="#42566b">Release 附件 + 源码快照（同源冗余）</text>
+
+  <!-- 分发面 -->
+  <rect x="400" y="170" width="240" height="76" rx="6" fill="#e9f7ef" stroke="#2f7d5d" stroke-width="1.6"/>
+  <text x="414" y="194" font-size="11.5" font-weight="600" fill="#1f2d3d">npm registry（R-M-001 / R-S-001）</text>
+  <text x="414" y="212" font-size="10" fill="#3c5a4a">dist-tag：latest / next / pinned</text>
+  <text x="414" y="230" font-size="10" fill="#3c5a4a">integrity sha512 + provenance（Sigstore）</text>
+
+  <!-- 消费者侧 -->
+  <rect x="780" y="90" width="310" height="56" rx="6" fill="#fdf3e3" stroke="#a5762f" stroke-width="1.4"/>
+  <text x="794" y="112" font-size="11.5" font-weight="600" fill="#1f2d3d">npx / npm install（R-C-003）</text>
+  <text x="794" y="130" font-size="10" fill="#6b5433">CLI 面：bin/dsh-coding-kit.js → runCli</text>
+
+  <rect x="780" y="200" width="310" height="56" rx="6" fill="#fdf3e3" stroke="#a5762f" stroke-width="1.4"/>
+  <text x="794" y="222" font-size="11.5" font-weight="600" fill="#1f2d3d">DSH 宿主运行时（R-C-004）</text>
+  <text x="794" y="240" font-size="10" fill="#6b5433">插件面：cordis 加载 apply()（仅注册不注入）</text>
+
+  <rect x="780" y="310" width="310" height="156" rx="6" fill="#fdf3e3" stroke="#a5762f" stroke-width="1.4"/>
+  <text x="794" y="330" font-size="11.5" font-weight="700" fill="#1f2d3d">消费者仓库落盘（本地文件系统）</text>
+  <text x="794" y="352" font-size="9.8" fill="#6b5433">FS1 · .coding-kit / .dsh/coding-kit（R-S-003）</text>
+  <text x="794" y="366" font-size="9.3" fill="#8a6f45">不覆盖 · sha256 幂等键 · 5 代备份</text>
+  <text x="794" y="388" font-size="9.8" fill="#6b5433">FS2 · .dsh/skills · $HOME/.dsh/skills（R-S-004）</text>
+  <text x="794" y="402" font-size="9.3" fill="#8a6f45">不覆盖（--force 例外）· 可重建</text>
+  <text x="794" y="424" font-size="9.8" fill="#6b5433">FS3 · docs/tasks · reviews · invokes（R-S-005）</text>
+  <text x="794" y="438" font-size="9.3" fill="#8a6f45">S2 过程域：永不覆写（硬约束）</text>
+  <text x="794" y="456" font-size="9.3" fill="#a5762f">legacy .cyning-harness/：仅只读探测 + 升级提示，不写入</text>
+
+  <!-- 连线 -->
+  <line x1="140" y1="146" x2="140" y2="196" stroke="#4a4a4a" stroke-width="1.3" marker-end="url(#arrow)"/>
+  <text x="150" y="178" font-size="10" fill="#333">git push + tag vX.Y.Z</text>
+
+  <path d="M 300 215 C 352 194 352 136 302 126" fill="none" stroke="#4a4a4a" stroke-width="1.3" marker-end="url(#arrow)"/>
+  <text x="352" y="158" font-size="10" fill="#333">四门绿（CI 门禁结论）</text>
+
+  <line x1="300" y1="222" x2="394" y2="222" stroke="#4a4a4a" stroke-width="1.3" marker-end="url(#arrow)"/>
+  <text x="304" y="238" font-size="9.6" fill="#333">L1 · OIDC 令牌交换</text>
+
+  <path d="M 300 112 C 362 112 392 142 434 166" fill="none" stroke="#4a4a4a" stroke-width="1.3" marker-end="url(#arrow)"/>
+  <text x="330" y="94" font-size="10.5" fill="#333">L2 · npm publish（仅人）· provenance 签名链</text>
+
+  <path d="M 640 186 C 692 186 692 112 736 106" fill="none" stroke="#4a4a4a" stroke-width="1.3" marker-end="url(#arrow)"/>
+  <text x="648" y="152" font-size="9.8" fill="#333">L3 · npx @&lt;pin&gt;</text>
+  <text x="648" y="164" font-size="9.3" fill="#555">integrity / lockfile 校验</text>
+
+  <line x1="640" y1="208" x2="774" y2="196" stroke="#4a4a4a" stroke-width="1.3" marker-end="url(#arrow)"/>
+  <text x="648" y="232" font-size="9.8" fill="#333">L3 · dsh plugin add</text>
+
+  <path d="M 400 240 C 362 292 340 300 300 328" fill="none" stroke="#8a8a8a" stroke-width="1.2" stroke-dasharray="5 4" marker-end="url(#arrowDash)"/>
+  <text x="318" y="286" font-size="9.6" fill="#6b7785">Release 附件同源</text>
+
+  <line x1="870" y1="198" x2="870" y2="148" stroke="#4a4a4a" stroke-width="1.3" marker-end="url(#arrow)"/>
+  <text x="880" y="178" font-size="10" fill="#333">L5 · 进程内加载 apply()（注册工具）</text>
+
+  <path d="M 1090 120 C 1132 220 1132 300 1094 326" fill="none" stroke="#4a4a4a" stroke-width="1.3" marker-end="url(#arrow)"/>
+  <text x="1098" y="232" font-size="9.8" fill="#333">L4 · 落盘</text>
+  <text x="1096" y="246" font-size="9.3" fill="#555">不覆盖 / 幂等</text>
+  <text x="1096" y="258" font-size="9.3" fill="#555">S2 永不覆写</text>
+
+  <text x="40" y="498" font-size="10" fill="#6b7785">链路图例：L1 仓库↔CI runner（OIDC 令牌交换） · L2 CI↔registry（provenance 签名链） · L3 registry↔安装器（integrity / lockfile · 版本通道） · L4 安装器↔落盘路径（不覆盖策略） · L5 宿主进程↔插件包（cordis 加载 apply()）</text>
+</svg>

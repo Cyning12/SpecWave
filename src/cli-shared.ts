@@ -48,9 +48,105 @@ export function fail(message: string, exitCode = 1): never {
   throw new CliError(message, exitCode)
 }
 
+/**
+ * S2 过程域前缀唯一真值源（F1 / X7）。
+ * 规范三路径 + legacy 裸前缀并集；判定用「相等或前缀/」——禁止各命令本地再硬编码等价列表。
+ */
+export const S2_TRUTH_PREFIXES = [
+  'docs/tasks',
+  'docs/harness/reviews',
+  'docs/harness/invokes/by-task',
+  'reviews',
+  'invokes/by-task',
+] as const
+
+export type S2TruthPrefix = (typeof S2_TRUTH_PREFIXES)[number]
+
+export function normalizeSlashPath(p: string): string {
+  return p.replace(/\\/g, '/')
+}
+
+/** 相对路径（仓内 rel）是否命中 S2 */
+export function isS2RelPath(destRel: string): boolean {
+  const n = normalizeSlashPath(destRel).replace(/^\.\//, '')
+  return S2_TRUTH_PREFIXES.some((seg) => n === seg || n.startsWith(`${seg}/`))
+}
+
+/**
+ * 绝对路径是否命中 S2。
+ * `.dsh/skills` 安装落点白名单：永不视为 S2（与 skills install 历史语义一致）。
+ */
+export function isS2AbsPath(absPath: string): boolean {
+  const n = normalizeSlashPath(absPath)
+  if (n.endsWith('/.dsh/skills') || n.includes('/.dsh/skills/')) return false
+  return S2_TRUTH_PREFIXES.some((seg) => {
+    const needle = `/${seg}`
+    return n.endsWith(needle) || n.includes(`${needle}/`)
+  })
+}
+
+export function assertNotS2Abs(
+  absPath: string,
+  message?: string,
+  exitCode = 2,
+): void {
+  if (isS2AbsPath(absPath)) {
+    fail(
+      message ??
+        `拒写：路径命中 S2 过程域（${S2_TRUTH_PREFIXES.join(' · ')}）: ${absPath}`,
+      exitCode,
+    )
+  }
+}
+
+
 function escapeRegExp(s: string): string {
   return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 }
+
+/** 现行落盘根（F4 方案 B） */
+export const KIT_LAYOUT_DIR = '.coding-kit' as const
+/** legacy 只读探测根（不再作为新写默认目标） */
+export const LEGACY_LAYOUT_DIR = '.cyning-harness' as const
+
+export function kitLayoutJoin(target: string, ...parts: string[]): string {
+  return path.join(target, KIT_LAYOUT_DIR, ...parts)
+}
+
+export function legacyLayoutJoin(target: string, ...parts: string[]): string {
+  return path.join(target, LEGACY_LAYOUT_DIR, ...parts)
+}
+
+/**
+ * 解析布局内相对文件：优先 `.coding-kit/`，否则 legacy `.cyning-harness/`。
+ * `source=none` 时 `abs` 仍指向新布局路径（供写入）。
+ */
+export function resolveLayoutFile(
+  target: string,
+  relWithinLayout: string,
+): { abs: string; source: 'kit' | 'legacy' | 'none' } {
+  const kit = kitLayoutJoin(target, relWithinLayout)
+  if (existsSync(kit)) return { abs: kit, source: 'kit' }
+  const legacy = legacyLayoutJoin(target, relWithinLayout)
+  if (existsSync(legacy)) return { abs: legacy, source: 'legacy' }
+  return { abs: kit, source: 'none' }
+}
+
+export function legacyLayoutHint(target: string): string | null {
+  const hasLegacy = existsSync(path.join(target, LEGACY_LAYOUT_DIR))
+  const hasKit = existsSync(path.join(target, KIT_LAYOUT_DIR))
+  if (hasLegacy && !hasKit) {
+    return (
+      `提示: 检测到 legacy 目录 ${LEGACY_LAYOUT_DIR}/；新落盘已统一为 ${KIT_LAYOUT_DIR}/。` +
+      `请运行 \`npx dsh-coding-kit upgrade --yes\` 将 manifest 写入新目录（旧目录只读保留，不删除）。`
+    )
+  }
+  if (hasLegacy && hasKit) {
+    return `提示: ${LEGACY_LAYOUT_DIR}/ 为 legacy 只读；现行落盘为 ${KIT_LAYOUT_DIR}/。`
+  }
+  return null
+}
+
 
 export function extractSection(content: string, startMarker: string, endMarker?: string): string | null {
   const startRe = new RegExp(`^${escapeRegExp(startMarker)}`, 'm')

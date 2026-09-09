@@ -10,7 +10,7 @@ import {
 } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
-import { fail, packageRoot, resolveTarget, takeOption } from './cli-shared.ts'
+import { fail, isS2AbsPath, packageRoot, resolveTarget, takeOption } from './cli-shared.ts'
 import { yamlDump, yamlLoad } from './yaml.ts'
 
 export const EXECUTE_TRACK = 'starter-experimental'
@@ -269,19 +269,6 @@ function isCodingKitDest(absDest: string): boolean {
   )
 }
 
-function isS2Dest(absDest: string): boolean {
-  const n = posixNorm(absDest)
-  if (n.endsWith('/.dsh/skills') || n.includes('/.dsh/skills/')) return false
-  return (
-    n.endsWith('/docs/tasks') ||
-    n.includes('/docs/tasks/') ||
-    n.endsWith('/invokes/by-task') ||
-    n.includes('/invokes/by-task/') ||
-    n.endsWith('/reviews') ||
-    n.includes('/reviews/')
-  )
-}
-
 function isExecuteHatSkipped(
   parentDir: string,
   name: string,
@@ -381,7 +368,7 @@ function cmdSkillsInstall(args: string[]): void {
   if (isCodingKitDest(dest)) {
     fail('拒写：dest 命中 .dsh/coding-kit 或 .coding-kit（规范覆盖目录 ≠ .dsh/skills）')
   }
-  if (isS2Dest(dest)) {
+  if (isS2AbsPath(dest)) {
     fail('拒写：dest 命中 S2 过程域（docs/tasks/ · reviews/ · invokes/by-task/）')
   }
   // DEBT R-05：第四拒写分支——dest 命中产品包自身 assets/skills（安装源 ≠ 安装落点），

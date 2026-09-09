@@ -1,7 +1,7 @@
 import { createHash } from 'node:crypto'
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
-import { fail, packageRoot, resolveTarget, takeOption } from './cli-shared.ts'
+import { fail, packageRoot, resolveLayoutFile, resolveTarget, takeOption } from './cli-shared.ts'
 
 /** Starter 白名单（R1 钉死 · 不含 README.md） */
 export const SYNC_PROMPT_FILES = [
@@ -40,14 +40,18 @@ export const SYNC_PROMPTS_USAGE = `用法:
   npx dsh-coding-kit sync prompts [--target PATH] [--yes] [--force] [--json]
 
   默认 dry-run（零写入）；--yes 写入 add 项并创建目标目录；conflict 默认不覆盖，--force 显式覆盖。
-  前置：目标仓须已有 .cyning-harness/manifest.json（先 init）。`
+  前置：目标仓须已有 .coding-kit/manifest.json（或 legacy .cyning-harness/manifest.json；先 init）。`
 
 function sha256(body: string): string {
   return createHash('sha256').update(body, 'utf8').digest('hex')
 }
 
 function manifestPath(target: string): string {
-  return path.join(target, '.cyning-harness', 'manifest.json')
+  return resolveLayoutFile(target, 'manifest.json').abs
+}
+
+function hasManifest(target: string): boolean {
+  return resolveLayoutFile(target, 'manifest.json').source !== 'none'
 }
 
 export function listSyncPromptEntries(): SyncPromptEntry[] {
@@ -158,9 +162,9 @@ export async function cmdSyncPrompts(args: string[]): Promise<void> {
   if (rest.length > 0) fail(`sync prompts 未知参数: ${rest.join(' ')}`)
 
   const target = resolveTarget(process.cwd(), targetArg)
-  if (!existsSync(manifestPath(target))) {
+  if (!hasManifest(target)) {
     fail(
-      '未接入（无 .cyning-harness/manifest.json）。建议: npx dsh-coding-kit init --preset harness-only --yes',
+      '未接入（无 .coding-kit/manifest.json 或 legacy .cyning-harness/manifest.json）。建议: npx dsh-coding-kit init --preset harness-only --yes',
     )
   }
 

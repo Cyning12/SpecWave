@@ -2,7 +2,7 @@
 
 简体中文 | [English](README.md)
 
-**dsh-coding-kit@1.10.0** 是 DeepSeek Harness（DSH）的 **bundle 插件**，并带 **P0 闸 CLI** 与 **G1–G7 过程命令**。纪律资产仍是 ICVO（Inform · Constrain · Verify · Orchestrate）。
+**dsh-coding-kit@1.11.0** 是 DeepSeek Harness（DSH）的 **bundle 插件**，并带 **P0 闸 CLI** 与 **G1–G7 过程命令**。纪律资产仍是 ICVO（Inform · Constrain · Verify · Orchestrate）。
 
 > **加载 ≠ 注入。** 安装或加载本插件 **不会** 自动改写 system prompt。`apply()` 只注册工具。必须由你或模型调用 `apply_coding_standards` 之后，后续回合的 runtime context 才会含 `# Coding Standards`。
 
@@ -13,7 +13,7 @@
 | DSH 会话 / 模型调工具 | `dsh plugin add dsh-coding-kit` | 不要只 `npm install`（缺 bundle 层则工具不出现） |
 | Cursor / CI / 存量仓日常闸 | `npx dsh-coding-kit` | 不要把插件 `init_coding_kit` 与 CLI `init` 当成同一入口 |
 
-两条入口同一 npm 包 **`dsh-coding-kit@1.10.0`**。插件面与 CLI 面互不替代。
+两条入口同一 npm 包 **`dsh-coding-kit@1.11.0`**。插件面与 CLI 面互不替代。
 
 `peerDependencies` 中的 `@deepseek-ai/cordis` 与 `@deepseek-ai/dsh-tools` 是 **DSH 宿主插件契约**（仅宿主加载本包为插件时需要；CLI-only 不需要），已在 `peerDependenciesMeta` 标为 **optional**。
 
@@ -106,7 +106,7 @@ npx dsh-coding-kit task check --file PATH
 
 kit **源码仓**以 `docs/_tech_graph/` 做 `graph yaml compile|check|export` 的 dogfood（**不随 npm 包发布**；https://github.com/Cyning12/dsh-coding-kit/tree/main/docs/_tech_graph）。
 
-`init` / `upgrade` / `sync index` / `skills build` 不覆盖 S2 过程域（`docs/tasks/`、`reviews/`、`invokes/by-task/`）。`sync prompts` 仅写入 Starter 白名单（`docs/harness/prompts/` **11** 文件 + `docs/harness/templates/TASK_TEMPLATE.md`）——默认 dry-run；本地内容与包内不同则列为 conflict 且不覆盖（`--force` 显式覆盖）。
+`init` / `upgrade` / `sync index` / `skills build` 不覆盖 S2 过程域（`docs/tasks/`、`docs/harness/reviews/`、`docs/harness/invokes/by-task/`，以及 legacy 裸 `reviews/` / `invokes/by-task/`）。**S2 前缀真值源唯一**（`cli-shared` 的 `S2_TRUTH_PREFIXES`；F1 / 1.x MVP）。`sync prompts` 仅写入 Starter 白名单（`docs/harness/prompts/` **11** 文件 + `docs/harness/templates/TASK_TEMPLATE.md`）——默认 dry-run；本地内容与包内不同则列为 conflict 且不覆盖（`--force` 显式覆盖）。
 
 `verify --with-wiki-lint`（显式旗标 · 非破坏）：在既有检查之上追加 `lint-wiki-delta`（默认档 · `scope=all`），`--task` 与 `--spec` 模式同生效。有缺口时 verify 判 BLOCKED，列出 issue（缺口可能来自兄弟 active/done task），并打印与 PR CI 逐字一致的复跑命令 `npx --yes dsh-coding-kit task lint-wiki-delta --target .`（见 `assets/ci/samples/lint-wiki-delta.yml.example`）；`--json` 增 `wiki_lint` 块（`ok` / `issues` / `scanned`）。target 无 `docs/tasks/` 目录时 scanned:0，不会误 BLOCKED。无旗标时 `verify` 行为与之前逐字一致。
 
@@ -132,7 +132,7 @@ kit **源码仓**以 `docs/_tech_graph/` 做 `graph yaml compile|check|export` �
 
 - **纪律**：marker 行与块外内容字节不动；`<!-- cyning-harness-local:begin -->` 块永不改写；`docs/tasks/`、`docs/harness/reviews/`、`docs/harness/invokes/by-task/`（S2）一律拒写。
 - **preflight（--yes 专用 fail-fast，exit 2 零写入）**：git 脏树 / 单文件新旧字面混杂（MIXED）/ marker 配对畸形（MALFORMED）/ S2 断言闸任一命中即拒写。脏树判定采用 `git status --porcelain` 语义——**untracked 文件也计入脏树**，`--yes` 前请先 commit 或 `git stash -u`。
-- **备份与回滚**：--yes 写盘前原字节备份到 `.cyning-harness/backups/refresh-ide-blocks/<UTCts>/`（保留最近 5 代）；回滚首选 `git checkout -- <path>`，非 git 仓用备份 cp 回。备份仅供本机回滚——建议消费者将 `.cyning-harness/backups/` 加入 `.gitignore`（不入库）。
+- **备份与回滚**：--yes 写盘前原字节备份到 `.coding-kit/backups/refresh-ide-blocks/<UTCts>/`（保留最近 5 代）；回滚首选 `git checkout -- <path>`，非 git 仓用备份 cp 回。备份仅供本机回滚——建议消费者将 `.coding-kit/backups/` 加入 `.gitignore`（不入库）。存量树可能仍有 legacy `.cyning-harness/backups/`；新写不再以此为目标。
 - **无 marker 文件（仅报告，绝不改写）**：发现面内 0 product 块文件用 A/B 组同一组正则做只读扫描，命中入人类报告「无 marker 检出（仅报告，不刷写）」段与 --json top-level `plain_mentions: [{path, rule, count}]` 字段（schema 保持 `@1`，向后兼容增量）；不触发 preflight fail-fast，不改 exit 码。
 - **幂等**：已刷写文件再次运行 A 组命中 0，`files_written=0`、字节不变、exit 0。
 - `--json` 输出单行机器报告（schema `dsh-coding-kit/refresh-ide-blocks-report@1`；自 1.5.2 起向后兼容增量含 `plain_mentions` / `totals.plain_mentions`）。
@@ -156,15 +156,37 @@ kit **源码仓**以 `docs/_tech_graph/` 做 `graph yaml compile|check|export` �
 - 探测深度为仓根起 3 层；monorepo 更深层或自定义测试命令（如 `make test`）不命中白名单时，在仓内放任一强信号文件（如 `tests/` 目录、`*_test.py`）即可。
 - **WARN 过渡已硬化（1.5.0）**：1.3.0–1.4.0 期间「新探测失败但旧启发式通过 → `D5: WARN 过渡` exit 0 不阻塞」的过渡分支已删除；自 1.5.0 起上述情形一律 **FAIL**（verify BLOCKED / audit FAIL，exit 2）。升级前请在仓内补真实测试制品（如 `tests/`、`*_test.py`、`*.test.ts` 或含 test 步骤的 CI）。
 
+
+### P0 门禁退出码（failClosed · F2 / 1.x MVP）
+
+| 退出码 | 含义 | 典型命令 |
+|--------|------|----------|
+| **0** | 通过 / 仅信息 | `check` **恒为** 0（只给版本建议） |
+| **1** | 用法错误或非阻断失败 | 缺必填旗标、未知参数 |
+| **2** | **门禁阻断** — failClosed，不得放行 | `verify` / `gate-check` / `audit` 的 P0 失败；`test_strategy=required` 时 D5 无测试制品 |
+
+**failClosed**：P0 门禁失败一律 **exit 2**。CI / Agent 须把 2 当硬停（与 Claude Code hook「退出码 2 阻断」同族）。禁止在本地把 2 改映射成 0 以求「继续跑」。
+
+**分层强制（文档级 · 1.x 不引入云/远程策略引擎）**：
+
+1. 消费者仓库内的机械门禁结论（`verify` / `gate-check` / `audit` 的 exit 2）优先于「本地习惯跳过门禁」。  
+2. task 表 `HG-AUDIT-R1=approved` 之后，hat 30 才可改码。  
+3. kit P0 **不依赖**宿主 hooks——判定在进程内 CLI 完成。
+
+
 ## 从 @cyning/harness 迁移
 
-钉 **dsh-coding-kit@1.10.0** 后可去掉 `@cyning/harness`。最小路径三步（必须，按序）：
+完整清单、F4 方案 B 布局与 **提案** EOS / deprecate 日历（待维护者人闸）：见 [`MIGRATION.md`](./MIGRATION.md)。
 
-1. 把 `devDependency` `@cyning/harness` 换成 `dsh-coding-kit`（钉 `1.10.0`）。
-2. 在仓根执行 `npx dsh-coding-kit upgrade --yes`（读旧 `.cyning-harness/manifest.json`；`version` 钉 1.10.0，`from_version` 记旧号）。
+钉 **dsh-coding-kit@1.11.0** 后可去掉 `@cyning/harness`。最小路径三步（必须，按序）：
+
+1. 把 `devDependency` `@cyning/harness` 换成 `dsh-coding-kit`（钉 `1.11.0`）。
+2. 在仓根执行 `npx dsh-coding-kit upgrade --yes`（读优先 `.coding-kit/manifest.json`，否则 legacy `.cyning-harness/manifest.json`；**写入** `.coding-kit/manifest.json`，`version` 钉 1.11.0，`from_version` 记旧号；**不删除** `.cyning-harness/`）。
 3. CI / 脚本里把 `npx @cyning/harness` 换成 `npx dsh-coding-kit`。
 
-Skill 安装为 **推荐、非必须**（最小路径不依赖 DSH 扫 skill）。命令一律 `npx dsh-coding-kit`。
+**布局**：过程落盘现行根为 **`.coding-kit/`**；`.cyning-harness/` 为 **legacy 只读**。勿再把 `.cyning-harness` 当新标准目录。
+
+Skill 安装为 **推荐、非必须**（最小路径不依赖 DSH 扫 skill）。命令一律 `npx dsh-coding-kit`。旧包 **`npm deprecate` 仅维护者**，须 `HG-EOS-DATE` / `HG-PUBLISH` 批准后才可实操。
 
 ### FAQ · pnpm peer
 
@@ -175,14 +197,15 @@ Skill 安装为 **推荐、非必须**（最小路径不依赖 DSH 扫 skill）�
 整段粘贴：
 
 ````text
-你 = 本仓库维护 Agent。把本仓从 @cyning/harness 迁到 dsh-coding-kit@1.10.0。
+你 = 本仓库维护 Agent。把本仓从 @cyning/harness 迁到 dsh-coding-kit@1.11.0。
 
 最小路径（必须，按序）：
-1. package.json 的 devDependency：删除 @cyning/harness，改为 dsh-coding-kit（钉 1.10.0）。
+1. package.json 的 devDependency：删除 @cyning/harness，改为 dsh-coding-kit（钉 1.11.0）。
 2. 在仓根执行：npx dsh-coding-kit upgrade --yes
-   （读旧 .cyning-harness/manifest.json；version 钉 1.10.0，from_version 记旧号；不覆盖 docs/tasks、reviews、invokes/by-task。）
+   （读 .coding-kit/manifest.json 或 legacy .cyning-harness/manifest.json；写入 .coding-kit/manifest.json；version 钉 1.11.0，from_version 记旧号；不删除 .cyning-harness/；不覆盖 docs/tasks、reviews、invokes/by-task。）
 3. CI 与脚本里所有 npx @cyning/harness 换成 npx dsh-coding-kit。
 命令一律 npx dsh-coding-kit。禁止再写 npx @cyning/harness skills build。
+布局与 EOS 日历见 MIGRATION.md（人闸未批前不得宣称已 deprecate）。
 
 推荐（非必须 · Skill 安装）：
 - 仓内：npx dsh-coding-kit skills install
@@ -243,7 +266,7 @@ Skills **不能**覆盖全部过程能力。Host 要嵌套 Harness 过程，须�
 
 ## 发版（维护者）
 
-发布流程见 [RELEASING.md](RELEASING.md) —— publish 前硬步骤 checklist（先 commit 后 publish · 四门全绿 · 版本钉同步 · pack 干跑核对 · 仅人 publish；DEF-001 教训制度化）。
+发布流程见 [RELEASING.md](RELEASING.md) —— publish 前硬步骤 checklist（先 commit 后 publish · 四门全绿 · 版本钉同步 · **Agent 可 bump/tag** · **`npm publish` 仅人**；DEF-001 教训制度化）。
 
 ## GitHub topic
 
