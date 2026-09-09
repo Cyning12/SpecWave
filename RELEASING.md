@@ -5,6 +5,17 @@
 > **职责分工（2026-09-09 起）**：**维护 Agent 可执行 ①–⑦ 与 bump/tag**；**⑧ `npm publish` 仅人**；⑨ 可由 Agent 在人 publish 后核验（或人自核）。  
 > **仍仅人**：`npm publish` · `npm deprecate`（另须 `HG-EOS-DATE`）· 云/账号 2FA 操作。
 
+## 最近一次发版
+
+| 项 | 值 |
+|----|-----|
+| **npm `latest`** | **`1.11.0`**（registry 已核 · 2026-09-09） |
+| **git** | tag `v1.11.0` · PR [#30](https://github.com/Cyning12/dsh-coding-kit/pull/30) 已合入 `main` |
+| **主题** | 1.x MVP F1–F5 · `.coding-kit` · F5=B · Agent bump / 人仅 publish |
+| **未做** | `@cyning/harness` 的 `npm deprecate`（仍待 `HG-EOS-DATE`） |
+
+> 下方 checklist 供**下一次**发版勾选；勿因 1.11.0 已完成而永久勾死（以免下次漏步）。
+
 ## 硬步骤（按序执行 · 全部满足后方可 publish）
 
 - [ ] **① 工作树干净且所有改动已提交**：`git status --porcelain` 为空；拟发布内容全部进入 git 历史。**禁止从未提交工作树 publish**（DEF-001 教训：工作树残留 = 发布物不可溯源）。（Agent 可做）

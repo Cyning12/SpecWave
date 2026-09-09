@@ -4,9 +4,15 @@
 
 ## [Unreleased]
 
+### Docs
+
+- 发版后回填：`1.11.0` 已 npm 发版说明（README 双文件 · RELEASING「最近一次发版」· 系列 `HG-PUBLISH` · MIGRATION）
+
 ## [1.11.0] - 2026-09-09
 
 > 主题：**1.x MVP 内部一致性收敛（F1–F5）** —— S2 真值源 · P0 门禁语义 · `.coding-kit` 落盘 · 迁移文档面 · F5 方案 B 版本钉；发版职责改为 **Agent 可 bump / 人仅 publish**。
+>
+> **发布状态**：**已 npm 发版**（`latest=1.11.0` · 2026-09-09 人执行 publish · PR [#30](https://github.com/Cyning12/dsh-coding-kit/pull/30) · tag `v1.11.0`）。
 >
 > **消费者提示（置顶）**：
 >

@@ -186,7 +186,7 @@ After pinning **dsh-coding-kit@1.11.0** you can drop `@cyning/harness`. Minimal 
 
 **Layout**: new kit process files land under **`.coding-kit/`**. `.cyning-harness/` remains **legacy read-only**. Do not treat `.cyning-harness` as the new standard root.
 
-Skill installation is **recommended, not required** (the minimal path does not depend on DSH scanning skills). Commands are always `npx dsh-coding-kit`. **`npm deprecate` of the old package is maintainer-only** and not executed until `HG-EOS-DATE` / `HG-PUBLISH` are approved.
+Skill installation is **recommended, not required** (the minimal path does not depend on DSH scanning skills). Commands are always `npx dsh-coding-kit`. **`npm deprecate` of the old `@cyning/harness` package is maintainer-only** and still waits on `HG-EOS-DATE` (kit **1.11.0** itself is already on npm `latest`).
 
 ### FAQ · pnpm peer
 
@@ -265,6 +265,8 @@ Recommended Capability allowlist (**Policy / H2 required**: default off · expli
 Three surfaces, not interchangeable: **System/Re-anchor** = short identity; **full prompts** = load on hat switch; **verify** = mechanical.
 
 ## Releasing (maintainers)
+
+**Current npm `latest`**: **`dsh-coding-kit@1.11.0`** (published 2026-09-09 · PR #30).
 
 Release process: see [RELEASING.md](RELEASING.md) — hard pre-publish checklist (commit-before-publish · four green gates · version pins · Agent may bump/tag · **human-only `npm publish`**; institutionalizes the DEF-001 lesson).
 

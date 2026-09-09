@@ -111,8 +111,8 @@ docs/spec/1x-mvp/
 | human_gate_id | status | blocks | 说明 |
 |---------------|--------|--------|------|
 | **HG-SPEC-SIGNOFF** | **approved** | ~~00 出实现 task~~（已放行）· 30 仍须 task 闸 | 2026-09-09 维护者「签收」· **整包一次签** F1–F5 |
-| **HG-EOS-DATE** | **pending** | F3 T1 `npm deprecate` | EOS / 新注册截止日 **仅人**拍板（不阻塞 W1 F1 task） |
-| **HG-PUBLISH** | **pending** | npm **publish**（仅人） | Agent 可 bump/tag；publish / deprecate 仍仅人 |
+| **HG-EOS-DATE** | **pending** | F3 T1 `npm deprecate` | EOS / 新注册截止日 **仅人**拍板 |
+| **HG-PUBLISH** | **approved（1.11.0）** | ~~本波 npm publish~~ | 2026-09-09 人已发版 · `npm view latest=1.11.0` · PR #30；**下一波发版仍须再签/再执行 ⑧** |
 | **HG-F5-PIN-MODE** | **approved = B** | ~~F5 W4 选型~~ | 2026-09-09 维护者「选择 B」：废除仓根 SPEC 版本钉检查；只钉 ontology / discipline / README |
 
 ---
@@ -137,7 +137,7 @@ docs/spec/1x-mvp/
 | 3 | F5 钉点模式 A vs B | **B**（2026-09-09）→ 只钉 ontology/discipline/README；仓根 SPEC = 历史 epic |
 | 4 | F2 分层强制粒度 | **默认文档-only**（1.x 不引入云/远程四层引擎；若 task 需代码分层再开补充闸） |
 
-**residual_risks**：EOS 日历空；具体下一发版号未锁；本体论深化实践仍属后续（本波只定钉点面为 B）。
+**residual_risks**：EOS 日历空（旧包 deprecate 未执行）；本体论深化实践仍属后续。
 
 ---
 
@@ -164,9 +164,10 @@ docs/spec/1x-mvp/
 | 2026-09-09 | **W2/F2 落地完成**（exit 2 / failClosed 文档 + `test/gate-semantics.test.ts`） |
 | 2026-09-09 | **W3/F4+F3 文档面落地**（`.coding-kit` 写根 · `MIGRATION.md` · EOS 仍 pending） |
 | 2026-09-09 | **`HG-F5-PIN-MODE=B` + W4/F5 落地**（版本钉闸不含仓根 SPEC） |
+| 2026-09-09 | **`dsh-coding-kit@1.11.0` npm 已发版**（`npm view` · PR #30 · `HG-PUBLISH` 本波 approved） |
 
 ---
 
 ## 给 Cursor / 下一棒
 
-`1x-mvp` W1–W4 **DONE**（F5=`B`）；残余人闸 `HG-EOS-DATE` / `HG-PUBLISH`（**人仅 publish**；Agent 默认可 bump）
+`1x-mvp` W1–W4 **DONE** · **1.11.0 published**；残余 **`HG-EOS-DATE`**（旧包 deprecate）；下一发版仍走 RELEASING（Agent bump · 人 publish）

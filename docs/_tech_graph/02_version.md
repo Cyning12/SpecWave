@@ -15,7 +15,7 @@
 | 2026-08-28 | 1.9.1 | self-tech-graph 收口（仓内三层图谱 · tech-graph CI · dogfood 互链 · inventory→reference） |
 | 2026-08-28 | 1.9.2 | compile/export `generated_at` 源内容派生（`sha256-<16hex>`）· tech-graph CI 去掉 `-I` |
 | 2026-08-31 | 1.10.0 | 帽 System/Re-anchor FRAGMENT · 00 delegate-only 默认 Skill · Host Capability 文档 |
-| 2026-09-09 | 1.11.0 | **现行发布包**：1.x MVP W1–W4（S2 真值 · 门禁语义 · `.coding-kit` · F5=B 钉点）· Agent 可 bump / 人仅 publish |
+| 2026-09-09 | 1.11.0 | **现行发布包（已 npm 发版）**：1.x MVP W1–W4（S2 真值 · 门禁语义 · `.coding-kit` · F5=B 钉点）· Agent 可 bump / 人仅 publish · PR #30 |
 
 ## 修订记录
 
@@ -28,3 +28,4 @@
 | 2026-08-28 | 1.9.2 发版准备：compile/export `generated_at` 幂等 · CI 裸 git diff md |
 | 2026-08-31 | 1.10.0 发版准备：帽 re-anchor / 00 delegate-only Skill |
 | 2026-09-09 | 1.11.0 发版准备：1.x MVP W1–W4 + RELEASING Agent bump / 人仅 publish |
+| 2026-09-09 | **1.11.0 published**：`npm view latest=1.11.0` · tag `v1.11.0` · PR #30 |

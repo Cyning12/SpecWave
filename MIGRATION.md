@@ -1,9 +1,9 @@
 # Migration · `@cyning/harness` → `dsh-coding-kit`
 
-> **状态**：文档面就绪（1x-mvp **W3 / F3+F4**）  
-> **包钉**：消费者请钉 `dsh-coding-kit@1.11.0`（发版号可由维护 Agent bump；publish 仅人；本文件不代替 `package.json`）  
+> **状态**：文档面就绪（1x-mvp **W3 / F3+F4**）· kit **`1.11.0` 已 npm 发版**（2026-09-09）  
+> **包钉**：消费者请钉 `dsh-coding-kit@1.11.0`（与 npm `latest` 一致；本文件不代替 `package.json`）  
 > **布局真值（F4 方案 B）**：新落盘根 = **`.coding-kit/`**；**`.cyning-harness/`** = legacy **只读**（探测 / 升级源；**不删除**）  
-> **人闸**：`HG-EOS-DATE` / `HG-PUBLISH` 仍 **pending** —— **禁止** Agent 执行 `npm deprecate` / publish
+> **人闸**：`HG-EOS-DATE` 仍 **pending**（阻塞旧包 `npm deprecate`）· kit 本波 **publish 已完成** · **禁止** Agent 执行 `npm deprecate` / 再次擅自 publish
 
 ---
 
@@ -57,7 +57,7 @@
 | 公开时间表 + 本文件成文 | 2026-09-09 | **文档面 DONE（W3）** |
 | 新注册截止（建议 ≤ EOS） | **TBD** | 待 `HG-EOS-DATE` |
 | EOS（End of Support） | **TBD** | 待 `HG-EOS-DATE` |
-| `npm deprecate @cyning/harness "…"` | **TBD · 仅人** | 待 `HG-EOS-DATE` + `HG-PUBLISH` |
+| `npm deprecate @cyning/harness "…"` | **TBD · 仅人** | 待 `HG-EOS-DATE`（kit `1.11.0` 已发版；deprecate ≠ kit publish） |
 
 ### Deprecate 文案草稿（仅人 · 实操时粘贴）
 
@@ -107,3 +107,4 @@ DEPRECATED: use dsh-coding-kit instead. See https://github.com/Cyning12/dsh-codi
 | 日期 | 摘要 |
 |------|------|
 | 2026-09-09 | W3 初版：方案 B 布局 + 最小路径 + EOS 提案占位（`HG-EOS-DATE` pending） |
+| 2026-09-09 | kit **1.11.0** 已 npm 发版；本文件包钉与状态条对齐 `latest` |

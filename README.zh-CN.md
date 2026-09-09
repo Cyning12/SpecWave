@@ -186,7 +186,7 @@ kit **源码仓**以 `docs/_tech_graph/` 做 `graph yaml compile|check|export` �
 
 **布局**：过程落盘现行根为 **`.coding-kit/`**；`.cyning-harness/` 为 **legacy 只读**。勿再把 `.cyning-harness` 当新标准目录。
 
-Skill 安装为 **推荐、非必须**（最小路径不依赖 DSH 扫 skill）。命令一律 `npx dsh-coding-kit`。旧包 **`npm deprecate` 仅维护者**，须 `HG-EOS-DATE` / `HG-PUBLISH` 批准后才可实操。
+Skill 安装为 **推荐、非必须**（最小路径不依赖 DSH 扫 skill）。命令一律 `npx dsh-coding-kit`。旧包 **`npm deprecate` 仅维护者**，仍待 `HG-EOS-DATE`（kit **1.11.0** 本身已在 npm `latest`）。
 
 ### FAQ · pnpm peer
 
@@ -265,6 +265,8 @@ Skills **不能**覆盖全部过程能力。Host 要嵌套 Harness 过程，须�
 三分：**System/Re-anchor** = 短身份；**prompts 全文** = 换帽加载；**verify** = 机械。不可互替。
 
 ## 发版（维护者）
+
+**现行 npm `latest`**：**`dsh-coding-kit@1.11.0`**（2026-09-09 已发版 · PR #30）。
 
 发布流程见 [RELEASING.md](RELEASING.md) —— publish 前硬步骤 checklist（先 commit 后 publish · 四门全绿 · 版本钉同步 · **Agent 可 bump/tag** · **`npm publish` 仅人**；DEF-001 教训制度化）。
 

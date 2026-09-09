@@ -112,3 +112,4 @@
 | 2026-09-09 | v0-draft |
 | 2026-09-09 | 系列签收；`HG-EOS-DATE` 仍 pending（阻塞 T1 deprecate，不阻塞 W1） |
 | 2026-09-09 | **W3 文档面落地**：根 `MIGRATION.md` + README 双文件对齐方案 B；T1 仍 pending |
+| 2026-09-09 | kit **1.11.0** 已发版；T1 deprecate 仍仅依赖 `HG-EOS-DATE` |
