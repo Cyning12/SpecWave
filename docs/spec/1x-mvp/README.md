@@ -67,7 +67,7 @@ docs/spec/1x-mvp/
 | Wave | 覆盖 | 理由 |
 |------|------|------|
 | **W1** | F1 · **DONE 2026-09-09** | 真值源是跨命令地基；未收敛前改 F2/F4 会放大分裂 |
-| **W2** | F2 | 语义文档 + 退出码契约对齐；回归依赖 F1 一致率 |
+| **W2** | F2 · **DONE 2026-09-09** | 语义文档 + 退出码契约对齐；回归依赖 F1 一致率 |
 | **W3** | F4 + F3 文档面 | 目录收敛（方案 B）与迁移时间表同属迁移治理域 |
 | **W4** | F5 | 纳入 `prepublishOnly` / RELEASING 硬闸 |
 
@@ -161,6 +161,7 @@ docs/spec/1x-mvp/
 | 2026-09-09 | v0-draft：自高层架构 1.x 五路线拆出 SPEC 系列初稿 |
 | 2026-09-09 | **HG-SPEC-SIGNOFF=approved**（整包一次签）；开放项收敛为 EOS / F5-PIN-MODE |
 | 2026-09-09 | **W1/F1 落地完成**（`S2_TRUTH_PREFIXES` · task `1x-mvp-w1-s2-truth`） |
+| 2026-09-09 | **W2/F2 落地完成**（exit 2 / failClosed 文档 + `test/gate-semantics.test.ts`） |
 
 ---
 

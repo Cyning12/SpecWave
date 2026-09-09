@@ -156,6 +156,24 @@ kit **源码仓**以 `docs/_tech_graph/` 做 `graph yaml compile|check|export` �
 - 探测深度为仓根起 3 层；monorepo 更深层或自定义测试命令（如 `make test`）不命中白名单时，在仓内放任一强信号文件（如 `tests/` 目录、`*_test.py`）即可。
 - **WARN 过渡已硬化（1.5.0）**：1.3.0–1.4.0 期间「新探测失败但旧启发式通过 → `D5: WARN 过渡` exit 0 不阻塞」的过渡分支已删除；自 1.5.0 起上述情形一律 **FAIL**（verify BLOCKED / audit FAIL，exit 2）。升级前请在仓内补真实测试制品（如 `tests/`、`*_test.py`、`*.test.ts` 或含 test 步骤的 CI）。
 
+
+### P0 门禁退出码（failClosed · F2 / 1.x MVP）
+
+| 退出码 | 含义 | 典型命令 |
+|--------|------|----------|
+| **0** | 通过 / 仅信息 | `check` **恒为** 0（只给版本建议） |
+| **1** | 用法错误或非阻断失败 | 缺必填旗标、未知参数 |
+| **2** | **门禁阻断** — failClosed，不得放行 | `verify` / `gate-check` / `audit` 的 P0 失败；`test_strategy=required` 时 D5 无测试制品 |
+
+**failClosed**：P0 门禁失败一律 **exit 2**。CI / Agent 须把 2 当硬停（与 Claude Code hook「退出码 2 阻断」同族）。禁止在本地把 2 改映射成 0 以求「继续跑」。
+
+**分层强制（文档级 · 1.x 不引入云/远程策略引擎）**：
+
+1. 消费者仓库内的机械门禁结论（`verify` / `gate-check` / `audit` 的 exit 2）优先于「本地习惯跳过门禁」。  
+2. task 表 `HG-AUDIT-R1=approved` 之后，hat 30 才可改码。  
+3. kit P0 **不依赖**宿主 hooks——判定在进程内 CLI 完成。
+
+
 ## 从 @cyning/harness 迁移
 
 钉 **dsh-coding-kit@1.10.0** 后可去掉 `@cyning/harness`。最小路径三步（必须，按序）：

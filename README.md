@@ -156,6 +156,24 @@ When a task declares `test_strategy=required`, `audit` / `verify` run the D5 har
 - Detection depth is 3 levels from the repo root; for deeper monorepo layouts or custom test commands (e.g. `make test`) that miss the whitelist, drop any strong-signal file into the repo (e.g. a `tests/` directory, `*_test.py`).
 - **WARN transition hardened (1.5.0)**: the transitional branch from 1.3.0–1.4.0 — "new detection fails but the old heuristic passes → `D5: WARN transition` exit 0, non-blocking" — has been removed; since 1.5.0 that situation is always a **FAIL** (verify BLOCKED / audit FAIL, exit 2). Before upgrading, add real test artifacts to the repo (e.g. `tests/`, `*_test.py`, `*.test.ts`, or CI with a test step).
 
+
+### P0 gate exit codes (failClosed · F2 / 1.x MVP)
+
+| Code | Meaning | Typical commands |
+|------|---------|------------------|
+| **0** | Pass / informational | `check` **always** exits 0 (version advice only) |
+| **1** | Usage error or non-blocking failure | Missing required flags, unknown args |
+| **2** | **Gate BLOCKED** — failClosed; do not proceed | `verify` / `gate-check` / `audit` P0 failure; D5 missing artifacts when `test_strategy=required` |
+
+**failClosed**: a P0 gate failure exits **2**. CI and agents must treat 2 as hard stop (same family as Claude Code hook exit 2). Do not remap 2→0 locally to “keep going”.
+
+**Layered enforcement (document-level · 1.x — no cloud policy engine)**:
+
+1. Mechanical gate result in the consumer repo (`verify` / `gate-check` / `audit` exit 2) outranks local habit of skipping gates.  
+2. Task `HG-AUDIT-R1=approved` is required before hat 30 may change code.  
+3. Host hooks are **not** required for kit P0 — judgment is in-process CLI logic.
+
+
 ## Migrating from @cyning/harness
 
 After pinning **dsh-coding-kit@1.10.0** you can drop `@cyning/harness`. Minimal path, three steps (required, in order):

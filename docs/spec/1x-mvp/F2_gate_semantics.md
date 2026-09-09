@@ -64,11 +64,11 @@ P0 门禁（`check` / `verify` / `gate-check` / `audit` + D5）已是产品差�
 
 ## 4. 验收标准
 
-- [ ] README / SPEC 成文：exit 2 阻断、failClosed、分层强制（文档级定义）  
-- [ ] P0 失败路径自动化断言 exit 2  
-- [ ] D5 无制品 → verify/audit BLOCKED exit 2  
-- [ ] 与 F1 同路径：S2 保护触发时退出码符合契约  
-- [ ] 对齐 V4：门禁语义「未成文 → 已写入」
+- [x] README / SPEC 成文：exit 2 阻断、failClosed、分层强制（文档级定义）  
+- [x] P0 失败路径自动化断言 exit 2  
+- [x] D5 无制品 → verify/audit BLOCKED exit 2  
+- [x] 与 F1 同路径：S2 保护触发时退出码符合契约  
+- [x] 对齐 V4：门禁语义「未成文 → 已写入」
 
 ---
 
@@ -102,3 +102,4 @@ P0 门禁（`check` / `verify` / `gate-check` / `audit` + D5）已是产品差�
 |------|------|
 | 2026-09-09 | v0-draft |
 | 2026-09-09 | 系列签收；分层强制默认文档-only |
+| 2026-09-09 | W2 落地：README/help 契约 + `test/gate-semantics.test.ts` |

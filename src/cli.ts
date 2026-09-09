@@ -106,6 +106,11 @@ function usage(version: string): void {
     诊断码: wiki_delta_missing（缺字段）· wiki_delta_wrong_section（字段写在 ## Harness 元信息 之外的节 · 替代 missing 不双报）
     --strict 追加: wiki_delta_invalid / wiki_delta_path_missing；task lint --file E8 同口径查 wiki_delta 存在性
   npx dsh-coding-kit task check --file PATH
+
+Exit codes (P0 gates · failClosed):
+  0  pass / informational (check always exits 0)
+  1  usage error or non-blocking failure
+  2  gate BLOCKED — do not proceed (verify / gate-check / audit / D5)
 `)
 }
 

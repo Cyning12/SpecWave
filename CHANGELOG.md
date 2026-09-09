@@ -7,10 +7,12 @@
 ### Changed
 
 - **F1 / X7**：S2 过程域前缀收敛为 `cli-shared` 唯一真值源 `S2_TRUTH_PREFIXES` + `isS2RelPath` / `isS2AbsPath`；`index` / `refresh-ide-blocks` / `graph-hgm` / `skills` 删除本地硬编码列表（保护面取四锚点并集，含 legacy 裸前缀）
+- **F2 / R3**：P0 门禁语义成文 —— README 中英 + `--help` Exit codes：`0` 放行 / `1` 用法 / `2` 门禁阻断（failClosed）；分层强制为文档级（1.x 无云策略引擎）
 
 ### Tests
 
 - 新增 `test/s2-truth-source.test.ts`（矩阵 + 源码唯一性扫描）
+- 新增 `test/gate-semantics.test.ts`（exit 矩阵 + README 契约关键字）
 
 ## [1.10.0] - 2026-08-31
 
