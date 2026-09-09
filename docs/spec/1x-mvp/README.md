@@ -112,7 +112,7 @@ docs/spec/1x-mvp/
 |---------------|--------|--------|------|
 | **HG-SPEC-SIGNOFF** | **approved** | ~~00 出实现 task~~（已放行）· 30 仍须 task 闸 | 2026-09-09 维护者「签收」· **整包一次签** F1–F5 |
 | **HG-EOS-DATE** | **pending** | F3 T1 `npm deprecate` | EOS / 新注册截止日 **仅人**拍板（不阻塞 W1 F1 task） |
-| **HG-PUBLISH** | **pending** | npm publish / deprecate | 既有纪律：仅人 |
+| **HG-PUBLISH** | **pending** | npm **publish**（仅人） | Agent 可 bump/tag；publish / deprecate 仍仅人 |
 | **HG-F5-PIN-MODE** | **approved = B** | ~~F5 W4 选型~~ | 2026-09-09 维护者「选择 B」：废除仓根 SPEC 版本钉检查；只钉 ontology / discipline / README |
 
 ---
@@ -169,4 +169,4 @@ docs/spec/1x-mvp/
 
 ## 给 Cursor / 下一棒
 
-`1x-mvp` W1–W4 **DONE**（F5=`B`）；残余人闸 `HG-EOS-DATE` / `HG-PUBLISH`；发版 / deprecate **仅人**
+`1x-mvp` W1–W4 **DONE**（F5=`B`）；残余人闸 `HG-EOS-DATE` / `HG-PUBLISH`（**人仅 publish**；Agent 默认可 bump）

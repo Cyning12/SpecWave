@@ -1,7 +1,7 @@
 # Migration · `@cyning/harness` → `dsh-coding-kit`
 
 > **状态**：文档面就绪（1x-mvp **W3 / F3+F4**）  
-> **包钉**：消费者请钉 `dsh-coding-kit@1.10.0`（发版号随维护者 bump；本文件不代替 `package.json`）  
+> **包钉**：消费者请钉 `dsh-coding-kit@1.11.0`（发版号可由维护 Agent bump；publish 仅人；本文件不代替 `package.json`）  
 > **布局真值（F4 方案 B）**：新落盘根 = **`.coding-kit/`**；**`.cyning-harness/`** = legacy **只读**（探测 / 升级源；**不删除**）  
 > **人闸**：`HG-EOS-DATE` / `HG-PUBLISH` 仍 **pending** —— **禁止** Agent 执行 `npm deprecate` / publish
 

@@ -1,7 +1,7 @@
 # 02 · 版本时间线（kit 图谱 / 包里程碑）
 
 > **性质**：手写时间线 · **不是** yaml compile 产物。  
-> **上限**：**1.10.x**（现行发布包 **1.10.0**）。  
+> **上限**：**1.11.x**（现行发布包 **1.11.0**）。  
 > **真值**：仓根 `CHANGELOG.md` · `package.json`。不把 `assets/graph/templates/02_version.md` 的 YYYY-MM-DD 占位当 kit 史实。
 
 | 日期 | 版本 | 事件 |
@@ -14,7 +14,8 @@
 | 2026-08-28 | 1.9.x | **W3 CI 入仓**：`.github/workflows/tech-graph.yml`（本仓 bin compile/check · 当时不 bump） |
 | 2026-08-28 | 1.9.1 | self-tech-graph 收口（仓内三层图谱 · tech-graph CI · dogfood 互链 · inventory→reference） |
 | 2026-08-28 | 1.9.2 | compile/export `generated_at` 源内容派生（`sha256-<16hex>`）· tech-graph CI 去掉 `-I` |
-| 2026-08-31 | 1.10.0 | **现行发布包**：帽 System/Re-anchor FRAGMENT · 00 delegate-only 默认 Skill · Host Capability 文档 |
+| 2026-08-31 | 1.10.0 | 帽 System/Re-anchor FRAGMENT · 00 delegate-only 默认 Skill · Host Capability 文档 |
+| 2026-09-09 | 1.11.0 | **现行发布包**：1.x MVP W1–W4（S2 真值 · 门禁语义 · `.coding-kit` · F5=B 钉点）· Agent 可 bump / 人仅 publish |
 
 ## 修订记录
 
@@ -26,3 +27,4 @@
 | 2026-08-28 | npm `latest=1.9.1` · tag `v1.9.1` @ `a4e8827` |
 | 2026-08-28 | 1.9.2 发版准备：compile/export `generated_at` 幂等 · CI 裸 git diff md |
 | 2026-08-31 | 1.10.0 发版准备：帽 re-anchor / 00 delegate-only Skill |
+| 2026-09-09 | 1.11.0 发版准备：1.x MVP W1–W4 + RELEASING Agent bump / 人仅 publish |

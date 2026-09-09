@@ -4,6 +4,16 @@
 
 ## [Unreleased]
 
+## [1.11.0] - 2026-09-09
+
+> 主题：**1.x MVP 内部一致性收敛（F1–F5）** —— S2 真值源 · P0 门禁语义 · `.coding-kit` 落盘 · 迁移文档面 · F5 方案 B 版本钉；发版职责改为 **Agent 可 bump / 人仅 publish**。
+>
+> **消费者提示（置顶）**：
+>
+> - **过程落盘根改为 `.coding-kit/`**：`upgrade --yes` 读旧 `.cyning-harness/manifest.json` 时写入新路径；旧目录只读保留、不删除。详见 `MIGRATION.md`。
+> - **仓根 `SPEC.md` 为历史 epic（archived）**：不再表示现行包版本；现行钉点见 ontology / discipline / README。
+> - **未**执行 `@cyning/harness` 的 `npm deprecate`（待 `HG-EOS-DATE`）。
+
 ### Changed
 
 - **F1 / X7**：S2 过程域前缀收敛为 `cli-shared` 唯一真值源 `S2_TRUTH_PREFIXES` + `isS2RelPath` / `isS2AbsPath`；`index` / `refresh-ide-blocks` / `graph-hgm` / `skills` 删除本地硬编码列表（保护面取四锚点并集，含 legacy 裸前缀）
@@ -11,6 +21,7 @@
 - **F4 / X11（方案 B）**：过程落盘新写根统一为 `.coding-kit/`（manifest / events / snapshot / invoke_index / local.json / refresh 备份）；`.cyning-harness/` 只读探测与 upgrade 源，**不删除**；`upgrade`/`init` 写新路径
 - **F3 文档面**：新增根 `MIGRATION.md`（最小路径 · 布局 · EOS 提案占位 · deprecate 草稿仅人）；README 双文件迁移/备份路径对齐；**未**执行 `npm deprecate`（`HG-EOS-DATE` pending）
 - **F5 / X6（方案 B）**：废除仓根 `SPEC.md` 版本钉检查（标 **ARCHIVED EPIC**）；现行钉点 = `ontology#product_semver` + `discipline-coverage#as_of_package_version` + README `dsh-coding-kit@x.y.z`；`test/version-pins-f5.test.ts` + RELEASING ④ 对齐；随 `npm test` / `prepublishOnly`
+- **RELEASING 职责**：维护 Agent **默认可**执行 ①–⑦ 与 `npm version`/tag；**⑧ `npm publish` 仍仅人**；deprecate 仍仅人
 
 ### Tests
 

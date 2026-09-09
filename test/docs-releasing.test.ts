@@ -40,6 +40,14 @@ describe('DEF-001 T5 · RELEASING.md 发版 checklist 制度化', { concurrency:
     // 关键禁令钉死
     assert.match(body, /禁止从未提交工作树 publish|禁止.*未提交.*publish/)
     assert.match(body, /CI 未绿禁合|未绿.*禁.*合/)
+    // 2026-09-09：人仅 publish；Agent 默认可 bump/tag
+    assert.match(body, /Agent 禁止 [`']?npm publish/)
+    assert.match(body, /Agent 允许 [`']?npm version|Agent 默认可做/)
+    assert.equal(
+      /Agent 禁止 [`']?npm publish[`']? \/ [`']?npm version/.test(body),
+      false,
+      '旧禁令「Agent 禁 version」须已删除',
+    )
   })
 
   it('README en / zh-CN 各含一行 RELEASING.md 链接', () => {

@@ -57,7 +57,8 @@
   → 00 按 wave 起草 kit task
     → 20-task-audit + HG-AUDIT-R1
       → 30 改码（仅授权路径内文件）
-        → 人签 HG-PUBLISH / HG-EOS-DATE / HG-F5-PIN-MODE（按波次）
+        → Agent 默认可 bump/tag（RELEASING ⑤）；人签 HG-PUBLISH 后仅人 npm publish
+        → HG-EOS-DATE 后人签 deprecate（仍仅人）
 ```
 
 **打开本文件 ≠ 已授权改 `src/`**（仍须 task + `HG-AUDIT-R1`）。
@@ -79,3 +80,4 @@
 |------|------|
 | 2026-09-09 | 初稿 |
 | 2026-09-09 | 系列 HG-SPEC-SIGNOFF=approved；授权阶梯前移至 task 闸 |
+| 2026-09-09 | 发版职责：Agent 可 bump；人仅 publish |
