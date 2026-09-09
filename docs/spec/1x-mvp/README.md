@@ -69,7 +69,7 @@ docs/spec/1x-mvp/
 | **W1** | F1 · **DONE 2026-09-09** | 真值源是跨命令地基；未收敛前改 F2/F4 会放大分裂 |
 | **W2** | F2 · **DONE 2026-09-09** | 语义文档 + 退出码契约对齐；回归依赖 F1 一致率 |
 | **W3** | F4 + F3 文档面 · **DONE 2026-09-09** | 目录收敛（方案 B）与迁移时间表同属迁移治理域 |
-| **W4** | F5 | 纳入 `prepublishOnly` / RELEASING 硬闸 |
+| **W4** | F5 · **DONE 2026-09-09**（`HG-F5-PIN-MODE=B`） | 纳入 `prepublishOnly` / RELEASING 硬闸 |
 
 **禁止**：跳过 F1 直接铺宿主适配（F6）；未过 `HG-AUDIT-R1` 即开 30 改码。
 
@@ -113,7 +113,7 @@ docs/spec/1x-mvp/
 | **HG-SPEC-SIGNOFF** | **approved** | ~~00 出实现 task~~（已放行）· 30 仍须 task 闸 | 2026-09-09 维护者「签收」· **整包一次签** F1–F5 |
 | **HG-EOS-DATE** | **pending** | F3 T1 `npm deprecate` | EOS / 新注册截止日 **仅人**拍板（不阻塞 W1 F1 task） |
 | **HG-PUBLISH** | **pending** | npm publish / deprecate | 既有纪律：仅人 |
-| **HG-F5-PIN-MODE** | **pending** | F5 W4 改码选型 | A（现行 SPEC 对齐包版本）vs B（只钉 ontology/discipline/README）；task 开工前补拍 |
+| **HG-F5-PIN-MODE** | **approved = B** | ~~F5 W4 选型~~ | 2026-09-09 维护者「选择 B」：废除仓根 SPEC 版本钉检查；只钉 ontology / discipline / README |
 
 ---
 
@@ -134,10 +134,10 @@ docs/spec/1x-mvp/
 |---|------|------|
 | 1 | 整包签 vs 分 F 签 | **整包一次签**（本闸） |
 | 2 | F3 EOS 日 | **仍 pending** → `HG-EOS-DATE`（不阻塞 W1） |
-| 3 | F5 钉点模式 A vs B | **仍 pending** → `HG-F5-PIN-MODE`（阻塞 W4 F5 改码，不阻塞 W1–W3） |
+| 3 | F5 钉点模式 A vs B | **B**（2026-09-09）→ 只钉 ontology/discipline/README；仓根 SPEC = 历史 epic |
 | 4 | F2 分层强制粒度 | **默认文档-only**（1.x 不引入云/远程四层引擎；若 task 需代码分层再开补充闸） |
 
-**residual_risks**：EOS 日历空；F5 A/B 未选；具体发版号未锁。
+**residual_risks**：EOS 日历空；具体下一发版号未锁；本体论深化实践仍属后续（本波只定钉点面为 B）。
 
 ---
 
@@ -149,8 +149,8 @@ docs/spec/1x-mvp/
 | `delivery/系统设计.md` §4.5 | F4 方案 B 定稿 |
 | `delivery/UserStory.md` §3.1 | US ↔ F 映射 |
 | `src/index.ts:13` 等 | X7 四份硬编码锚点 |
-| `SPEC.md` / `package.json` | X6 版本钉偏差锚点 |
-| `RELEASING.md` | 发布前人工 pins 清单（F5 要机械化） |
+| `SPEC.md`（archived） / `package.json` | X6：史实 epic vs 包真值；钉闸见 F5=B |
+| `RELEASING.md` | 发布前 pins（已与自动闸对齐） |
 
 ---
 
@@ -163,9 +163,10 @@ docs/spec/1x-mvp/
 | 2026-09-09 | **W1/F1 落地完成**（`S2_TRUTH_PREFIXES` · task `1x-mvp-w1-s2-truth`） |
 | 2026-09-09 | **W2/F2 落地完成**（exit 2 / failClosed 文档 + `test/gate-semantics.test.ts`） |
 | 2026-09-09 | **W3/F4+F3 文档面落地**（`.coding-kit` 写根 · `MIGRATION.md` · EOS 仍 pending） |
+| 2026-09-09 | **`HG-F5-PIN-MODE=B` + W4/F5 落地**（版本钉闸不含仓根 SPEC） |
 
 ---
 
 ## 给 Cursor / 下一棒
 
-`1x-mvp`、`signed`、`HG-SPEC-SIGNOFF=approved`；W1–W3 **DONE**；下一棒 **W4 / F5**（先补 `HG-F5-PIN-MODE`）；deprecate 前补 `HG-EOS-DATE`
+`1x-mvp` W1–W4 **DONE**（F5=`B`）；残余人闸 `HG-EOS-DATE` / `HG-PUBLISH`；发版 / deprecate **仅人**

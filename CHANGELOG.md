@@ -10,12 +10,14 @@
 - **F2 / R3**：P0 门禁语义成文 —— README 中英 + `--help` Exit codes：`0` 放行 / `1` 用法 / `2` 门禁阻断（failClosed）；分层强制为文档级（1.x 无云策略引擎）
 - **F4 / X11（方案 B）**：过程落盘新写根统一为 `.coding-kit/`（manifest / events / snapshot / invoke_index / local.json / refresh 备份）；`.cyning-harness/` 只读探测与 upgrade 源，**不删除**；`upgrade`/`init` 写新路径
 - **F3 文档面**：新增根 `MIGRATION.md`（最小路径 · 布局 · EOS 提案占位 · deprecate 草稿仅人）；README 双文件迁移/备份路径对齐；**未**执行 `npm deprecate`（`HG-EOS-DATE` pending）
+- **F5 / X6（方案 B）**：废除仓根 `SPEC.md` 版本钉检查（标 **ARCHIVED EPIC**）；现行钉点 = `ontology#product_semver` + `discipline-coverage#as_of_package_version` + README `dsh-coding-kit@x.y.z`；`test/version-pins-f5.test.ts` + RELEASING ④ 对齐；随 `npm test` / `prepublishOnly`
 
 ### Tests
 
 - 新增 `test/s2-truth-source.test.ts`（矩阵 + 源码唯一性扫描）
 - 新增 `test/gate-semantics.test.ts`（exit 矩阵 + README 契约关键字）
 - 新增 `test/layout-scheme-b.test.ts`；CLI 相关测写路径期望对齐 `.coding-kit`
+- 新增 `test/version-pins-f5.test.ts`（F5=B 钉点集合）
 
 ## [1.10.0] - 2026-08-31
 
