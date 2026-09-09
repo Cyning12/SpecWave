@@ -4,6 +4,14 @@
 
 ## [Unreleased]
 
+### Changed
+
+- **F1 / X7**：S2 过程域前缀收敛为 `cli-shared` 唯一真值源 `S2_TRUTH_PREFIXES` + `isS2RelPath` / `isS2AbsPath`；`index` / `refresh-ide-blocks` / `graph-hgm` / `skills` 删除本地硬编码列表（保护面取四锚点并集，含 legacy 裸前缀）
+
+### Tests
+
+- 新增 `test/s2-truth-source.test.ts`（矩阵 + 源码唯一性扫描）
+
 ## [1.10.0] - 2026-08-31
 
 > 主题：**帽 System / Re-anchor + 00 delegate-only Skill**——帽级短身份碎片、默认可分发 Skill、Host×npx Capability 文档。

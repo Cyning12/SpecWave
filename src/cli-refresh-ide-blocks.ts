@@ -14,7 +14,7 @@ import {
   writeFileSync,
 } from 'node:fs'
 import path from 'node:path'
-import { fail, resolveTarget, takeOption } from './cli-shared.ts'
+import { assertNotS2Abs, fail, resolveTarget, takeOption } from './cli-shared.ts'
 
 // ---------- T1：marker 块解析器（§3 冻结形态 · 纯函数 · 不写盘） ----------
 
@@ -295,15 +295,7 @@ export function scanIdeFile(rel: string, text: string): FileScan {
 
 // ---------- T3：拒写闸与安全（§6） ----------
 
-// §6.1 S2 拒写前缀（真值 SPEC 1.2.2 #286）
-const S2_RE = /(^|[\\/])docs[\\/](tasks|harness[\\/]reviews|harness[\\/]invokes[\\/]by-task)([\\/]|$)/
-
-function assertNotS2(absPath: string): void {
-  const norm = path.resolve(absPath)
-  if (S2_RE.test(norm)) {
-    fail('refresh-ide-blocks: 拒写 · 路径落在 S2 前缀下（docs/tasks · docs/harness/reviews · docs/harness/invokes/by-task）: ' + norm, 2)
-  }
-}
+// §6.1 S2 拒写：共用 cli-shared assertNotS2Abs（F1）
 
 export type GitState = 'clean' | 'dirty' | 'none'
 
@@ -471,7 +463,7 @@ export async function cmdRefreshIdeBlocks(args: string[]): Promise<void> {
 
   // 第二段（--yes 专用）：preflight fail-fast，全过才写盘（§6.3）
   if (apply) {
-    for (const s of toWrites) assertNotS2(path.join(target, s.path))
+    for (const s of toWrites) assertNotS2Abs(path.resolve(path.join(target, s.path)))
     if (git === 'dirty') {
       fail('refresh-ide-blocks: git 工作树脏（未提交变更），fail-fast 拒写。请先 commit/stash 后重跑。核查: git -C ' + target + ' status --porcelain', 2)
     }

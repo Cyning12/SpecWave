@@ -48,6 +48,58 @@ export function fail(message: string, exitCode = 1): never {
   throw new CliError(message, exitCode)
 }
 
+/**
+ * S2 过程域前缀唯一真值源（F1 / X7）。
+ * 规范三路径 + legacy 裸前缀并集；判定用「相等或前缀/」——禁止各命令本地再硬编码等价列表。
+ */
+export const S2_TRUTH_PREFIXES = [
+  'docs/tasks',
+  'docs/harness/reviews',
+  'docs/harness/invokes/by-task',
+  'reviews',
+  'invokes/by-task',
+] as const
+
+export type S2TruthPrefix = (typeof S2_TRUTH_PREFIXES)[number]
+
+export function normalizeSlashPath(p: string): string {
+  return p.replace(/\\/g, '/')
+}
+
+/** 相对路径（仓内 rel）是否命中 S2 */
+export function isS2RelPath(destRel: string): boolean {
+  const n = normalizeSlashPath(destRel).replace(/^\.\//, '')
+  return S2_TRUTH_PREFIXES.some((seg) => n === seg || n.startsWith(`${seg}/`))
+}
+
+/**
+ * 绝对路径是否命中 S2。
+ * `.dsh/skills` 安装落点白名单：永不视为 S2（与 skills install 历史语义一致）。
+ */
+export function isS2AbsPath(absPath: string): boolean {
+  const n = normalizeSlashPath(absPath)
+  if (n.endsWith('/.dsh/skills') || n.includes('/.dsh/skills/')) return false
+  return S2_TRUTH_PREFIXES.some((seg) => {
+    const needle = `/${seg}`
+    return n.endsWith(needle) || n.includes(`${needle}/`)
+  })
+}
+
+export function assertNotS2Abs(
+  absPath: string,
+  message?: string,
+  exitCode = 2,
+): void {
+  if (isS2AbsPath(absPath)) {
+    fail(
+      message ??
+        `拒写：路径命中 S2 过程域（${S2_TRUTH_PREFIXES.join(' · ')}）: ${absPath}`,
+      exitCode,
+    )
+  }
+}
+
+
 function escapeRegExp(s: string): string {
   return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 }

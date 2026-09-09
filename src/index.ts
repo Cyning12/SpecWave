@@ -4,14 +4,13 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import type { Context } from '@deepseek-ai/cordis'
 import { defineTool } from '@deepseek-ai/dsh-tools'
+import { isS2RelPath } from './cli-shared.ts'
 
 export const name = 'coding-kit'
 export const inject = ['tools', 'systemPrompt']
 
 const CONTEXT_NAME = 'coding-kit.standards'
 const MAX_INJECT_CHARS = 24_000
-const S2_SKIP_PREFIXES = ['docs/tasks', 'reviews', 'invokes/by-task'] as const
-
 type Profile = 'l1' | 'l1+l2' | 'full'
 type AssetSource = 'override' | 'package'
 
@@ -141,11 +140,6 @@ export async function loadMarkdownBundle(profile: Profile): Promise<{
   }
 }
 
-function isS2Path(destRel: string): boolean {
-  const n = destRel.replace(/\\/g, '/')
-  return S2_SKIP_PREFIXES.some((seg) => n === seg || n.startsWith(`${seg}/`))
-}
-
 export async function copyDirNoClobber(
   src: string,
   dest: string,
@@ -160,7 +154,7 @@ export async function copyDirNoClobber(
       const from = path.join(current, ent.name)
       const to = path.join(destCurrent, ent.name)
       const childRel = rel ? `${rel}/${ent.name}` : ent.name
-      if (isS2Path(childRel)) {
+      if (isS2RelPath(childRel)) {
         skipped.push(childRel)
         continue
       }

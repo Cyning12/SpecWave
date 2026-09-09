@@ -1,6 +1,6 @@
 import { existsSync, mkdirSync, readdirSync, readFileSync, appendFileSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
-import { parseHumanGates } from './cli-shared.ts'
+import { isS2RelPath, parseHumanGates } from './cli-shared.ts'
 
 const HGM_DIR = '.cyning-harness'
 const EVENTS_DIR = 'events'
@@ -364,12 +364,11 @@ export function checkAxioms(
     }
   }
   violations.push(...checkRejectedToDraft(events))
-  const s2Prefixes = ['docs/tasks/', 'reviews/', 'invokes/by-task/', 'docs/harness/reviews/', 'docs/harness/invokes/by-task/']
   for (const edge of edges) {
     if (edge.type === 'SYNCED') {
       const files = (edge.files_touched as string[]) || []
       for (const f of files) {
-        if (s2Prefixes.some((p) => f.startsWith(p))) {
+        if (isS2RelPath(f)) {
           violations.push({
             axiom: 'S2',
             severity: 'error',
