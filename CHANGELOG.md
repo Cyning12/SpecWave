@@ -8,11 +8,14 @@
 
 - **F1 / X7**：S2 过程域前缀收敛为 `cli-shared` 唯一真值源 `S2_TRUTH_PREFIXES` + `isS2RelPath` / `isS2AbsPath`；`index` / `refresh-ide-blocks` / `graph-hgm` / `skills` 删除本地硬编码列表（保护面取四锚点并集，含 legacy 裸前缀）
 - **F2 / R3**：P0 门禁语义成文 —— README 中英 + `--help` Exit codes：`0` 放行 / `1` 用法 / `2` 门禁阻断（failClosed）；分层强制为文档级（1.x 无云策略引擎）
+- **F4 / X11（方案 B）**：过程落盘新写根统一为 `.coding-kit/`（manifest / events / snapshot / invoke_index / local.json / refresh 备份）；`.cyning-harness/` 只读探测与 upgrade 源，**不删除**；`upgrade`/`init` 写新路径
+- **F3 文档面**：新增根 `MIGRATION.md`（最小路径 · 布局 · EOS 提案占位 · deprecate 草稿仅人）；README 双文件迁移/备份路径对齐；**未**执行 `npm deprecate`（`HG-EOS-DATE` pending）
 
 ### Tests
 
 - 新增 `test/s2-truth-source.test.ts`（矩阵 + 源码唯一性扫描）
 - 新增 `test/gate-semantics.test.ts`（exit 矩阵 + README 契约关键字）
+- 新增 `test/layout-scheme-b.test.ts`；CLI 相关测写路径期望对齐 `.coding-kit`
 
 ## [1.10.0] - 2026-08-31
 

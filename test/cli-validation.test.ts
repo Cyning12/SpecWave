@@ -47,7 +47,7 @@ async function seedManifest(
   version: string,
   fromVersion: string | null = null,
 ): Promise<void> {
-  const abs = path.join(dir, '.cyning-harness', 'manifest.json')
+  const abs = path.join(dir, '.coding-kit', 'manifest.json')
   await mkdir(path.dirname(abs), { recursive: true })
   await writeFile(
     abs,
@@ -66,7 +66,7 @@ async function seedManifest(
   )
 }
 
-const MANIFEST_REL = path.join('.cyning-harness', 'manifest.json')
+const MANIFEST_REL = path.join('.coding-kit', 'manifest.json')
 
 describe('DEF-013 init/upgrade/check 取值与版本校验（D1 钉 harness-only · D2 移除 --force 静默吞 · D3 三向判定）', { concurrency: 1 }, () => {
   // T1: preset 词表校验

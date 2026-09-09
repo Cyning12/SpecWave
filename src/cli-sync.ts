@@ -1,7 +1,7 @@
 import { existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
 import { cmdSyncPrompts, SYNC_PROMPTS_USAGE } from './cli-sync-prompts.ts'
-import { fail, parseHarnessMeta, resolveTarget, takeOption } from './cli-shared.ts'
+import { fail, kitLayoutJoin, parseHarnessMeta, resolveTarget, takeOption } from './cli-shared.ts'
 
 function extractHatId(filename: string): string {
   const base = path.basename(filename, '.md')
@@ -40,7 +40,7 @@ function collectTaskEntryPoints(target: string): Record<
 
 export function generateInvokeIndex(target: string): string {
   const byTaskDir = path.join(target, 'docs/harness/invokes/by-task')
-  const indexFile = path.join(target, '.cyning-harness', 'invoke_index.json')
+  const indexFile = kitLayoutJoin(target, 'invoke_index.json')
   const index: {
     schema_version: string
     generated_at: string

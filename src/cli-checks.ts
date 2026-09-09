@@ -1,16 +1,7 @@
 import { spawnSync } from 'node:child_process'
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs'
 import path from 'node:path'
-import {
-  extractSection,
-  extractTaskSlug,
-  fail,
-  findWikiDeltaOutsideMetaSection,
-  normalizeSlug,
-  parseHarnessMeta,
-  resolveTaskPath,
-  STATUS_RE,
-} from './cli-shared.ts'
+import { extractSection, extractTaskSlug, fail, findWikiDeltaOutsideMetaSection, normalizeSlug, parseHarnessMeta, resolveTaskPath, STATUS_RE, resolveLayoutFile } from './cli-shared.ts'
 import { WIKI_DELTA_LITERALS, WIKI_DELTA_PATHISH_RE } from './cli-task-extra.ts'
 
 // DEF-003 阶段二 T5/T6：invoke hats 检查单一实现源（verify pre-30 硬闸与 task close 帽集合覆盖共用）。
@@ -371,9 +362,9 @@ const HUB_CANDIDATES = [
   'docs/harness/tasks/done/README.md',
 ]
 
-/** 仓级 Hub 闸：`.cyning-harness/local.json` 的 `close_hub_gate`；缺省 true（默认开）。 */
+/** 仓级 Hub 闸：`.coding-kit/local.json`（legacy `.cyning-harness/local.json`）的 `close_hub_gate`；缺省 true（默认开）。 */
 export function isCloseHubGateEnabled(root: string): boolean {
-  const localPath = path.join(root, '.cyning-harness', 'local.json')
+  const localPath = resolveLayoutFile(root, 'local.json').abs
   if (!existsSync(localPath)) return true
   try {
     const raw = JSON.parse(readFileSync(localPath, 'utf8')) as { close_hub_gate?: unknown }

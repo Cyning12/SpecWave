@@ -132,7 +132,7 @@ IDE blocks embedded by the wizard marker merge in the old `@cyning/harness` era 
 
 - **Discipline**: marker lines and out-of-block content stay byte-untouched; `<!-- cyning-harness-local:begin -->` blocks are never rewritten; `docs/tasks/`, `docs/harness/reviews/`, `docs/harness/invokes/by-task/` (S2) are always write-refused.
 - **preflight (--yes-only fail-fast, exit 2, zero writes)**: a dirty git tree / mixed old-and-new literals in one file (MIXED) / malformed marker pairing (MALFORMED) / any S2 assertion gate hit → refuse to write. The dirty-tree check follows `git status --porcelain` semantics — **untracked files count as dirty**, so commit or `git stash -u` before `--yes`.
-- **Backup and rollback**: before `--yes` writes, the original bytes are backed up to `.cyning-harness/backups/refresh-ide-blocks/<UTCts>/` (keeping the latest 5 generations); for rollback prefer `git checkout -- <path>`, or copy back from the backup in non-git repos. Backups are for local rollback only — consumers should add `.cyning-harness/backups/` to `.gitignore` (do not commit them).
+- **Backup and rollback**: before `--yes` writes, the original bytes are backed up to `.coding-kit/backups/refresh-ide-blocks/<UTCts>/` (keeping the latest 5 generations); for rollback prefer `git checkout -- <path>`, or copy back from the backup in non-git repos. Backups are for local rollback only — consumers should add `.coding-kit/backups/` to `.gitignore` (do not commit them). Legacy `.cyning-harness/backups/` may still exist on older trees; new writes do not target it.
 - **Marker-less files (report-only, never rewritten)**: discovery-surface files with 0 product blocks are scanned read-only with the same A/B rule set; hits appear in a "无 marker 检出（仅报告，不刷写）" human-report section and in the top-level `plain_mentions: [{path, rule, count}]` JSON field (schema stays `@1` — additive, backward-compatible). They never trigger the preflight fail-fast and never change the exit code.
 - **Idempotent**: re-running on already-refreshed files yields 0 group-A hits, `files_written=0`, unchanged bytes, exit 0.
 - `--json` prints a single-line machine report (schema `dsh-coding-kit/refresh-ide-blocks-report@1`; since 1.5.2 it additively includes `plain_mentions` / `totals.plain_mentions`).
@@ -176,13 +176,17 @@ When a task declares `test_strategy=required`, `audit` / `verify` run the D5 har
 
 ## Migrating from @cyning/harness
 
+Full checklist, layout rules (F4 scheme B), and **proposed** EOS / deprecate calendar (pending maintainer gates): see [`MIGRATION.md`](./MIGRATION.md).
+
 After pinning **dsh-coding-kit@1.10.0** you can drop `@cyning/harness`. Minimal path, three steps (required, in order):
 
 1. Replace the `devDependency` `@cyning/harness` with `dsh-coding-kit` (pin `1.10.0`).
-2. Run `npx dsh-coding-kit upgrade --yes` at the repo root (reads the old `.cyning-harness/manifest.json`; `version` pinned at 1.10.0, `from_version` records the old number).
+2. Run `npx dsh-coding-kit upgrade --yes` at the repo root (reads `.coding-kit/manifest.json` if present, else legacy `.cyning-harness/manifest.json`; **writes** `.coding-kit/manifest.json` with `version` pinned at 1.10.0 and `from_version` recording the old number; **does not delete** `.cyning-harness/`).
 3. In CI / scripts, replace `npx @cyning/harness` with `npx dsh-coding-kit`.
 
-Skill installation is **recommended, not required** (the minimal path does not depend on DSH scanning skills). Commands are always `npx dsh-coding-kit`.
+**Layout**: new kit process files land under **`.coding-kit/`**. `.cyning-harness/` remains **legacy read-only**. Do not treat `.cyning-harness` as the new standard root.
+
+Skill installation is **recommended, not required** (the minimal path does not depend on DSH scanning skills). Commands are always `npx dsh-coding-kit`. **`npm deprecate` of the old package is maintainer-only** and not executed until `HG-EOS-DATE` / `HG-PUBLISH` are approved.
 
 ### FAQ · pnpm peer
 
@@ -198,9 +202,10 @@ You = the maintenance agent of this repository. Migrate this repo from @cyning/h
 Minimal path (required, in order):
 1. package.json devDependency: delete @cyning/harness, replace with dsh-coding-kit (pinned at 1.10.0).
 2. Run at the repo root: npx dsh-coding-kit upgrade --yes
-   (reads the old .cyning-harness/manifest.json; version pinned at 1.10.0, from_version records the old number; never overwrites docs/tasks, reviews, invokes/by-task.)
+   (reads .coding-kit/manifest.json or legacy .cyning-harness/manifest.json; writes .coding-kit/manifest.json; version pinned at 1.10.0, from_version records the old number; never deletes .cyning-harness/; never overwrites docs/tasks, reviews, invokes/by-task.)
 3. Replace every npx @cyning/harness in CI and scripts with npx dsh-coding-kit.
 Commands are always npx dsh-coding-kit. Never write npx @cyning/harness skills build again.
+See MIGRATION.md for layout (.coding-kit vs legacy) and EOS calendar (pending human gates).
 
 Recommended (not required · skill installation):
 - In-repo: npx dsh-coding-kit skills install

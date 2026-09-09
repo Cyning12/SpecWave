@@ -102,7 +102,7 @@ describe('DEF-016 reviews.CLOSE 接线 + event_count 0/null 语义统一（先�
     await withTemp(async (dir) => {
       const rel = 'docs/tasks/active/task_obs_c_v1.md'
       await writeRel(dir, rel, taskMd({ slug: 'obs_c' }))
-      await writeRel(dir, '.cyning-harness/events/2026-08.jsonl', '{corrupt json\n')
+      await writeRel(dir, '.coding-kit/events/2026-08.jsonl', '{corrupt json\n')
       const payload = statusJson(dir, rel)
       assert.equal(payload.hgm.event_count, null, '读取失败应为 null')
       assert.equal(payload.hgm.last_at, null)

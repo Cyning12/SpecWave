@@ -104,6 +104,50 @@ function escapeRegExp(s: string): string {
   return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 }
 
+/** 现行落盘根（F4 方案 B） */
+export const KIT_LAYOUT_DIR = '.coding-kit' as const
+/** legacy 只读探测根（不再作为新写默认目标） */
+export const LEGACY_LAYOUT_DIR = '.cyning-harness' as const
+
+export function kitLayoutJoin(target: string, ...parts: string[]): string {
+  return path.join(target, KIT_LAYOUT_DIR, ...parts)
+}
+
+export function legacyLayoutJoin(target: string, ...parts: string[]): string {
+  return path.join(target, LEGACY_LAYOUT_DIR, ...parts)
+}
+
+/**
+ * 解析布局内相对文件：优先 `.coding-kit/`，否则 legacy `.cyning-harness/`。
+ * `source=none` 时 `abs` 仍指向新布局路径（供写入）。
+ */
+export function resolveLayoutFile(
+  target: string,
+  relWithinLayout: string,
+): { abs: string; source: 'kit' | 'legacy' | 'none' } {
+  const kit = kitLayoutJoin(target, relWithinLayout)
+  if (existsSync(kit)) return { abs: kit, source: 'kit' }
+  const legacy = legacyLayoutJoin(target, relWithinLayout)
+  if (existsSync(legacy)) return { abs: legacy, source: 'legacy' }
+  return { abs: kit, source: 'none' }
+}
+
+export function legacyLayoutHint(target: string): string | null {
+  const hasLegacy = existsSync(path.join(target, LEGACY_LAYOUT_DIR))
+  const hasKit = existsSync(path.join(target, KIT_LAYOUT_DIR))
+  if (hasLegacy && !hasKit) {
+    return (
+      `提示: 检测到 legacy 目录 ${LEGACY_LAYOUT_DIR}/；新落盘已统一为 ${KIT_LAYOUT_DIR}/。` +
+      `请运行 \`npx dsh-coding-kit upgrade --yes\` 将 manifest 写入新目录（旧目录只读保留，不删除）。`
+    )
+  }
+  if (hasLegacy && hasKit) {
+    return `提示: ${LEGACY_LAYOUT_DIR}/ 为 legacy 只读；现行落盘为 ${KIT_LAYOUT_DIR}/。`
+  }
+  return null
+}
+
+
 export function extractSection(content: string, startMarker: string, endMarker?: string): string | null {
   const startRe = new RegExp(`^${escapeRegExp(startMarker)}`, 'm')
   const startMatch = content.match(startRe)

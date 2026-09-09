@@ -505,7 +505,7 @@ describe('DEF-003 T6 + 后续棒 · task close 守卫接线', { concurrency: 1 }
       const good = close(dir)
       assert.equal(good.status, 0, good.combined)
       assert.match(good.combined, /CLOSE: READY/)
-      await writeRel(dir, '.cyning-harness/local.json', JSON.stringify({ close_hub_gate: false }))
+      await writeRel(dir, '.coding-kit/local.json', JSON.stringify({ close_hub_gate: false }))
       await writeRel(dir, 'docs/tasks/done/README.md', '# Hub empty again\n')
       const skipped = close(dir)
       assert.equal(skipped.status, 0, skipped.combined)

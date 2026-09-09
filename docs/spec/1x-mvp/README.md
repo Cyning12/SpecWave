@@ -68,7 +68,7 @@ docs/spec/1x-mvp/
 |------|------|------|
 | **W1** | F1 · **DONE 2026-09-09** | 真值源是跨命令地基；未收敛前改 F2/F4 会放大分裂 |
 | **W2** | F2 · **DONE 2026-09-09** | 语义文档 + 退出码契约对齐；回归依赖 F1 一致率 |
-| **W3** | F4 + F3 文档面 | 目录收敛（方案 B）与迁移时间表同属迁移治理域 |
+| **W3** | F4 + F3 文档面 · **DONE 2026-09-09** | 目录收敛（方案 B）与迁移时间表同属迁移治理域 |
 | **W4** | F5 | 纳入 `prepublishOnly` / RELEASING 硬闸 |
 
 **禁止**：跳过 F1 直接铺宿主适配（F6）；未过 `HG-AUDIT-R1` 即开 30 改码。
@@ -162,9 +162,10 @@ docs/spec/1x-mvp/
 | 2026-09-09 | **HG-SPEC-SIGNOFF=approved**（整包一次签）；开放项收敛为 EOS / F5-PIN-MODE |
 | 2026-09-09 | **W1/F1 落地完成**（`S2_TRUTH_PREFIXES` · task `1x-mvp-w1-s2-truth`） |
 | 2026-09-09 | **W2/F2 落地完成**（exit 2 / failClosed 文档 + `test/gate-semantics.test.ts`） |
+| 2026-09-09 | **W3/F4+F3 文档面落地**（`.coding-kit` 写根 · `MIGRATION.md` · EOS 仍 pending） |
 
 ---
 
 ## 给 Cursor / 下一棒
 
-`1x-mvp`、`signed`、`HG-SPEC-SIGNOFF=approved`、下一棒 **00 按 W1 起草 F1 task**（`test_strategy=required`）；W4 前补 `HG-F5-PIN-MODE`；deprecate 前补 `HG-EOS-DATE`
+`1x-mvp`、`signed`、`HG-SPEC-SIGNOFF=approved`；W1–W3 **DONE**；下一棒 **W4 / F5**（先补 `HG-F5-PIN-MODE`）；deprecate 前补 `HG-EOS-DATE`

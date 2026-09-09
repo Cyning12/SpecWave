@@ -238,7 +238,7 @@ describe('C* CLI P0 runtime', { concurrency: 1 }, () => {
     await withTemp(async (dir) => {
       const r = runCli(['init', '--preset', 'harness-only', '--yes', '--target', dir])
       assert.equal(r.status, 0, r.combined)
-      const mfPath = path.join(dir, '.cyning-harness', 'manifest.json')
+      const mfPath = path.join(dir, '.coding-kit', 'manifest.json')
       assert.equal(existsSync(mfPath), true)
       const mf = JSON.parse(await readFile(mfPath, 'utf8')) as { version: string }
       assert.equal(mf.version, '1.10.0')

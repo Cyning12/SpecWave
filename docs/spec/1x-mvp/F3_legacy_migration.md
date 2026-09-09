@@ -72,10 +72,11 @@
 
 ## 4. 验收标准
 
-- [ ] 公开文档含：EOS 日、新注册截止、过渡窗、迁移三步最小路径  
-- [ ] MIGRATION（或等价）可独立阅读完成迁移  
-- [ ] deprecate 文案草稿已写入文档；实操勾选「仅人」  
-- [ ] 与 F4 方案 B 表述一致（目标目录 `.coding-kit`，非继续写死 `.cyning-harness` 为新标准）  
+- [x] 公开文档含：EOS 日、新注册截止、过渡窗、迁移三步最小路径（**EOS/截止为提案占位 TBD**；见 `MIGRATION.md`；`HG-EOS-DATE` 仍 pending）  
+- [x] MIGRATION（或等价）可独立阅读完成迁移  
+- [x] deprecate 文案草稿已写入文档；实操勾选「仅人」  
+- [x] 与 F4 方案 B 表述一致（目标目录 `.coding-kit`，非继续写死 `.cyning-harness` 为新标准）  
+- [ ] T1 `npm deprecate` 实操（**仅人** · 阻塞于 `HG-EOS-DATE`）  
 - [ ] 对齐 V3：迁移时间表「无 → 已发布」
 
 ---
@@ -110,3 +111,4 @@
 |------|------|
 | 2026-09-09 | v0-draft |
 | 2026-09-09 | 系列签收；`HG-EOS-DATE` 仍 pending（阻塞 T1 deprecate，不阻塞 W1） |
+| 2026-09-09 | **W3 文档面落地**：根 `MIGRATION.md` + README 双文件对齐方案 B；T1 仍 pending |

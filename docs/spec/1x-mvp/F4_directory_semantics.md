@@ -72,12 +72,12 @@
 
 ## 4. 验收标准
 
-- [ ] 全仓新写路径默认根为 `.coding-kit`（或文档声明的等价 `.dsh/coding-kit`）  
-- [ ] `.cyning-harness` 无「创建/写入默认目标」（测试钉死）  
-- [ ] legacy 探测：有旧 manifest → 提示 upgrade；可读不报崩  
-- [ ] `upgrade --yes`：旧 → 新布局；S2 仍不覆盖  
-- [ ] README/MIGRATION 无「新标准目录=.cyning-harness」  
-- [ ] 对齐 V3：目录语义数 2 → 1
+- [x] 全仓新写路径默认根为 `.coding-kit`（或文档声明的等价 `.dsh/coding-kit`）  
+- [x] `.cyning-harness` 无「创建/写入默认目标」（测试钉死）  
+- [x] legacy 探测：有旧 manifest → 提示 upgrade；可读不报崩  
+- [x] `upgrade --yes`：旧 → 新布局；S2 仍不覆盖  
+- [x] README/MIGRATION 无「新标准目录=.cyning-harness」  
+- [x] 对齐 V3：目录语义数 2 → 1（现行唯一写根 `.coding-kit`）
 
 ---
 
@@ -111,3 +111,4 @@
 |------|------|
 | 2026-09-09 | v0-draft（锚定方案 B） |
 | 2026-09-09 | 系列签收；方案 B 仍为 F4 真值 |
+| 2026-09-09 | **W3/F4 落地**：`KIT_LAYOUT_DIR` + 读新写新 / legacy 只读；task `1x-mvp-w3-layout-migration` |

@@ -144,7 +144,7 @@ function listHgmFiles(dir: string): string[] {
       }
     }
   }
-  walk(path.join(dir, '.cyning-harness'))
+  walk(path.join(dir, '.coding-kit'))
   return out.sort()
 }
 
@@ -182,7 +182,7 @@ describe('D1–D7 G1–G7 runtime', { concurrency: 1 }, () => {
       assert.equal(r.status, 0, r.combined)
       const after = listHgmFiles(dir)
       assert.deepEqual(after, before)
-      assert.equal(existsSync(path.join(dir, '.cyning-harness', 'events')), false)
+      assert.equal(existsSync(path.join(dir, '.coding-kit', 'events')), false)
     })
   })
 
@@ -287,17 +287,17 @@ describe('D1–D7 G1–G7 runtime', { concurrency: 1 }, () => {
     await withTemp(async (dir) => {
       await writeRel(
         dir,
-        '.cyning-harness/manifest.json',
+        '.coding-kit/manifest.json',
         `${JSON.stringify({ version: '1.10.0', preset: 'harness-only', ide: [], from_version: null, upgraded_at: '2026-08-16T00:00:00Z' }, null, 2)}\n`,
       )
       await writeRel(dir, 'docs/tasks/active/task_hgm_ok_v1.md', taskMd({ slug: 'hgm_ok' }))
       const dry = runCli(['graph', 'ingest', '--target', dir, '--dry-run'])
       assert.equal(dry.status, 0, dry.combined)
-      assert.equal(existsSync(path.join(dir, '.cyning-harness', 'events')), false)
+      assert.equal(existsSync(path.join(dir, '.coding-kit', 'events')), false)
 
       const snapEmpty = runCli(['graph', 'snapshot', '--target', dir])
       assert.equal(snapEmpty.status, 0, snapEmpty.combined)
-      assert.equal(existsSync(path.join(dir, '.cyning-harness', 'graph', 'snapshot.json')), true)
+      assert.equal(existsSync(path.join(dir, '.coding-kit', 'graph', 'snapshot.json')), true)
 
       const axPass = runCli(['graph', 'axioms', 'check', '--target', dir])
       assert.equal(axPass.status, 0, axPass.combined)
@@ -322,7 +322,7 @@ describe('D1–D7 G1–G7 runtime', { concurrency: 1 }, () => {
       await writeRel(dir, rel, taskMd({ slug: 'harness_ingest' }))
       const run1 = runCli(['graph', 'ingest', '--target', dir])
       assert.equal(run1.status, 0, run1.combined)
-      const eventsDir = path.join(dir, '.cyning-harness', 'events')
+      const eventsDir = path.join(dir, '.coding-kit', 'events')
       assert.equal(existsSync(eventsDir), true, 'ingest 应写出事件轨')
       const jsonl = readdirSync(eventsDir)
         .filter((n) => n.endsWith('.jsonl'))
@@ -383,7 +383,7 @@ describe('D1–D7 G1–G7 runtime', { concurrency: 1 }, () => {
       )
       const r = runCli(['sync', 'index', '--target', dir])
       assert.equal(r.status, 0, r.combined)
-      const indexPath = path.join(dir, '.cyning-harness', 'invoke_index.json')
+      const indexPath = path.join(dir, '.coding-kit', 'invoke_index.json')
       assert.equal(existsSync(indexPath), true)
       const idx = JSON.parse(await readFile(indexPath, 'utf8')) as { index?: Record<string, unknown> }
       assert.ok(idx.index && typeof idx.index === 'object')

@@ -14,7 +14,7 @@ import {
   writeFileSync,
 } from 'node:fs'
 import path from 'node:path'
-import { assertNotS2Abs, fail, resolveTarget, takeOption } from './cli-shared.ts'
+import { assertNotS2Abs, fail, kitLayoutJoin, resolveTarget, takeOption } from './cli-shared.ts'
 
 // ---------- T1：marker 块解析器（§3 冻结形态 · 纯函数 · 不写盘） ----------
 
@@ -314,10 +314,10 @@ export function gitState(target: string): GitState {
 const BACKUP_KEEP = 5 // §12 裁定：备份维持 5 代
 
 function backupsRoot(target: string): string {
-  return path.join(target, '.cyning-harness', 'backups', 'refresh-ide-blocks')
+  return kitLayoutJoin(target, 'backups', 'refresh-ide-blocks')
 }
 
-// §6.5：写盘前原字节复制到 .cyning-harness/backups/refresh-ide-blocks/<UTCts>/<相对路径>
+// §6.5：写盘前原字节复制到 .coding-kit/backups/refresh-ide-blocks/<UTCts>/<相对路径>
 function backupFile(target: string, genDir: string, rel: string): string {
   const src = path.join(target, rel)
   const dest = path.join(genDir, rel)
@@ -435,7 +435,7 @@ function printHumanReport(report: Report, scans: FileScan[]): void {
   }
   const t = report.totals
   console.log('汇总: files_scanned=' + t.files_scanned + ' product_blocks=' + t.product_blocks + ' rewrites=' + t.rewrites + ' report_only=' + t.report_only + ' files_written=' + t.files_written + ' plain_mentions=' + t.plain_mentions)
-  console.log('回滚: git checkout -- <path>（干净树 preflight 保证 git 可用时 diff 即回滚面）；非 git 仓以备份 cp 回（.cyning-harness/backups/refresh-ide-blocks/）')
+  console.log('回滚: git checkout -- <path>（干净树 preflight 保证 git 可用时 diff 即回滚面）；非 git 仓以备份 cp 回（.coding-kit/backups/refresh-ide-blocks/）')
 }
 
 export async function cmdRefreshIdeBlocks(args: string[]): Promise<void> {
