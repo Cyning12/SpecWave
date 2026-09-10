@@ -1,6 +1,6 @@
 # 2.1.2 · SpecWave 改名收口 · SPEC 系列
 
-> **状态**：`signed`（**HG-SPEC-SIGNOFF=approved** · 2026-09-10 · 人授权 · **00 代签过程闸**）  
+> **状态**：`signed` · **IMPLEMENTED** · **`2.1.2` published** · **CLOSED**（2026-09-10）  
 > **spec_slug**：`2_1_2-rename-closeout`  
 > **目标包**：`spec-wave@2.1.2`  
 > **上游证据**：[`.workbuddy/output/审查报告-SpecWave-2.1.1-改名验收.md`](../../../.workbuddy/output/审查报告-SpecWave-2.1.1-改名验收.md)（2026-09-10）  
@@ -35,9 +35,9 @@
 |---------------|--------|--------|
 | **HG-NEXT-212** | **approved** | 开实现 · 2026-09-10 人授权 · 00 代签落表 |
 | **HG-SPEC-SIGNOFF** | **approved** | 定稿 · B-* 冻结 · 2026-09-10 人授权 · 00 代签落表 |
-| **HG-AUDIT-R1** | 按波 · **00 可代签**（人 2026-09-10 授权过程文档） | 各波 30 前 |
-| **HG-PUBLISH** | pending | `spec-wave@2.1.2`（**仅人** · 00 不可代签） |
-| **HG-DEPRECATE-HARNESS** | pending | `@cyning/harness` deprecate 文案（**仅人**） |
+| **HG-AUDIT-R1** | W1–W4 **approved**（00 代签） | 各波 30 前 |
+| **HG-PUBLISH** | **approved** | `spec-wave@2.1.2` · 人 · 2026-09-10 · 00 核验 |
+| **HG-DEPRECATE-HARNESS** | **approved** | `@cyning/harness` 文案改指 `spec-wave` · 人 · 2026-09-10 · 00 核验 |
 
 ### 过程闸授权（人 · 2026-09-10）
 
@@ -87,3 +87,4 @@
 |------|------|
 | 2026-09-10 | draft 立档 · 源自 2.1.1 改名验收审查 |
 | 2026-09-10 | **signed** · HG-NEXT-212 / SPEC · 人授权 00 代签过程文档 |
+| 2026-09-10 | **CLOSED** · HG-PUBLISH / HG-DEPRECATE-HARNESS approved · npm `2.1.2` |

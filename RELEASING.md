@@ -10,17 +10,17 @@
 
 | 项 | 值 |
 |----|-----|
-| **工作树 / 准备中** | **`spec-wave@2.1.2`**（**未 published** · W4 准备 · `HG-PUBLISH` **pending**） |
-| **registry `latest`（仍）** | **`spec-wave@2.1.1`**（**已 published** · 2026-09-10 · 人 · 直至人 publish `2.1.2`） |
-| **旧包名** | **`dsh-coding-kit`** · **已 deprecate**（文案指向 `spec-wave`；勿再作为安装终点） |
-| **git（史实 · 2.1.1）** | tag **`v2.1.1`** · commit `cc61324` 仍为改名前身份；npm `spec-wave@2.1.1` 为改名后身份 → **用 `v2.1.2` 重建可溯源点**（**禁止** `git tag -f`） |
-| **主题（准备中 · 2.1.2）** | SpecWave 改名收口：CLI 身份 · 迁移链切断 · 对外文案 · `init --yes` · **`v2.1.2` ↔ npm 同 commit** |
+| **工作树 / registry `latest`** | **`spec-wave@2.1.2`**（**已 published** · 2026-09-10 · 人 · tag **`v2.1.2`** ↔ 同 commit） |
+| **前一 latest** | **`spec-wave@2.1.1`**（仍可安装；改名半完成史实） |
+| **旧包名** | **`dsh-coding-kit`** · **已 deprecate**（文案 → `spec-wave@2.1.2`） |
+| **git（史实 · 2.1.1）** | tag **`v2.1.1`** · commit `cc61324` 仍为改名前身份；npm `spec-wave@2.1.1` 为改名后身份 → **已用 `v2.1.2` 重建可溯源点**（**禁止** `git tag -f`） |
+| **主题（已发 · 2.1.2）** | SpecWave 改名收口：CLI 身份 · 迁移链切断 · 对外文案 · `init --yes` · **`v2.1.2` ↔ npm 同 commit** |
 | **主题（已发 · 2.1.1 UX）** | patch：host tools 粘性 · update 缺省 A · `init --tools`（对齐 OpenSpec） |
-| **前一发版** | **`2.1.1`**（host tools UX）· 更早 **`2.1.0`**（Skills + Commands · 曾用名 `dsh-coding-kit`） |
-| **更早旧包** | `@cyning/harness` **已 deprecate**（2026-09-10 · registry 文案曾钉 `dsh-coding-kit@1.12.0` · **待人**改指 `spec-wave` · `HG-DEPRECATE-HARNESS`） |
+| **前一发版** | **`2.1.1`**（host tools UX + 改名半完成）· 更早 **`2.1.0`**（Skills + Commands） |
+| **更早旧包** | `@cyning/harness` **已 deprecate**（文案已改指 **`spec-wave@2.1.2`** · `HG-DEPRECATE-HARNESS=approved`） |
 | **1.x** | **CLOSED**（见 `docs/roadmap/AUDIT_1x_residual_after_1_12_1_zh.md`） |
-| **下一主线** | **人 publish `2.1.2`** → 其后 **2.1.x+ / 2.2**（workspaces / onboard 等观察项；另闸） |
-| **验收草稿（2.1.2）** | [`docs/roadmap/ACCEPTANCE_2_1_2_rename_closeout_2_1_2_zh.md`](docs/roadmap/ACCEPTANCE_2_1_2_rename_closeout_2_1_2_zh.md) |
+| **下一主线** | **2.1.x+ / 2.2**（workspaces / onboard 等观察项；另闸） |
+| **验收（2.1.2）** | [`docs/roadmap/ACCEPTANCE_2_1_2_rename_closeout_2_1_2_zh.md`](docs/roadmap/ACCEPTANCE_2_1_2_rename_closeout_2_1_2_zh.md) · **CLOSED** |
 | **验收（2.1.1 UX）** | [`docs/roadmap/ACCEPTANCE_2_1_1_host_tools_ux_2_1_1_zh.md`](docs/roadmap/ACCEPTANCE_2_1_1_host_tools_ux_2_1_1_zh.md) |
 | **规划 / SPEC（2.1.2）** | [`docs/roadmap/PLAN_2_1_2_rename_closeout_v1_zh.md`](docs/roadmap/PLAN_2_1_2_rename_closeout_v1_zh.md) · [`docs/spec/2_1_2-rename-closeout/`](docs/spec/2_1_2-rename-closeout/) |
 
@@ -46,15 +46,15 @@
 
 ### 人 checklist · `2.1.2` 发版（**仅人** · Agent 禁执行）
 
-> 真值闸：`HG-PUBLISH` / `HG-DEPRECATE-HARNESS` 仍 **pending**，直至人签。详情亦见 ACCEPTANCE 草稿。
+> 真值闸：`HG-PUBLISH` / `HG-DEPRECATE-HARNESS` = **approved**（人 · 2026-09-10）。
 
-1. [ ] 确认工作树已 commit（含 bump `2.1.2` · CHANGELOG · 钉点 · 四门绿证据）  
-2. [ ] `git tag v2.1.2 <publish-commit>`（**禁止** `git tag -f`）  
-3. [ ] `npm publish`（包名 `spec-wave` · 版本 `2.1.2`）  
-4. [ ] 探针：`git show v2.1.2:package.json` → `name=spec-wave` · `version=2.1.2`；`npm view spec-wave version` → `2.1.2`  
-5. [ ] `npm deprecate @cyning/harness "…"` 文案改指 **`spec-wave`**（勿再把 `dsh-coding-kit` 当终点）  
-6. [ ] 签 task 表 **`HG-PUBLISH=approved`** · **`HG-DEPRECATE-HARNESS=approved`**  
-7. [ ] 回填 ACCEPTANCE / 过程档为已 published（可派 Agent 代核 ⑨）
+1. [x] 确认工作树已 commit（含 bump `2.1.2` · CHANGELOG · 钉点 · 四门绿证据）  
+2. [x] `git tag v2.1.2 <publish-commit>`（**禁止** `git tag -f`）  
+3. [x] `npm publish`（包名 `spec-wave` · 版本 `2.1.2`）  
+4. [x] 探针：`git show v2.1.2:package.json` → `name=spec-wave` · `version=2.1.2`；`npm view spec-wave version` → `2.1.2`  
+5. [x] `npm deprecate @cyning/harness "…"` 文案改指 **`spec-wave`**（勿再把 `dsh-coding-kit` 当终点）  
+6. [x] 签 task 表 **`HG-PUBLISH=approved`** · **`HG-DEPRECATE-HARNESS=approved`**  
+7. [x] 回填 ACCEPTANCE / 过程档为已 published（00 代核 ⑨）
 
 
 ## 禁令速查

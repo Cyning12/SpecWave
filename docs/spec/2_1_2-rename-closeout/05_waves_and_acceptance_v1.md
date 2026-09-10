@@ -1,6 +1,6 @@
 # 05 · Waves 与验收（2.1.2）
 
-> **状态**：`signed` · 隶属 `2_1_2-rename-closeout` · W0–W3 DONE · W4 OPEN（publish 仅人）
+> **状态**：`signed` · **CLOSED** · W0–W4 DONE · `2.1.2` published
 
 ---
 
@@ -34,12 +34,12 @@
 
 ## W4 · bump · tag · 发版
 
-- [ ] bump **2.1.2** · 钉点 · CHANGELOG  
-- [ ] 四门绿  
-- [ ] `git tag v2.1.2` **于 publish commit**（先于或紧随 publish，禁止长期无 tag）  
-- [ ] **HG-PUBLISH**（仅人）· `npm view` = 2.1.2  
-- [ ] **HG-DEPRECATE-HARNESS**（仅人）· `@cyning/harness` 文案改指 `spec-wave`  
-- [ ] ACCEPTANCE 归档 · 更新 `docs/spec/README.md` 状态  
+- [x] bump **2.1.2** · 钉点 · CHANGELOG  
+- [x] 四门绿  
+- [x] `git tag v2.1.2` **于 publish commit**  
+- [x] **HG-PUBLISH**（人）· `npm view` = 2.1.2  
+- [x] **HG-DEPRECATE-HARNESS**（人）· `@cyning/harness` 文案改指 `spec-wave`  
+- [x] ACCEPTANCE 归档 · 更新 `docs/spec/README.md` 状态  
 - [x] `HG-AUDIT-R1`（00 代签 · 开波 · **不含** publish）  
 
 ---
@@ -97,3 +97,4 @@ CLI/init = required；迁移 deprecate = 人闸 + 文案抽检；发版 = tag/np
 |------|------|
 | 2026-09-10 | draft |
 | 2026-09-10 | **signed** · W0 DONE · W1 R1 代签可 30 |
+| 2026-09-10 | **CLOSED** · W0–W4 DONE · `2.1.2` published |
