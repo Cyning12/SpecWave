@@ -1,6 +1,6 @@
 # 1.x 收口 · 1.12.0 · SPEC 系列
 
-> **状态**：`signed` / **done（W1–W4 齐 · tag `v1.12.0` · 待人 publish）**  
+> **状态**：`signed` / **DONE（W1–W4 · `1.12.0` published · `@cyning/harness` deprecated）**  
 > **spec_slug**：`1x-closeout`  
 > **拟发版**：`dsh-coding-kit@1.12.0`  
 > **上游规划**：[`docs/roadmap/PLAN_post_1.11_zh.md`](../../roadmap/PLAN_post_1.11_zh.md)（**signed** · 下一版=1.12）  
@@ -47,8 +47,8 @@
 |---------------|--------|--------|
 | **HG-NEXT-PLAN** | **approved** | ~~版本选型~~（「先 1.12」） |
 | **HG-CLOSEOUT-SIGNOFF** | **approved**（00 代签 · 2026-09-10 · 用户「授权00签收，开始完成此版本」） | 系列正文定稿 |
-| **HG-EOS-DATE** | **pending** | W2 deprecate 实操（日历提案可先成文） |
-| **HG-PUBLISH** | pending | 1.12.0 **publish 仅人**（Agent 可 bump/tag） |
+| **HG-EOS-DATE** | **approved**（2026-09-10 · 人 · deprecate 已核） | ~~W2 deprecate~~ |
+| **HG-PUBLISH** | **approved**（2026-09-10 · 人 · `latest=1.12.0`） | ~~1.12.0 publish~~ |
 
 ---
 

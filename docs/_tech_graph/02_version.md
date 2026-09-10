@@ -1,8 +1,8 @@
 # 02 · 版本时间线（kit 图谱 / 包里程碑）
 
 > **性质**：手写时间线 · **不是** yaml compile 产物。  
-> **上限**：**1.12.x**（现行 git 包 **1.12.0** · 待人 npm publish；registry 在人 publish 前可能仍为 1.11.0）。  
-> **真值**：仓根 `CHANGELOG.md` · `package.json`。不把 `assets/graph/templates/02_version.md` 的 YYYY-MM-DD 占位当 kit 史实。
+> **上限**：**1.12.x**（现行包 **1.12.0** · **已 npm 发版**）。  
+> **真值**：仓根 `CHANGELOG.md` · `package.json` · `npm view`。不把 `assets/graph/templates/02_version.md` 的 YYYY-MM-DD 占位当 kit 史实。
 
 | 日期 | 版本 | 事件 |
 |------|------|------|
@@ -16,7 +16,7 @@
 | 2026-08-28 | 1.9.2 | compile/export `generated_at` 源内容派生（`sha256-<16hex>`）· tech-graph CI 去掉 `-I` |
 | 2026-08-31 | 1.10.0 | 帽 System/Re-anchor FRAGMENT · 00 delegate-only 默认 Skill · Host Capability 文档 |
 | 2026-09-09 | 1.11.0 | **已 npm 发版**：1.x MVP W1–W4（S2 真值 · 门禁语义 · `.coding-kit` · F5=B 钉点）· Agent 可 bump / 人仅 publish · PR #30 |
-| 2026-09-10 | 1.12.0 | **1.x 收口（待人 publish）**：EOS 提案日历 · 测稳/dogfood · 本体论浅落地 · P6-prep · tag `v1.12.0` |
+| 2026-09-10 | 1.12.0 | **已 npm 发版 · 1.x 收口**：EOS 日历公布 · `@cyning/harness` deprecate · 测稳/dogfood · 本体论浅落地 · P6-prep · tag `v1.12.0` |
 
 ## 修订记录
 
@@ -31,3 +31,4 @@
 | 2026-09-09 | 1.11.0 发版准备：1.x MVP W1–W4 + RELEASING Agent bump / 人仅 publish |
 | 2026-09-09 | **1.11.0 published**：`npm view latest=1.11.0` · tag `v1.11.0` · PR #30 |
 | 2026-09-10 | **1.12.0** bump + tag · **STOP 待人 `npm publish`** |
+| 2026-09-10 | **1.12.0 published** · `@cyning/harness` deprecated |

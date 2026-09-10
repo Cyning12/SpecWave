@@ -66,19 +66,18 @@
 | B. 仅 README 一句「请迁移」 | 不可预期；V3 不达标 | **弃选** |
 | C. 立即 unpublish 旧包 | 破坏存量；过高 | **弃选** |
 
-**时间数字**：具体日历日 **留空待 `HG-EOS-DATE`**；SPEC 只锁「必须有公开日 + 截止 ≤ EOS + 过渡窗规则成文」。
+**时间数字**：具体日历日见根 [`MIGRATION.md`](../../../MIGRATION.md)（**已公布** · `HG-EOS-DATE=approved` · 2026-09-10）。
 
 ---
 
 ## 4. 验收标准
 
-- [x] 公开文档含：EOS 日、新注册截止、过渡窗、迁移三步最小路径（**EOS/截止为提案占位 TBD**；见 `MIGRATION.md`；`HG-EOS-DATE` 仍 pending）  
+- [x] 公开文档含：EOS 日、新注册截止、过渡窗、迁移三步最小路径（见 `MIGRATION.md` · **已公布**）  
 - [x] MIGRATION（或等价）可独立阅读完成迁移  
 - [x] deprecate 文案草稿已写入文档；实操勾选「仅人」  
 - [x] 与 F4 方案 B 表述一致（目标目录 `.coding-kit`，非继续写死 `.cyning-harness` 为新标准）  
-- [ ] T1 `npm deprecate` 实操（**仅人** · 阻塞于 `HG-EOS-DATE`）  
-- [ ] 对齐 V3：迁移时间表「无 → 已发布」
-
+- [x] T1 `npm deprecate` 实操（**仅人** · 2026-09-10 · `npm view @cyning/harness deprecated` 已核）  
+- [x] 对齐 V3：迁移时间表「无 → 已发布」
 ---
 
 ## 5. failure_paths
@@ -86,7 +85,7 @@
 | ID | 触发 | 行为 | 可重试 |
 |----|------|------|--------|
 | F3-01 | Agent 自行 npm deprecate | 禁止；记事故；人撤销/重发 | 否/人处理 |
-| F3-02 | EOS 日未填却宣称 F3 完成 | 闸：`HG-EOS-DATE=pending` | 是 |
+| F3-02 | EOS 日未填却宣称 F3 完成 | 闸：以 `MIGRATION.md` / `npm view` 为准（本波已闭环） | 是 |
 | F3-03 | 时间表与 F4 目录目标矛盾 | 打回统一口径 | 是 |
 | F3-04 | 过渡窗内停止一切旧包安全修复且未公告 | 违背范式；补公告或恢复策略 | 是 |
 

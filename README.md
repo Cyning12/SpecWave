@@ -176,7 +176,7 @@ When a task declares `test_strategy=required`, `audit` / `verify` run the D5 har
 
 ## Migrating from @cyning/harness
 
-Full checklist, layout rules (F4 scheme B), and **proposed** EOS / deprecate calendar (pending maintainer gates): see [`MIGRATION.md`](./MIGRATION.md).
+Full checklist, layout rules (F4 scheme B), and **published** EOS / deprecate calendar: see [`MIGRATION.md`](./MIGRATION.md).
 
 After pinning **dsh-coding-kit@1.12.0** you can drop `@cyning/harness`. Minimal path, three steps (required, in order):
 
@@ -186,7 +186,7 @@ After pinning **dsh-coding-kit@1.12.0** you can drop `@cyning/harness`. Minimal 
 
 **Layout**: new kit process files land under **`.coding-kit/`**. `.cyning-harness/` remains **legacy read-only**. Do not treat `.cyning-harness` as the new standard root.
 
-Skill installation is **recommended, not required** (the minimal path does not depend on DSH scanning skills). Commands are always `npx dsh-coding-kit`. **`npm deprecate` of the old `@cyning/harness` package is maintainer-only** and still waits on `HG-EOS-DATE` (after human publish of **1.12.0**, pin that; until then npm `latest` may still be 1.11.0).
+Skill installation is **recommended, not required** (the minimal path does not depend on DSH scanning skills). Commands are always `npx dsh-coding-kit`. **`@cyning/harness` is deprecated** on npm (2026-09-10 · maintainer-only); pin **`dsh-coding-kit@1.12.0`** and migrate via `MIGRATION.md`.
 
 ### FAQ · pnpm peer
 

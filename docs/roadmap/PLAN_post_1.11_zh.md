@@ -124,7 +124,7 @@
 | # | 问题 | 状态 |
 |---|------|------|
 | 1–4 | 见上表 | **已拍** |
-| 5 | `HG-EOS-DATE` 具体日历日 | **仍 pending**（阻塞 deprecate 实操，不阻塞 W1 CI/dogfood） |
+| 5 | `HG-EOS-DATE` 具体日历日 | **approved**（2026-09-10 · 人 · deprecate 已核） |
 
 ---
 
@@ -134,3 +134,4 @@
 |------|------|
 | 2026-09-10 | 初稿：验收通过后规划 1.12 收口 + 2.0 F6 |
 | 2026-09-10 | **拍板先 1.12**；开放项收敛为 EOS 日历；挂 `docs/spec/1x-closeout/` |
+| 2026-09-10 | **1.12.0 published** + `@cyning/harness` deprecated；`HG-EOS-DATE` / `HG-PUBLISH` approved |

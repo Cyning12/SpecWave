@@ -111,8 +111,8 @@ docs/spec/1x-mvp/
 | human_gate_id | status | blocks | 说明 |
 |---------------|--------|--------|------|
 | **HG-SPEC-SIGNOFF** | **approved** | ~~00 出实现 task~~（已放行）· 30 仍须 task 闸 | 2026-09-09 维护者「签收」· **整包一次签** F1–F5 |
-| **HG-EOS-DATE** | **pending** | F3 T1 `npm deprecate` | EOS / 新注册截止日 **仅人**拍板 |
-| **HG-PUBLISH** | **approved（1.11.0）** | ~~本波 npm publish~~ | 2026-09-09 人已发版 · `npm view latest=1.11.0` · PR #30；**下一波发版仍须再签/再执行 ⑧** |
+| **HG-EOS-DATE** | **approved**（2026-09-10） | ~~F3 T1 `npm deprecate`~~ | EOS / 新注册截止 / deprecate 已执行（见 `MIGRATION.md`） |
+| **HG-PUBLISH** | **approved（1.12.0）** | ~~本波 npm publish~~ | 2026-09-10 人已发版 · `npm view latest=1.12.0`；前一波 1.11.0 见史实 |
 | **HG-F5-PIN-MODE** | **approved = B** | ~~F5 W4 选型~~ | 2026-09-09 维护者「选择 B」：废除仓根 SPEC 版本钉检查；只钉 ontology / discipline / README |
 
 ---
@@ -133,11 +133,11 @@ docs/spec/1x-mvp/
 | # | 问题 | 决议 |
 |---|------|------|
 | 1 | 整包签 vs 分 F 签 | **整包一次签**（本闸） |
-| 2 | F3 EOS 日 | **仍 pending** → `HG-EOS-DATE`（不阻塞 W1） |
+| 2 | F3 EOS 日 | **approved**（2026-09-10 · 见 `MIGRATION.md` 已公布日历） |
 | 3 | F5 钉点模式 A vs B | **B**（2026-09-09）→ 只钉 ontology/discipline/README；仓根 SPEC = 历史 epic |
 | 4 | F2 分层强制粒度 | **默认文档-only**（1.x 不引入云/远程四层引擎；若 task 需代码分层再开补充闸） |
 
-**residual_risks**：EOS 日历空（旧包 deprecate 未执行）；本体论深化 / F6 见 [`docs/roadmap/PLAN_post_1.11_zh.md`](../../roadmap/PLAN_post_1.11_zh.md)。
+**residual_risks**：本体论深化 / F6 见 [`docs/roadmap/PLAN_post_1.11_zh.md`](../../roadmap/PLAN_post_1.11_zh.md)（EOS/deprecate 已闭环）。
 
 ---
 
@@ -165,9 +165,10 @@ docs/spec/1x-mvp/
 | 2026-09-09 | **W3/F4+F3 文档面落地**（`.coding-kit` 写根 · `MIGRATION.md` · EOS 仍 pending） |
 | 2026-09-09 | **`HG-F5-PIN-MODE=B` + W4/F5 落地**（版本钉闸不含仓根 SPEC） |
 | 2026-09-09 | **`dsh-coding-kit@1.11.0` npm 已发版**（`npm view` · PR #30 · `HG-PUBLISH` 本波 approved） |
+| 2026-09-10 | **`HG-EOS-DATE` / 1.12 `HG-PUBLISH` approved**：日历已公布 · deprecate 已核 · `latest=1.12.0` |
 
 ---
 
 ## 给 Cursor / 下一棒
 
-`1x-mvp` W1–W4 **DONE** · **1.11.0 published** · 三方验收通过；**下一版 1.12** 见 [`docs/spec/1x-closeout/`](../1x-closeout/)；残余 **`HG-EOS-DATE`**
+`1x-mvp` W1–W4 **DONE** · **1.11.0 published** · 三方验收通过；**1.12.0 published** + `@cyning/harness` deprecated · 见 [`docs/spec/1x-closeout/`](../1x-closeout/)

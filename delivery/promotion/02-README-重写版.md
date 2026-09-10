@@ -105,15 +105,15 @@ kit 的门禁判定走**进程内机械逻辑**，不依赖宿主是否执行了
 |---------|------|------|
 | **F1** | S2 过程域真源统一 | ✅ 1.11.0 |
 | **F2** | P0 门禁语义对齐（exit 2 / failClosed） | ✅ 1.11.0 |
-| **F3** | 旧产品线迁移文档面（EOS/deprecate 待人闸） | ✅ 文档 · T1 待 `HG-EOS-DATE` |
+| **F3** | 旧产品线迁移文档面 + deprecate | ✅ 文档 · **T1 已执行**（2026-09-10） |
 | **F4** | `.coding-kit` 写根 + legacy 只读 | ✅ 1.11.0 |
 | **F5** | 版本钉方案 B（ontology/discipline/README） | ✅ 1.11.0 |
 
-### 1.x 收口（**DONE · 1.12.0** · 待人 publish）
+### 1.x 收口（**DONE · 1.12.0 published**）
 
 | 项 | 含义 | 状态 |
 |----|------|------|
-| C1 | EOS **提案**日历（deprecate 仅人 · `HG-EOS-DATE` pending） | ✅ 文档 |
+| C1 | EOS 日历已公布 · deprecate 已执行 | ✅ |
 | C2/C3 | 全量测稳 + dogfood | ✅ |
 | O1–O3 | 本体论浅落地（测/投影/口径对齐 · 无新 CLI） | ✅ |
 | P6-prep | 宿主落点声明清单 | ✅ prep |

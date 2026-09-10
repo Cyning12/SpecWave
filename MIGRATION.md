@@ -1,9 +1,9 @@
 # Migration · `@cyning/harness` → `dsh-coding-kit`
 
-> **状态**：1.12 收口 · EOS **提案日历已成文**（W2）· kit 拟发 **`1.12.0`**（待人 publish；npm `latest` 在人 publish 前仍为 `1.11.0`）  
-> **包钉**：以 `package.json` / 发版后 `npm view` 为准；本文件不代替包真值  
+> **状态**：1.12 收口 **DONE** · kit **`1.12.0` 已 npm 发版** · `@cyning/harness` **已 deprecate**（2026-09-10）  
+> **包钉**：消费者请钉 `dsh-coding-kit@1.12.0`（与 npm `latest` 一致；本文件不代替 `package.json`）  
 > **布局真值（F4 方案 B）**：新落盘根 = **`.coding-kit/`**；**`.cyning-harness/`** = legacy **只读**（探测 / 升级源；**不删除**）  
-> **人闸**：`HG-EOS-DATE` 仍 **pending**（阻塞旧包 `npm deprecate`）· **禁止** Agent 执行 `npm deprecate` / `npm publish`
+> **人闸**：`HG-EOS-DATE` / `HG-PUBLISH` = **approved**（人实操 · 2026-09-10）· **禁止** Agent 执行 `npm deprecate` / `npm publish`
 
 ---
 
@@ -47,38 +47,37 @@
 
 ---
 
-## EOS / deprecate（提案日历 · 待人闸）
+## EOS / deprecate（已公布）
 
-> 下列日期为 **提案**（1.12 W2 成文），**未**经 `HG-EOS-DATE=approved`，**未**执行 `npm deprecate`。  
-> 不得对外宣称「旧包已 deprecate」直至维护者实操并把本表状态改为「已公布」。
+> **`HG-EOS-DATE=approved`**（2026-09-10 · 人实操）· registry 已挂 deprecate 警告。  
+> 核验：`npm view @cyning/harness deprecated`。
 
-| 里程碑 | 提案日 | 状态 |
+| 里程碑 | 公布日 | 状态 |
 |--------|--------|------|
-| 公开时间表 + 本文件成文 | **2026-09-10**（提案宣布日） | **提案 · 待 `HG-EOS-DATE`** |
-| 新注册截止（建议） | **2026-10-10** | **提案 · 待 `HG-EOS-DATE`** |
-| EOS（End of Support） | **2026-12-31** | **提案 · 待 `HG-EOS-DATE`** |
-| `npm deprecate @cyning/harness "…"` | **同波争取 · 仅人**（建议不晚于新注册截止） | **未执行** · 待 `HG-EOS-DATE`（deprecate ≠ kit publish） |
+| 公开时间表 + 本文件成文 | **2026-09-10** | **已公布** |
+| 新注册截止（建议） | **2026-10-10** | **已公布** |
+| EOS（End of Support） | **2026-12-31** | **已公布** |
+| `npm deprecate @cyning/harness "…"` | **2026-09-10**（人） | **已执行** · 钉文案含 `dsh-coding-kit@1.12.0` |
 
-### Deprecate 文案草稿（仅人 · 实操时粘贴）
+### Deprecate 文案（registry 现行）
 
 ```text
-DEPRECATED: use dsh-coding-kit instead. See https://github.com/Cyning12/dsh-coding-kit/blob/main/MIGRATION.md — pin dsh-coding-kit@<published> and run: npx dsh-coding-kit upgrade --yes
+DEPRECATED: use dsh-coding-kit instead. See https://github.com/Cyning12/dsh-coding-kit/blob/main/MIGRATION.md — pin dsh-coding-kit@1.12.0 and run: npx dsh-coding-kit upgrade --yes
 ```
 
-### 过渡窗规则（成文 · 日历空）
+### 过渡窗规则
 
-- 过渡期内：旧包仍可安装；挂 deprecate 警告后以 npm 提示为准。  
-- 安全修复策略：仅对仍支持的 kit 线发补丁；旧产品线是否补丁 **待 EOS 决议**。  
-- 撤销预案：误 deprecate → 维护者按 npm 文档撤销；本仓回滚文案与日历。
+- 过渡期内：旧包仍可安装；安装时出现 deprecate 警告（以 npm 提示为准）。  
+- 安全修复策略：仅对仍支持的 kit 线发补丁；旧产品线是否补丁以 EOS（2026-12-31）决议为准。  
+- 撤销预案：误 deprecate → `npm deprecate @cyning/harness ""`；本仓回滚文案与日历。
 
 ### 维护者检查清单（deprecate 前后）
 
-- [ ] `HG-EOS-DATE=approved` 且日历已写入本文件「提案日」列改为「已公布」  
-- [ ] deprecate 文案含迁移 URL + kit 版本钉  
-- [ ] **人**执行 `npm deprecate`（Agent 禁止）  
-- [ ] README「Migrating」节与本文件一致  
-- [ ] 未误删消费者 `.cyning-harness/` 数据纪律仍成立
-
+- [x] `HG-EOS-DATE=approved` 且日历「已公布」  
+- [x] deprecate 文案含迁移 URL + kit 版本钉（`1.12.0`）  
+- [x] **人**执行 `npm deprecate`（Agent 禁止）  
+- [x] README「Migrating」节与本文件一致（发版后回填）  
+- [x] 未误删消费者 `.cyning-harness/` 数据纪律仍成立
 ---
 
 ## failure_paths（消费者）
@@ -87,7 +86,7 @@ DEPRECATED: use dsh-coding-kit instead. See https://github.com/Cyning12/dsh-codi
 |----|------|------|
 | M-01 | 只换依赖不跑 upgrade | `check` 可能仍报未接入 / 旧布局；跑 `upgrade --yes` |
 | M-02 | 期望 CLI 继续写入 `.cyning-harness` | 自本波起新写在 `.coding-kit`；旧目录保留只读 |
-| M-03 | Agent 宣称已 deprecate | 以本文件人闸表为准；未批准则视为文档事故 |
+| M-03 | Agent 宣称 deprecate 状态 | 以本文件人闸表 + `npm view @cyning/harness deprecated` 为准 |
 
 ---
 
@@ -109,3 +108,4 @@ DEPRECATED: use dsh-coding-kit instead. See https://github.com/Cyning12/dsh-codi
 | 2026-09-09 | W3 初版：方案 B 布局 + 最小路径 + EOS 提案占位（`HG-EOS-DATE` pending） |
 | 2026-09-09 | kit **1.11.0** 已 npm 发版；本文件包钉与状态条对齐 `latest` |
 | 2026-09-10 | W2：填入 EOS **提案**日历（announce 2026-09-10 · 新注册截止 2026-10-10 · EOS 2026-12-31）；`HG-EOS-DATE` 仍 pending · **未** deprecate |
+| 2026-09-10 | **人**：kit `1.12.0` publish + `@cyning/harness` deprecate；`HG-EOS-DATE` / `HG-PUBLISH` approved；日历改「已公布」 |

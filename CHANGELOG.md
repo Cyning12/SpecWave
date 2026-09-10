@@ -4,16 +4,21 @@
 
 ## [Unreleased]
 
+### Docs
+
+- 发版后回填：`1.12.0` 已 npm 发版；`@cyning/harness` 已 deprecate（`MIGRATION.md` · RELEASING · 系列闸）
+
 ## [1.12.0] - 2026-09-10
 
 > 主题：**1.x 收口** —— EOS 提案日历 · 全量测稳/dogfood · 本体论浅落地 · F6 宿主落点预备清单；发版职责仍为 **Agent 可 bump / 人仅 publish**。
 >
-> **发布状态**：**git tag 就绪 · 待人 `npm publish`**（registry `latest` 在人 publish 前仍为 `1.11.0`）。
+> **发布状态**：**已 npm 发版**（`latest=1.12.0` · 2026-09-10 人执行 publish · tag `v1.12.0`）。  
+> **旧包**：同日 **人**执行 `npm deprecate @cyning/harness`（`HG-EOS-DATE=approved`）。
 >
 > **消费者提示（置顶）**：
 >
 > - 过程落盘根仍为 **`.coding-kit/`**；legacy `.cyning-harness/` 只读不删（同 1.11）。
-> - **未**执行 `@cyning/harness` 的 `npm deprecate`（`MIGRATION.md` 已有 **提案**日历 · 待 `HG-EOS-DATE`）。
+> - 安装 `@cyning/harness` 会收到 deprecate 警告；请钉 `dsh-coding-kit@1.12.0` 并 `npx dsh-coding-kit upgrade --yes`（见 `MIGRATION.md`）。
 > - 本体论：浅测 + `docs/ontology/` 投影；**无**新 `ontology-check` CLI。
 
 ### Added
@@ -33,7 +38,7 @@
 ### Docs
 
 - [`docs/roadmap/PLAN_post_1.11_zh.md`](docs/roadmap/PLAN_post_1.11_zh.md)（已签「先 1.12」）
-- RELEASING「最近一次发版」：注明 tag 就绪、待人 publish
+- RELEASING「最近一次发版」：`latest=1.12.0` · `@cyning/harness` deprecated
 
 ## [1.11.0] - 2026-09-09
 

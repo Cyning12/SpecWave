@@ -176,7 +176,7 @@ kit **源码仓**以 `docs/_tech_graph/` 做 `graph yaml compile|check|export` �
 
 ## 从 @cyning/harness 迁移
 
-完整清单、F4 方案 B 布局与 **提案** EOS / deprecate 日历（待维护者人闸）：见 [`MIGRATION.md`](./MIGRATION.md)。
+完整清单、F4 方案 B 布局与 **已公布** EOS / deprecate 日历：见 [`MIGRATION.md`](./MIGRATION.md)。
 
 钉 **dsh-coding-kit@1.12.0** 后可去掉 `@cyning/harness`。最小路径三步（必须，按序）：
 
@@ -186,7 +186,7 @@ kit **源码仓**以 `docs/_tech_graph/` 做 `graph yaml compile|check|export` �
 
 **布局**：过程落盘现行根为 **`.coding-kit/`**；`.cyning-harness/` 为 **legacy 只读**。勿再把 `.cyning-harness` 当新标准目录。
 
-Skill 安装为 **推荐、非必须**（最小路径不依赖 DSH 扫 skill）。命令一律 `npx dsh-coding-kit`。旧包 **`npm deprecate` 仅维护者**，仍待 `HG-EOS-DATE`（人 publish **1.12.0** 后请钉该版；此前 npm `latest` 可能仍为 1.11.0）。
+Skill 安装为 **推荐、非必须**（最小路径不依赖 DSH 扫 skill）。命令一律 `npx dsh-coding-kit`。旧包 **`@cyning/harness` 已在 npm deprecate**（2026-09-10 · 仅维护者可操作）；请钉 **`dsh-coding-kit@1.12.0`** 并按 `MIGRATION.md` 迁移。
 
 ### FAQ · pnpm peer
 
