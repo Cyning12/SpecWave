@@ -62,5 +62,5 @@ kit **源码仓**自图在 `docs/_tech_graph/`（L0 `00_main` · L1 `01_struct` 
 ## 历史说明
 
 - v0.1 使用 `.md` + `.ai.md` 双轨；v0.2 起改为 YAML-first，`.ai.md` 已弃用。
-- 复杂业务仓应采用 `.graph.yaml` 源 + manifest/contract CI；本模板包（dsh-coding-kit）维持简化编译流。
+- 复杂业务仓应采用 `.graph.yaml` 源 + manifest/contract CI；本模板包（spec-wave）维持简化编译流。
 - v1.2.4（DEF-006）：编译/校验命令面迁移至本包 `npx spec-wave graph yaml compile|export|check`；`00_main.md`/`10_flow_MAIN.md` 以本包编译器重生成（输出契约见 `99_mermaid_protocol.md` §7）。

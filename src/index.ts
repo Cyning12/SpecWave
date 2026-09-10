@@ -206,7 +206,7 @@ export function apply(ctx: Context): void {
   ctx.tools.register(defineTool({
     name: 'apply_coding_standards',
     description:
-      'Load ICVO coding standards and coding_wiki from dsh-coding-kit assets ' +
+      'Load ICVO coding standards and coding_wiki from spec-wave assets ' +
       '(or project .coding-kit override) and inject them into this session. ' +
       'Does nothing until explicitly called. Use when the user asks to apply coding standards, ' +
       'follow the coding kit, or generate code under project discipline.',

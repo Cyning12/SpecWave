@@ -42,7 +42,7 @@ jobs:
       # - name: lint-wiki-delta · active only
       #   run: npx --yes spec-wave task lint-wiki-delta --target . --scope active
 
-      # 可选 · 读 pin【旧机制示例：旧包 @cyning/harness 已弃用，现行为 dsh-coding-kit；harness.pin.json 为旧包 pin 流程，本包未接线】：
+      # 可选 · 读 pin【旧机制示例：旧包 @cyning/harness 已弃用，现行为 **spec-wave**；harness.pin.json 为旧包 pin 流程，本包未接线】：
       # - name: lint from pin
       #   run: |
       #     PIN=$(node -p "require('./harness.pin.json').version")

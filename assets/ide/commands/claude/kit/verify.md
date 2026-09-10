@@ -1,5 +1,5 @@
 ---
-description: 编排跑 dsh-coding-kit verify（failClosed；解释 exit 0/1/2）
+description: 编排跑 spec-wave verify（failClosed；解释 exit 0/1/2）
 kit_command_id: kit-verify
 ---
 

@@ -1,17 +1,18 @@
 # SpecWave 改名 · SPEC 系列
 
-> **状态**：`signed`（**HG-SPEC-SIGNOFF=approved** · 2026-09-10 · **B-SEMVER=A** · **B-REPO=Rename**）  
+> **状态**：`signed`（**HG-SPEC-SIGNOFF=approved** · 2026-09-10 · **B-SEMVER=A** · **B-REPO=Rename**）· **主轨发版 DONE**  
 > **spec_slug**：`rename-specgate`  
 > **目标**：npm **`spec-wave@2.1.1`** · GitHub **`Cyning12/SpecWave`**  
 > **上游规划**：[`PLAN_rename_specgate_v1_zh.md`](../../roadmap/PLAN_rename_specgate_v1_zh.md)  
 > **基线**：`dsh-coding-kit@2.1.1` **published**（现已 deprecate）  
+> **残留收口**：改名完整度 / 溯源 / 迁移链 → [`../2_1_2-rename-closeout/`](../2_1_2-rename-closeout/)（目标 `spec-wave@2.1.2`）  
 > **Open Folder**：现行仓根
 
 ---
 
 ## 一句话
 
-身份：**SpecWave**（文案）/ **`spec-wave@2.1.1`**（npm）/ 仓 **`SpecWave`**（经 SpecGate Rename）；旧名可过渡可达。
+身份：**SpecWave**（文案）/ **`spec-wave@2.1.1`**（npm）/ 仓 **`SpecWave`**（经 SpecGate Rename）；旧名可过渡可达。发版级完整度缺口见 **2.1.2** 系列。
 
 ---
 

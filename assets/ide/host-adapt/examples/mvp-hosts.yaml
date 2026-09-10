@@ -20,7 +20,7 @@ hosts:
       commands: []
       verify:
         kind: cli
-        bin: dsh-coding-kit
+        bin: spec-wave
         failClosed: true
 
   - host_id: cursor
@@ -40,7 +40,7 @@ hosts:
           profile: expanded
       verify:
         kind: cli
-        bin: dsh-coding-kit
+        bin: spec-wave
         failClosed: true
 
   - host_id: claude
@@ -60,7 +60,7 @@ hosts:
           profile: expanded
       verify:
         kind: cli
-        bin: dsh-coding-kit
+        bin: spec-wave
         failClosed: true
 
   - host_id: agents
@@ -74,5 +74,5 @@ hosts:
       commands: []
       verify:
         kind: cli
-        bin: dsh-coding-kit
+        bin: spec-wave
         failClosed: true

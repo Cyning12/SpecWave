@@ -60,7 +60,7 @@ async function readPkgVersion(): Promise<string> {
 }
 
 function usage(version: string): void {
-  console.log(`specgate CLI (v${version})
+  console.log(`SpecWave CLI (v${version})
 过渡: npx dsh-coding-kit 仍可用（同入口）
 
 用法:
@@ -148,10 +148,15 @@ function compareVersion(a: string, b: string): number {
 const INIT_USAGE =
   'init [--preset NAME] [--tools all|none|LIST] [--profile core|expanded] [--host-adapt|--no-host-adapt] [--target PATH] [--yes]  （NAME 词表: harness-only）'
 
-/** 非 TTY / CI：须显式 `--tools`（对齐 OpenSpec） */
+/**
+ * 是否允许 init 交互询问 `--tools`。
+ * B-INIT-YES：`--yes` ⇒ 非交互（即使 `stdin.isTTY===true` 也禁止读 stdin）。
+ */
 export function isInteractiveInit(
   stdin: { isTTY?: boolean | undefined } = process.stdin,
+  opts: { yes?: boolean } = {},
 ): boolean {
+  if (opts.yes) return false
   return Boolean(stdin.isTTY)
 }
 
@@ -282,7 +287,8 @@ async function cmdInit(args: string[], pkgVersion: string): Promise<void> {
   const knownIds = listKnownHostIds()
   let selection: InitToolsSelection
   if (toolsArg === undefined) {
-    if (!isInteractiveInit()) {
+    // `--yes` 或非 TTY：禁止读 stdin；须显式 --tools（B-INIT-YES）
+    if (!isInteractiveInit(process.stdin, { yes })) {
       fail(
         `init 非交互环境须显式 --tools all|none|LIST（对齐 OpenSpec；禁止假装已询问）\n用法: ${INIT_USAGE}`,
       )
@@ -413,7 +419,7 @@ async function cmdCheck(args: string[], pkgVersion: string): Promise<void> {
     // DEF-028：from_version 属旧包产品线（2.x 系列）= 从旧产品线迁来，跨产品线版本号不可比，输出迁移语义而非降级警告
     // DEF-030：判据收窄——kit 线（1.x）from_version 不走本分支，回落下方「降级安装」语义
     console.log(
-      `状态: 跨产品线迁移：@cyning/harness ${manifest.version} → dsh-coding-kit ${pkgVersion}（跨产品线版本号不可比）`,
+      `状态: 跨产品线迁移：@cyning/harness ${manifest.version} → spec-wave ${pkgVersion}（跨产品线版本号不可比）`,
     )
     console.log('建议: npx spec-wave upgrade --yes')
   } else {

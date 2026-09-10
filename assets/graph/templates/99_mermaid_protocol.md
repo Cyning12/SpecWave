@@ -141,7 +141,7 @@ edges:
 - `//` 行注释（非 Mermaid 语法）
 - 含空格 / `()` / `/` / `+` / `>` 等字符却未加引号的节点标签
 
-**消费者升级指引**：升级 dsh-coding-kit 后须重跑 `graph yaml compile`（或 `graph yaml compile --all`）重新生成 `*.md`；手改生成物会被下次编译覆盖。
+**消费者升级指引**：升级 spec-wave 后须重跑 `graph yaml compile`（或 `graph yaml compile --all`）重新生成 `*.md`；手改生成物会被下次编译覆盖。
 
 ---
 

@@ -1,4 +1,4 @@
-# dsh-coding-kit · 业务仓速查
+# SpecWave（spec-wave）· 业务仓速查
 
 > 本文件为**手工嵌入**模板：复制本模板到业务仓即可，可手动删除。
 > 现行 CLI `init`/`upgrade` 只写 `.cyning-harness/manifest.json`，不会生成本文件。

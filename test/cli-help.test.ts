@@ -31,7 +31,7 @@ function runCli(args: string[], cwd = KIT): RunResult {
 }
 
 // 根 usage 独有标记：任一子命令 --help 输出含其中之一即证明回退为根 usage
-const ROOT_HEADER = /specgate CLI \(v/
+const ROOT_HEADER = /SpecWave CLI \(v/
 const ROOT_ONLY = /gate-check/
 
 describe('DEF-010 子命令 --help 分发（D1 方案 A：仅 argv[0] 拦截）', { concurrency: 1 }, () => {

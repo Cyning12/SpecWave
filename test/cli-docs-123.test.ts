@@ -15,7 +15,7 @@ const LEGACY_ALLOWLIST: Array<{ file: string; line: string }> = [
   // lint-wiki-delta.yml.example · 读 pin 注释块（D2 旧机制示例，#43 注明行覆盖 #47）
   {
     file: 'assets/ci/samples/lint-wiki-delta.yml.example',
-    line: '      # 可选 · 读 pin【旧机制示例：旧包 @cyning/harness 已弃用，现行为 dsh-coding-kit；harness.pin.json 为旧包 pin 流程，本包未接线】：',
+    line: '      # 可选 · 读 pin【旧机制示例：旧包 @cyning/harness 已弃用，现行为 **spec-wave**；harness.pin.json 为旧包 pin 流程，本包未接线】：',
   },
   {
     file: 'assets/ci/samples/lint-wiki-delta.yml.example',
@@ -24,11 +24,11 @@ const LEGACY_ALLOWLIST: Array<{ file: string; line: string }> = [
   // lint-wiki-delta.pin.yml.example · 全文件为 D2 旧机制示例存档（文件头 #2 注明）
   {
     file: 'assets/ci/samples/lint-wiki-delta.pin.yml.example',
-    line: '# 【旧机制示例】旧包 @cyning/harness 已弃用，现行为 dsh-coding-kit；本文件仅为旧包 pin 流程存档，',
+    line: '# 【旧机制示例】旧包 @cyning/harness 已弃用，现行为 **spec-wave**（中间名 `dsh-coding-kit` 已 deprecate）；本文件仅为旧包 pin 流程存档，',
   },
   {
     file: 'assets/ci/samples/lint-wiki-delta.pin.yml.example',
-    line: '# 对比：lint-wiki-delta.yml.example 曾写死 @cyning/harness@2.21（旧包，已弃用，现行为 dsh-coding-kit）。',
+    line: '# 对比：lint-wiki-delta.yml.example 曾写死 @cyning/harness@2.21（旧包，已弃用，现行为 **spec-wave**）。',
   },
   {
     file: 'assets/ci/samples/lint-wiki-delta.pin.yml.example',
@@ -41,7 +41,7 @@ const LEGACY_ALLOWLIST: Array<{ file: string; line: string }> = [
   // ONTOLOGY_consumer_slice_v1.md#32 · D1 散文引旧包文档，同行注明
   {
     file: 'assets/harness/templates/ONTOLOGY_consumer_slice_v1.md',
-    line: '- **纪律包产品本体**（帽子 / 闸 / HGM）见依赖的 `@cyning/harness` 文档（旧包，已弃用，现行为 dsh-coding-kit），勿在此复制全文。',
+    line: '- **纪律包产品本体**（帽子 / 闸 / HGM）见依赖的 `@cyning/harness` 文档（旧包，已弃用，现行为 **spec-wave** / SpecWave），勿在此复制全文。',
   },
 ]
 

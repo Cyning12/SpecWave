@@ -4,11 +4,32 @@
 
 ## [Unreleased]
 
-### SpecWave · `spec-wave@2.1.1` published · GitHub `SpecWave`
+## [2.1.2] - 2026-09-10
+
+> 主题：**patch** —— SpecWave **改名收口**（身份面 · 迁移链切断 · 对外文案 · `init --yes` · **tag↔npm 可溯源**）。  
+> 规划：[`docs/roadmap/PLAN_2_1_2_rename_closeout_v1_zh.md`](docs/roadmap/PLAN_2_1_2_rename_closeout_v1_zh.md) · SPEC：[`docs/spec/2_1_2-rename-closeout/`](docs/spec/2_1_2-rename-closeout/)  
+>
+> **发布状态**：**发版准备中**（工作树 `2.1.2` · 四门绿 · ACCEPTANCE 草稿就绪；**`HG-PUBLISH` / `HG-DEPRECATE-HARNESS` 仍 pending · 仅人** · 勿声称已 published）。
+
+### Changed
+
+- **W1 身份面**：CLI help 首行 / directory·status 自报名 **SpecWave** · `spec-wave`；`MIGRATION.md` 终点直达 `spec-wave@2.1.2`；切断以废弃中间包为终点的链式叙事。
+- **W2 对外文案**：assets / README 双语 / AGENTS dogfood 钉点与审查必清清单对齐 `spec-wave`。
+- **W3 init `--yes`**：`--yes` 且无 `--tools` → **exit 1**（禁止读 stdin，即使 PTY/`isTTY`）；无 `--yes` 的 TTY 询问与真非 TTY exit 1 行为不变。
+- **W4 溯源钉点**：`package.json` / ontology / discipline / README 钉 **`2.1.2`**；建立 `v2.1.2` ↔ `spec-wave@2.1.2` **同 commit** 发版目标（人 tag + publish）。
+
+### Docs
+
+- **2.1.1 双身份史实**（保留不动）：git tag `v2.1.1` → 改名前 `dsh-coding-kit` 身份；npm `spec-wave@2.1.1` → 改名后身份。**消费者请以 `2.1.2+` 为可溯源钉点**（勿 force-retag `v2.1.1`）。
+- ACCEPTANCE 草稿：[`docs/roadmap/ACCEPTANCE_2_1_2_rename_closeout_2_1_2_zh.md`](docs/roadmap/ACCEPTANCE_2_1_2_rename_closeout_2_1_2_zh.md)（publish 相关 **pending**）。
+- 人 checklist：`RELEASING.md` / 上列 ACCEPTANCE（`git tag v2.1.2` · `npm publish` · `@cyning/harness` deprecate 文案改指 `spec-wave`）。
+
+### SpecWave · `spec-wave@2.1.1` published · GitHub `SpecWave`（史实 · 前一发）
 
 > **发布状态**：**已** npm 发版 `spec-wave@2.1.1`；旧包 `dsh-coding-kit` **已 deprecate**（文案指向 `spec-wave`）。  
 > GitHub：**`Cyning12/SpecWave`**（`dsh-coding-kit` / `SpecGate` → 301）。  
-> 规划：[`docs/roadmap/PLAN_rename_specgate_v1_zh.md`](docs/roadmap/PLAN_rename_specgate_v1_zh.md)
+> 规划：[`docs/roadmap/PLAN_rename_specgate_v1_zh.md`](docs/roadmap/PLAN_rename_specgate_v1_zh.md)  
+> **注**：见上节 —— tag `v2.1.1` 与 npm `spec-wave@2.1.1` **包身份不完全同 commit**；以 **2.1.2** 重建可溯源绑定。
 
 #### Changed
 

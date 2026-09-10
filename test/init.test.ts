@@ -96,6 +96,16 @@ describe('T5 init / copyDirNoClobber', { concurrency: 1 }, () => {
 describe('2.1.1 W3 init --tools / TTY / host-adapt', { concurrency: 1 }, () => {
   it('非 TTY + 无 --tools → exit 1', async () => {
     await withTemp(async (dir) => {
+      const r = runCli(['init', '--preset', 'harness-only', '--target', dir])
+      assert.equal(r.status, 1, r.combined)
+      assert.match(r.combined, /--tools/)
+      assert.match(r.combined, /OpenSpec|非交互/)
+      assert.equal(existsSync(path.join(dir, '.coding-kit', 'manifest.json')), false)
+    })
+  })
+
+  it('2.1.2 B-INIT-YES：--yes 无 --tools → exit 1（快速失败，不挂起）', async () => {
+    await withTemp(async (dir) => {
       const r = runCli(['init', '--preset', 'harness-only', '--yes', '--target', dir])
       assert.equal(r.status, 1, r.combined)
       assert.match(r.combined, /--tools/)
@@ -181,9 +191,12 @@ describe('2.1.1 W3 init --tools / TTY / host-adapt', { concurrency: 1 }, () => {
     assert.throws(() => parseInitToolsArg('bogus-host', known), CliError)
   })
 
-  it('isInteractiveInit：非 TTY 为 false', () => {
+  it('isInteractiveInit：非 TTY 为 false；--yes 即使 isTTY 亦非交互', () => {
     assert.equal(isInteractiveInit({ isTTY: false }), false)
     assert.equal(isInteractiveInit({ isTTY: true }), true)
+    assert.equal(isInteractiveInit({ isTTY: true }, { yes: false }), true)
+    assert.equal(isInteractiveInit({ isTTY: true }, { yes: true }), false)
+    assert.equal(isInteractiveInit({ isTTY: false }, { yes: true }), false)
   })
 
   it('promptInitTools：mock stdin 选 all / none / 列表', async () => {

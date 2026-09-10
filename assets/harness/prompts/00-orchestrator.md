@@ -1,7 +1,7 @@
 # 帽子：总调度（Harness · 00 · Starter 精简）
 
 > **编号 `00`**：**不插入** SDD 链 10→50 的法定顺序；由 **主 Chat Agent** 承担编排。  
-> **本文件**：随 `dsh-coding-kit` 发布的 **Starter 精简真值**（默认行为强制）。  
+> **本文件**：随 `spec-wave` 发布的 **Starter 精简真值**（默认行为强制）。  
 > **完整 Extended**（KPI / Handoff 模板 / 链式 PROMPT）：工作区或私仓 Extended 集；薄指针见 `assets/docs/POINTER_SDD_HAT_FLOW.md`。
 
 ---

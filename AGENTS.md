@@ -35,10 +35,10 @@
 <!-- cyning-harness:end -->
 
 <!-- cyning-harness-local:begin -->
-# dsh-coding-kit · Agent 导航（本仓）
+# SpecWave · Agent 导航（本仓）
 
-> **角色**：DSH coding-kit 源码仓（npm `dsh-coding-kit` · 插件 + P0 CLI + host-adapt）。  
-> **Open Folder**：本目录 `dsh-coding-kit/` 根。  
+> **角色**：SpecWave 源码仓（npm **`spec-wave`** · 插件 + P0 CLI + host-adapt；曾用名 `dsh-coding-kit`）。  
+> **Open Folder**：本目录仓根（本地 clone 目录名可为 `dsh-coding-kit/`）。  
 > **产品块**：上方 `cyning-harness` 段由 `host apply --tools agents` 维护；**勿改 begin/end 内文**。仓特定约定写在本 local 块。
 
 ## 必读
@@ -58,7 +58,7 @@
 | DSH | `.dsh/skills`（harness-* + kit-*） |
 | agents | 本 `AGENTS.md` · `.agents/skills` |
 
-刷新（钉版本）：`npx spec-wave@2.1.1 host update --yes`（有粘性后不必再抄 `--tools`；首次仍用 `host apply --tools cursor,claude,dsh,agents --yes`）
+刷新（钉版本）：`npx spec-wave@2.1.2 host update --yes`（有粘性后不必再抄 `--tools`；首次仍用 `host apply --tools cursor,claude,dsh,agents --yes`）
 
 ## Verify（本仓）
 

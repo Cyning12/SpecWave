@@ -1,6 +1,6 @@
 ---
 name: kit-verify
-description: 编排跑 dsh-coding-kit verify（failClosed；解释 exit 0/1/2）。当用户要验闸、跑 verify、或声称「闸已过」时使用。不用于：口头代闸；冒充 opsx/speckit。
+description: 编排跑 spec-wave verify（failClosed；解释 exit 0/1/2）。当用户要验闸、跑 verify、或声称「闸已过」时使用。不用于：口头代闸；冒充 opsx/speckit。
 license: MIT
 compatibility: Requires npx spec-wave；Open Folder = 消费者仓根
 metadata:
