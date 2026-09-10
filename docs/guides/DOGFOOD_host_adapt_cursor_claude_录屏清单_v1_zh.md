@@ -1,7 +1,7 @@
 # 录屏 / 对照操作清单 · host-adapt（Cursor + Claude Code）
 
 > **用途**：维护者按镜头发录屏或人工对照验收；**不是**产品 SPEC。  
-> **包钉**：建议 `npx dsh-coding-kit@2.1.1`（registry 未更新前用本仓源码或既有 `2.0.x`；叙事以本仓 README 2.1 为准）  
+> **包钉**：建议 `npx spec-wave@2.1.1`（registry 未更新前用本仓源码或既有 `2.0.x`；叙事以本仓 README 2.1 为准）  
 > **Open Folder**：干净**临时演示仓**根（勿在 kit 源码仓乱写）  
 > **配套 README**：仓根 `README.md` / `README.zh-CN.md`「一包多宿主」节
 
@@ -15,7 +15,7 @@
 
 ```bash
 npm view dsh-coding-kit version
-npx dsh-coding-kit --version
+npx spec-wave --version
 ```
 
 ---
@@ -31,14 +31,14 @@ git add README.md && git commit -m 'init'
 pwd   # 念出路径，证明不是 kit 源码仓
 ```
 
-可选：先 `npx dsh-coding-kit@2.1.1 init --preset harness-only --tools none --yes`（过程根 `.coding-kit/`；CI/非 TTY 须 `--tools`）；**host apply 不强制先 init**，但 init 利于后续 verify。升包后有粘性时：`npx dsh-coding-kit@2.1.1 host update --yes`。
+可选：先 `npx spec-wave@2.1.1 init --preset harness-only --tools none --yes`（过程根 `.coding-kit/`；CI/非 TTY 须 `--tools`）；**host apply 不强制先 init**，但 init 利于后续 verify。升包后有粘性时：`npx spec-wave@2.1.1 host update --yes`。
 
 ---
 
 ## 2. 只读校验（镜头 B）
 
 ```bash
-npx dsh-coding-kit@2.1.1 host validate
+npx spec-wave@2.1.1 host validate
 # 期望：HOST VALIDATE: PASS · exit 0
 ```
 
@@ -53,9 +53,9 @@ npx dsh-coding-kit@2.1.1 host validate
 ## 3. dry-run 报告（镜头 C · 强调零写入）
 
 ```bash
-npx dsh-coding-kit@2.1.1 host apply --tools cursor,claude --profile core --json
+npx spec-wave@2.1.1 host apply --tools cursor,claude --profile core --json
 # 或人类可读：
-npx dsh-coding-kit@2.1.1 host apply --tools cursor,claude --profile core
+npx spec-wave@2.1.1 host apply --tools cursor,claude --profile core
 ```
 
 **口播核对**：stdout/JSON 中应出现计划路径，例如：
@@ -77,7 +77,7 @@ test ! -f CLAUDE.md && echo 'CLAUDE.md 尚未写入 · dry-run 正确'
 ## 4. 写盘 apply（镜头 D）
 
 ```bash
-npx dsh-coding-kit@2.1.1 host apply --tools cursor,claude --profile core --yes
+npx spec-wave@2.1.1 host apply --tools cursor,claude --profile core --yes
 # 期望：HOST APPLY: PASS · exit 0
 ```
 
@@ -103,12 +103,12 @@ test -f .claude/commands/kit-init-guide.md && head -20 .claude/commands/kit-init
 
 1. Cursor → **Open Folder** = `$DEMO`  
 2. 命令面板（⌘/Ctrl+Shift+P 或 Commands）搜 **`kit-verify`** / **`kit-gate-status`**  
-3. 点开 `kit-verify`：念出「须跑 `npx dsh-coding-kit verify`」与 exit 2  
+3. 点开 `kit-verify`：念出「须跑 `npx spec-wave verify`」与 exit 2  
 4. （可选）终端跑：
 
 ```bash
 cd "$DEMO"
-npx dsh-coding-kit@2.1.1 verify --task docs/tasks/active/无.md || true
+npx spec-wave@2.1.1 verify --task docs/tasks/active/无.md || true
 # 无 task 时用法/阻断均可；重点是命令存在且 exit 语义可读
 ```
 
@@ -151,7 +151,7 @@ LOCAL-MARKER-DO-NOT-TOUCH
 <!-- cyning-harness-local:end -->
 EOF
 
-npx dsh-coding-kit@2.1.1 host apply --tools claude --profile core --yes
+npx spec-wave@2.1.1 host apply --tools claude --profile core --yes
 grep -n 'LOCAL-MARKER-DO-NOT-TOUCH' CLAUDE.md
 # 期望：仍在
 ```
@@ -161,7 +161,7 @@ grep -n 'LOCAL-MARKER-DO-NOT-TOUCH' CLAUDE.md
 ## 8. DSH 行不强迫 slash（镜头 H · 可选）
 
 ```bash
-npx dsh-coding-kit@2.1.1 host apply --tools dsh --profile core --yes
+npx spec-wave@2.1.1 host apply --tools dsh --profile core --yes
 test ! -d .cursor/commands && echo '未写 Cursor commands · 正确'
 ls -la .dsh/skills 2>/dev/null | head
 ```
@@ -172,9 +172,9 @@ ls -la .dsh/skills 2>/dev/null | head
 
 ```bash
 echo 'user edited' >> .cursor/commands/kit-verify.md
-npx dsh-coding-kit@2.1.1 host update --tools cursor --yes
+npx spec-wave@2.1.1 host update --tools cursor --yes
 # conflict：默认不覆盖
-npx dsh-coding-kit@2.1.1 host update --tools cursor --yes --force
+npx spec-wave@2.1.1 host update --tools cursor --yes --force
 # --force 才覆盖（有备份目录可一闪）
 ls .coding-kit/backups/host-update 2>/dev/null | tail
 ```

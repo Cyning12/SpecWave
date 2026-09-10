@@ -11,7 +11,7 @@ const KIT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const CLI_TS = path.join(KIT, 'src', 'cli.ts')
 
 // 复跑命令字面量：与 assets/ci/samples/lint-wiki-delta.yml.example L33 逐字一致（含 --yes · 全串非子串）
-const RERUN_CMD = 'npx --yes dsh-coding-kit task lint-wiki-delta --target .'
+const RERUN_CMD = 'npx --yes spec-wave task lint-wiki-delta --target .'
 
 type RunResult = { status: number | null; stdout: string; stderr: string; combined: string }
 

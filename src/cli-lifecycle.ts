@@ -358,8 +358,8 @@ export async function cmdLifecycle(args: string[]): Promise<void> {
   const [sub, ...rest] = args
   if (!sub || sub === '--help' || sub === '-h' || args.includes('--help') || args.includes('-h')) {
     console.log(`用法:
-  npx dsh-coding-kit lifecycle show [--json]
-  npx dsh-coding-kit lifecycle dry-run --transition ID --from STATE [--task PATH] [--target PATH] [--json]
+  npx spec-wave lifecycle show [--json]
+  npx spec-wave lifecycle dry-run --transition ID --from STATE [--task PATH] [--target PATH] [--json]
        [--allow-no-review] [--allow-lint-fail] [--allow-no-spec-review]
        [--allow-invoke-gap] [--allow-unchecked]
        [--allow-kpi-gap] [--allow-experience-gap] [--allow-wiki-gap]
@@ -440,7 +440,7 @@ export async function cmdDiscipline(args: string[]): Promise<void> {
   const [sub, ...rest] = args
   if (!sub || sub === '--help' || sub === '-h' || args.includes('--help') || args.includes('-h')) {
     console.log(`用法:
-  npx dsh-coding-kit discipline show [--json]
+  npx spec-wave discipline show [--json]
 `)
     return
   }

@@ -31,14 +31,14 @@ describe('F5 version pins · scheme B', { concurrency: 1 }, () => {
     assert.equal(data.as_of_package_version, version)
   })
 
-  it('钉点清单：README 双文件中 dsh-coding-kit@x.y.z 均等于包版本', () => {
-    const re = /dsh-coding-kit@(\d+\.\d+\.\d+)/g
+  it('钉点清单：README 双文件中 spec-wave@x.y.z 均等于包版本', () => {
+    const re = /spec-wave@(\d+\.\d+\.\d+)/g
     for (const rel of ['README.md', 'README.zh-CN.md']) {
       const body = readFileSync(path.join(KIT, rel), 'utf8')
       const found: string[] = []
       let m: RegExpExecArray | null
       while ((m = re.exec(body))) found.push(m[1])
-      assert.ok(found.length >= 1, `${rel} 须至少一处 dsh-coding-kit@x.y.z`)
+      assert.ok(found.length >= 1, `${rel} 须至少一处 spec-wave@x.y.z`)
       for (const v of found) {
         assert.equal(v, version, `${rel} 钉点漂移: @${v} ≠ ${version}`)
       }

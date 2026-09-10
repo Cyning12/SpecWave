@@ -1,7 +1,7 @@
 {
-  "name": "dsh-coding-kit",
+  "name": "spec-wave",
   "version": "2.1.1",
-  "description": "DSH plugin + P0 CLI + multi-host IDE landing (Cursor/Claude/DSH). ICVO standards; load≠inject. 2.1.1: sticky host-tools, host update A, init --tools. npx dsh-coding-kit",
+  "description": "SpecWave — multi-host coding CLI (Cursor/Claude/DSH) + P0 gates/Harness. Formerly SpecGate / dsh-coding-kit. npx spec-wave",
   "license": "MIT",
   "author": "Cyning",
   "type": "module",
@@ -17,8 +17,11 @@
     "./package.json": "./package.json"
   },
   "bin": {
+    "spec-wave": "bin/specgate.js",
+    "specgate": "bin/specgate.js",
     "dsh-coding-kit": "bin/dsh-coding-kit.js"
   },
+
   "files": [
     "bin",
     "lib",
@@ -41,12 +44,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Cyning12/dsh-coding-kit.git"
+    "url": "git+https://github.com/Cyning12/SpecWave.git"
   },
   "bugs": {
-    "url": "https://github.com/Cyning12/dsh-coding-kit/issues"
+    "url": "https://github.com/Cyning12/SpecWave/issues"
   },
-  "homepage": "https://github.com/Cyning12/dsh-coding-kit#readme",
+  "homepage": "https://github.com/Cyning12/SpecWave#readme",
   "keywords": [
     "dsh-plugin",
     "deepseek-harness",

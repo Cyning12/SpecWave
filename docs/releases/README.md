@@ -22,9 +22,9 @@
 |---------|------|-------|-------|----------------|-----|
 | 1.2.3 | 2026-08-24 | History alignment + P0-HOT Mermaid emit hotfix | — (pre-PR flow, direct commits) | `d8684c0` | `v1.2.3` |
 | 1.2.4 | 2026-08-24 | Truth-telling release assets | — (pre-PR flow) | `8bc343e` | `v1.2.4` |
-| 1.3.0 | 2026-08-24 | Behavioral correctness + CI bootstrap | [#1](https://github.com/Cyning12/dsh-coding-kit/pull/1) (DEF-027 hotfix) | `1d6b690` | `v1.3.0` |
-| 1.4.0 | 2026-08-24 | Gates wired for real + debt closure | [#2](https://github.com/Cyning12/dsh-coding-kit/pull/2) [#3](https://github.com/Cyning12/dsh-coding-kit/pull/3) [#4](https://github.com/Cyning12/dsh-coding-kit/pull/4) [#5](https://github.com/Cyning12/dsh-coding-kit/pull/5) | `cef758b` | `v1.4.0` |
-| 1.5.0 | 2026-08-24 | `refresh-ide-blocks` + D5 WARN→FAIL hardening | [#6](https://github.com/Cyning12/dsh-coding-kit/pull/6) [#7](https://github.com/Cyning12/dsh-coding-kit/pull/7) [#8](https://github.com/Cyning12/dsh-coding-kit/pull/8) | `aebf172` | `v1.5.0` |
+| 1.3.0 | 2026-08-24 | Behavioral correctness + CI bootstrap | [#1](https://github.com/Cyning12/SpecWave/pull/1) (DEF-027 hotfix) | `1d6b690` | `v1.3.0` |
+| 1.4.0 | 2026-08-24 | Gates wired for real + debt closure | [#2](https://github.com/Cyning12/SpecWave/pull/2) [#3](https://github.com/Cyning12/SpecWave/pull/3) [#4](https://github.com/Cyning12/SpecWave/pull/4) [#5](https://github.com/Cyning12/SpecWave/pull/5) | `cef758b` | `v1.4.0` |
+| 1.5.0 | 2026-08-24 | `refresh-ide-blocks` + D5 WARN→FAIL hardening | [#6](https://github.com/Cyning12/SpecWave/pull/6) [#7](https://github.com/Cyning12/SpecWave/pull/7) [#8](https://github.com/Cyning12/SpecWave/pull/8) | `aebf172` | `v1.5.0` |
 
 Notes:
 

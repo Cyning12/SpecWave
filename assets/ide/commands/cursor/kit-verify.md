@@ -9,7 +9,7 @@ kit_command_id: kit-verify
 
 1. Open Folder = 消费者仓根
 2. 确认 task 路径（默认 docs/tasks/active/ 下现行 task）
-3. 必跑：npx dsh-coding-kit verify --task <path>
+3. 必跑：npx spec-wave verify --task <path>
 4. 按退出码汇报：
    - 0 通过
    - 1 用法错误或非阻断失败

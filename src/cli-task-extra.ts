@@ -320,7 +320,7 @@ export function checkTaskFile(
 
 export async function cmdTaskLintDone(args: string[]): Promise<void> {
   if (args.includes('--help') || args.includes('-h')) {
-    console.log(`用法: npx dsh-coding-kit task lint-done [--target PATH]`)
+    console.log(`用法: npx spec-wave task lint-done [--target PATH]`)
     return
   }
   let rest = args
@@ -344,7 +344,7 @@ export async function cmdTaskLintDone(args: string[]): Promise<void> {
 export async function cmdTaskLintWikiDelta(args: string[]): Promise<void> {
   if (args.includes('--help') || args.includes('-h')) {
     console.log(
-      `用法: npx dsh-coding-kit task lint-wiki-delta [--target PATH] [--scope all|active|done] [--strict] [--json]`,
+      `用法: npx spec-wave task lint-wiki-delta [--target PATH] [--scope all|active|done] [--strict] [--json]`,
     )
     console.log(
       '  默认档: 缺 wiki_delta 字段（wiki_delta_missing）；字段写在 ## Harness 元信息 之外的节' +

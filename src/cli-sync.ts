@@ -99,13 +99,13 @@ export function generateInvokeIndex(target: string): string {
   return indexFile
 }
 
-const SYNC_INDEX_USAGE = `用法: npx dsh-coding-kit sync index [--target PATH]`
+const SYNC_INDEX_USAGE = `用法: npx spec-wave sync index [--target PATH]`
 
 export async function cmdSync(args: string[]): Promise<void> {
   if (args.includes('--help') || args.includes('-h')) {
     console.log(`用法:
-  npx dsh-coding-kit sync index [--target PATH]
-  npx dsh-coding-kit sync prompts [--target PATH] [--yes] [--force] [--json]
+  npx spec-wave sync index [--target PATH]
+  npx spec-wave sync prompts [--target PATH] [--yes] [--force] [--json]
 
 子命令 help: sync index --help · sync prompts --help`)
     return

@@ -4,6 +4,22 @@
 
 ## [Unreleased]
 
+### SpecWave · `spec-wave@2.1.1` published · GitHub `SpecWave`
+
+> **发布状态**：**已** npm 发版 `spec-wave@2.1.1`；旧包 `dsh-coding-kit` **已 deprecate**（文案指向 `spec-wave`）。  
+> GitHub：**`Cyning12/SpecWave`**（`dsh-coding-kit` / `SpecGate` → 301）。  
+> 规划：[`docs/roadmap/PLAN_rename_specgate_v1_zh.md`](docs/roadmap/PLAN_rename_specgate_v1_zh.md)
+
+#### Changed
+
+- **W1 包身份**：`package.json` name=`spec-wave`；三 bin `spec-wave` + `specgate` + `dsh-coding-kit`。
+- **npm 改签**：裸 `specgate` E403 → **`spec-wave`**。
+- **产品/仓**：文案 **SpecWave**；GitHub `SpecGate` → **`SpecWave`**（About / README / package repository 字段已同步）。
+
+#### Docs
+
+- **W2–W4**：叙事 → SpecWave / `npx spec-wave`；refresh A5–A8；publish + deprecate 完成。
+
 ## [2.1.1] - 2026-09-10
 
 > 主题：**patch** —— host tools **安装/更新 UX**；`init` 询问 IDE/宿主（**对齐** OpenSpec）；粘性选型；`host update` 缺省方案 A。  
@@ -143,7 +159,7 @@
 
 > 主题：**1.x MVP 内部一致性收敛（F1–F5）** —— S2 真值源 · P0 门禁语义 · `.coding-kit` 落盘 · 迁移文档面 · F5 方案 B 版本钉；发版职责改为 **Agent 可 bump / 人仅 publish**。
 >
-> **发布状态**：**已 npm 发版**（`latest=1.11.0` · 2026-09-09 人执行 publish · PR [#30](https://github.com/Cyning12/dsh-coding-kit/pull/30) · tag `v1.11.0`）。
+> **发布状态**：**已 npm 发版**（`latest=1.11.0` · 2026-09-09 人执行 publish · PR [#30](https://github.com/Cyning12/SpecWave/pull/30) · tag `v1.11.0`）。
 >
 > **消费者提示（置顶）**：
 >
@@ -223,7 +239,7 @@
 > **消费者提示（置顶）**：
 >
 > - **本版无新 CLI 行为**（docs / CI / 仓内图谱）。消费仓 `upgrade` 后命令面不变。
-> - **`docs/` 不随 npm 包发布**：kit 自图只在源码仓 `docs/_tech_graph/`（https://github.com/Cyning12/dsh-coding-kit/tree/main/docs/_tech_graph），不在 tarball 内。
+> - **`docs/` 不随 npm 包发布**：kit 自图只在源码仓 `docs/_tech_graph/`（https://github.com/Cyning12/SpecWave/tree/main/docs/_tech_graph），不在 tarball 内。
 
 ### Docs
 

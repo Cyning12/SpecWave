@@ -110,24 +110,31 @@ function taskMd(opts: {
 }
 
 describe('C* CLI P0 runtime', { concurrency: 1 }, () => {
-  it('C-bin / version: package.json 为 2.1.1 且有 bin.dsh-coding-kit', async () => {
+  it('C-bin / version: package.json 为 2.1.1 且三 bin（spec-wave + specgate + dsh-coding-kit）', async () => {
     const pkgRaw = await readFile(path.join(KIT, 'package.json'), 'utf8')
     const pkg = JSON.parse(pkgRaw) as {
+      name?: string
       version: string
       bin?: Record<string, string>
     }
+    assert.equal(pkg.name, 'spec-wave')
     assert.equal(pkg.version, '2.1.1')
     assert.notEqual(pkg.version, '1.0.0')
     assert.notEqual(pkg.version, '0.1.0')
+    assert.ok(pkg.bin && pkg.bin['spec-wave'], 'missing bin.spec-wave')
+    assert.ok(pkg.bin && pkg.bin.specgate, 'missing bin.specgate')
     assert.ok(pkg.bin && pkg.bin['dsh-coding-kit'], 'missing bin.dsh-coding-kit')
-    const binPath = path.join(KIT, pkg.bin['dsh-coding-kit'])
-    assert.equal(existsSync(binPath), true, `bin file missing: ${binPath}`)
+    for (const key of ['spec-wave', 'specgate', 'dsh-coding-kit'] as const) {
+      const binPath = path.join(KIT, pkg.bin![key])
+      assert.equal(existsSync(binPath), true, `bin file missing: ${binPath}`)
+    }
   })
 
-  it('R-HELP: --help 列出 P0 与 G1–G7，无「未交付（1.2.0）」', () => {
+  it('R-HELP: --help 列出 P0 与 G1–G7，含 spec-wave，无「未交付（1.2.0）」', () => {
     const r = runCli(['--help'])
     assert.equal(r.status, 0)
     const help = r.combined
+    assert.match(help, /spec-wave/)
     for (const name of [
       'init',
       'upgrade',
@@ -158,11 +165,11 @@ describe('C* CLI P0 runtime', { concurrency: 1 }, () => {
 
   it('R-HELP README: 完成态 2.1.1；双入口；加载≠注入；钉版后可去旧包', async () => {
     const readme = await readFile(path.join(KIT, 'README.md'), 'utf8')
-    assert.match(readme, /dsh-coding-kit@2\.1\.1/)
+    assert.match(readme, /spec-wave@2\.1\.1/)
     assert.match(readme, /Loading\s*≠\s*injecting/)
     assert.match(readme, /apply_coding_standards/)
     assert.match(readme, /dsh plugin add/)
-    assert.match(readme, /npx dsh-coding-kit/)
+    assert.match(readme, /npx spec-wave/)
     assert.match(readme, /drop `@cyning\/harness`/)
     assert.match(readme, /devDependency/)
     assert.match(readme, /upgrade --yes/)
@@ -176,16 +183,18 @@ describe('C* CLI P0 runtime', { concurrency: 1 }, () => {
     assert.equal(/dsh-coding-kit@1\.1\.0/.test(readme), false)
   })
 
-  it('D8: bin 仅 dsh-coding-kit；patch 为 insert；pack 不含 SPEC.md', async () => {
+  it('D8: 三 bin spec-wave+specgate+dsh-coding-kit；patch 为 insert；pack 不含 SPEC.md', async () => {
     const pkgRaw = await readFile(path.join(KIT, 'package.json'), 'utf8')
     const pkg = JSON.parse(pkgRaw) as {
+      name?: string
       version: string
       bin?: Record<string, string>
       files?: string[]
     }
+    assert.equal(pkg.name, 'spec-wave')
     assert.equal(pkg.version, '2.1.1')
     assert.ok(pkg.bin)
-    assert.deepEqual(Object.keys(pkg.bin), ['dsh-coding-kit'])
+    assert.deepEqual(Object.keys(pkg.bin), ['spec-wave', 'specgate', 'dsh-coding-kit'])
     assert.equal(Object.prototype.hasOwnProperty.call(pkg.bin, 'cyning-harness'), false)
     assert.equal(Object.prototype.hasOwnProperty.call(pkg.bin, 'harness'), false)
     assert.equal(Array.isArray(pkg.files) && pkg.files.includes('SPEC.md'), false)
@@ -213,11 +222,12 @@ describe('C* CLI P0 runtime', { concurrency: 1 }, () => {
     assert.ok(Array.isArray(parsed) && parsed[0])
     const info = parsed[0]
     assert.equal(info.version, '2.1.1')
-    assert.match(String(info.filename ?? info.id ?? ''), /dsh-coding-kit-2\.1\.1/)
+    assert.match(String(info.filename ?? info.id ?? ''), /spec-wave-2\.1\.1/)
     const paths = (info.files ?? []).map((f) => f.path.replace(/\\/g, '/'))
     const joined = paths.join('\n')
     assert.equal(paths.includes('SPEC.md'), false, 'pack must not contain SPEC.md')
     assert.match(joined, /(^|\n)cordis\.patch\.yml(\n|$)/)
+    assert.match(joined, /(^|\n)bin\/specgate\.js(\n|$)/)
     assert.match(joined, /(^|\n)bin\/dsh-coding-kit\.js(\n|$)/)
     assert.match(joined, /(^|\n)lib\/index\.js(\n|$)/)
     assert.equal(paths.some((p) => p === 'assets/standards' || p.startsWith('assets/standards/')), true)

@@ -1,22 +1,26 @@
-# RELEASING · dsh-coding-kit 发版硬步骤 Checklist
+# RELEASING · SpecGate（`spec-wave`）发版硬步骤 Checklist
 
 > **制度化来源**：DEF-001 教训 —— 曾从未提交工作树 publish，导致发布物与仓库真值漂移、无法溯源。  
 > 本清单把「publish 前 commit + tag」固化为**硬步骤**：任何一步未完成即停止，不得跳步。  
 > **职责分工（2026-09-09 起）**：**维护 Agent 可执行 ①–⑦ 与 bump/tag**；**⑧ `npm publish` 仅人**；⑨ 可由 Agent 在人 publish 后核验（或人自核）。  
-> **仍仅人**：`npm publish` · `npm deprecate`（另须 `HG-EOS-DATE`）· 云/账号 2FA 操作。
+> **仍仅人**：`npm publish` · `npm deprecate`（另须 `HG-EOS-DATE`）· 云/账号 2FA 操作。  
+> **包名**：现行 **`spec-wave`**（曾用名 `dsh-coding-kit`；曾拟裸 `specgate` 遭 E403 相似拒）。
 
 ## 最近一次发版
 
 | 项 | 值 |
 |----|-----|
-| **npm `latest`** | **`2.1.1`**（2026-09-10 · 人 publish） |
-| **git** | tag **`v2.1.1`** · commit `cc61324` |
-| **主题** | patch：host tools 粘性 · update 缺省 A · `init --tools`（对齐 OpenSpec） |
-| **前一发版** | **`2.1.0`**（多平台 Skills + Commands · published） |
-| **旧包** | `@cyning/harness` **已 deprecate**（2026-09-10 · registry 文案仍钉 `dsh-coding-kit@1.12.0`） |
+| **npm `latest`（旧包名）** | **`dsh-coding-kit@2.1.1`**（2026-09-10 · 人 publish · **仍 published** 直至 deprecate） |
+| **preparing（新包名）** | **`spec-wave@2.1.1` first publish**（仓内 name 已切；**尚未** `npm publish` · `HG-PUBLISH` pending · 仅人） |
+| **git** | tag **`v2.1.1`** · commit `cc61324`（能力线同版；改名不 bump） |
+| **主题（已发）** | patch：host tools 粘性 · update 缺省 A · `init --tools`（对齐 OpenSpec） |
+| **主题（准备中）** | SpecGate 改名：包身份 `spec-wave` · 三 bin · 文档/GitHub 已切 · W4 仅人 publish + deprecate 旧 `dsh-coding-kit` |
+| **前一发版** | **`2.1.0`**（多平台 Skills + Commands · published as `dsh-coding-kit`） |
+| **更早旧包** | `@cyning/harness` **已 deprecate**（2026-09-10 · registry 文案曾钉 `dsh-coding-kit@1.12.0`） |
 | **1.x** | **CLOSED**（见 `docs/roadmap/AUDIT_1x_residual_after_1_12_1_zh.md`） |
-| **下一主线** | **2.1.x+ / 2.2**（workspaces / onboard 等观察项；另闸） |
-| **验收** | [`docs/roadmap/ACCEPTANCE_2_1_1_host_tools_ux_2_1_1_zh.md`](docs/roadmap/ACCEPTANCE_2_1_1_host_tools_ux_2_1_1_zh.md) |
+| **下一主线** | SpecGate W4 发版后 · **2.1.x+ / 2.2**（workspaces / onboard 等观察项；另闸） |
+| **验收（2.1.1 UX）** | [`docs/roadmap/ACCEPTANCE_2_1_1_host_tools_ux_2_1_1_zh.md`](docs/roadmap/ACCEPTANCE_2_1_1_host_tools_ux_2_1_1_zh.md) |
+| **验收（改名 · 准备档）** | [`docs/roadmap/ACCEPTANCE_rename_specgate_2_1_1_zh.md`](docs/roadmap/ACCEPTANCE_rename_specgate_2_1_1_zh.md) |
 
 ### 前一发版（2.0.x–2.1.0）
 
@@ -31,12 +35,12 @@
 - [ ] **① 工作树干净且所有改动已提交**：`git status --porcelain` 为空；拟发布内容全部进入 git 历史。**禁止从未提交工作树 publish**（DEF-001 教训：工作树残留 = 发布物不可溯源）。（Agent 可做）
 - [ ] **② 质量闸门全绿**：`npm run typecheck && npm test && npm run build && npm run test:lib` 依次全绿（与 `prepublishOnly` 同一四门；任一红即停止，先修再发）。（Agent 可做）
 - [ ] **③ CHANGELOG 版本节已归拢**：`CHANGELOG.md` 的 `## [Unreleased]` 内容已归入 `## [X.Y.Z] - YYYY-MM-DD` 版本节（日期 + 版本号齐全），无残留 Unreleased 条目遗漏。（Agent 可做）
-- [ ] **④ 版本钉（pins）已同步（F5 方案 B）**：新版本号已同步全部**现行钉点** —— `assets/ontology.yaml#product_semver`、`assets/harness/discipline-coverage.yaml#as_of_package_version`、README 双文件中的 `dsh-coding-kit@x.y.z`、以及含版本断言的测试。闸测：`test/version-pins-f5.test.ts`（及既有 ontology / discipline 分面测）。**仓根 `SPEC.md` 为 archived epic，不要求与包版本对齐，禁止再把其标题当作现行契约。**（Agent 可做）
+- [ ] **④ 版本钉（pins）已同步（F5 方案 B）**：新版本号已同步全部**现行钉点** —— `assets/ontology.yaml#product_semver`、`assets/harness/discipline-coverage.yaml#as_of_package_version`、README 双文件中的 `spec-wave@x.y.z`、以及含版本断言的测试。闸测：`test/version-pins-f5.test.ts`（及既有 ontology / discipline 分面测）。**仓根 `SPEC.md` 为 archived epic，不要求与包版本对齐，禁止再把其标题当作现行契约。**（Agent 可做）
 - [ ] **⑤ npm version + tag（Agent 默认可做）**：`npm version <patch|minor|major>`（或等价：改 `package.json` + 钉点同步后落 version commit + `vX.Y.Z` tag）；确认 tag 与 CHANGELOG 版本节一致。**禁止**在钉点未同步时 bump。
 - [ ] **⑥ PR 合并 + CI 绿**：发版 PR 已 merge 进 `main` 且 CI 全绿（**CI 未绿禁合**）；`git push` 含 `--follow-tags`（或单独 push tag），远端 main 与 tag 指向发布真值。（Agent 可推送，须用户/环境授权）
 - [ ] **⑦ npm pack --dry-run 检查**：`npm pack --dry-run` 逐行核对 tarball 清单 —— 无 `test/` 泄漏、无工作区/私仓文件；仅 `package.json#files` 白名单（`bin` / `lib` / `assets` / `cordis.patch.yml` / `README.md` / `LICENSE`）内的内容入包。（Agent 可做）
 - [ ] **⑧ npm publish（仅人）**：`npm publish`（`prepublishOnly` 会自动重跑②四门；⑦已核对清单）。**Agent 不得执行本步。**
-- [ ] **⑨ publish 后核验 + 过程档状态更新**：`npm view dsh-coding-kit version`（及 `dist-tags`）确认新版本已生效；抽样验证；更新过程档状态为已发布。（人 publish 后 · Agent 可代核）
+- [ ] **⑨ publish 后核验 + 过程档状态更新**：`npm view spec-wave version`（及 `dist-tags`）确认新版本已生效；抽样验证；更新过程档状态为已发布。（人 publish 后 · Agent 可代核）
 
 ## 禁令速查
 

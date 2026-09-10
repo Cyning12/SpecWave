@@ -110,7 +110,7 @@ describe('2.1 W3 DSH 编排 skills（B · 无 .dsh/commands）', { concurrency: 
       path.join(KIT, 'assets', 'ide', 'skills-orch', 'kit-verify', 'SKILL.md'),
       'utf8',
     )
-    assert.match(verify, /npx dsh-coding-kit verify --task/)
+    assert.match(verify, /npx spec-wave verify --task/)
     assert.match(verify, /failClosed|exit\s*2|门禁阻断/)
     assert.match(verify, /禁止.*闸已通过|禁止用本 skill 假装闸过|口头代闸/)
   })

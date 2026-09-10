@@ -1,15 +1,15 @@
 # skills/ · Agent Skills 标准封装（生成物 · 勿手改）
 
-> **本目录由 `npx dsh-coding-kit skills build` 生成**；真值 = `harness/prompts/` 条文（frontmatter + 正文）。
-> 改动请改条文后重跑 build；`npx dsh-coding-kit skills check` 会拦截任何手改 drift。
+> **本目录由 `npx spec-wave skills build` 生成**；真值 = `harness/prompts/` 条文（frontmatter + 正文）。
+> 改动请改条文后重跑 build；`npx spec-wave skills check` 会拦截任何手改 drift。
 > 规范：https://agentskills.io/specification
 
 ## 安装（各 client 路径不同 · 复制或软链均可）
 
 | 路径 | 用途 | 谁写入 |
 |------|------|--------|
-| DSH `<repo>/.dsh/skills/` | 消费者 Skill 安装落点 | `npx dsh-coding-kit skills install` |
-| DSH `$HOME/.dsh/skills/` | 用户级安装落点 | `npx dsh-coding-kit skills install --global` |
+| DSH `<repo>/.dsh/skills/` | 消费者 Skill 安装落点 | `npx spec-wave skills install` |
+| DSH `$HOME/.dsh/skills/` | 用户级安装落点 | `npx spec-wave skills install --global` |
 | Claude Code `<repo>/.claude/skills/` 或 `~/.claude/skills/` | Claude skill 目录 | 用户另拷或 `--out`；**默认不写** |
 
 `.dsh/coding-kit` / `.coding-kit` 是规范覆盖（`apply_coding_standards` / `init_coding_kit`），**不是** skill 目录，禁止当作 install dest。
@@ -30,7 +30,7 @@
 ## 执行帽缺席说明
 
 `harness-30-execute` / `harness-40-self-check`（执行帽）**不在本分发**：其 skill 化须先通过 T1 闸绕开评测（`eval/t1_gate_bypass/` S1–S3）。
-评测/维护者可用 `npx dsh-coding-kit skills build --with-execute-hats` 本地生成（仅供评测环境，勿装入生产 client）。
+评测/维护者可用 `npx spec-wave skills build --with-execute-hats` 本地生成（仅供评测环境，勿装入生产 client）。
 
 ## 00 全文缺席说明
 

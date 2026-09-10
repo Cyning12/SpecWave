@@ -156,7 +156,7 @@ function formatStatusHuman(payload: ReturnType<typeof buildTaskStatus>['payload'
 
 export async function cmdStatus(args: string[]): Promise<void> {
   if (args.includes('--help') || args.includes('-h')) {
-    console.log(`用法: npx dsh-coding-kit status [--target PATH] [--task FILE] [--json] [--check]
+    console.log(`用法: npx spec-wave status [--target PATH] [--task FILE] [--json] [--check]
 `)
     return
   }
@@ -211,7 +211,7 @@ export async function cmdStatus(args: string[]): Promise<void> {
 
 export async function cmdTimeline(args: string[]): Promise<void> {
   if (args.includes('--help') || args.includes('-h')) {
-    console.log(`用法: npx dsh-coding-kit timeline --task FILE [--target PATH] [--json] [--limit N] [--ingest]
+    console.log(`用法: npx spec-wave timeline --task FILE [--target PATH] [--json] [--limit N] [--ingest]
 `)
     return
   }

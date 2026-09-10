@@ -2,7 +2,7 @@
 name: kit-verify
 description: 编排跑 dsh-coding-kit verify（failClosed；解释 exit 0/1/2）。当用户要验闸、跑 verify、或声称「闸已过」时使用。不用于：口头代闸；冒充 opsx/speckit。
 license: MIT
-compatibility: Requires npx dsh-coding-kit；Open Folder = 消费者仓根
+compatibility: Requires npx spec-wave；Open Folder = 消费者仓根
 metadata:
   kit_command_id: kit-verify
   track: orch
@@ -14,7 +14,7 @@ metadata:
 
 1. Open Folder = 消费者仓根
 2. 确认 task 路径（默认 docs/tasks/active/ 下现行 task）
-3. 必跑：npx dsh-coding-kit verify --task <path>
+3. 必跑：npx spec-wave verify --task <path>
 4. 按退出码汇报：
    - 0 通过
    - 1 用法错误或非阻断失败

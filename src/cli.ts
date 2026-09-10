@@ -60,41 +60,42 @@ async function readPkgVersion(): Promise<string> {
 }
 
 function usage(version: string): void {
-  console.log(`dsh-coding-kit CLI (v${version})
+  console.log(`specgate CLI (v${version})
+过渡: npx dsh-coding-kit 仍可用（同入口）
 
 用法:
-  npx dsh-coding-kit --version | -V
-  npx dsh-coding-kit --help | -h
-  npx dsh-coding-kit init [--preset NAME] [--tools all|none|LIST] [--profile core|expanded] [--host-adapt|--no-host-adapt] [--target PATH] [--yes]  （NAME 词表: harness-only）
-  npx dsh-coding-kit upgrade [--target PATH] [--yes]
-  npx dsh-coding-kit refresh-ide-blocks [--target PATH] [--dry-run] [--yes] [--json]
-  npx dsh-coding-kit check [--target PATH]
-  npx dsh-coding-kit verify [--target PATH] [--task FILE | --spec FILE] [--json] [--with-wiki-lint]
-  npx dsh-coding-kit gate-check [--target PATH] [--task FILE] [--json]
-  npx dsh-coding-kit audit [--target PATH] [--task FILE]
-  npx dsh-coding-kit task lint --file PATH
-  npx dsh-coding-kit task close --file PATH [--yes] [--json]
-  npx dsh-coding-kit status [--target PATH] [--task FILE] [--json] [--check]
-  npx dsh-coding-kit timeline --task FILE [--target PATH] [--json] [--limit N] [--ingest]
-  npx dsh-coding-kit lifecycle show [--json]
-  npx dsh-coding-kit lifecycle dry-run --transition ID --from STATE [--task PATH] [--target PATH]
-  npx dsh-coding-kit discipline show [--json]
-  npx dsh-coding-kit graph yaml compile|check|export …
-  npx dsh-coding-kit graph ingest|snapshot|axioms …
-  npx dsh-coding-kit sync index [--target PATH]
-  npx dsh-coding-kit sync prompts [--target PATH] [--yes] [--force] [--json]
-  npx dsh-coding-kit skills install [--target DIR] [--out DIR] [--global] [--force] [--with-execute-hats]
-  npx dsh-coding-kit skills build [--with-execute-hats]
-  npx dsh-coding-kit skills check
-  npx dsh-coding-kit host validate [--file PATH] [--json]
-  npx dsh-coding-kit host apply --tools LIST [--profile core] [--target PATH] [--file PATH] [--json] [--dry-run|--yes]
-  npx dsh-coding-kit host update [--tools LIST] [--profile core] [--target PATH] [--file PATH] [--json] [--dry-run|--yes] [--force]
-  npx dsh-coding-kit wiki export --json [--target PATH]
-  npx dsh-coding-kit task lint-done [--target PATH]
-  npx dsh-coding-kit task lint-wiki-delta [--target PATH] [--scope all|active|done] [--strict] [--json]
+  npx spec-wave --version | -V
+  npx spec-wave --help | -h
+  npx spec-wave init [--preset NAME] [--tools all|none|LIST] [--profile core|expanded] [--host-adapt|--no-host-adapt] [--target PATH] [--yes]  （NAME 词表: harness-only）
+  npx spec-wave upgrade [--target PATH] [--yes]
+  npx spec-wave refresh-ide-blocks [--target PATH] [--dry-run] [--yes] [--json]
+  npx spec-wave check [--target PATH]
+  npx spec-wave verify [--target PATH] [--task FILE | --spec FILE] [--json] [--with-wiki-lint]
+  npx spec-wave gate-check [--target PATH] [--task FILE] [--json]
+  npx spec-wave audit [--target PATH] [--task FILE]
+  npx spec-wave task lint --file PATH
+  npx spec-wave task close --file PATH [--yes] [--json]
+  npx spec-wave status [--target PATH] [--task FILE] [--json] [--check]
+  npx spec-wave timeline --task FILE [--target PATH] [--json] [--limit N] [--ingest]
+  npx spec-wave lifecycle show [--json]
+  npx spec-wave lifecycle dry-run --transition ID --from STATE [--task PATH] [--target PATH]
+  npx spec-wave discipline show [--json]
+  npx spec-wave graph yaml compile|check|export …
+  npx spec-wave graph ingest|snapshot|axioms …
+  npx spec-wave sync index [--target PATH]
+  npx spec-wave sync prompts [--target PATH] [--yes] [--force] [--json]
+  npx spec-wave skills install [--target DIR] [--out DIR] [--global] [--force] [--with-execute-hats]
+  npx spec-wave skills build [--with-execute-hats]
+  npx spec-wave skills check
+  npx spec-wave host validate [--file PATH] [--json]
+  npx spec-wave host apply --tools LIST [--profile core] [--target PATH] [--file PATH] [--json] [--dry-run|--yes]
+  npx spec-wave host update [--tools LIST] [--profile core] [--target PATH] [--file PATH] [--json] [--dry-run|--yes] [--force]
+  npx spec-wave wiki export --json [--target PATH]
+  npx spec-wave task lint-done [--target PATH]
+  npx spec-wave task lint-wiki-delta [--target PATH] [--scope all|active|done] [--strict] [--json]
     诊断码: wiki_delta_missing（缺字段）· wiki_delta_wrong_section（字段写在 ## Harness 元信息 之外的节 · 替代 missing 不双报）
     --strict 追加: wiki_delta_invalid / wiki_delta_path_missing；task lint --file E8 同口径查 wiki_delta 存在性
-  npx dsh-coding-kit task check --file PATH
+  npx spec-wave task check --file PATH
 
 Exit codes (P0 gates · failClosed):
   0  pass / informational (check always exits 0)
@@ -241,7 +242,7 @@ export async function promptInitTools(
 
 async function cmdInit(args: string[], pkgVersion: string): Promise<void> {
   if (args.includes('--help') || args.includes('-h')) {
-    console.log(`用法: npx dsh-coding-kit ${INIT_USAGE}`)
+    console.log(`用法: npx spec-wave ${INIT_USAGE}`)
     return
   }
   const yes = args.includes('--yes')
@@ -337,7 +338,7 @@ async function cmdInit(args: string[], pkgVersion: string): Promise<void> {
 
 async function cmdUpgrade(args: string[], pkgVersion: string): Promise<void> {
   if (args.includes('--help') || args.includes('-h')) {
-    console.log('用法: npx dsh-coding-kit upgrade [--target PATH] [--yes]')
+    console.log('用法: npx spec-wave upgrade [--target PATH] [--yes]')
     return
   }
   const yes = args.includes('--yes')
@@ -349,7 +350,7 @@ async function cmdUpgrade(args: string[], pkgVersion: string): Promise<void> {
   const target = resolveTarget(process.cwd(), targetArg)
   const current = await readManifest(target)
   if (!current) {
-    fail('未接入（无 .coding-kit/manifest.json 或 legacy .cyning-harness/manifest.json）。建议: npx dsh-coding-kit init --preset harness-only --yes')
+    fail('未接入（无 .coding-kit/manifest.json 或 legacy .cyning-harness/manifest.json）。建议: npx spec-wave init --preset harness-only --yes')
   }
   const next: Manifest = {
     version: pkgVersion,
@@ -371,20 +372,20 @@ async function cmdUpgrade(args: string[], pkgVersion: string): Promise<void> {
     const stale = countStaleIdeLiterals(target)
     if (stale > 0) {
       console.log(
-        '提示: 检测到 ' + stale + ' 处 IDE 块内旧命令字面；运行 `npx dsh-coding-kit refresh-ide-blocks --yes` 刷写（先 `refresh-ide-blocks --dry-run` 看详情）。',
+        '提示: 检测到 ' + stale + ' 处 IDE 块内旧命令字面；运行 `npx spec-wave refresh-ide-blocks --yes` 刷写（先 `refresh-ide-blocks --dry-run` 看详情）。',
       )
     }
   } catch {
     // 提示级：扫描异常不影响 upgrade 语义
   }
   console.log(
-    '提示: manifest 已升级 · prompts 未自动同步（含 FRAGMENT_hat_reanchor / FRAGMENT_00_delegate_only） · 运行 `npx dsh-coding-kit sync prompts --yes`（先 `sync prompts` dry-run 看清单）。',
+    '提示: manifest 已升级 · prompts 未自动同步（含 FRAGMENT_hat_reanchor / FRAGMENT_00_delegate_only） · 运行 `npx spec-wave sync prompts --yes`（先 `sync prompts` dry-run 看清单）。',
   )
 }
 
 async function cmdCheck(args: string[], pkgVersion: string): Promise<void> {
   if (args.includes('--help') || args.includes('-h')) {
-    console.log('用法: npx dsh-coding-kit check [--target PATH]')
+    console.log('用法: npx spec-wave check [--target PATH]')
     return
   }
   let rest = args
@@ -397,7 +398,7 @@ async function cmdCheck(args: string[], pkgVersion: string): Promise<void> {
   console.log(`包版本: ${pkgVersion}`)
   if (!manifest) {
     console.log('状态: 未接入（无 .coding-kit/manifest.json 或 legacy .cyning-harness/manifest.json）')
-    console.log('建议: npx dsh-coding-kit init --preset harness-only --yes')
+    console.log('建议: npx spec-wave init --preset harness-only --yes')
     return
   }
   console.log(`manifest.version: ${manifest.version}`)
@@ -407,14 +408,14 @@ async function cmdCheck(args: string[], pkgVersion: string): Promise<void> {
     console.log('状态: 已是最新')
   } else if (cmp < 0) {
     console.log('状态: 可升级')
-    console.log('建议: npx dsh-coding-kit upgrade --yes')
+    console.log('建议: npx spec-wave upgrade --yes')
   } else if (manifest.from_version != null && isLegacyHarnessLineVersion(manifest.from_version)) {
     // DEF-028：from_version 属旧包产品线（2.x 系列）= 从旧产品线迁来，跨产品线版本号不可比，输出迁移语义而非降级警告
     // DEF-030：判据收窄——kit 线（1.x）from_version 不走本分支，回落下方「降级安装」语义
     console.log(
       `状态: 跨产品线迁移：@cyning/harness ${manifest.version} → dsh-coding-kit ${pkgVersion}（跨产品线版本号不可比）`,
     )
-    console.log('建议: npx dsh-coding-kit upgrade --yes')
+    console.log('建议: npx spec-wave upgrade --yes')
   } else {
     console.log('状态: manifest 版本高于包版本（可能为降级安装）')
     console.log('建议: 核对接入来源（manifest 由更高版本 CLI 写入）')
@@ -476,7 +477,7 @@ function formatGateCheck(taskFile: string, content: string): { text: string; blo
 
 async function cmdGateCheck(args: string[]): Promise<void> {
   if (args.includes('--help') || args.includes('-h')) {
-    console.log('用法: npx dsh-coding-kit gate-check [--target PATH] [--task FILE] [--json]')
+    console.log('用法: npx spec-wave gate-check [--target PATH] [--task FILE] [--json]')
     return
   }
   const json = args.includes('--json')
@@ -528,7 +529,7 @@ async function cmdGateCheck(args: string[]): Promise<void> {
 
 async function cmdAudit(args: string[]): Promise<void> {
   if (args.includes('--help') || args.includes('-h')) {
-    console.log('用法: npx dsh-coding-kit audit [--target PATH] [--task FILE]')
+    console.log('用法: npx spec-wave audit [--target PATH] [--task FILE]')
     return
   }
   let rest = args
@@ -573,7 +574,7 @@ function printWikiLintIssues(res: WikiLintGateResult): void {
   for (const m of res.issues) {
     console.log(`  - ${m.path} · ${m.code} · ${m.detail}`)
   }
-  console.log('复跑（与 PR CI 同命令）: npx --yes dsh-coding-kit task lint-wiki-delta --target .')
+  console.log('复跑（与 PR CI 同命令）: npx --yes spec-wave task lint-wiki-delta --target .')
 }
 
 // PRD_DEF-003 后续棒：verify --spec 真闸（SPEC→00 前查审查文存在性 · 消灭最后一个 notDelivered 命令面）。
@@ -667,7 +668,7 @@ async function verifySpecMode(
 async function cmdVerify(args: string[]): Promise<void> {
   if (args.includes('--help') || args.includes('-h')) {
     console.log(
-      '用法: npx dsh-coding-kit verify [--target PATH] [--task FILE | --spec FILE] [--json] [--with-wiki-lint] [--allow-no-review] [--allow-invoke-gap] [--allow-no-spec-review]',
+      '用法: npx spec-wave verify [--target PATH] [--task FILE | --spec FILE] [--json] [--with-wiki-lint] [--allow-no-review] [--allow-invoke-gap] [--allow-no-spec-review]',
     )
     return
   }

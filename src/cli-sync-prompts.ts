@@ -37,7 +37,7 @@ export type SyncPromptsResult = SyncPromptsPlan & {
 }
 
 export const SYNC_PROMPTS_USAGE = `用法:
-  npx dsh-coding-kit sync prompts [--target PATH] [--yes] [--force] [--json]
+  npx spec-wave sync prompts [--target PATH] [--yes] [--force] [--json]
 
   默认 dry-run（零写入）；--yes 写入 add 项并创建目标目录；conflict 默认不覆盖，--force 显式覆盖。
   前置：目标仓须已有 .coding-kit/manifest.json（或 legacy .cyning-harness/manifest.json；先 init）。`
@@ -164,7 +164,7 @@ export async function cmdSyncPrompts(args: string[]): Promise<void> {
   const target = resolveTarget(process.cwd(), targetArg)
   if (!hasManifest(target)) {
     fail(
-      '未接入（无 .coding-kit/manifest.json 或 legacy .cyning-harness/manifest.json）。建议: npx dsh-coding-kit init --preset harness-only --yes',
+      '未接入（无 .coding-kit/manifest.json 或 legacy .cyning-harness/manifest.json）。建议: npx spec-wave init --preset harness-only --yes',
     )
   }
 

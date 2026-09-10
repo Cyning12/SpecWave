@@ -1,7 +1,7 @@
 # Host-adapt 声明式适配表 · MVP 宿主（dsh / cursor / claude / agents）
-# 校验：npx dsh-coding-kit host validate [--file PATH]
-# 物化：npx dsh-coding-kit host apply --tools cursor,claude --profile core|expanded [--dry-run|--yes]
-# 刷新：npx dsh-coding-kit host update [--tools LIST] [--profile core|expanded] [--dry-run|--yes] [--force]
+# 校验：npx spec-wave host validate [--file PATH]
+# 物化：npx spec-wave host apply --tools cursor,claude --profile core|expanded [--dry-run|--yes]
+# 刷新：npx spec-wave host update [--tools LIST] [--profile core|expanded] [--dry-run|--yes] [--force]
 # schema：../host-adapt.schema.json
 # skills 落点矩阵：../README.md
 version: "1"

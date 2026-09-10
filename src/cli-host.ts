@@ -461,7 +461,7 @@ export function listKnownHostIds(fileArg?: string): string[] {
 
 async function cmdHostValidate(args: string[]): Promise<void> {
   if (args.includes('--help') || args.includes('-h')) {
-    console.log(`用法: npx dsh-coding-kit ${HOST_USAGE}`)
+    console.log(`用法: npx spec-wave ${HOST_USAGE}`)
     return
   }
   const json = args.includes('--json')
@@ -1110,7 +1110,7 @@ function remapUpdateConflicts(items: PlannedItem[], force: boolean): void {
 
 async function cmdHostApply(args: string[]): Promise<void> {
   if (args.includes('--help') || args.includes('-h')) {
-    console.log(`用法: npx dsh-coding-kit ${APPLY_USAGE}`)
+    console.log(`用法: npx spec-wave ${APPLY_USAGE}`)
     return
   }
   const yes = args.includes('--yes')
@@ -1255,7 +1255,7 @@ async function cmdHostApply(args: string[]): Promise<void> {
 
 async function cmdHostUpdate(args: string[]): Promise<void> {
   if (args.includes('--help') || args.includes('-h')) {
-    console.log(`用法: npx dsh-coding-kit ${UPDATE_USAGE}`)
+    console.log(`用法: npx spec-wave ${UPDATE_USAGE}`)
     return
   }
   const yes = args.includes('--yes')
@@ -1430,7 +1430,7 @@ async function cmdHostUpdate(args: string[]): Promise<void> {
 export async function cmdHost(args: string[]): Promise<void> {
   const [sub, ...rest] = args
   if (sub === '--help' || sub === '-h') {
-    console.log(`用法: npx dsh-coding-kit ${HOST_USAGE}`)
+    console.log(`用法: npx spec-wave ${HOST_USAGE}`)
     return
   }
   if (!sub) fail(`host 子命令未知: (空)\n用法: ${HOST_USAGE}`)

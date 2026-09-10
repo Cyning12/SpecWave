@@ -73,7 +73,7 @@
 ## 验收标准
 
 - [ ] 全量测试命令通过（**与本仓 CI workflow 一致**；按仓实际栈填写，如 `pytest tests -q` / `pnpm test`）
-- [ ] `npx --yes dsh-coding-kit task lint-wiki-delta --target .` 通过（wiki_delta 预检 · 与 PR CI sample `run:` 行逐字一致）
+- [ ] `npx --yes spec-wave task lint-wiki-delta --target .` 通过（wiki_delta 预检 · 与 PR CI sample `run:` 行逐字一致）
 - [ ] …
 
 ---

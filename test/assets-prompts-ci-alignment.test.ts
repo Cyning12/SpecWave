@@ -12,7 +12,7 @@ function readAsset(rel: string): string {
 
 // task_prompts-ci-alignment（K4/K6/K7）· prompts/模板文案 grep 断言。
 // 命令串真值：assets/ci/samples/lint-wiki-delta.yml.example 的 run: 行（验收钉死逐字一致）。
-const LINT_CMD = 'npx --yes dsh-coding-kit task lint-wiki-delta --target .'
+const LINT_CMD = 'npx --yes spec-wave task lint-wiki-delta --target .'
 
 describe('prompts-ci-alignment · 命令串真值锚', { concurrency: 1 }, () => {
   it('CI sample run: 行仍为钉死真值（漂移则须同步 prompts 文案与本测试）', () => {

@@ -12,17 +12,17 @@
 
 ## 现行安装入口
 
-CLI 闸与模板以 **`npx dsh-coding-kit`** 为准（包内本目录 = npm `assets/ide/adapters/`）：
+CLI 闸与模板以 **`npx spec-wave`** 为准（包内本目录 = npm `assets/ide/adapters/`）：
 
 ```bash
 # 仓根：初始化 Harness 闸（不覆盖 S2 过程域）
-npx dsh-coding-kit init --preset harness-only --yes
+npx spec-wave init --preset harness-only --yes
 
 # 嵌入前建议先 verify（task 路径按仓调整）
-npx dsh-coding-kit verify --target . --task docs/tasks/active/task_*.md
+npx spec-wave verify --target . --task docs/tasks/active/task_*.md
 ```
 
-IDE 片段默认需手工嵌入（见下）；`init` / `upgrade` 不写消费者仓 IDE 文件（`upgrade` 仅改写 `.cyning-harness/manifest.json`）。存量仓已嵌入 begin/end 块内的旧 `npx @cyning/harness` 命令字面，用 **`npx dsh-coding-kit refresh-ide-blocks`** 刷写（默认 dry-run 只读，`--yes` 才写盘；local 块、块外内容与 S2 路径永不动——映射表与纪律见仓根 README「refresh-ide-blocks」节）。
+IDE 片段默认需手工嵌入（见下）；`init` / `upgrade` 不写消费者仓 IDE 文件（`upgrade` 仅改写 `.cyning-harness/manifest.json`）。存量仓已嵌入 begin/end 块内的旧 `npx @cyning/harness` 命令字面，用 **`npx spec-wave refresh-ide-blocks`** 刷写（默认 dry-run 只读，`--yes` 才写盘；local 块、块外内容与 S2 路径永不动——映射表与纪律见仓根 README「refresh-ide-blocks」节）。
 
 profile 字段（历史）：`tracks.ide_cursor` · `tracks.ide_claude` · `tracks.ide_agents`（缺省：cursor=true，其余 false）。旧包 `cyning-harness` 的 `wizard/install.sh` 勾选路径已废弃，勿再当作现行入口。
 
@@ -32,7 +32,7 @@ profile 字段（历史）：`tracks.ide_cursor` · `tracks.ide_claude` · `trac
 - **不覆盖**用户仓已有 `CLAUDE.md` / `AGENTS.md` 全文；**产品块外**手写保持不变
 - **仓内定制（v2.22+）**：使用 `<!-- cyning-harness-local:begin -->` … `<!-- cyning-harness-local:end -->`，且须在产品 begin/end **之外**。sync **永不**改写 local 块；若误写在产品块内，apply 会尝试 **salvage** 到产品块外。
 - G-L / 图谱模块页路径：`.cyning-harness/profile.json` 的可选 `"graph_modules_path"` 字段（旧包默认 `01_struct`）与 FRAGMENT 占位替换链 **当前不支持**（旧包 cyning-harness 史实机制，本包未接线；sync 仅生成 `invoke_index.json`，不读 profile.json、不写任何 FRAGMENT）。
-- **首次迁入操作序（推荐）**：先迁 profile/local 并 **git commit**，再 `npx dsh-coding-kit upgrade --yes`。`upgrade` 当前仅改写 `.cyning-harness/manifest.json`（src/cli.ts#155-178），**无 git-clean 前置检查**（脏树拦截本包未接线）；git commit 为推荐操作纪律，非本包强制。
+- **首次迁入操作序（推荐）**：先迁 profile/local 并 **git commit**，再 `npx spec-wave upgrade --yes`。`upgrade` 当前仅改写 `.cyning-harness/manifest.json`（src/cli.ts#155-178），**无 git-clean 前置检查**（脏树拦截本包未接线）；git commit 为推荐操作纪律，非本包强制。
 
 ## 手工嵌入（备查）
 
@@ -40,7 +40,7 @@ profile 字段（历史）：`tracks.ide_cursor` · `tracks.ide_claude` · `trac
 
 ```bash
 mkdir -p .cursor/rules
-cp node_modules/dsh-coding-kit/assets/ide/adapters/cursor-harness-starter.mdc.example \
+cp node_modules/spec-wave/assets/ide/adapters/cursor-harness-starter.mdc.example \
   .cursor/rules/05-harness-starter.mdc
 ```
 

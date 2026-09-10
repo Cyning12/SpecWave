@@ -88,7 +88,7 @@ describe('R-07 refresh-ide-blocks', { concurrency: 1 }, () => {
       const r = runCli(['refresh-ide-blocks', '--yes', '--target', dir], dir)
       assert.equal(r.status, 0, r.combined)
       const now = await readFile(path.join(dir, 'AGENTS.md'), 'utf8')
-      assert.match(now, /npx dsh-coding-kit verify --target \. --task docs\/tasks\/active\/task_\*\.md/)
+      assert.match(now, /npx spec-wave verify --target \. --task docs\/tasks\/active\/task_\*\.md/)
       assert.equal(now.includes(`运行 \`npx @cyning/harness`), false, '块内旧字面须归零')
       assert.equal(now.includes('npx npx'), false, '替换不得产生 npx npx 双前缀')
       assert.ok(now.includes(`散文提及 ${OLD_VERIFY} 在块外`), '块外同字面字节不变')
@@ -184,7 +184,7 @@ describe('R-07 refresh-ide-blocks', { concurrency: 1 }, () => {
       const ry = runCli(['refresh-ide-blocks', '--yes', '--target', dir], dir)
       assert.equal(ry.status, 0, ry.combined)
       const now = await readFile(path.join(dir, 'AGENTS.md'), 'utf8')
-      assert.ok(now.includes('npx dsh-coding-kit verify') && now.includes('npx dsh-coding-kit audit'))
+      assert.ok(now.includes('npx spec-wave verify') && now.includes('npx spec-wave audit'))
       assert.ok(now.includes('块间正文。'), '块间正文字节不变')
     })
   })
@@ -228,7 +228,7 @@ describe('R-07 refresh-ide-blocks', { concurrency: 1 }, () => {
       const files = report.files as Array<{ skipped_local_blocks: number }>
       assert.equal(files[0]?.skipped_local_blocks, 1, r.stdout)
       const now = await readFile(path.join(dir, 'AGENTS.md'), 'utf8')
-      assert.ok(now.includes('npx dsh-coding-kit verify'), 'product 块已刷')
+      assert.ok(now.includes('npx spec-wave verify'), 'product 块已刷')
       assert.ok(now.includes('local 自定义 `npx @cyning/harness audit`'), 'local 块内旧字面不动')
     })
   })
@@ -278,7 +278,7 @@ describe('R-07 refresh-ide-blocks', { concurrency: 1 }, () => {
       assert.equal(r.status, 0, r.combined)
       assert.match(r.combined, /非 git|git: none/i)
       const now = await readFile(path.join(dir, 'AGENTS.md'), 'utf8')
-      assert.ok(now.includes('npx dsh-coding-kit verify'), '非 git 仓仍可写')
+      assert.ok(now.includes('npx spec-wave verify'), '非 git 仓仍可写')
       const rj = runCli(['refresh-ide-blocks', '--dry-run', '--json', '--target', dir], dir)
       assert.equal(rj.status, 0, rj.combined)
       const report = parseJson(rj.stdout)
@@ -291,7 +291,7 @@ describe('R-07 refresh-ide-blocks', { concurrency: 1 }, () => {
       const body = [
         PB,
         `- 旧 \`npx @cyning/harness verify\``,
-        `- 新 \`npx dsh-coding-kit check\``,
+        `- 新 \`npx spec-wave check\``,
         PE,
         '',
       ].join('\n')
@@ -320,8 +320,8 @@ describe('R-07 refresh-ide-blocks', { concurrency: 1 }, () => {
       const totals = report.totals as { files_scanned: number; files_written: number }
       assert.equal(totals.files_scanned, 3, r.stdout)
       assert.equal(totals.files_written, 2, r.stdout)
-      assert.ok((await readFile(path.join(dir, 'AGENTS.md'), 'utf8')).includes('npx dsh-coding-kit verify'))
-      assert.ok((await readFile(path.join(dir, 'CLAUDE.md'), 'utf8')).includes('npx dsh-coding-kit verify'))
+      assert.ok((await readFile(path.join(dir, 'AGENTS.md'), 'utf8')).includes('npx spec-wave verify'))
+      assert.ok((await readFile(path.join(dir, 'CLAUDE.md'), 'utf8')).includes('npx spec-wave verify'))
       assert.equal(await readFile(path.join(dir, '.cursor/rules/x.mdc'), 'utf8'), mdc, '.mdc 恒 no-op')
     })
   })
@@ -364,12 +364,12 @@ describe('R-07 refresh-ide-blocks', { concurrency: 1 }, () => {
       const ry = runCli(['refresh-ide-blocks', '--yes', '--target', dir], dir)
       assert.equal(ry.status, 0, ry.combined)
       const now = await readFile(path.join(dir, 'AGENTS.md'), 'utf8')
-      assert.ok(now.includes('npx dsh-coding-kit verify --target .'), 'A1 替换')
-      assert.ok(now.includes('npx dsh-coding-kit check'), 'A2 替换且丢钉版')
+      assert.ok(now.includes('npx spec-wave verify --target .'), 'A1 替换')
+      assert.ok(now.includes('npx spec-wave check'), 'A2 替换且丢钉版')
       assert.equal(now.includes('@2.24.0'), false, 'A2 钉版整体丢弃')
-      assert.ok(now.includes('npx --yes dsh-coding-kit init'), 'A3 保留 --yes 丢钉版')
+      assert.ok(now.includes('npx --yes spec-wave init'), 'A3 保留 --yes 丢钉版')
       assert.equal(now.includes('npx npx'), false, '替换不得产生 npx npx 双前缀')
-      assert.ok(now.includes('npx dsh-coding-kit skills build'), 'A4 替换')
+      assert.ok(now.includes('npx spec-wave skills build'), 'A4 替换')
       // V7：B 组字面写盘后原样存在
       assert.ok(now.includes('CYNING_HARNESS=1'), 'B1 不替换')
       assert.ok(now.includes('--with-scripts'), 'B2 不替换')
@@ -379,9 +379,9 @@ describe('R-07 refresh-ide-blocks', { concurrency: 1 }, () => {
     })
   })
 
-  it('M17: A4 防二刷 — 已含 npx dsh-coding-kit skills build 不误命中', async () => {
+  it('M17: A4 防二刷 — 已含 npx spec-wave skills build 不误命中', async () => {
     await withTemp(async (dir) => {
-      const body = [PB, `- \`npx dsh-coding-kit skills build\``, PE, ''].join('\n')
+      const body = [PB, `- \`npx spec-wave skills build\``, PE, ''].join('\n')
       await writeRel(dir, 'AGENTS.md', body)
       const r = runCli(['refresh-ide-blocks', '--yes', '--json', '--target', dir], dir)
       assert.equal(r.status, 0, r.combined)
@@ -390,6 +390,73 @@ describe('R-07 refresh-ide-blocks', { concurrency: 1 }, () => {
       assert.equal(totals.rewrites, 0, r.stdout)
       assert.equal(totals.files_written, 0, r.stdout)
       assert.equal(await readFile(path.join(dir, 'AGENTS.md'), 'utf8'), body, '字节不变')
+    })
+  })
+
+  it('M17b: B-REFRESH A5–A7 — npx dsh-coding-kit[@pin|/--yes] → npx spec-wave', async () => {
+    await withTemp(async (dir) => {
+      const body = [
+        PB,
+        `- \`npx dsh-coding-kit verify\``,
+        `- \`npx dsh-coding-kit@2.1.1 check\``,
+        `- \`npx --yes dsh-coding-kit@2.1.1 init\``,
+        PE,
+        '',
+      ].join('\n')
+      await writeRel(dir, 'AGENTS.md', body)
+      const rd = runCli(['refresh-ide-blocks', '--dry-run', '--json', '--target', dir], dir)
+      assert.equal(rd.status, 0, rd.combined)
+      const report = parseJson(rd.stdout)
+      const f = (report.files as Array<{
+        rewrites: Array<{ rule: string; count: number; dropped_pin: boolean }>
+      }>)[0]
+      assert.ok(f, rd.stdout)
+      const rw = Object.fromEntries(f.rewrites.map((x) => [x.rule, x]))
+      assert.equal(rw.A5?.count, 1, rd.stdout)
+      assert.equal(rw.A6?.count, 1, rd.stdout)
+      assert.equal(rw.A6?.dropped_pin, true, rd.stdout)
+      assert.equal(rw.A7?.count, 1, rd.stdout)
+      assert.equal(rw.A7?.dropped_pin, true, rd.stdout)
+      const ry = runCli(['refresh-ide-blocks', '--yes', '--target', dir], dir)
+      assert.equal(ry.status, 0, ry.combined)
+      const now = await readFile(path.join(dir, 'AGENTS.md'), 'utf8')
+      assert.ok(now.includes('npx spec-wave verify'), 'A5')
+      assert.ok(now.includes('npx spec-wave check'), 'A6')
+      assert.ok(now.includes('npx --yes spec-wave init'), 'A7')
+      assert.equal(now.includes('dsh-coding-kit'), false, '旧 kit 字面归零')
+      assert.equal(now.includes('@2.1.1'), false, '钉版丢弃')
+    })
+  })
+
+  it('M17c: A8 — npx specgate[@pin|/--yes] → npx spec-wave（钉版丢弃）', async () => {
+    await withTemp(async (dir) => {
+      const body = [
+        PB,
+        `- \`npx specgate verify\``,
+        `- \`npx specgate@2.1.1 check\``,
+        `- \`npx --yes specgate@2.1.1 init\``,
+        PE,
+        '',
+      ].join('\n')
+      await writeRel(dir, 'AGENTS.md', body)
+      const rd = runCli(['refresh-ide-blocks', '--dry-run', '--json', '--target', dir], dir)
+      assert.equal(rd.status, 0, rd.combined)
+      const report = parseJson(rd.stdout)
+      const f = (report.files as Array<{
+        rewrites: Array<{ rule: string; count: number; dropped_pin: boolean }>
+      }>)[0]
+      assert.ok(f, rd.stdout)
+      const rw = Object.fromEntries(f.rewrites.map((x) => [x.rule, x]))
+      assert.equal(rw.A8?.count, 3, rd.stdout)
+      assert.equal(rw.A8?.dropped_pin, true, rd.stdout)
+      const ry = runCli(['refresh-ide-blocks', '--yes', '--target', dir], dir)
+      assert.equal(ry.status, 0, ry.combined)
+      const now = await readFile(path.join(dir, 'AGENTS.md'), 'utf8')
+      assert.ok(now.includes('npx spec-wave verify'), 'A8 plain')
+      assert.ok(now.includes('npx spec-wave check'), 'A8 pin')
+      assert.ok(now.includes('npx --yes spec-wave init'), 'A8 yes+pin')
+      assert.equal(now.includes('npx specgate'), false, '旧 specgate 字面归零')
+      assert.equal(now.includes('@2.1.1'), false, '钉版丢弃')
     })
   })
 
@@ -504,9 +571,9 @@ describe('DEF-029 无 marker 文件旧字面仅报告（plain_mentions · 只读
     })
   })
 
-  it('D29-3: A4 防二刷同适用 — 已迁移行 npx dsh-coding-kit skills check 不报；裸 harness skills build 报 A4', async () => {
+  it('D29-3: A4 防二刷同适用 — 已迁移行 npx spec-wave skills check 不报；裸 harness skills build 报 A4', async () => {
     await withTemp(async (dir) => {
-      await writeRel(dir, 'AGENTS.md', '# a\n\n- `npx dsh-coding-kit skills check`\n')
+      await writeRel(dir, 'AGENTS.md', '# a\n\n- `npx spec-wave skills check`\n')
       await writeRel(dir, 'CLAUDE.md', '# c\n\n- `harness skills build`\n')
       const r = runCli(['refresh-ide-blocks', '--json', '--target', dir], dir)
       assert.equal(r.status, 0, r.combined)

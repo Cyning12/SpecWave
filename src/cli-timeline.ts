@@ -57,7 +57,7 @@ export function buildTaskTimeline(
   const warnings: string[] = []
   if (related.length === 0) {
     warnings.push(
-      'WARN: 无 HGM 数据（该 task 无匹配事件）。可先: npx dsh-coding-kit graph ingest --target <repo>；或本命令加 --ingest（显式写盘）',
+      'WARN: 无 HGM 数据（该 task 无匹配事件）。可先: npx spec-wave graph ingest --target <repo>；或本命令加 --ingest（显式写盘）',
     )
   }
   return {

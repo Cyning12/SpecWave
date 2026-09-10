@@ -144,7 +144,7 @@ export function isIllustrativeWikilink(name: string): boolean {
 export async function cmdWiki(args: string[]): Promise<void> {
   const [sub, ...rest] = args
   if (!sub || sub === '--help' || sub === '-h') {
-    console.log(`用法: npx dsh-coding-kit wiki export --json [--target PATH] [--root DIR] [--out FILE|-]
+    console.log(`用法: npx spec-wave wiki export --json [--target PATH] [--root DIR] [--out FILE|-]
 `)
     return
   }

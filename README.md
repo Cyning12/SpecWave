@@ -1,19 +1,19 @@
-# dsh-coding-kit
+# SpecWave
 
 [简体中文](README.zh-CN.md) | English
 
-**dsh-coding-kit@2.1.1** is a **bundle plugin** for DeepSeek Harness (DSH), shipping a **P0 gate CLI**, **G1–G7 process commands**, and **multi-host IDE landing** (Cursor · Claude Code · DSH). The discipline assets remain ICVO (Inform · Constrain · Verify · Orchestrate).
+**SpecWave** (`spec-wave@2.1.1`) is a **multi-host coding CLI** (Cursor · Claude Code · optional DSH) with **P0 gate / Harness process commands** and IDE landing. Formerly **SpecGate** / **dsh-coding-kit**. Discipline assets remain ICVO (Inform · Constrain · Verify · Orchestrate).
 
-> **Loading ≠ injecting.** Installing or loading this plugin does **not** automatically rewrite the system prompt. `apply()` only registers tools. Only after you or the model calls `apply_coding_standards` will later turns' runtime context contain `# Coding Standards`.
+> **Loading ≠ injecting.** Installing or loading the optional DSH plugin does **not** automatically rewrite the system prompt. `apply()` only registers tools. Only after you or the model calls `apply_coding_standards` will later turns' runtime context contain `# Coding Standards`.
 
 ## Which entry to choose
 
 | Who you are | Entry | Do NOT |
 |-------------|-------|--------|
-| DSH session / model calling tools | `dsh plugin add dsh-coding-kit` | Don't just `npm install` (without the bundle layer the tools won't appear) |
-| Cursor / Claude Code / CI on existing repos | `npx dsh-coding-kit` (+ optional `host apply`) | Don't treat the plugin `init_coding_kit` and the CLI `init` as the same entry |
+| Cursor / Claude Code / CI on existing repos | `npx spec-wave` (+ optional `host apply`) | Don't treat the plugin `init_coding_kit` and the CLI `init` as the same entry |
+| DSH session / model calling tools (optional) | `dsh plugin add dsh-coding-kit` (transition name; same package) | Don't just `npm install` (without the bundle layer the tools won't appear) |
 
-Both entries ship from the same npm package **`dsh-coding-kit@2.1.1`**. The plugin surface and the CLI surface do not replace each other.
+Primary entry is **`npx spec-wave`** from npm package **`spec-wave@2.1.1`**. Transition bins `specgate` and `dsh-coding-kit` still work. The plugin surface and the CLI surface do not replace each other.
 
 ### Multi-host in one package (F6 · 2.0 + skills/orch · 2.1 · tools UX · 2.1.1)
 
@@ -40,17 +40,17 @@ One declarative table → native landing on several hosts (always_on + skills + 
 Shortest path (dry-run first, then write):
 
 ```bash
-npx dsh-coding-kit@2.1.1 host validate
-npx dsh-coding-kit@2.1.1 host apply --tools cursor,claude,dsh --profile core
-npx dsh-coding-kit@2.1.1 host apply --tools cursor,claude,dsh --profile core --yes
+npx spec-wave@2.1.1 host validate
+npx spec-wave@2.1.1 host apply --tools cursor,claude,dsh --profile core
+npx spec-wave@2.1.1 host apply --tools cursor,claude,dsh --profile core --yes
 # optional: --profile expanded   # kit-hat-* thin shells
 # optional: --tools all
 
 # After upgrading the package: refresh sticky hosts (no need to re-list --tools)
-npx dsh-coding-kit@2.1.1 host update --yes
+npx spec-wave@2.1.1 host update --yes
 
 # First-time / CI: init + host selection (process-root only: --tools none)
-npx dsh-coding-kit@2.1.1 init --preset harness-only --tools cursor,claude,dsh --yes
+npx spec-wave@2.1.1 init --preset harness-only --tools cursor,claude,dsh --yes
 ```
 
 After `--yes`, Cursor Command Palette should see `kit-verify` / `kit-gate-status` / …; Claude Code should see `/kit:verify` etc.; DSH should list matching `.dsh/skills/kit-*`. Full matrix: [`assets/ide/host-adapt/README.md`](assets/ide/host-adapt/README.md) · dogfood/recording: [`docs/guides/DOGFOOD_host_adapt_cursor_claude_录屏清单_v1_zh.md`](docs/guides/DOGFOOD_host_adapt_cursor_claude_录屏清单_v1_zh.md) · plan: [`docs/roadmap/PLAN_2_1_1_host_tools_ux_v1_zh.md`](docs/roadmap/PLAN_2_1_1_host_tools_ux_v1_zh.md).
@@ -68,7 +68,7 @@ dsh plugin --profile web add dsh-coding-kit
 Fallback: install from GitHub (needs a Node build; pnpm 10+ may require allowBuilds):
 
 ```bash
-dsh plugin --profile web add github:Cyning12/dsh-coding-kit#main
+dsh plugin --profile web add github:Cyning12/SpecWave#main
 ```
 
 ### Confirmation layer
@@ -116,48 +116,48 @@ Some IDEs / yaml-language-server treat the root `cordis.patch.yml` as an RFC6902
 P0 gates and G1–G7 (**delivered in 1.2.0**):
 
 ```bash
-npx dsh-coding-kit init [--preset NAME] [--tools all|none|LIST] [--profile core|expanded] [--host-adapt|--no-host-adapt] [--yes]   # NAME vocabulary: harness-only (the only legal value)
-npx dsh-coding-kit upgrade --yes
-npx dsh-coding-kit refresh-ide-blocks [--target PATH] [--dry-run] [--yes] [--json]
-npx dsh-coding-kit check
-npx dsh-coding-kit verify --task <task.md> [--with-wiki-lint]
-npx dsh-coding-kit verify --spec <SPEC.md>   # SPEC-to-00 review-existence gate (mutually exclusive with --task; --with-wiki-lint applies here too)
-npx dsh-coding-kit gate-check --task <task.md>
-npx dsh-coding-kit audit --task <task.md>
-npx dsh-coding-kit task lint --file <task.md>
-npx dsh-coding-kit task close --file <task.md>
-npx dsh-coding-kit status [--target] [--task] [--json] [--check]
-npx dsh-coding-kit timeline --task FILE
-npx dsh-coding-kit lifecycle show [--json]
-npx dsh-coding-kit lifecycle dry-run --transition ID --from STATE
-npx dsh-coding-kit discipline show [--json]
-npx dsh-coding-kit graph yaml compile|check|export
-npx dsh-coding-kit graph ingest|snapshot|axioms
-npx dsh-coding-kit sync index
-npx dsh-coding-kit sync prompts [--target PATH] [--yes] [--force] [--json]
-npx dsh-coding-kit skills install [--target DIR] [--out DIR] [--global] [--force] [--with-execute-hats]
-npx dsh-coding-kit skills build [--with-execute-hats]
-npx dsh-coding-kit skills check
-npx dsh-coding-kit host validate [--file PATH] [--json]
-npx dsh-coding-kit host apply --tools cursor,claude --profile core [--target PATH] [--file PATH] [--json] [--dry-run|--yes]
-npx dsh-coding-kit host update [--tools LIST|all] [--profile core] [--target PATH] [--file PATH] [--json] [--dry-run|--yes] [--force]
-npx dsh-coding-kit wiki export --json
-npx dsh-coding-kit task lint-done
-npx dsh-coding-kit task lint-wiki-delta
-npx dsh-coding-kit task check --file PATH
+npx spec-wave init [--preset NAME] [--tools all|none|LIST] [--profile core|expanded] [--host-adapt|--no-host-adapt] [--yes]   # NAME vocabulary: harness-only (the only legal value)
+npx spec-wave upgrade --yes
+npx spec-wave refresh-ide-blocks [--target PATH] [--dry-run] [--yes] [--json]
+npx spec-wave check
+npx spec-wave verify --task <task.md> [--with-wiki-lint]
+npx spec-wave verify --spec <SPEC.md>   # SPEC-to-00 review-existence gate (mutually exclusive with --task; --with-wiki-lint applies here too)
+npx spec-wave gate-check --task <task.md>
+npx spec-wave audit --task <task.md>
+npx spec-wave task lint --file <task.md>
+npx spec-wave task close --file <task.md>
+npx spec-wave status [--target] [--task] [--json] [--check]
+npx spec-wave timeline --task FILE
+npx spec-wave lifecycle show [--json]
+npx spec-wave lifecycle dry-run --transition ID --from STATE
+npx spec-wave discipline show [--json]
+npx spec-wave graph yaml compile|check|export
+npx spec-wave graph ingest|snapshot|axioms
+npx spec-wave sync index
+npx spec-wave sync prompts [--target PATH] [--yes] [--force] [--json]
+npx spec-wave skills install [--target DIR] [--out DIR] [--global] [--force] [--with-execute-hats]
+npx spec-wave skills build [--with-execute-hats]
+npx spec-wave skills check
+npx spec-wave host validate [--file PATH] [--json]
+npx spec-wave host apply --tools cursor,claude --profile core [--target PATH] [--file PATH] [--json] [--dry-run|--yes]
+npx spec-wave host update [--tools LIST|all] [--profile core] [--target PATH] [--file PATH] [--json] [--dry-run|--yes] [--force]
+npx spec-wave wiki export --json
+npx spec-wave task lint-done
+npx spec-wave task lint-wiki-delta
+npx spec-wave task check --file PATH
 ```
 
 `host apply` / `host update` sniff the host-adapt table version and optional `@deepseek-ai/dsh-tools` peer (**U-01**): mismatch → exit 2 and no writes (`--json` includes `contract.status`). `--tools dsh` keeps commands=[] (no `.dsh/commands/`) and lands orchestration as `.dsh/skills/kit-*`. **`host update` without `--tools`** uses sticky `.coding-kit/host-tools.json` (else exit 1). See **Multi-host in one package** above.
 
-This **source repo** dogfoods `graph yaml compile|check|export` against `docs/_tech_graph/` (**not** shipped in the npm package; https://github.com/Cyning12/dsh-coding-kit/tree/main/docs/_tech_graph).
+This **source repo** dogfoods `graph yaml compile|check|export` against `docs/_tech_graph/` (**not** shipped in the npm package; https://github.com/Cyning12/SpecWave/tree/main/docs/_tech_graph).
 
 `init` / `upgrade` / `sync index` / `skills build` never overwrite the S2 process domain (`docs/tasks/`, `docs/harness/reviews/`, `docs/harness/invokes/by-task/`, plus legacy bare `reviews/` / `invokes/by-task/`). **S2 prefix truth is a single shared constant** (`S2_TRUTH_PREFIXES` in `cli-shared`; F1 / 1.x MVP). `sync prompts` writes only the Starter whitelist under `docs/harness/prompts/` (**11** files) and `docs/harness/templates/TASK_TEMPLATE.md` — default dry-run; existing files with different content are listed as conflicts and are not overwritten unless you pass `--force`.
 
-`verify --with-wiki-lint` (opt-in, non-breaking): appends the `lint-wiki-delta` check (default tier, `scope=all`) on top of the existing gates — effective in both `--task` and `--spec` modes. On a gap, verify is BLOCKED, lists the issues (which may come from sibling active/done tasks), and prints the exact same rerun command as PR CI: `npx --yes dsh-coding-kit task lint-wiki-delta --target .` (see `assets/ci/samples/lint-wiki-delta.yml.example`). `--json` gains a `wiki_lint` block (`ok` / `issues` / `scanned`). A target without `docs/tasks/` directories scans 0 files and never false-blocks. Without the flag, `verify` behaves exactly as before.
+`verify --with-wiki-lint` (opt-in, non-breaking): appends the `lint-wiki-delta` check (default tier, `scope=all`) on top of the existing gates — effective in both `--task` and `--spec` modes. On a gap, verify is BLOCKED, lists the issues (which may come from sibling active/done tasks), and prints the exact same rerun command as PR CI: `npx --yes spec-wave task lint-wiki-delta --target .` (see `assets/ci/samples/lint-wiki-delta.yml.example`). `--json` gains a `wiki_lint` block (`ok` / `issues` / `scanned`). A target without `docs/tasks/` directories scans 0 files and never false-blocks. Without the flag, `verify` behaves exactly as before.
 
 Since 1.7.0 the graph-facing behavior of `graph yaml export` / `graph yaml check` is corrected: ① export writes `graph_id` from the yaml-declared value (`data.graph_id`, e.g. `00_main`) as the single source of truth into graphs/nodes/edges, no longer the path-namespaced id (e.g. `l0/00_main`) — path ids remain input-compat only (`--graph-id` / file discovery); ② `check --all` filters graph.json slices with the same declared-value source as export output, so kit-produced root graph.json and check mutually recognize each other; ③ export preserves edge labels for every mark type (`?>` / `~>` / `::…` / `[…]`) — topology-protocol marks are carried as edge attributes instead of dropping the label text; ④ the Mermaid class block emitted by compile is driven by `nodes[].kind` (`flow`/`struct`/`external` → `phase`/`doc`/`infra`), with id-based inference kept as a fallback for nodes without `kind`. Exit codes are unchanged. **Consumer note**: consumers depending on the old export output (namespaced graph_id / dropped labels) must re-run `graph yaml export`.
 
-`check` compares `manifest.version` against the package version three ways (up-to-date / upgradeable / higher). Since 1.5.2, when the manifest carries a non-null `from_version` (i.e. it was migrated from the old `@cyning/harness` product line), a "higher" comparison reports a cross-product-line migration (`@cyning/harness X → dsh-coding-kit Y` — version numbers are not comparable across product lines) and suggests `npx dsh-coding-kit upgrade --yes`, instead of a misleading "possible downgrade" warning; since 1.7.0 this criterion is narrowed so only a `from_version` in the old product line's vocabulary (the 2.x series) takes the migration wording — a kit-line (1.x) `from_version` and `from_version: null` both keep the original three-way wording. The exit code is unchanged (always 0).
+`check` compares `manifest.version` against the package version three ways (up-to-date / upgradeable / higher). Since 1.5.2, when the manifest carries a non-null `from_version` (i.e. it was migrated from the old `@cyning/harness` product line), a "higher" comparison reports a cross-product-line migration (`@cyning/harness X → dsh-coding-kit Y` — version numbers are not comparable across product lines) and suggests `npx spec-wave upgrade --yes`, instead of a misleading "possible downgrade" warning; since 1.7.0 this criterion is narrowed so only a `from_version` in the old product line's vocabulary (the 2.x series) takes the migration wording — a kit-line (1.x) `from_version` and `from_version: null` both keep the original three-way wording. The exit code is unchanged (always 0).
 
 ### refresh-ide-blocks (R-07 · literal refresh of stale commands in existing IDE blocks)
 
@@ -169,10 +169,13 @@ IDE blocks embedded by the wizard marker merge in the old `@cyning/harness` era 
 
   | Group | Rule | Behavior |
   |-------|------|----------|
-  | A1 | `npx @cyning/harness` → `npx dsh-coding-kit` | auto-replaced; subcommand and arguments preserved verbatim |
-  | A2 | `npx @cyning/harness@<version>` → `npx dsh-coding-kit` | auto-replaced; the version pin is dropped entirely (report records dropped_pin) |
-  | A3 | `npx --yes @cyning/harness[@<version>]` → `npx --yes dsh-coding-kit` | auto-replaced; `--yes` kept, pin dropped |
-  | A4 | bare-bin forms `harness skills build` / `harness skills check` → `npx dsh-coding-kit skills build` / `npx dsh-coding-kit skills check` | auto-replaced (re-run guard when the line prefix already contains `npx dsh-coding-kit`) |
+  | A1 | `npx @cyning/harness` → `npx spec-wave` | auto-replaced; subcommand and arguments preserved verbatim |
+  | A2 | `npx @cyning/harness@<version>` → `npx spec-wave` | auto-replaced; the version pin is dropped entirely (report records dropped_pin) |
+  | A3 | `npx --yes @cyning/harness[@<version>]` → `npx --yes spec-wave` | auto-replaced; `--yes` kept, pin dropped |
+  | A4 | bare-bin forms `harness skills build` / `harness skills check` → `npx spec-wave skills build` / `npx spec-wave skills check` | auto-replaced (re-run guard when the line prefix already contains `npx spec-wave`) |
+  | A5 | `npx dsh-coding-kit` → `npx spec-wave` | auto-replaced (B-REFRESH · SpecWave rename) |
+  | A6 | `npx dsh-coding-kit@<version>` → `npx spec-wave` | auto-replaced; pin dropped (dropped_pin) |
+  | A7 | `npx --yes dsh-coding-kit[@<version>]` → `npx --yes spec-wave` | auto-replaced; `--yes` kept, pin dropped |
   | B1–B5 | `CYNING_HARNESS` / `--with-scripts` / `wizard/` paths / `harness:<name>` script names / other bare `@cyning/harness` references | **reported as "manual only", never replaced** |
 
 - **Discipline**: marker lines and out-of-block content stay byte-untouched; `<!-- cyning-harness-local:begin -->` blocks are never rewritten; `docs/tasks/`, `docs/harness/reviews/`, `docs/harness/invokes/by-task/` (S2) are always write-refused.
@@ -223,39 +226,39 @@ When a task declares `test_strategy=required`, `audit` / `verify` run the D5 har
 
 Full checklist, layout rules (F4 scheme B), and **published** EOS / deprecate calendar: see [`MIGRATION.md`](./MIGRATION.md).
 
-After pinning **dsh-coding-kit@2.1.1** you can drop `@cyning/harness`. Minimal path, three steps (required, in order):
+After pinning **spec-wave@2.1.1** you can drop `@cyning/harness`. Minimal path, three steps (required, in order):
 
-1. Replace the `devDependency` `@cyning/harness` with `dsh-coding-kit` (pin `2.1.1`).
-2. Run `npx dsh-coding-kit upgrade --yes` at the repo root (reads `.coding-kit/manifest.json` if present, else legacy `.cyning-harness/manifest.json`; **writes** `.coding-kit/manifest.json` with `version` pinned at 2.1.1 and `from_version` recording the old number; **does not delete** `.cyning-harness/`).
-3. In CI / scripts, replace `npx @cyning/harness` with `npx dsh-coding-kit`.
+1. Replace the `devDependency` `@cyning/harness` with `spec-wave` (pin `2.1.1`; formerly `dsh-coding-kit`).
+2. Run `npx spec-wave upgrade --yes` at the repo root (reads `.coding-kit/manifest.json` if present, else legacy `.cyning-harness/manifest.json`; **writes** `.coding-kit/manifest.json` with `version` pinned at 2.1.1 and `from_version` recording the old number; **does not delete** `.cyning-harness/`).
+3. In CI / scripts, replace `npx @cyning/harness` / `npx dsh-coding-kit` with `npx spec-wave`.
 
 **Layout**: new kit process files land under **`.coding-kit/`**. `.cyning-harness/` remains **legacy read-only**. Do not treat `.cyning-harness` as the new standard root.
 
-Skill installation is **recommended, not required** (the minimal path does not depend on DSH scanning skills). Commands are always `npx dsh-coding-kit`. **`@cyning/harness` is deprecated** on npm (2026-09-10 · maintainer-only); pin **`dsh-coding-kit@2.1.1`** and migrate via `MIGRATION.md`.
+Skill installation is **recommended, not required** (the minimal path does not depend on DSH scanning skills). Commands are always `npx spec-wave`. **`@cyning/harness` is deprecated** on npm (2026-09-10 · maintainer-only); pin **`spec-wave@2.1.1`** and migrate via `MIGRATION.md`.
 
 ### FAQ · pnpm peer
 
-If pnpm install still fails on the peer chain (e.g. resolving to an unpublished host package): set `auto-install-peers=false` at the repo root (or one-shot `pnpm add -D dsh-coding-kit --config.auto-install-peers=false`). Even though **1.2.2** already marked cordis / dsh-tools as optional, keeping this fallback is recommended.
+If pnpm install still fails on the peer chain (e.g. resolving to an unpublished host package): set `auto-install-peers=false` at the repo root (or one-shot `pnpm add -D spec-wave --config.auto-install-peers=false`). Even though **1.2.2** already marked cordis / dsh-tools as optional, keeping this fallback is recommended.
 
 ### Copy-paste Prompt (for agents maintaining existing repos)
 
 Paste the whole block:
 
 ````text
-You = the maintenance agent of this repository. Migrate this repo from @cyning/harness to dsh-coding-kit@2.1.1.
+You = the maintenance agent of this repository. Migrate this repo from @cyning/harness to spec-wave@2.1.1.
 
 Minimal path (required, in order):
-1. package.json devDependency: delete @cyning/harness, replace with dsh-coding-kit (pinned at 2.1.1).
-2. Run at the repo root: npx dsh-coding-kit upgrade --yes
+1. package.json devDependency: delete @cyning/harness, replace with spec-wave (pinned at 2.1.1; formerly dsh-coding-kit).
+2. Run at the repo root: npx spec-wave upgrade --yes
    (reads .coding-kit/manifest.json or legacy .cyning-harness/manifest.json; writes .coding-kit/manifest.json; version pinned at 2.1.1, from_version records the old number; never deletes .cyning-harness/; never overwrites docs/tasks, reviews, invokes/by-task.)
-3. Replace every npx @cyning/harness in CI and scripts with npx dsh-coding-kit.
-Commands are always npx dsh-coding-kit. Never write npx @cyning/harness skills build again.
+3. Replace every npx @cyning/harness and npx dsh-coding-kit in CI and scripts with npx spec-wave.
+Commands are always npx spec-wave. Never write npx @cyning/harness skills build again.
 See MIGRATION.md for layout (.coding-kit vs legacy) and EOS calendar (pending human gates).
 
 Recommended (not required · skill installation):
-- In-repo: npx dsh-coding-kit skills install
+- In-repo: npx spec-wave skills install
   Copies the pre-generated skills from the npm package (excluding 30/40 by default) into this repo's .dsh/skills. Existing files are not overwritten by default; add --force to overwrite.
-- User-level: npx dsh-coding-kit skills install --global
+- User-level: npx spec-wave skills install --global
   Writes to $HOME/.dsh/skills (HOME is expanded; do not treat ~ as a relative path).
 
 Path reference (never mix them up):
@@ -295,8 +298,8 @@ Skills **do not** cover the full process surface. A Host that nests Harness proc
 
 Recommended Capability allowlist (**Policy / H2 required**: default off · explicit Host-env grant · no arbitrary shell):
 
-- `npx --yes dsh-coding-kit@<pin> verify …`
-- `npx --yes dsh-coding-kit@<pin> task …`
+- `npx --yes spec-wave@<pin> verify …`
+- `npx --yes spec-wave@<pin> task …`
 
 | Capability | Covered by Skills? |
 |------------|-------------------|
@@ -311,7 +314,7 @@ Three surfaces, not interchangeable: **System/Re-anchor** = short identity; **fu
 
 ## Releasing (maintainers)
 
-**Current package**: **`dsh-coding-kit@2.1.1`** — **npm `latest=2.1.1`** (2026-09-10 · human publish · tag `v2.1.1`). Prior: **2.1.0** (skills/orch).
+**Current package**: **`spec-wave@2.1.1`** — **npm `latest=2.1.1`** (2026-09-10 · human publish · tag `v2.1.1`). Prior: **2.1.0** (skills/orch).
 
 Release process: see [RELEASING.md](RELEASING.md) — hard pre-publish checklist (commit-before-publish · four green gates · version pins · Agent may bump/tag · **human-only `npm publish`**; institutionalizes the DEF-001 lesson).
 

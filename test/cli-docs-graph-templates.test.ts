@@ -10,7 +10,7 @@ const TEMPLATES = path.join(KIT, 'assets', 'graph', 'templates')
 // DEF-006 T4 · graph 模板与本包编译器漂移回归闸。
 // 钉死四点：① 模板目录不再出现旧包脚本面（scripts/graph_yaml_compile.js 等）；
 // ② 生成物 md frontmatter 为本包编译器形态（source:/generated_at，非 generated_from/generator: scripts）；
-// ③ README 命令面钉 npx dsh-coding-kit graph yaml compile|check；
+// ③ README 命令面钉 npx spec-wave graph yaml compile|check；
 // ④ protocol 如实描述 check 语义（graph yaml export + graph.json 切片比对），
 //    不再声称校验 md↔yaml 同步。
 
@@ -45,18 +45,18 @@ describe('D-DOC 1.2.4 DEF-006 · graph 模板命令面与本包编译器对齐',
     }
   })
 
-  it('③ README 命令面钉 npx dsh-coding-kit graph yaml compile / check / export', () => {
+  it('③ README 命令面钉 npx spec-wave graph yaml compile / check / export', () => {
     const body = readFileSync(path.join(TEMPLATES, 'README.md'), 'utf8')
-    assert.match(body, /npx dsh-coding-kit graph yaml compile/)
-    assert.match(body, /npx dsh-coding-kit graph yaml check/)
-    assert.match(body, /npx dsh-coding-kit graph yaml export/)
+    assert.match(body, /npx spec-wave graph yaml compile/)
+    assert.match(body, /npx spec-wave graph yaml check/)
+    assert.match(body, /npx spec-wave graph yaml export/)
   })
 
   it('④ protocol 如实描述 check 语义（yaml↔graph.json 切片比对，非 md↔yaml 同步）', () => {
     const body = readFileSync(path.join(TEMPLATES, '99_mermaid_protocol.md'), 'utf8')
     assert.match(body, /graph yaml export/)
     assert.match(body, /graph\.json/)
-    assert.match(body, /npx dsh-coding-kit graph yaml compile/)
+    assert.match(body, /npx spec-wave graph yaml compile/)
     assert.equal(
       /检测.*\.md.*同步|\.md 与 .*\.graph\.yaml.*同步/.test(body),
       false,

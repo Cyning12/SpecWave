@@ -18,7 +18,7 @@ function listExampleFiles(): string[] {
 }
 
 describe('1.2.2 E2 adapters + README FAQ', { concurrency: 1 }, () => {
-  it('P2-1: 三 adapters .example 无现行 npx @cyning/harness；含 npx dsh-coding-kit verify', () => {
+  it('P2-1: 三 adapters .example 无现行 npx @cyning/harness；含 npx spec-wave verify', () => {
     const files = listExampleFiles()
     assert.equal(files.length, 3, '须有三个 .example')
     for (const abs of files) {
@@ -28,14 +28,14 @@ describe('1.2.2 E2 adapters + README FAQ', { concurrency: 1 }, () => {
         false,
         `${path.basename(abs)} 不得含现行 ${LEGACY_NPX}`,
       )
-      assert.match(body, /npx dsh-coding-kit verify/)
+      assert.match(body, /npx spec-wave verify/)
     }
   })
 
-  it('P2: adapters README 现行入口为 dsh-coding-kit；marker 可保留', () => {
+  it('P2: adapters README 现行入口为 spec-wave；marker 可保留', () => {
     const body = readFileSync(ADAPTERS_README, 'utf8')
-    assert.match(body, /npx dsh-coding-kit/)
-    assert.match(body, /node_modules\/dsh-coding-kit\/assets\/ide\/adapters/)
+    assert.match(body, /npx spec-wave/)
+    assert.match(body, /node_modules\/spec-wave\/assets\/ide\/adapters/)
     assert.equal(/\/path\/to\/cyning-harness\/wizard\/install\.sh/.test(body), false)
     assert.equal(
       /^cp cyning-harness\//m.test(body),
@@ -49,7 +49,7 @@ describe('1.2.2 E2 adapters + README FAQ', { concurrency: 1 }, () => {
 
   it('P3-1: 根 README 钉 2.1.1；FAQ auto-install-peers=false；Prompt 围栏纪律', () => {
     const readme = readFileSync(README, 'utf8')
-    assert.match(readme, /dsh-coding-kit@2\.1\.1/)
+    assert.match(readme, /spec-wave@2\.1\.1/)
     assert.equal(/1\.2\.1\.1/.test(readme), false)
     assert.match(readme, /auto-install-peers=false/)
     assert.match(readme, /peerDependenciesMeta|optional/)
@@ -60,7 +60,7 @@ describe('1.2.2 E2 adapters + README FAQ', { concurrency: 1 }, () => {
     const prompt = m[1]
     assert.doesNotMatch(prompt, /```/)
     assert.doesNotMatch(prompt, /~~~/)
-    assert.match(prompt, /dsh-coding-kit@2\.1\.1/)
+    assert.match(prompt, /spec-wave@2\.1\.1/)
     assert.match(prompt, /version pinned at 2\.1\.1/)
   })
 
@@ -77,7 +77,7 @@ describe('1.2.2 E2 adapters + README FAQ', { concurrency: 1 }, () => {
     }>
     const entry = Array.isArray(info) ? info[0] : info
     assert.ok(entry)
-    assert.match(String(entry.filename ?? ''), /dsh-coding-kit-2\.1\.1/)
+    assert.match(String(entry.filename ?? ''), /spec-wave-2\.1\.1/)
     const paths = (entry.files ?? []).map((f) => f.path)
     assert.equal(paths.some((p) => /(^|\/)SPEC\.md$/.test(p)), false)
     assert.ok(paths.some((p) => p.startsWith('bin/')))

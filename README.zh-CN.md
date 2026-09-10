@@ -1,19 +1,19 @@
-# dsh-coding-kit
+# SpecWave
 
 简体中文 | [English](README.md)
 
-**dsh-coding-kit@2.1.1** 是 DeepSeek Harness（DSH）的 **bundle 插件**，并带 **P0 闸 CLI**、**G1–G7 过程命令**，以及 **多宿主 IDE 物化**（Cursor · Claude Code · DSH）。纪律资产仍是 ICVO（Inform · Constrain · Verify · Orchestrate）。
+**SpecWave**（`spec-wave@2.1.1`）是 **多宿主编码 CLI**（Cursor · Claude Code · 可选 DSH），带 **P0 闸 / Harness 过程命令** 与 IDE 物化。曾用名 **SpecGate** / **dsh-coding-kit**。纪律资产仍是 ICVO（Inform · Constrain · Verify · Orchestrate）。
 
-> **加载 ≠ 注入。** 安装或加载本插件 **不会** 自动改写 system prompt。`apply()` 只注册工具。必须由你或模型调用 `apply_coding_standards` 之后，后续回合的 runtime context 才会含 `# Coding Standards`。
+> **加载 ≠ 注入。** 安装或加载可选 DSH 插件 **不会** 自动改写 system prompt。`apply()` 只注册工具。必须由你或模型调用 `apply_coding_standards` 之后，后续回合的 runtime context 才会含 `# Coding Standards`。
 
 ## 选哪条入口
 
 | 你是谁 | 入口 | 不要用 |
 |--------|------|--------|
-| DSH 会话 / 模型调工具 | `dsh plugin add dsh-coding-kit` | 不要只 `npm install`（缺 bundle 层则工具不出现） |
-| Cursor / Claude Code / CI · 存量仓 | `npx dsh-coding-kit`（可选 `host apply`） | 不要把插件 `init_coding_kit` 与 CLI `init` 当成同一入口 |
+| Cursor / Claude Code / CI · 存量仓 | `npx spec-wave`（可选 `host apply`） | 不要把插件 `init_coding_kit` 与 CLI `init` 当成同一入口 |
+| DSH 会话 / 模型调工具（可选） | `dsh plugin add dsh-coding-kit`（过渡包名；同一包） | 不要只 `npm install`（缺 bundle 层则工具不出现） |
 
-两条入口同一 npm 包 **`dsh-coding-kit@2.1.1`**。插件面与 CLI 面互不替代。
+主入口是 npm 包 **`spec-wave@2.1.1`** 的 **`npx spec-wave`**。过渡 bin `specgate` / `dsh-coding-kit` 仍可用。插件面与 CLI 面互不替代。
 
 ### 一包多宿主（F6 · 2.0 + 技能/编排 · 2.1 · tools UX · 2.1.1）
 
@@ -40,17 +40,17 @@
 最短路径（先 dry-run，再写盘）：
 
 ```bash
-npx dsh-coding-kit@2.1.1 host validate
-npx dsh-coding-kit@2.1.1 host apply --tools cursor,claude,dsh --profile core
-npx dsh-coding-kit@2.1.1 host apply --tools cursor,claude,dsh --profile core --yes
+npx spec-wave@2.1.1 host validate
+npx spec-wave@2.1.1 host apply --tools cursor,claude,dsh --profile core
+npx spec-wave@2.1.1 host apply --tools cursor,claude,dsh --profile core --yes
 # 可选：--profile expanded   # kit-hat-* 薄壳
 # 可选：--tools all
 
 # 升包后：刷粘性已选宿主（不必再抄 --tools）
-npx dsh-coding-kit@2.1.1 host update --yes
+npx spec-wave@2.1.1 host update --yes
 
 # 首次 / CI：init 选型（仅过程根：--tools none）
-npx dsh-coding-kit@2.1.1 init --preset harness-only --tools cursor,claude,dsh --yes
+npx spec-wave@2.1.1 init --preset harness-only --tools cursor,claude,dsh --yes
 ```
 
 `--yes` 后：Cursor 命令面板应可见 `kit-verify` / `kit-gate-status` 等；Claude Code 应对应出现 `/kit:verify` 等；DSH 应列出 `.dsh/skills/kit-*`。完整矩阵见 [`assets/ide/host-adapt/README.md`](assets/ide/host-adapt/README.md)；录屏清单见 [`docs/guides/DOGFOOD_host_adapt_cursor_claude_录屏清单_v1_zh.md`](docs/guides/DOGFOOD_host_adapt_cursor_claude_录屏清单_v1_zh.md)；规划见 [`docs/roadmap/PLAN_2_1_1_host_tools_ux_v1_zh.md`](docs/roadmap/PLAN_2_1_1_host_tools_ux_v1_zh.md)。
@@ -68,7 +68,7 @@ dsh plugin --profile web add dsh-coding-kit
 备选：从 GitHub 安装（需 Node 构建；pnpm 10+ 可能要 allowBuilds）：
 
 ```bash
-dsh plugin --profile web add github:Cyning12/dsh-coding-kit#main
+dsh plugin --profile web add github:Cyning12/SpecWave#main
 ```
 
 ### 确认层
@@ -116,48 +116,48 @@ profile 档语义：
 P0 闸与 G1–G7（**1.2.0 已交付**）：
 
 ```bash
-npx dsh-coding-kit init [--preset NAME] [--tools all|none|LIST] [--profile core|expanded] [--host-adapt|--no-host-adapt] [--yes]   # NAME 词表: harness-only（唯一合法值）
-npx dsh-coding-kit upgrade --yes
-npx dsh-coding-kit refresh-ide-blocks [--target PATH] [--dry-run] [--yes] [--json]
-npx dsh-coding-kit check
-npx dsh-coding-kit verify --task <task.md> [--with-wiki-lint]
-npx dsh-coding-kit verify --spec <SPEC.md>   # SPEC→00 前审查文存在性闸（与 --task 互斥 · --with-wiki-lint 同生效）
-npx dsh-coding-kit gate-check --task <task.md>
-npx dsh-coding-kit audit --task <task.md>
-npx dsh-coding-kit task lint --file <task.md>
-npx dsh-coding-kit task close --file <task.md>
-npx dsh-coding-kit status [--target] [--task] [--json] [--check]
-npx dsh-coding-kit timeline --task FILE
-npx dsh-coding-kit lifecycle show [--json]
-npx dsh-coding-kit lifecycle dry-run --transition ID --from STATE
-npx dsh-coding-kit discipline show [--json]
-npx dsh-coding-kit graph yaml compile|check|export
-npx dsh-coding-kit graph ingest|snapshot|axioms
-npx dsh-coding-kit sync index
-npx dsh-coding-kit sync prompts [--target PATH] [--yes] [--force] [--json]
-npx dsh-coding-kit skills install [--target DIR] [--out DIR] [--global] [--force] [--with-execute-hats]
-npx dsh-coding-kit skills build [--with-execute-hats]
-npx dsh-coding-kit skills check
-npx dsh-coding-kit host validate [--file PATH] [--json]
-npx dsh-coding-kit host apply --tools cursor,claude --profile core [--target PATH] [--file PATH] [--json] [--dry-run|--yes]
-npx dsh-coding-kit host update [--tools LIST|all] [--profile core] [--target PATH] [--file PATH] [--json] [--dry-run|--yes] [--force]
-npx dsh-coding-kit wiki export --json
-npx dsh-coding-kit task lint-done
-npx dsh-coding-kit task lint-wiki-delta
-npx dsh-coding-kit task check --file PATH
+npx spec-wave init [--preset NAME] [--tools all|none|LIST] [--profile core|expanded] [--host-adapt|--no-host-adapt] [--yes]   # NAME 词表: harness-only（唯一合法值）
+npx spec-wave upgrade --yes
+npx spec-wave refresh-ide-blocks [--target PATH] [--dry-run] [--yes] [--json]
+npx spec-wave check
+npx spec-wave verify --task <task.md> [--with-wiki-lint]
+npx spec-wave verify --spec <SPEC.md>   # SPEC→00 前审查文存在性闸（与 --task 互斥 · --with-wiki-lint 同生效）
+npx spec-wave gate-check --task <task.md>
+npx spec-wave audit --task <task.md>
+npx spec-wave task lint --file <task.md>
+npx spec-wave task close --file <task.md>
+npx spec-wave status [--target] [--task] [--json] [--check]
+npx spec-wave timeline --task FILE
+npx spec-wave lifecycle show [--json]
+npx spec-wave lifecycle dry-run --transition ID --from STATE
+npx spec-wave discipline show [--json]
+npx spec-wave graph yaml compile|check|export
+npx spec-wave graph ingest|snapshot|axioms
+npx spec-wave sync index
+npx spec-wave sync prompts [--target PATH] [--yes] [--force] [--json]
+npx spec-wave skills install [--target DIR] [--out DIR] [--global] [--force] [--with-execute-hats]
+npx spec-wave skills build [--with-execute-hats]
+npx spec-wave skills check
+npx spec-wave host validate [--file PATH] [--json]
+npx spec-wave host apply --tools cursor,claude --profile core [--target PATH] [--file PATH] [--json] [--dry-run|--yes]
+npx spec-wave host update [--tools LIST|all] [--profile core] [--target PATH] [--file PATH] [--json] [--dry-run|--yes] [--force]
+npx spec-wave wiki export --json
+npx spec-wave task lint-done
+npx spec-wave task lint-wiki-delta
+npx spec-wave task check --file PATH
 ```
 
 `host apply` / `host update` 嗅探适配表 version 与可选 `@deepseek-ai/dsh-tools` peer（**U-01**）：不匹配 → exit 2、零写入（`--json` 含 `contract.status`）。`--tools dsh` 仍 commands=[]（不建 `.dsh/commands/`），编排落在 `.dsh/skills/kit-*`。**`host update` 省略 `--tools`** 时读粘性 `.coding-kit/host-tools.json`（否则 exit 1）。落点见上方 **一包多宿主**。
 
-kit **源码仓**以 `docs/_tech_graph/` 做 `graph yaml compile|check|export` 的 dogfood（**不随 npm 包发布**；https://github.com/Cyning12/dsh-coding-kit/tree/main/docs/_tech_graph）。
+kit **源码仓**以 `docs/_tech_graph/` 做 `graph yaml compile|check|export` 的 dogfood（**不随 npm 包发布**；https://github.com/Cyning12/SpecWave/tree/main/docs/_tech_graph）。
 
 `init` / `upgrade` / `sync index` / `skills build` 不覆盖 S2 过程域（`docs/tasks/`、`docs/harness/reviews/`、`docs/harness/invokes/by-task/`，以及 legacy 裸 `reviews/` / `invokes/by-task/`）。**S2 前缀真值源唯一**（`cli-shared` 的 `S2_TRUTH_PREFIXES`；F1 / 1.x MVP）。`sync prompts` 仅写入 Starter 白名单（`docs/harness/prompts/` **11** 文件 + `docs/harness/templates/TASK_TEMPLATE.md`）——默认 dry-run；本地内容与包内不同则列为 conflict 且不覆盖（`--force` 显式覆盖）。
 
-`verify --with-wiki-lint`（显式旗标 · 非破坏）：在既有检查之上追加 `lint-wiki-delta`（默认档 · `scope=all`），`--task` 与 `--spec` 模式同生效。有缺口时 verify 判 BLOCKED，列出 issue（缺口可能来自兄弟 active/done task），并打印与 PR CI 逐字一致的复跑命令 `npx --yes dsh-coding-kit task lint-wiki-delta --target .`（见 `assets/ci/samples/lint-wiki-delta.yml.example`）；`--json` 增 `wiki_lint` 块（`ok` / `issues` / `scanned`）。target 无 `docs/tasks/` 目录时 scanned:0，不会误 BLOCKED。无旗标时 `verify` 行为与之前逐字一致。
+`verify --with-wiki-lint`（显式旗标 · 非破坏）：在既有检查之上追加 `lint-wiki-delta`（默认档 · `scope=all`），`--task` 与 `--spec` 模式同生效。有缺口时 verify 判 BLOCKED，列出 issue（缺口可能来自兄弟 active/done task），并打印与 PR CI 逐字一致的复跑命令 `npx --yes spec-wave task lint-wiki-delta --target .`（见 `assets/ci/samples/lint-wiki-delta.yml.example`）；`--json` 增 `wiki_lint` 块（`ok` / `issues` / `scanned`）。target 无 `docs/tasks/` 目录时 scanned:0，不会误 BLOCKED。无旗标时 `verify` 行为与之前逐字一致。
 
 `graph yaml export` / `graph yaml check` 的 graph 面行为自 1.7.0 起修正：① export 的 `graph_id` 以 yaml 声明值（`data.graph_id`，如 `00_main`）为唯一真值源写入 graphs/nodes/edges，不再用路径命名空间 id（如 `l0/00_main`）——路径 id 仅作输入兼容定位（`--graph-id` / 文件发现）；② `check --all` 的 graph.json 切片过滤口径与 export 输出对齐（同一声明值真值源），kit 自产根 json 与 check 互认；③ export 保留全部 mark 类型（`?>` / `~>` / `::…` / `[…]`）的边 label（拓扑协议标记作为边属性呈现，不再丢弃 label 文本）；④ compile 生成的 Mermaid class 段按 `nodes[].kind`（`flow`/`struct`/`external` → `phase`/`doc`/`infra`）生成，无 `kind` 时保留 id 推断作兜底。exit 码不变。**消费者注意**：依赖旧 export 输出（命名空间 graph_id / 空 label）的消费方需重跑 `graph yaml export`。
 
-`check` 对 `manifest.version` 与包版本做三向比较（已是最新 / 可升级 / 高于）。自 1.5.2 起，当 manifest 带非 null `from_version`（即从旧 `@cyning/harness` 产品线迁来）时，「高于」分支输出跨产品线迁移语义（`@cyning/harness X → dsh-coding-kit Y`——跨产品线版本号不可比）并建议 `npx dsh-coding-kit upgrade --yes`，不再误报「可能为降级安装」；自 1.7.0 起该判据收窄为 `from_version` 属旧包产品线词表（2.x 系列）才走迁移文案，kit 线（1.x）`from_version` 与 `from_version: null` 均保留原三向文案。exit 码不变（恒 0）。
+`check` 对 `manifest.version` 与包版本做三向比较（已是最新 / 可升级 / 高于）。自 1.5.2 起，当 manifest 带非 null `from_version`（即从旧 `@cyning/harness` 产品线迁来）时，「高于」分支输出跨产品线迁移语义（`@cyning/harness X → dsh-coding-kit Y`——跨产品线版本号不可比）并建议 `npx spec-wave upgrade --yes`，不再误报「可能为降级安装」；自 1.7.0 起该判据收窄为 `from_version` 属旧包产品线词表（2.x 系列）才走迁移文案，kit 线（1.x）`from_version` 与 `from_version: null` 均保留原三向文案。exit 码不变（恒 0）。
 
 ### refresh-ide-blocks（R-07 · 存量 IDE 块旧命令字面刷写）
 
@@ -169,10 +169,13 @@ kit **源码仓**以 `docs/_tech_graph/` 做 `graph yaml compile|check|export` �
 
   | 组 | 规则 | 行为 |
   |----|------|------|
-  | A1 | `npx @cyning/harness` → `npx dsh-coding-kit` | 自动替换，子命令与参数原样保留 |
-  | A2 | `npx @cyning/harness@<version>` → `npx dsh-coding-kit` | 自动替换，钉版整体丢弃（报告记 dropped_pin） |
-  | A3 | `npx --yes @cyning/harness[@<version>]` → `npx --yes dsh-coding-kit` | 自动替换，`--yes` 保留、钉版丢弃 |
-  | A4 | 裸 bin 形态 `harness skills build` / `harness skills check` → `npx dsh-coding-kit skills build` / `npx dsh-coding-kit skills check` | 自动替换（行前缀已含 `npx dsh-coding-kit` 时防二刷） |
+  | A1 | `npx @cyning/harness` → `npx spec-wave` | 自动替换，子命令与参数原样保留 |
+  | A2 | `npx @cyning/harness@<version>` → `npx spec-wave` | 自动替换，钉版整体丢弃（报告记 dropped_pin） |
+  | A3 | `npx --yes @cyning/harness[@<version>]` → `npx --yes spec-wave` | 自动替换，`--yes` 保留、钉版丢弃 |
+  | A4 | 裸 bin 形态 `harness skills build` / `harness skills check` → `npx spec-wave skills build` / `npx spec-wave skills check` | 自动替换（行前缀已含 `npx spec-wave` 时防二刷） |
+  | A5 | `npx dsh-coding-kit` → `npx spec-wave` | 自动替换（B-REFRESH · SpecGate 改名） |
+  | A6 | `npx dsh-coding-kit@<version>` → `npx spec-wave` | 自动替换，钉版丢弃（dropped_pin） |
+  | A7 | `npx --yes dsh-coding-kit[@<version>]` → `npx --yes spec-wave` | 自动替换，`--yes` 保留、钉版丢弃 |
   | B1–B5 | `CYNING_HARNESS` / `--with-scripts` / `wizard/` 路径 / `harness:<name>` script 名 / 其他裸 `@cyning/harness` 引用 | **仅报告「需人工」，不替换** |
 
 - **纪律**：marker 行与块外内容字节不动；`<!-- cyning-harness-local:begin -->` 块永不改写；`docs/tasks/`、`docs/harness/reviews/`、`docs/harness/invokes/by-task/`（S2）一律拒写。
@@ -223,39 +226,39 @@ kit **源码仓**以 `docs/_tech_graph/` 做 `graph yaml compile|check|export` �
 
 完整清单、F4 方案 B 布局与 **已公布** EOS / deprecate 日历：见 [`MIGRATION.md`](./MIGRATION.md)。
 
-钉 **dsh-coding-kit@2.1.1** 后可去掉 `@cyning/harness`。最小路径三步（必须，按序）：
+钉 **spec-wave@2.1.1** 后可去掉 `@cyning/harness`。最小路径三步（必须，按序）：
 
-1. 把 `devDependency` `@cyning/harness` 换成 `dsh-coding-kit`（钉 `2.1.1`）。
-2. 在仓根执行 `npx dsh-coding-kit upgrade --yes`（读优先 `.coding-kit/manifest.json`，否则 legacy `.cyning-harness/manifest.json`；**写入** `.coding-kit/manifest.json`，`version` 钉 2.1.1，`from_version` 记旧号；**不删除** `.cyning-harness/`）。
-3. CI / 脚本里把 `npx @cyning/harness` 换成 `npx dsh-coding-kit`。
+1. 把 `devDependency` `@cyning/harness` 换成 `spec-wave`（钉 `2.1.1`；曾用名 `dsh-coding-kit`）。
+2. 在仓根执行 `npx spec-wave upgrade --yes`（读优先 `.coding-kit/manifest.json`，否则 legacy `.cyning-harness/manifest.json`；**写入** `.coding-kit/manifest.json`，`version` 钉 2.1.1，`from_version` 记旧号；**不删除** `.cyning-harness/`）。
+3. CI / 脚本里把 `npx @cyning/harness` / `npx dsh-coding-kit` 换成 `npx spec-wave`。
 
 **布局**：过程落盘现行根为 **`.coding-kit/`**；`.cyning-harness/` 为 **legacy 只读**。勿再把 `.cyning-harness` 当新标准目录。
 
-Skill 安装为 **推荐、非必须**（最小路径不依赖 DSH 扫 skill）。命令一律 `npx dsh-coding-kit`。旧包 **`@cyning/harness` 已在 npm deprecate**（2026-09-10 · 仅维护者可操作）；请钉 **`dsh-coding-kit@2.1.1`** 并按 `MIGRATION.md` 迁移。
+Skill 安装为 **推荐、非必须**（最小路径不依赖 DSH 扫 skill）。命令一律 `npx spec-wave`。旧包 **`@cyning/harness` 已在 npm deprecate**（2026-09-10 · 仅维护者可操作）；请钉 **`spec-wave@2.1.1`** 并按 `MIGRATION.md` 迁移。
 
 ### FAQ · pnpm peer
 
-若 pnpm 安装仍因 peer 链失败（例如解析到未公开发布的宿主包）：在仓根设 `auto-install-peers=false`（或单次 `pnpm add -D dsh-coding-kit --config.auto-install-peers=false`）。即使 **1.2.2** 已将 cordis / dsh-tools 标为 optional，也建议保留此兜底。
+若 pnpm 安装仍因 peer 链失败（例如解析到未公开发布的宿主包）：在仓根设 `auto-install-peers=false`（或单次 `pnpm add -D spec-wave --config.auto-install-peers=false`）。即使 **1.2.2** 已将 cordis / dsh-tools 标为 optional，也建议保留此兜底。
 
 ### 可复制 Prompt（给存量仓 Agent）
 
 整段粘贴：
 
 ````text
-你 = 本仓库维护 Agent。把本仓从 @cyning/harness 迁到 dsh-coding-kit@2.1.1。
+你 = 本仓库维护 Agent。把本仓从 @cyning/harness 迁到 spec-wave@2.1.1。
 
 最小路径（必须，按序）：
-1. package.json 的 devDependency：删除 @cyning/harness，改为 dsh-coding-kit（钉 2.1.1）。
-2. 在仓根执行：npx dsh-coding-kit upgrade --yes
+1. package.json 的 devDependency：删除 @cyning/harness，改为 spec-wave（钉 2.1.1；曾用名 dsh-coding-kit）。
+2. 在仓根执行：npx spec-wave upgrade --yes
    （读 .coding-kit/manifest.json 或 legacy .cyning-harness/manifest.json；写入 .coding-kit/manifest.json；version 钉 2.1.1，from_version 记旧号；不删除 .cyning-harness/；不覆盖 docs/tasks、reviews、invokes/by-task。）
-3. CI 与脚本里所有 npx @cyning/harness 换成 npx dsh-coding-kit。
-命令一律 npx dsh-coding-kit。禁止再写 npx @cyning/harness skills build。
+3. CI 与脚本里所有 npx @cyning/harness 与 npx dsh-coding-kit 换成 npx spec-wave。
+命令一律 npx spec-wave。禁止再写 npx @cyning/harness skills build。
 布局与 EOS 日历见 MIGRATION.md（人闸未批前不得宣称已 deprecate）。
 
 推荐（非必须 · Skill 安装）：
-- 仓内：npx dsh-coding-kit skills install
+- 仓内：npx spec-wave skills install
   复制 npm 包内已生成 skills（默认不含 30/40）到本仓 .dsh/skills。已有文件默认不覆盖；要覆盖才加 --force。
-- 用户级：npx dsh-coding-kit skills install --global
+- 用户级：npx spec-wave skills install --global
   写到 $HOME/.dsh/skills（展开 HOME；不要把 ~ 当成相对路径）。
 
 路径对照（禁止混用）：
@@ -295,8 +298,8 @@ Skills **不能**覆盖全部过程能力。Host 要嵌套 Harness 过程，须�
 
 推荐 Capability 白名单（**须走 Policy / H2**：默认关 · Host env 显式授权 · 禁止任意 shell）：
 
-- `npx --yes dsh-coding-kit@<pin> verify …`
-- `npx --yes dsh-coding-kit@<pin> task …`
+- `npx --yes spec-wave@<pin> verify …`
+- `npx --yes spec-wave@<pin> task …`
 
 | 能力 | Skills 能否覆盖 |
 |------|----------------|
@@ -311,7 +314,7 @@ Skills **不能**覆盖全部过程能力。Host 要嵌套 Harness 过程，须�
 
 ## 发版（维护者）
 
-**现行包**：**`dsh-coding-kit@2.1.1`** — **npm `latest=2.1.1`**（2026-09-10 · 人 publish · tag `v2.1.1`）。前一发版：**2.1.0**（技能/编排）。
+**现行包**：**`spec-wave@2.1.1`** — **npm `latest=2.1.1`**（2026-09-10 · 人 publish · tag `v2.1.1`）。前一发版：**2.1.0**（技能/编排）。
 
 发布流程见 [RELEASING.md](RELEASING.md) —— publish 前硬步骤 checklist（先 commit 后 publish · 四门全绿 · 版本钉同步 · **Agent 可 bump/tag** · **`npm publish` 仅人**；DEF-001 教训制度化）。
 

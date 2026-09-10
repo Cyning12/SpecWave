@@ -7,9 +7,9 @@
 ## A. Not yet onboarded
 
 ```
-npx dsh-coding-kit init
-npx dsh-coding-kit skills install
-npx dsh-coding-kit graph yaml compile --all   # if you use the tech-graph assets
+npx spec-wave init
+npx spec-wave skills install
+npx spec-wave graph yaml compile --all   # if you use the tech-graph assets
 ```
 
 You land directly on 1.5.0 behaviour; nothing below applies.
@@ -18,7 +18,7 @@ You land directly on 1.5.0 behaviour; nothing below applies.
 
 ### → 1.2.3 (Mermaid emit contract change)
 
-- **Must**: rerun `npx dsh-coding-kit graph yaml compile --all`. Old emit (`//` anchor comments,
+- **Must**: rerun `npx spec-wave graph yaml compile --all`. Old emit (`//` anchor comments,
   `--"label"-->` edges) silently fails in IDE Markdown preview. `graph yaml check` is unaffected.
 
 ### → 1.2.4 (asset truth pass)
@@ -57,8 +57,8 @@ Previously-passing tasks can now go **BLOCKED (exit 2)**:
 to produce the missing artifacts):
 
 ```
-npx dsh-coding-kit verify --task <slug> --allow-no-review --allow-invoke-gap
-npx dsh-coding-kit task close <slug> --allow-invoke-gap --allow-no-review \
+npx spec-wave verify --task <slug> --allow-no-review --allow-invoke-gap
+npx spec-wave task close <slug> --allow-invoke-gap --allow-no-review \
   --allow-kpi-gap --allow-experience-gap --allow-wiki-gap
 ```
 
@@ -80,8 +80,8 @@ If your repo's IDE marker blocks (`<!-- cyning-harness:begin/end -->`) still con
 `npx @cyning/harness` literals:
 
 ```
-npx dsh-coding-kit refresh-ide-blocks            # dry-run, zero writes — inspect the diff
-npx dsh-coding-kit refresh-ide-blocks --yes      # write the rewrite
+npx spec-wave refresh-ide-blocks            # dry-run, zero writes — inspect the diff
+npx spec-wave refresh-ide-blocks --yes      # write the rewrite
 ```
 
 Behaviour contract (SPEC `PRD_R07_ide_block_rewrite.md`):

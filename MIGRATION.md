@@ -1,35 +1,48 @@
-# Migration · `@cyning/harness` → `dsh-coding-kit`
+# Migration · `@cyning/harness` → `dsh-coding-kit` → **SpecGate**
 
+> **现行包**：**`spec-wave@2.1.1`**（曾用名 `dsh-coding-kit`；过渡 bin：`spec-wave` + `specgate` + `dsh-coding-kit`）  
 > **状态**：1.12 收口 **DONE** · kit **`2.0.0` published**（npm `latest` · F6）· `@cyning/harness` **已 deprecate**（2026-09-10）  
-> **包钉**：请钉 `dsh-coding-kit@2.0.0`（或更新后的 `2.0.1` docs patch；本文件不代替 `package.json`）  
+> **包钉**：请钉 `spec-wave@2.1.1`（本文件不代替 `package.json`）  
 > **布局真值（F4 方案 B）**：新落盘根 = **`.coding-kit/`**；**`.cyning-harness/`** = legacy **只读**（探测 / 升级源；**不删除**）  
 > **人闸**：`HG-EOS-DATE` / `HG-PUBLISH` = **approved**（人实操 · 2026-09-10）· **禁止** Agent 执行 `npm deprecate` / `npm publish`  
-> **F6 归档**：[`docs/roadmap/ACCEPTANCE_2x_host_adapt_2_0_0_zh.md`](docs/roadmap/ACCEPTANCE_2x_host_adapt_2_0_0_zh.md) · 规划 [`docs/roadmap/PLAN_2x_host_adapt_v1_zh.md`](docs/roadmap/PLAN_2x_host_adapt_v1_zh.md)
+> **F6 归档**：[`docs/roadmap/ACCEPTANCE_2x_host_adapt_2_0_0_zh.md`](docs/roadmap/ACCEPTANCE_2x_host_adapt_2_0_0_zh.md) · 规划 [`docs/roadmap/PLAN_2x_host_adapt_v1_zh.md`](docs/roadmap/PLAN_2x_host_adapt_v1_zh.md)  
+> **改名规划**：[`docs/roadmap/PLAN_rename_specgate_v1_zh.md`](docs/roadmap/PLAN_rename_specgate_v1_zh.md)
 
 ---
 
-## 一句话
+## SpecGate 最短路径（现行）
+
+1. **依赖**：`package.json` 将 `dsh-coding-kit`（或 `@cyning/harness`）改为 **`spec-wave`**（钉 `2.1.1`）。  
+2. **升级**：`npx spec-wave upgrade --yes`  
+3. **字面**：CI / 脚本 `npx dsh-coding-kit` / `npx @cyning/harness` → **`npx spec-wave`**  
+4. **推荐**：`npx spec-wave refresh-ide-blocks --yes`（默认 dry-run；含 B-REFRESH：旧 `npx dsh-coding-kit` / `npx specgate` → `npx spec-wave`）
+
+过渡期：bin **`spec-wave`** / **`specgate`** / **`dsh-coding-kit`** 同入口；旧 npm 包名 deprecate 见 W4（仅人）。
+
+---
+
+## 一句话（历史：`@cyning/harness` → kit）
 
 换依赖 → `upgrade --yes`（读旧写新）→ 改 CI 字面 →（推荐）刷 IDE 块与 skills。目录目标是 `.coding-kit`，不是继续把 `.cyning-harness` 当新标准。
 
 ---
 
-## 最小路径（必做 · 顺序固定）
+## 最小路径（必做 · 顺序固定 · 历史 kit 线）
 
-1. **依赖**：`package.json` 删除 `@cyning/harness`，加入 `dsh-coding-kit`（钉当前文档所述版本）。  
-2. **升级**：在仓根执行 `npx dsh-coding-kit upgrade --yes`  
+1. **依赖**：`package.json` 删除 `@cyning/harness`，加入 `spec-wave`（钉当前文档所述版本；曾用名 `dsh-coding-kit`）。  
+2. **升级**：在仓根执行 `npx spec-wave upgrade --yes`  
    - **读**：优先 `.coding-kit/manifest.json`，否则 legacy `.cyning-harness/manifest.json`  
    - **写**：一律写入 `.coding-kit/manifest.json`（`version`=包版本，`from_version`=旧号）  
    - **不删** `.cyning-harness/`；S2（`docs/tasks` / `reviews` / `invokes/by-task`）永不覆写  
-3. **字面**：CI / 脚本中 `npx @cyning/harness` → `npx dsh-coding-kit`
+3. **字面**：CI / 脚本中 `npx @cyning/harness` → `npx spec-wave`（若仍写 `npx dsh-coding-kit`，一并改为 `npx spec-wave`）
 
 ### 推荐（非最小路径硬依赖）
 
 | 步骤 | 命令 / 动作 |
 |------|-------------|
-| IDE marker 块刷写 | `npx dsh-coding-kit refresh-ide-blocks`（默认 dry-run）→ 确认后 `--yes` |
-| Skills 安装 | `npx dsh-coding-kit skills install`（默认不含 30/40） |
-| Starter prompts | `npx dsh-coding-kit sync prompts --yes`（须已有 manifest） |
+| IDE marker 块刷写 | `npx spec-wave refresh-ide-blocks`（默认 dry-run）→ 确认后 `--yes` |
+| Skills 安装 | `npx spec-wave skills install`（默认不含 30/40） |
+| Starter prompts | `npx spec-wave sync prompts --yes`（须已有 manifest） |
 
 备份目录（仅本机回滚）：`.coding-kit/backups/refresh-ide-blocks/`（建议 `.gitignore`）。
 
@@ -63,7 +76,7 @@
 ### Deprecate 文案（registry 现行）
 
 ```text
-DEPRECATED: use dsh-coding-kit instead. See https://github.com/Cyning12/dsh-coding-kit/blob/main/MIGRATION.md — pin dsh-coding-kit@1.12.0 and run: npx dsh-coding-kit upgrade --yes
+DEPRECATED: use dsh-coding-kit instead. See https://github.com/Cyning12/SpecWave/blob/main/MIGRATION.md — pin dsh-coding-kit@1.12.0 and run: npx spec-wave upgrade --yes
 ```
 
 ### 过渡窗规则

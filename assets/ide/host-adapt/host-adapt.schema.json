@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/Cyning12/dsh-coding-kit/assets/ide/host-adapt/host-adapt.schema.json",
+  "$id": "https://github.com/Cyning12/SpecWave/assets/ide/host-adapt/host-adapt.schema.json",
   "title": "DSH host-adapt table",
   "description": "Declarative host adaptation table (F6 / 2.x W1). Surfaces: always_on, skills, commands; optional verify. target / target_dir must not hit S2_TRUTH_PREFIXES (validated by CLI, not this schema alone).",
   "type": "object",

@@ -69,9 +69,9 @@ describe('1.2.2 peer optional + default pnpm install', { concurrency: 1 }, () =>
         false,
         `安装输出不得含 dsh-type-meta:\n${combined}`,
       )
-      assert.equal(existsSync(path.join(dir, 'node_modules', 'dsh-coding-kit')), true)
+      assert.equal(existsSync(path.join(dir, 'node_modules', 'spec-wave')), true)
 
-      const help = spawnSync(pnpm, ['exec', 'dsh-coding-kit', '--help'], {
+      const help = spawnSync(pnpm, ['exec', 'spec-wave', '--help'], {
         encoding: 'utf8',
         cwd: dir,
         env: { ...process.env },
@@ -79,7 +79,27 @@ describe('1.2.2 peer optional + default pnpm install', { concurrency: 1 }, () =>
       })
       const helpOut = `${help.stdout ?? ''}\n${help.stderr ?? ''}`
       assert.equal(help.status, 0, helpOut)
-      assert.match(helpOut, /dsh-coding-kit/)
+      assert.match(helpOut, /spec-wave/)
+
+      const helpLegacy = spawnSync(pnpm, ['exec', 'dsh-coding-kit', '--help'], {
+        encoding: 'utf8',
+        cwd: dir,
+        env: { ...process.env },
+        timeout: 60_000,
+      })
+      const legacyOut = `${helpLegacy.stdout ?? ''}\n${helpLegacy.stderr ?? ''}`
+      assert.equal(helpLegacy.status, 0, legacyOut)
+      assert.match(legacyOut, /spec-wave/)
+
+      const helpSpecgate = spawnSync(pnpm, ['exec', 'specgate', '--help'], {
+        encoding: 'utf8',
+        cwd: dir,
+        env: { ...process.env },
+        timeout: 60_000,
+      })
+      const sgOut = `${helpSpecgate.stdout ?? ''}\n${helpSpecgate.stderr ?? ''}`
+      assert.equal(helpSpecgate.status, 0, sgOut)
+      assert.match(sgOut, /spec-wave/)
     } finally {
       await rm(dir, { recursive: true, force: true })
     }

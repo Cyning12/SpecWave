@@ -124,14 +124,14 @@ describe('D-DOC 1.2.4 DEF-002 · assets 无现行旧包命令面', { concurrency
     )
   })
 
-  it('现行命令面断言：prompts 与生成物均为 npx dsh-coding-kit', () => {
+  it('现行命令面断言：prompts 与生成物均为 npx spec-wave', () => {
     const promptFiles = listFiles(path.join(KIT, 'assets', 'harness', 'prompts'), (n) => n.endsWith('.md'))
     const joined = promptFiles.map((f) => readFileSync(f, 'utf8')).join('\n')
-    assert.match(joined, /npx dsh-coding-kit/)
+    assert.match(joined, /npx spec-wave/)
     assert.equal(joined.includes('npx @cyning/harness'), false)
     const skillsFiles = listFiles(path.join(KIT, 'assets', 'skills'), (n) => n.endsWith('.md'))
     const skillsJoined = skillsFiles.map((f) => readFileSync(f, 'utf8')).join('\n')
     assert.equal(skillsJoined.includes('npx @cyning/harness'), false)
-    assert.match(skillsJoined, /npx dsh-coding-kit/)
+    assert.match(skillsJoined, /npx spec-wave/)
   })
 })

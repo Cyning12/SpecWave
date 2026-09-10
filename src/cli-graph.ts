@@ -18,7 +18,7 @@ import {
 
 export async function cmdGraph(args: string[]): Promise<void> {
   if (args.includes('--help') || args.includes('-h')) {
-    console.log(`用法: npx dsh-coding-kit graph <子命令> [选项]
+    console.log(`用法: npx spec-wave graph <子命令> [选项]
 
 子命令:
   graph yaml compile --graph-id ID [--target PATH] [--input DIR] [--output FILE]

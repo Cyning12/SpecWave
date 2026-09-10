@@ -8,10 +8,10 @@
 ## CLI
 
 ```bash
-npx dsh-coding-kit host validate [--file PATH] [--json]
-npx dsh-coding-kit host apply --tools cursor,claude[,dsh,agents|all] --profile core|expanded [--dry-run|--yes]
-npx dsh-coding-kit host update [--tools LIST|all] [--profile core|expanded] [--yes] [--force]
-npx dsh-coding-kit init --preset harness-only [--tools all|none|LIST] [--profile core|expanded] [--host-adapt|--no-host-adapt] [--yes]
+npx spec-wave host validate [--file PATH] [--json]
+npx spec-wave host apply --tools cursor,claude[,dsh,agents|all] --profile core|expanded [--dry-run|--yes]
+npx spec-wave host update [--tools LIST|all] [--profile core|expanded] [--yes] [--force]
+npx spec-wave init --preset harness-only [--tools all|none|LIST] [--profile core|expanded] [--host-adapt|--no-host-adapt] [--yes]
 ```
 
 - 默认 **dry-run**；`--yes` 才写盘（`host apply` / `host update`）。  
@@ -58,7 +58,7 @@ npx dsh-coding-kit init --preset harness-only [--tools all|none|LIST] [--profile
 升包后推荐：
 
 ```bash
-npx dsh-coding-kit@2.1.1 host update --yes
+npx spec-wave@2.1.1 host update --yes
 ```
 
 ## `init` 选型（对齐 OpenSpec）
@@ -70,10 +70,10 @@ npx dsh-coding-kit@2.1.1 host update --yes
 
 ```bash
 # 非交互：过程根 + 物化
-npx dsh-coding-kit init --preset harness-only --tools cursor,claude,dsh --yes
+npx spec-wave init --preset harness-only --tools cursor,claude,dsh --yes
 
 # 非交互：仅过程根
-npx dsh-coding-kit init --preset harness-only --tools none --yes
+npx spec-wave init --preset harness-only --tools none --yes
 ```
 
 `tools≠none` 且未 `--no-host-adapt` → 同进程 `host apply` + 写粘性。
@@ -103,10 +103,10 @@ Expanded（`--profile expanded`）：`kit-hat-00-delegate` · `kit-hat-10-spec` 
 ```bash
 # 首次 / 改选型
 node ./lib/cli.js host apply --tools cursor,claude,dsh,agents --profile core --yes
-# 或：npx dsh-coding-kit@2.1.1 host apply --tools cursor,claude,dsh,agents --profile core --yes
+# 或：npx spec-wave@2.1.1 host apply --tools cursor,claude,dsh,agents --profile core --yes
 
 # 升包后只刷已选（读粘性；不必再抄 LIST）
-npx dsh-coding-kit@2.1.1 host update --yes
+npx spec-wave@2.1.1 host update --yes
 ```
 
 落点（`.cursor/` · `.claude/` · `.dsh/` · `.agents/` · `CLAUDE.md` · `AGENTS.md`）**应入库**。  

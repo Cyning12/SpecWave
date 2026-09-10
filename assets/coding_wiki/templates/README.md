@@ -76,7 +76,7 @@ invoke §3 应 **pointer** 到本目录，勿重复贴长文。
 1. `git mv` 页到 `topics/<子域>/`（或拆新薄页）
 2. 修双括号 wikilink / 相对 md 链（含 README、`_index`、stable/context）
 3. 更新 [`_index.md`](_index.md) / 本 README 指针
-4. `npx dsh-coding-kit wiki export --json --target <仓根>` 校验边仍在（旧包 `--root` 旗标本包未接线，以 `--target` 指定目标根）
+4. `npx spec-wave wiki export --json --target <仓根>` 校验边仍在（旧包 `--root` 旗标本包未接线，以 `--target` 指定目标根）
 5. 本 task 元信息 **`wiki_delta`** = 改动 path（字段闸不变；目录形状本身不闸）
 
 ---
@@ -90,7 +90,7 @@ invoke §3 应 **pointer** 到本目录，勿重复贴长文。
 拷贝到业务仓后：
 
 ```bash
-npx dsh-coding-kit wiki export --json --target .
+npx spec-wave wiki export --json --target .
 # 业务仓：--target <仓根>（旧包 `--root coding_wiki/templates` 旗标本包未接线）
 ```
 

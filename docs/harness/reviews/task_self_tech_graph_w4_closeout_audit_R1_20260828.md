@@ -36,7 +36,7 @@
 
 ## 非阻塞（30 顺手）
 
-- **N1**：GitHub 链可用 `https://github.com/Cyning12/dsh-coding-kit/tree/main/docs/_tech_graph` 或相对仓根路径；templates README 在包内时相对 `docs/` 不存在，**必须**有「不随包发布」句
+- **N1**：GitHub 链可用 `https://github.com/Cyning12/SpecGate/tree/main/docs/_tech_graph` 或相对仓根路径；templates README 在包内时相对 `docs/` 不存在，**必须**有「不随包发布」句
 - **N2**：根 README 只加一句，避免大段复制 SPEC
 
 ---

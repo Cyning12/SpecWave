@@ -8,7 +8,7 @@
 # v2.18+ close 增补：close_wiki_delta 已接线（PRD_DEF-003 阶段二 T6）；close_wiki_promotion —— 已接线（PRD_DEF-003 后续棒 · src/cli-checks.ts evalCloseWikiPromotion 对照旧包 2.24.0 evaluateWikiPromotionPointer · test/cli-task-close-guards.test.ts 钉死）
 # v2.19+ to_00：spec_reviews_retention 已接线（verify --spec 真闸交付 · src/cli-checks.ts findSpecReview/evalSpecReviewsRetention 单一实现源 · PRD_DEF-003 后续棒 · test/cli-verify-spec.test.ts 钉死）；to_00/to_30/close 登记守卫全部已接线（dry-run 恒真求值 · 无 unevaluated 残留）
 # v1.7.0+ close：close_pr_merged · close_hub_index 已接线（doc-health SPEC · src/cli-checks.ts · test/cli-task-close-guards.test.ts）
-# 只读展示：npx dsh-coding-kit lifecycle show [--json]
+# 只读展示：npx spec-wave lifecycle show [--json]
 # 本包未附带 JSON Schema（旧 schema 指针已移除 · DEF-009）
 
 version: "1"

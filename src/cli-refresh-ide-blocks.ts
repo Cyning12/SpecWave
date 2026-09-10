@@ -113,19 +113,23 @@ export function discoverIdeFiles(target: string): string[] {
   return out.sort()
 }
 
-// ---------- T2：命令字面映射表 + 替换引擎（§4 冻结） ----------
+// ---------- T2：命令字面映射表 + 替换引擎（§4 冻结 + B-REFRESH） ----------
 
-export type RewriteRule = 'A1' | 'A2' | 'A3' | 'A4'
+export type RewriteRule = 'A1' | 'A2' | 'A3' | 'A4' | 'A5' | 'A6' | 'A7' | 'A8'
 export type ReportRule = 'B1' | 'B2' | 'B3' | 'B4' | 'B5'
 export type RewriteHit = { rule: RewriteRule; count: number; dropped_pin: boolean }
 export type ReportHit = { rule: ReportRule; count: number }
 
-// §4.1 A1–A3 并一条正则：npx( --yes)? @cyning/harness(@[0-9][^\s"']*)?；前缀级替换不校验子命令
+// §4.1 A1–A3：npx( --yes)? @cyning/harness(@pin)? → npx [yes] spec-wave
 const A_NPX_RE = /npx( --yes)? @cyning\/harness(@[0-9][^\s")']*)?(?![\w/@-])/g
-// §4.1 A4：裸 bin 形态；行前缀已含 npx dsh-coding-kit 时防二刷
+// B-REFRESH A5–A7：npx( --yes)? dsh-coding-kit(@pin)? → npx [yes] spec-wave
+const DSH_NPX_RE = /npx( --yes)? dsh-coding-kit(@[0-9][^\s")']*)?(?![\w/@-])/g
+// A8：曾拟 npm 名 / 旧命令字面 npx( --yes)? specgate(@pin)? → npx [yes] spec-wave（钉版丢弃）
+const SPECGATE_NPX_RE = /npx( --yes)? specgate(@[0-9][^\s")']*)?(?![\w/@-])/g
+// §4.1 A4：裸 bin 形态；行前缀已含现行 npx 时防二刷
 const A4_RE = /(?<![\w./-])harness skills (build|check)\b/g
-// §6.3-2 MIXED：块体内现行字面
-const CURRENT_NPX = 'npx dsh-coding-kit'
+// §6.3-2 MIXED：块体内现行字面（SpecGate · npm CLI = spec-wave）
+const CURRENT_NPX = 'npx spec-wave'
 
 // §4.2 B 组检出正则（仅报告）
 const B1_RE = /CYNING_HARNESS/g
@@ -157,15 +161,39 @@ function maskSameLength(m: string): string {
   return ' '.repeat(m.length)
 }
 
+function applyNpxRewrite(
+  body: string,
+  re: RegExp,
+  rules: { plain: RewriteRule; pin: RewriteRule; yes: RewriteRule },
+  rewrites: RewriteHit[],
+): string {
+  return body.replace(re, (_m, yes: string | undefined, pin: string | undefined) => {
+    const rule: RewriteRule = yes ? rules.yes : pin ? rules.pin : rules.plain
+    bump(rewrites, rule, Boolean(pin))
+    return 'npx' + (yes ?? '') + ' spec-wave'
+  })
+}
+
+function applySpecgateNpxRewrite(body: string, rewrites: RewriteHit[]): string {
+  return body.replace(SPECGATE_NPX_RE, (_m, yes: string | undefined, pin: string | undefined) => {
+    bump(rewrites, 'A8', Boolean(pin))
+    return 'npx' + (yes ?? '') + ' spec-wave'
+  })
+}
+
 // §4.3：纯字面替换 · 行内多处逐个 · 表外不自动改；B 组在「A 组掩蔽后」的文本上检出
 export function rewriteBody(body: string): BodyRewrite {
   const rewrites: RewriteHit[] = []
-  const masked = body.replace(A_NPX_RE, (m) => maskSameLength(m))
-  let text = body.replace(A_NPX_RE, (_m, yes: string | undefined, pin: string | undefined) => {
-    const rule: RewriteRule = yes ? 'A3' : pin ? 'A2' : 'A1'
-    bump(rewrites, rule, Boolean(pin))
-    return 'npx' + (yes ?? '') + ' dsh-coding-kit'
-  })
+  // 先掩蔽 A5–A7 / A1–A3 / A8，供 B 组排除已迁移前缀
+  let masked = body.replace(DSH_NPX_RE, (m) => maskSameLength(m))
+  masked = masked.replace(A_NPX_RE, (m) => maskSameLength(m))
+  masked = masked.replace(SPECGATE_NPX_RE, (m) => maskSameLength(m))
+  // B-REFRESH：旧 dsh-coding-kit 字面先刷到 spec-wave
+  let text = applyNpxRewrite(body, DSH_NPX_RE, { plain: 'A5', pin: 'A6', yes: 'A7' }, rewrites)
+  // 旧 @cyning/harness 直接落到现行 spec-wave（不再中停 dsh-coding-kit）
+  text = applyNpxRewrite(text, A_NPX_RE, { plain: 'A1', pin: 'A2', yes: 'A3' }, rewrites)
+  // A8：旧 npx specgate[@pin] → npx spec-wave
+  text = applySpecgateNpxRewrite(text, rewrites)
   // A4 逐行处理（防二刷看行前缀）；命中同步掩蔽供 B5 排除
   const maskedLines = masked.split('\n')
   text = text
@@ -173,7 +201,15 @@ export function rewriteBody(body: string): BodyRewrite {
     .map((line, i) => {
       let mline = maskedLines[i] ?? ''
       const out = line.replace(A4_RE, (m, sub: string, offset: number) => {
-        if (line.slice(0, offset).includes(CURRENT_NPX)) return m // §4.1 A4 防二刷
+        const prefix = line.slice(0, offset)
+        // 防二刷：已是现行 / 仍待 A5·A8 刷写的旧前缀
+        if (
+          prefix.includes(CURRENT_NPX) ||
+          prefix.includes('npx dsh-coding-kit') ||
+          prefix.includes('npx specgate')
+        ) {
+          return m
+        }
         bump(rewrites, 'A4', false)
         mline = mline.replace(m, maskSameLength(m))
         return CURRENT_NPX + ' skills ' + sub
@@ -382,10 +418,14 @@ type Report = {
 }
 
 const A_LABEL: Record<RewriteRule, string> = {
-  A1: 'npx @cyning/harness → npx dsh-coding-kit',
-  A2: 'npx @cyning/harness@<version> → npx dsh-coding-kit（钉版丢弃）',
-  A3: 'npx --yes @cyning/harness[@<version>] → npx --yes dsh-coding-kit',
-  A4: 'harness skills build|check → npx dsh-coding-kit skills build|check',
+  A1: 'npx @cyning/harness → npx spec-wave',
+  A2: 'npx @cyning/harness@<version> → npx spec-wave（钉版丢弃）',
+  A3: 'npx --yes @cyning/harness[@<version>] → npx --yes spec-wave',
+  A4: 'harness skills build|check → npx spec-wave skills build|check',
+  A5: 'npx dsh-coding-kit → npx spec-wave',
+  A6: 'npx dsh-coding-kit@<version> → npx spec-wave（钉版丢弃）',
+  A7: 'npx --yes dsh-coding-kit[@<version>] → npx --yes spec-wave',
+  A8: 'npx specgate[@<version>] → npx spec-wave（钉版丢弃）',
 }
 const B_LABEL: Record<ReportRule, string> = {
   B1: 'CYNING_HARNESS env 名（需人工删改）',
@@ -440,7 +480,7 @@ function printHumanReport(report: Report, scans: FileScan[]): void {
 
 export async function cmdRefreshIdeBlocks(args: string[]): Promise<void> {
   if (args.includes('--help') || args.includes('-h')) {
-    console.log('用法: npx dsh-coding-kit refresh-ide-blocks [--target PATH] [--dry-run] [--yes] [--json]')
+    console.log('用法: npx spec-wave refresh-ide-blocks [--target PATH] [--dry-run] [--yes] [--json]')
     return
   }
   const yes = args.includes('--yes')

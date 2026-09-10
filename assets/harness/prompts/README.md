@@ -51,7 +51,7 @@
 
 ## Agent Skills 封装（v2.23+）
 
-本目录 **带 Skills frontmatter 的条文**（10/20×2 + 执行帽 + re-anchor / 00-delegate 短片段）是 **Agent Skills 标准元数据单源**；包根 [`skills/`](../../skills/) 为其标准封装（`npx dsh-coding-kit skills build` 生成物 · **勿手改** · `npx dsh-coding-kit skills check` 拦 drift）。改条文正文后须重跑 build。执行帽（30/40）frontmatter 已备，但**不进默认分发**（T1 闸评测通过前 · 见 `eval/t1_gate_bypass/`）。**00 全文不进默认 Skills 分发**（仅 prompts 资产同步）；**delegate-only / re-anchor 短片段默认可分发**。
+本目录 **带 Skills frontmatter 的条文**（10/20×2 + 执行帽 + re-anchor / 00-delegate 短片段）是 **Agent Skills 标准元数据单源**；包根 [`skills/`](../../skills/) 为其标准封装（`npx spec-wave skills build` 生成物 · **勿手改** · `npx spec-wave skills check` 拦 drift）。改条文正文后须重跑 build。执行帽（30/40）frontmatter 已备，但**不进默认分发**（T1 闸评测通过前 · 见 `eval/t1_gate_bypass/`）。**00 全文不进默认 Skills 分发**（仅 prompts 资产同步）；**delegate-only / re-anchor 短片段默认可分发**。
 
 > **V2 改名（v2.4.0）**：`10-requirements.md` → `10-task-requirements.md`（+新增 `10-spec-requirements.md`）；`22-task-audit.md` → `20-task-audit.md`（+新增 `20-spec-audit.md`）。旧文件已删除；业务仓升级时 sync 会对残留旧帽 warn 提示人工删除。
 

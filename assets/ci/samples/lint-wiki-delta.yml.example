@@ -31,16 +31,16 @@ jobs:
       - name: task lint-wiki-delta
         # 迁移中可改为 continue-on-error: true
         # 本地预检（30/40 自检与本 CI 对齐 · verify 已并入本检查，BLOCKED 时打印同一复跑命令）：
-        #   npx dsh-coding-kit verify --task <task.md> --with-wiki-lint
-        run: npx --yes dsh-coding-kit task lint-wiki-delta --target .
+        #   npx spec-wave verify --task <task.md> --with-wiki-lint
+        run: npx --yes spec-wave task lint-wiki-delta --target .
 
       # 可选矩阵 B · 关账预检（迁完字段后再开；半迁勿开）
       # - name: task lint-wiki-delta --strict
-      #   run: npx --yes dsh-coding-kit task lint-wiki-delta --target . --strict
+      #   run: npx --yes spec-wave task lint-wiki-delta --target . --strict
 
       # 可选：仅扫 active
       # - name: lint-wiki-delta · active only
-      #   run: npx --yes dsh-coding-kit task lint-wiki-delta --target . --scope active
+      #   run: npx --yes spec-wave task lint-wiki-delta --target . --scope active
 
       # 可选 · 读 pin【旧机制示例：旧包 @cyning/harness 已弃用，现行为 dsh-coding-kit；harness.pin.json 为旧包 pin 流程，本包未接线】：
       # - name: lint from pin

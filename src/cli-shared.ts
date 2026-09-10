@@ -138,7 +138,7 @@ export function legacyLayoutHint(target: string): string | null {
   if (hasLegacy && !hasKit) {
     return (
       `提示: 检测到 legacy 目录 ${LEGACY_LAYOUT_DIR}/；新落盘已统一为 ${KIT_LAYOUT_DIR}/。` +
-      `请运行 \`npx dsh-coding-kit upgrade --yes\` 将 manifest 写入新目录（旧目录只读保留，不删除）。`
+      `请运行 \`npx spec-wave upgrade --yes\` 将 manifest 写入新目录（旧目录只读保留，不删除）。`
     )
   }
   if (hasLegacy && hasKit) {
