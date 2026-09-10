@@ -16,11 +16,12 @@
 
 ### 本波人侧已完成（1.12.0）
 
-1. ~~`npm publish`~~ · `npm view dsh-coding-kit version` → `1.12.0`  
-2. ~~`npm deprecate @cyning/harness "…"`~~ · `npm view @cyning/harness deprecated` 已回 deprecate 文案  
+1. ~~`npm publish`~~ · registry `latest` → `1.12.0`  
+2. ~~`npm deprecate @cyning/harness "…"`~~ · deprecated 字段已回钉文案（含 `dsh-coding-kit@1.12.0`）  
 3. 过程档回填：`MIGRATION.md` · 本文件 · CHANGELOG 发布状态  
 
 > 下方 checklist 供**下一次**发版勾选；勿因 1.12.0 已完成而永久勾死。
+
 ## 硬步骤（按序执行 · 全部满足后方可 publish）
 
 - [ ] **① 工作树干净且所有改动已提交**：`git status --porcelain` 为空；拟发布内容全部进入 git 历史。**禁止从未提交工作树 publish**（DEF-001 教训：工作树残留 = 发布物不可溯源）。（Agent 可做）
