@@ -1,8 +1,9 @@
 # Invoke · 30/40 · 2x-host-adapt-w5-release
 
 > **hat**：30-execute → 40-self-check  
-> **task**：`docs/tasks/active/task_2x_host_adapt_w5_release.md`  
+> **task**：`docs/tasks/done/task_2x_host_adapt_w5_release.md`  
 > **日期**：2026-09-10  
+> **状态**：`closed`（publish **待人 / HG-PUBLISH pending**）  
 > **HG-AUDIT-R1**：approved（00 代签）  
 > **HG-PUBLISH**：pending（仅人）
 
@@ -52,10 +53,28 @@ dogfood 临时仓 apply cursor+claude；四门绿；CHANGELOG 2.0.0；F5 钉点�
 
 ## 40 自检（`04` §W5）
 
-- [ ] 四门绿 · F5 钉点 → `2.0.0`  
-- [ ] dogfood：干净仓 apply cursor+claude  
-- [ ] **人** `npm publish`（本棒不执行；闸仍 pending）  
-- [ ] task 过程档关账（publish 项标「待人」）
+- [x] 四门绿 · F5 钉点 → `2.0.0`  
+- [x] dogfood：干净仓 apply cursor+claude  
+- [x] **人** `npm publish`（**待人 / HG-PUBLISH pending**；本棒不执行）  
+- [x] task 过程档关账（publish 项标「待人」）
+
+## 40 结果
+
+| 项 | 判定 | 证据 |
+|----|------|------|
+| 四门 + F5=`2.0.0` | **pass** | 40 复跑四门全绿；`package.json`=`2.0.0`；tag `v2.0.0` @ `6c412b0` |
+| dogfood cursor+claude | **pass** | 30：临时仓 apply exit 0 · planned/written 26 · 无 conflict |
+| 人 npm publish | **待人** | **HG-PUBLISH pending**；未 `npm publish` / `git push` |
+| 过程档关账 | **pass** | task → `done`（publish 项未勾）；PLAN W5 git/tag DONE；spec README W5 done |
+
+### 40 复跑命令（2026-09-10）
+
+```text
+npm run typecheck && npm test && npm run build && npm run test:lib
+→ typecheck OK · npm test 369 pass / 0 fail · build OK · test:lib 4 pass · exit 0
+```
+
+**结论**：W5 过程档 CLOSE；git/tag `v2.0.0` **DONE**；**HG-PUBLISH pending**。STOP：未 npm publish / git push / 改 tag / 改 src。
 
 ## 修订记录
 
@@ -63,3 +82,4 @@ dogfood 临时仓 apply cursor+claude；四门绿；CHANGELOG 2.0.0；F5 钉点�
 |------|------|
 | 2026-09-10 | 00 开棒 · 待 30 |
 | 2026-09-10 | 30 bump/tag 就绪 · 待 40；**禁止 publish/push**；未 CLOSE |
+| 2026-09-10 | **40 CLOSE** · 四门复跑绿 · invoke closed · task 迁 done · **HG-PUBLISH pending** |

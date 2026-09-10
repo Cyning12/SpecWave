@@ -50,7 +50,7 @@
 | W2 | `2x-host-adapt-w2-cursor-claude` | **done** |
 | W3 | `2x-host-adapt-w3-skills-update` | **done** |
 | W4 | `2x-host-adapt-w4-dsh-u01` | **done** |
-| W5 | `2x-host-adapt-w5-release` | active |
+| W5 | `2x-host-adapt-w5-release` | **done**（publish 待人 / HG-PUBLISH pending） |
 
 ---
 
@@ -79,3 +79,4 @@ docs/spec/2x-host-adapt/
 | 2026-09-10 | W2 **done**（40 CLOSE） |
 | 2026-09-10 | W3 **done**（40 CLOSE） |
 | 2026-09-10 | W4 **done**（40 CLOSE） |
+| 2026-09-10 | W5 **done**（40 CLOSE · git/tag `v2.0.0` · publish 待人） |
