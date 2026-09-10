@@ -4,6 +4,12 @@
 
 ## [Unreleased]
 
+## [2.0.0] - 2026-09-10
+
+> 主题：**F6 宿主适配** —— `host validate` / `host apply` / `host update` · U-01 契约嗅探；Cursor + Claude + DSH 三角物化。
+>
+> **发布状态**：**git/tag 就绪 · 待人 npm publish**（registry `latest` 仍为 `1.12.1` 直至人执行 ⑧）。
+
 ### Added
 
 - **`host validate`**：校验 `assets/ide/host-adapt/` 声明式宿主适配表（schema + MVP 示例；S2 `target`/`target_dir` → exit 2）
@@ -14,6 +20,7 @@
 ### Docs
 
 - **2.x F6 规划签收**：`HG-NEXT-2X` / `HG-SPEC-SIGNOFF` approved；`docs/spec/2x-host-adapt/` signed；拆 W1–W5 tasks（实现仍须各波 `HG-AUDIT-R1`）
+- F5=B 钉点随包升至 `2.0.0`（ontology / discipline / README）
 
 ## [1.12.1] - 2026-09-10
 

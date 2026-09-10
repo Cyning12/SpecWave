@@ -9,12 +9,12 @@
 
 | 项 | 值 |
 |----|-----|
-| **npm `latest`** | **`1.12.1`**（registry · 2026-09-10 人 publish） |
-| **git** | tag `v1.12.1` |
-| **主题** | patch：RELEASING 清单顺序修正 + 发版后过程档回填；无产品行为变更 |
+| **npm `latest`** | **`1.12.1`**（registry · 直至人 publish `2.0.0`） |
+| **git** | preparing **`2.0.0`** · tag `v2.0.0` 就绪 · **待人 npm publish** |
+| **主题** | major：F6 宿主适配（`host validate` / `apply` / `update` · U-01） |
 | **旧包** | `@cyning/harness` **已 deprecate**（2026-09-10 · registry 文案仍钉 `dsh-coding-kit@1.12.0`） |
 | **1.x** | **CLOSED**（见 `docs/roadmap/AUDIT_1x_residual_after_1_12_1_zh.md`） |
-| **下一主线** | **2.0 F6**（`docs/roadmap/PLAN_2x_host_adapt_v1_zh.md` · SPEC draft） |
+| **下一主线** | **2.0.x / 2.1**（更多宿主、workspaces 观察项；另 SPEC） |
 
 ### 前一发版（1.12.0）
 

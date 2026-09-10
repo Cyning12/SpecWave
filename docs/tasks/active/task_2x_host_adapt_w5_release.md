@@ -26,7 +26,7 @@
 |---------------|--------|-------------|------|
 | HG-SPEC-SIGNOFF | approved | — | |
 | HG-TASK-DRAFT | **approved** | 22, 30 | 00 代签 · 2026-09-10 |
-| HG-AUDIT-R1 | **pending** | **30** | 本波若含 bump 前实现收口 |
+| HG-AUDIT-R1 | **approved** | **30** | 2026-09-10 · 00 代签 · R1=`docs/harness/reviews/task_2x_host_adapt_w5_release_audit_R1_20260910.md` |
 | HG-PUBLISH | **pending** | publish | **仅人** |
 
 ---
@@ -37,10 +37,10 @@ W1–W4 齐套后：dogfood、CHANGELOG、F5 钉点、`2.0.0` bump/tag；人 pub
 
 ## 范围
 
-- [ ] 干净仓 dogfood：`host apply --tools cursor,claude --profile core`  
-- [ ] 四门绿  
-- [ ] CHANGELOG `2.0.0` · README 入口  
-- [ ] bump + tag（Agent）  
+- [x] 干净仓 dogfood：`host apply --tools cursor,claude --profile core`  
+- [x] 四门绿  
+- [x] CHANGELOG `2.0.0` · README 入口  
+- [x] bump + tag（Agent）  
 - [ ] 人 `npm publish`  
 
 ## 非范围
@@ -56,3 +56,5 @@ Agent publish · deprecate 文案改钉（可选另 task）· 2.1 workspaces
 | 日期 | 摘要 |
 |------|------|
 | 2026-09-10 | 拆单 · 闸 pending |
+| 2026-09-10 | 20-audit R1 通过 · **HG-AUDIT-R1=approved** · 开 30（HG-PUBLISH 仍 pending） |
+| 2026-09-10 | 30 bump/tag `2.0.0` 就绪 · 未 CLOSE · **人 npm publish 未勾** |
