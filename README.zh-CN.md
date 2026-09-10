@@ -2,7 +2,7 @@
 
 简体中文 | [English](README.md)
 
-**dsh-coding-kit@2.1.0** 是 DeepSeek Harness（DSH）的 **bundle 插件**，并带 **P0 闸 CLI**、**G1–G7 过程命令**，以及 **多宿主 IDE 物化**（Cursor · Claude Code · DSH）。纪律资产仍是 ICVO（Inform · Constrain · Verify · Orchestrate）。
+**dsh-coding-kit@2.1.1** 是 DeepSeek Harness（DSH）的 **bundle 插件**，并带 **P0 闸 CLI**、**G1–G7 过程命令**，以及 **多宿主 IDE 物化**（Cursor · Claude Code · DSH）。纪律资产仍是 ICVO（Inform · Constrain · Verify · Orchestrate）。
 
 > **加载 ≠ 注入。** 安装或加载本插件 **不会** 自动改写 system prompt。`apply()` 只注册工具。必须由你或模型调用 `apply_coding_standards` 之后，后续回合的 runtime context 才会含 `# Coding Standards`。
 
@@ -13,9 +13,9 @@
 | DSH 会话 / 模型调工具 | `dsh plugin add dsh-coding-kit` | 不要只 `npm install`（缺 bundle 层则工具不出现） |
 | Cursor / Claude Code / CI · 存量仓 | `npx dsh-coding-kit`（可选 `host apply`） | 不要把插件 `init_coding_kit` 与 CLI `init` 当成同一入口 |
 
-两条入口同一 npm 包 **`dsh-coding-kit@2.1.0`**。插件面与 CLI 面互不替代。
+两条入口同一 npm 包 **`dsh-coding-kit@2.1.1`**。插件面与 CLI 面互不替代。
 
-### 一包多宿主（F6 · 2.0 + 技能/编排 · 2.1）
+### 一包多宿主（F6 · 2.0 + 技能/编排 · 2.1 · tools UX · 2.1.1）
 
 单一声明式适配表 → 多个宿主原生落点（always_on + skills + **commands**）。Verify 真值仍在 CLI（`failClosed` exit **2**）；IDE slash/command 只编排。
 
@@ -26,7 +26,8 @@
 | **DSH** | `.dsh/skills/` — 帽子技能 **+** 编排 `kit-*`（`/` 可发现；**不**建 `.dsh/commands/`） |
 | **agents**（可选） | `AGENTS.md` 片段 · `.agents/skills/` |
 
-**2.1 增量**（同一包）：Claude `/kit:` 命名空间 · DSH `.dsh/skills/kit-*` 编排 · 可选 `--profile expanded` 物化 `kit-hat-*` 薄壳（默认仍 `core`）。
+**2.1 增量**（同一包）：Claude `/kit:` 命名空间 · DSH `.dsh/skills/kit-*` 编排 · 可选 `--profile expanded` 物化 `kit-hat-*` 薄壳（默认仍 `core`）。  
+**2.1.1**：粘性 `.coding-kit/host-tools.json` · `host update --yes` 刷**已选**宿主 · `init --tools`（TTY 询问；CI 须显式传）。
 
 最短路径（先 dry-run，再写盘）：
 
@@ -35,6 +36,12 @@ npx dsh-coding-kit host validate
 npx dsh-coding-kit host apply --tools cursor,claude,dsh --profile core
 npx dsh-coding-kit host apply --tools cursor,claude,dsh --profile core --yes
 # 可选：--profile expanded   # kit-hat-* 薄壳
+
+# 升包后：刷粘性已选宿主（不必再抄 --tools）
+npx dsh-coding-kit host update --yes
+
+# 首次 / CI：init 选型（仅过程根用 --tools none）
+npx dsh-coding-kit init --preset harness-only --tools cursor,claude,dsh --yes
 ```
 
 `--yes` 后：Cursor 命令面板应可见 `kit-verify` / `kit-gate-status` 等；Claude Code 应对应出现 `/kit:verify` 等；DSH 应列出 `.dsh/skills/kit-*`。细则见 [`assets/ide/host-adapt/README.md`](assets/ide/host-adapt/README.md)；录屏/对照操作清单见 [`docs/guides/DOGFOOD_host_adapt_cursor_claude_录屏清单_v1_zh.md`](docs/guides/DOGFOOD_host_adapt_cursor_claude_录屏清单_v1_zh.md)。
@@ -100,7 +107,7 @@ profile 档语义：
 P0 闸与 G1–G7（**1.2.0 已交付**）：
 
 ```bash
-npx dsh-coding-kit init [--preset NAME] [--yes]   # NAME 词表: harness-only（唯一合法值）
+npx dsh-coding-kit init [--preset NAME] [--tools all|none|LIST] [--profile core|expanded] [--yes]   # NAME 词表: harness-only（唯一合法值）
 npx dsh-coding-kit upgrade --yes
 npx dsh-coding-kit refresh-ide-blocks [--target PATH] [--dry-run] [--yes] [--json]
 npx dsh-coding-kit check
@@ -124,14 +131,14 @@ npx dsh-coding-kit skills build [--with-execute-hats]
 npx dsh-coding-kit skills check
 npx dsh-coding-kit host validate [--file PATH] [--json]
 npx dsh-coding-kit host apply --tools cursor,claude --profile core [--target PATH] [--file PATH] [--json] [--dry-run|--yes]
-npx dsh-coding-kit host update [--tools LIST] [--profile core] [--target PATH] [--file PATH] [--json] [--dry-run|--yes] [--force]
+npx dsh-coding-kit host update [--tools LIST|all] [--profile core] [--target PATH] [--file PATH] [--json] [--dry-run|--yes] [--force]
 npx dsh-coding-kit wiki export --json
 npx dsh-coding-kit task lint-done
 npx dsh-coding-kit task lint-wiki-delta
 npx dsh-coding-kit task check --file PATH
 ```
 
-`host apply` / `host update` 嗅探适配表 version 与可选 `@deepseek-ai/dsh-tools` peer（**U-01**）：不匹配 → exit 2、零写入（`--json` 含 `contract.status`）。`--tools dsh` 仍 commands=[]（不建 `.dsh/commands/`），编排落在 `.dsh/skills/kit-*`。落点见上方 **一包多宿主**。
+`host apply` / `host update` 嗅探适配表 version 与可选 `@deepseek-ai/dsh-tools` peer（**U-01**）：不匹配 → exit 2、零写入（`--json` 含 `contract.status`）。`--tools dsh` 仍 commands=[]（不建 `.dsh/commands/`），编排落在 `.dsh/skills/kit-*`。**`host update` 省略 `--tools`** 时读粘性 `.coding-kit/host-tools.json`（否则 exit 1）。落点见上方 **一包多宿主**。
 
 kit **源码仓**以 `docs/_tech_graph/` 做 `graph yaml compile|check|export` 的 dogfood（**不随 npm 包发布**；https://github.com/Cyning12/dsh-coding-kit/tree/main/docs/_tech_graph）。
 
@@ -207,15 +214,15 @@ kit **源码仓**以 `docs/_tech_graph/` 做 `graph yaml compile|check|export` �
 
 完整清单、F4 方案 B 布局与 **已公布** EOS / deprecate 日历：见 [`MIGRATION.md`](./MIGRATION.md)。
 
-钉 **dsh-coding-kit@2.1.0** 后可去掉 `@cyning/harness`。最小路径三步（必须，按序）：
+钉 **dsh-coding-kit@2.1.1** 后可去掉 `@cyning/harness`。最小路径三步（必须，按序）：
 
-1. 把 `devDependency` `@cyning/harness` 换成 `dsh-coding-kit`（钉 `2.1.0`）。
-2. 在仓根执行 `npx dsh-coding-kit upgrade --yes`（读优先 `.coding-kit/manifest.json`，否则 legacy `.cyning-harness/manifest.json`；**写入** `.coding-kit/manifest.json`，`version` 钉 2.1.0，`from_version` 记旧号；**不删除** `.cyning-harness/`）。
+1. 把 `devDependency` `@cyning/harness` 换成 `dsh-coding-kit`（钉 `2.1.1`）。
+2. 在仓根执行 `npx dsh-coding-kit upgrade --yes`（读优先 `.coding-kit/manifest.json`，否则 legacy `.cyning-harness/manifest.json`；**写入** `.coding-kit/manifest.json`，`version` 钉 2.1.1，`from_version` 记旧号；**不删除** `.cyning-harness/`）。
 3. CI / 脚本里把 `npx @cyning/harness` 换成 `npx dsh-coding-kit`。
 
 **布局**：过程落盘现行根为 **`.coding-kit/`**；`.cyning-harness/` 为 **legacy 只读**。勿再把 `.cyning-harness` 当新标准目录。
 
-Skill 安装为 **推荐、非必须**（最小路径不依赖 DSH 扫 skill）。命令一律 `npx dsh-coding-kit`。旧包 **`@cyning/harness` 已在 npm deprecate**（2026-09-10 · 仅维护者可操作）；请钉 **`dsh-coding-kit@2.1.0`** 并按 `MIGRATION.md` 迁移。
+Skill 安装为 **推荐、非必须**（最小路径不依赖 DSH 扫 skill）。命令一律 `npx dsh-coding-kit`。旧包 **`@cyning/harness` 已在 npm deprecate**（2026-09-10 · 仅维护者可操作）；请钉 **`dsh-coding-kit@2.1.1`** 并按 `MIGRATION.md` 迁移。
 
 ### FAQ · pnpm peer
 
@@ -226,12 +233,12 @@ Skill 安装为 **推荐、非必须**（最小路径不依赖 DSH 扫 skill）�
 整段粘贴：
 
 ````text
-你 = 本仓库维护 Agent。把本仓从 @cyning/harness 迁到 dsh-coding-kit@2.1.0。
+你 = 本仓库维护 Agent。把本仓从 @cyning/harness 迁到 dsh-coding-kit@2.1.1。
 
 最小路径（必须，按序）：
-1. package.json 的 devDependency：删除 @cyning/harness，改为 dsh-coding-kit（钉 2.1.0）。
+1. package.json 的 devDependency：删除 @cyning/harness，改为 dsh-coding-kit（钉 2.1.1）。
 2. 在仓根执行：npx dsh-coding-kit upgrade --yes
-   （读 .coding-kit/manifest.json 或 legacy .cyning-harness/manifest.json；写入 .coding-kit/manifest.json；version 钉 2.1.0，from_version 记旧号；不删除 .cyning-harness/；不覆盖 docs/tasks、reviews、invokes/by-task。）
+   （读 .coding-kit/manifest.json 或 legacy .cyning-harness/manifest.json；写入 .coding-kit/manifest.json；version 钉 2.1.1，from_version 记旧号；不删除 .cyning-harness/；不覆盖 docs/tasks、reviews、invokes/by-task。）
 3. CI 与脚本里所有 npx @cyning/harness 换成 npx dsh-coding-kit。
 命令一律 npx dsh-coding-kit。禁止再写 npx @cyning/harness skills build。
 布局与 EOS 日历见 MIGRATION.md（人闸未批前不得宣称已 deprecate）。
@@ -295,7 +302,7 @@ Skills **不能**覆盖全部过程能力。Host 要嵌套 Harness 过程，须�
 
 ## 发版（维护者）
 
-**现行包（git）**：**`dsh-coding-kit@2.1.0`**（tag 就绪 · **npm `latest` 在人 publish 前不变**）。前一发版：**2.0.x**（F6 host-adapt + 多宿主文档）。
+**现行包（git）**：**`dsh-coding-kit@2.1.1`**（tag 就绪 · **npm `latest` 在人 publish 前不变**）。前一发版：**2.1.0**（技能/编排 · published）。
 
 发布流程见 [RELEASING.md](RELEASING.md) —— publish 前硬步骤 checklist（先 commit 后 publish · 四门全绿 · 版本钉同步 · **Agent 可 bump/tag** · **`npm publish` 仅人**；DEF-001 教训制度化）。
 

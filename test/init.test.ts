@@ -1,15 +1,63 @@
 import assert from 'node:assert/strict'
 import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { existsSync } from 'node:fs'
+import { Readable, PassThrough } from 'node:stream'
 import os from 'node:os'
 import path from 'node:path'
+import { spawnSync } from 'node:child_process'
 import { describe, it } from 'node:test'
+import { fileURLToPath } from 'node:url'
 import { copyDirNoClobber } from '../src/index.ts'
+import {
+  isInteractiveInit,
+  parseInitToolsArg,
+  promptInitTools,
+} from '../src/cli.ts'
+import { listKnownHostIds, parseHostToolsSticky } from '../src/cli-host.ts'
+import { CliError } from '../src/cli-shared.ts'
+
+const KIT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
+const CLI_TS = path.join(KIT, 'src', 'cli.ts')
+const STICKY_REL = path.join('.coding-kit', 'host-tools.json')
 
 async function writeRel(root: string, rel: string, body: string): Promise<void> {
   const abs = path.join(root, rel)
   await mkdir(path.dirname(abs), { recursive: true })
   await writeFile(abs, body, 'utf8')
+}
+
+type RunResult = {
+  status: number | null
+  stdout: string
+  stderr: string
+  combined: string
+}
+
+function runCli(args: string[], opts: { cwd?: string } = {}): RunResult {
+  const env = { ...process.env }
+  delete env.DSH_CK_DSH_TOOLS_VERSION
+  const result = spawnSync(process.execPath, ['--experimental-strip-types', CLI_TS, ...args], {
+    encoding: 'utf8',
+    cwd: opts.cwd ?? KIT,
+    env,
+  })
+  const stdout = result.stdout ?? ''
+  const stderr = result.stderr ?? ''
+  return {
+    status: result.status,
+    stdout,
+    stderr,
+    combined: `${stdout}\n${stderr}`,
+  }
+}
+
+async function withTemp(fn: (dir: string) => Promise<void>): Promise<void> {
+  const dir = await mkdtemp(path.join(os.tmpdir(), 'dsh-ck-init-'))
+  try {
+    await fn(dir)
+  } finally {
+    await rm(dir, { recursive: true, force: true })
+  }
 }
 
 describe('T5 init / copyDirNoClobber', { concurrency: 1 }, () => {
@@ -42,5 +90,126 @@ describe('T5 init / copyDirNoClobber', { concurrency: 1 }, () => {
       await rm(src, { recursive: true, force: true })
       await rm(dest, { recursive: true, force: true })
     }
+  })
+})
+
+describe('2.1.1 W3 init --tools / TTY / host-adapt', { concurrency: 1 }, () => {
+  it('非 TTY + 无 --tools → exit 1', async () => {
+    await withTemp(async (dir) => {
+      const r = runCli(['init', '--preset', 'harness-only', '--yes', '--target', dir])
+      assert.equal(r.status, 1, r.combined)
+      assert.match(r.combined, /--tools/)
+      assert.match(r.combined, /OpenSpec|非交互/)
+      assert.equal(existsSync(path.join(dir, '.coding-kit', 'manifest.json')), false)
+    })
+  })
+
+  it('--tools none：写过程根、不物化、不写粘性', async () => {
+    await withTemp(async (dir) => {
+      const r = runCli([
+        'init',
+        '--preset',
+        'harness-only',
+        '--tools',
+        'none',
+        '--yes',
+        '--target',
+        dir,
+      ])
+      assert.equal(r.status, 0, r.combined)
+      assert.equal(existsSync(path.join(dir, '.coding-kit', 'manifest.json')), true)
+      assert.equal(existsSync(path.join(dir, STICKY_REL)), false)
+      assert.equal(existsSync(path.join(dir, '.cursor', 'rules', '05-kit-starter.mdc')), false)
+      assert.match(r.combined, /跳过 host 物化/)
+    })
+  })
+
+  it('tools≠none 联动 apply + 写粘性', async () => {
+    await withTemp(async (dir) => {
+      const r = runCli([
+        'init',
+        '--tools',
+        'cursor',
+        '--profile',
+        'core',
+        '--yes',
+        '--target',
+        dir,
+      ])
+      assert.equal(r.status, 0, r.combined)
+      assert.equal(existsSync(path.join(dir, '.coding-kit', 'manifest.json')), true)
+      assert.equal(existsSync(path.join(dir, STICKY_REL)), true)
+      assert.equal(existsSync(path.join(dir, '.cursor', 'rules', '05-kit-starter.mdc')), true)
+      const sticky = parseHostToolsSticky(await readFile(path.join(dir, STICKY_REL), 'utf8'))
+      assert.deepEqual(sticky.host_ids, ['cursor'])
+      assert.equal(sticky.profile, 'core')
+    })
+  })
+
+  it('--no-host-adapt：过程根照常、不 apply、不写粘性', async () => {
+    await withTemp(async (dir) => {
+      const r = runCli([
+        'init',
+        '--tools',
+        'cursor,claude',
+        '--no-host-adapt',
+        '--yes',
+        '--target',
+        dir,
+      ])
+      assert.equal(r.status, 0, r.combined)
+      assert.equal(existsSync(path.join(dir, '.coding-kit', 'manifest.json')), true)
+      assert.equal(existsSync(path.join(dir, STICKY_REL)), false)
+      assert.equal(existsSync(path.join(dir, '.cursor', 'rules', '05-kit-starter.mdc')), false)
+      assert.match(r.combined, /--no-host-adapt/)
+    })
+  })
+
+  it('parseInitToolsArg：all / none / LIST', () => {
+    const known = listKnownHostIds()
+    assert.equal(parseInitToolsArg('none', known).mode, 'none')
+    const all = parseInitToolsArg('all', known)
+    assert.equal(all.mode, 'hosts')
+    if (all.mode === 'hosts') {
+      assert.deepEqual(all.ids, known)
+      assert.equal(all.toolsArg, 'all')
+    }
+    const list = parseInitToolsArg('cursor,claude', known)
+    assert.equal(list.mode, 'hosts')
+    if (list.mode === 'hosts') assert.deepEqual(list.ids, ['cursor', 'claude'])
+    assert.throws(() => parseInitToolsArg('none,cursor', known), CliError)
+    assert.throws(() => parseInitToolsArg('bogus-host', known), CliError)
+  })
+
+  it('isInteractiveInit：非 TTY 为 false', () => {
+    assert.equal(isInteractiveInit({ isTTY: false }), false)
+    assert.equal(isInteractiveInit({ isTTY: true }), true)
+  })
+
+  it('promptInitTools：mock stdin 选 all / none / 列表', async () => {
+    const known = listKnownHostIds()
+
+    const outAll = new PassThrough()
+    const selAll = await promptInitTools(known, {
+      input: Readable.from(['all\n']),
+      output: outAll,
+    })
+    assert.equal(selAll.mode, 'hosts')
+    if (selAll.mode === 'hosts') assert.deepEqual(selAll.ids, known)
+
+    const outNone = new PassThrough()
+    const selNone = await promptInitTools(known, {
+      input: Readable.from(['none\n']),
+      output: outNone,
+    })
+    assert.equal(selNone.mode, 'none')
+
+    const outList = new PassThrough()
+    const selList = await promptInitTools(known, {
+      input: Readable.from(['cursor,agents\n']),
+      output: outList,
+    })
+    assert.equal(selList.mode, 'hosts')
+    if (selList.mode === 'hosts') assert.deepEqual(selList.ids, ['cursor', 'agents'])
   })
 })

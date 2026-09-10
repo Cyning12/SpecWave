@@ -27,7 +27,7 @@
 
 ## 2. 推荐对外 Demo 脚本（约 8–12 分钟）
 
-> Open Folder = **干净临时演示仓**（勿在 kit 源码仓写）。包钉：`npx dsh-coding-kit@2.1.0`（registry 未更新前可用本仓源码/`2.0.2` 演管道；口播钉 2.1 UX）。
+> Open Folder = **干净临时演示仓**（勿在 kit 源码仓写）。包钉：`npx dsh-coding-kit@2.1.1`（registry 未更新前可用本仓源码/`2.0.2` 演管道；口播钉 2.1 UX）。升包后：`host update --yes`（粘性已选）。
 
 ### 镜 0 · 一句话定位（30s）
 
@@ -99,3 +99,4 @@ Cursor 或 Claude：`/kit-init-guide`（或 `/kit:init-guide`）
 | 2026-09-10 | draft · 回答「五项是否按任务推进」+ 宣讲脚本 |
 | 2026-09-10 | 镜 1 交叉指针 DOGFOOD §5.1（Skills / `/h`） |
 | 2026-09-10 | W5：包钉 → `2.1.0` |
+| 2026-09-10 | 2.1.1 W4：包钉 → `2.1.1` |

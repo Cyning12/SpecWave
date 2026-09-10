@@ -215,3 +215,116 @@ describe('2.x W3 host update', { concurrency: 1 }, () => {
     assert.equal(r.status, 1, r.combined)
   })
 })
+
+describe('2.1.1 W2 host update 缺省 = 方案 A', { concurrency: 1 }, () => {
+  it('无粘性 + 无 --tools → exit 1 + 提示 apply/init 或 --tools', async () => {
+    await withTemp(async (dir) => {
+      const r = runCli(['host', 'update', '--target', dir, '--json'])
+      assert.equal(r.status, 1, r.combined)
+      assert.match(r.combined, /无粘性|未传 --tools/)
+      assert.match(r.combined, /apply|init/)
+      assert.match(r.combined, /--tools/)
+      assert.deepEqual(listRelFiles(dir), [])
+    })
+  })
+
+  it('有粘性：host update --yes（无 --tools）只刷粘性 host_ids', async () => {
+    await withTemp(async (dir) => {
+      const stickyDir = path.join(dir, '.coding-kit')
+      await mkdir(stickyDir, { recursive: true })
+      await writeFile(
+        path.join(stickyDir, 'host-tools.json'),
+        `${JSON.stringify(
+          {
+            version: 1,
+            host_ids: ['cursor'],
+            profile: 'core',
+            updated_at: '2026-09-10T00:00:00.000Z',
+            kit_semver: '2.1.0',
+          },
+          null,
+          2,
+        )}\n`,
+        'utf8',
+      )
+      const r = runCli(['host', 'update', '--target', dir, '--yes', '--json'])
+      assert.equal(r.status, 0, r.combined)
+      const parsed = JSON.parse(r.stdout) as UpdateJson
+      assert.deepEqual(parsed.hosts, ['cursor'])
+      assert.equal(
+        parsed.hosts.includes('claude') || parsed.hosts.includes('dsh') || parsed.hosts.includes('agents'),
+        false,
+      )
+      const files = listRelFiles(dir)
+      assert.ok(files.some((f) => f.includes('.cursor/')), JSON.stringify(files))
+      assert.equal(files.some((f) => f.includes('.claude/')), false, JSON.stringify(files))
+      assert.equal(files.some((f) => f.includes('.dsh/')), false, JSON.stringify(files))
+    })
+  })
+
+  it('显式 --tools 优先于粘性', async () => {
+    await withTemp(async (dir) => {
+      const stickyDir = path.join(dir, '.coding-kit')
+      await mkdir(stickyDir, { recursive: true })
+      await writeFile(
+        path.join(stickyDir, 'host-tools.json'),
+        `${JSON.stringify(
+          {
+            version: 1,
+            host_ids: ['cursor'],
+            profile: 'core',
+            updated_at: '2026-09-10T00:00:00.000Z',
+          },
+          null,
+          2,
+        )}\n`,
+        'utf8',
+      )
+      const r = runCli([
+        'host',
+        'update',
+        '--tools',
+        'claude',
+        '--target',
+        dir,
+        '--json',
+      ])
+      assert.equal(r.status, 0, r.combined)
+      const parsed = JSON.parse(r.stdout) as UpdateJson
+      assert.deepEqual(parsed.hosts, ['claude'])
+    })
+  })
+
+  it('显式 --tools all 仍可用（无视粘性子集）', async () => {
+    await withTemp(async (dir) => {
+      const stickyDir = path.join(dir, '.coding-kit')
+      await mkdir(stickyDir, { recursive: true })
+      await writeFile(
+        path.join(stickyDir, 'host-tools.json'),
+        `${JSON.stringify(
+          {
+            version: 1,
+            host_ids: ['cursor'],
+            profile: 'core',
+            updated_at: '2026-09-10T00:00:00.000Z',
+          },
+          null,
+          2,
+        )}\n`,
+        'utf8',
+      )
+      const r = runCli([
+        'host',
+        'update',
+        '--tools',
+        'all',
+        '--target',
+        dir,
+        '--json',
+      ])
+      assert.equal(r.status, 0, r.combined)
+      const parsed = JSON.parse(r.stdout) as UpdateJson
+      assert.deepEqual(parsed.hosts, ['dsh', 'cursor', 'claude', 'agents'])
+    })
+  })
+})

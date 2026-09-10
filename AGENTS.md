@@ -58,7 +58,7 @@
 | DSH | `.dsh/skills`（harness-* + kit-*） |
 | agents | 本 `AGENTS.md` · `.agents/skills` |
 
-刷新（钉版本）：`npx dsh-coding-kit@2.1.0 host update --tools cursor,claude,dsh,agents --yes`
+刷新（钉版本）：`npx dsh-coding-kit@2.1.1 host update --yes`（有粘性后不必再抄 `--tools`；首次仍用 `host apply --tools cursor,claude,dsh,agents --yes`）
 
 ## Verify（本仓）
 

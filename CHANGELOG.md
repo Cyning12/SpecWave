@@ -4,6 +4,28 @@
 
 ## [Unreleased]
 
+## [2.1.1] - 2026-09-10
+
+> 主题：**patch** —— host tools **安装/更新 UX**；`init` 询问 IDE/宿主（**对齐** OpenSpec）；粘性选型；`host update` 缺省方案 A。  
+> 规划：[`docs/roadmap/PLAN_2_1_1_host_tools_ux_v1_zh.md`](docs/roadmap/PLAN_2_1_1_host_tools_ux_v1_zh.md) · SPEC：[`docs/spec/2_1_1-host-tools-ux/`](docs/spec/2_1_1-host-tools-ux/)  
+>
+> **发布状态**：git/tag 就绪 · **npm `latest` 在人 publish 前不变**（`HG-PUBLISH` pending）。
+
+### Added
+
+- **W1 sticky / `--tools all`**：`host apply|update --yes` 成功写盘后写入 `.coding-kit/host-tools.json`（`host_ids` + `profile`）；`--tools all` = 适配表全部 host_id；dry-run 不写粘性
+- **W3 init `--tools` / 交互选宿主**：`init [--tools all|none|LIST] [--profile core|expanded] [--host-adapt|--no-host-adapt]`；非 TTY 无 `--tools` → exit 1（对齐 OpenSpec）；TTY 无 `--tools` → 询问（多选 / all / none）；`tools≠none` 且未 `--no-host-adapt` → 同进程 `host apply` + 写粘性；`--tools none` 只做过程根；`--no-host-adapt` **不** apply **亦不**写粘性（freeze：避免「记住了却未物化」）
+
+### Changed
+
+- **BREAKING（小）· `host update` 缺省（W2 · 方案 A）**：相对 **2.1.0**「省略 `--tools` = 适配表全量」→ 解析序 **CLI `--tools`（含 `all`）→ 粘性 `host_ids` → 否则 exit 1**（提示先 `apply`/`init` 或传 `--tools`/`all`）。有粘性时 `host update --yes`（无 `--tools`）**只**刷粘性列表。`host apply` 仍须显式 `--tools`。
+- **BREAKING（小）· `init` 非交互须 `--tools`（W3）**：相对此前 `init --yes` 即可写 manifest → CI/非 TTY 须显式 `--tools all|none|LIST`（推荐过程根-only：`--tools none`）
+
+### Docs
+
+- **完整改写** [`assets/ide/host-adapt/README.md`](assets/ide/host-adapt/README.md)（CLI · 粘性 · 解析序 A · `init --tools` · dogfood；删除 2.1.0「无参=全表」与预告脚注）
+- 仓根 README 双文件 / 录屏清单 / Demo：升包后 `host update --yes` · `init --tools` 选型一句；F5 钉点 `2.1.1`
+
 ## [2.1.0] - 2026-09-10
 
 > 主题：**minor** —— 多平台 **技能（Skills）+ 编排（Commands）** parity（Cursor / Claude Code / DSH）；在 2.0 F6 管道之上补发现性与 UX。

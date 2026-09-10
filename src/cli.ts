@@ -1,9 +1,10 @@
 import { existsSync, mkdirSync, readFileSync, renameSync } from 'node:fs'
 import { readFile, writeFile } from 'node:fs/promises'
 import path from 'node:path'
+import readline from 'node:readline'
 import { fileURLToPath } from 'node:url'
 import { cmdGraph } from './cli-graph.ts'
-import { cmdHost } from './cli-host.ts'
+import { cmdHost, listKnownHostIds } from './cli-host.ts'
 import { cmdRefreshIdeBlocks, countStaleIdeLiterals } from './cli-refresh-ide-blocks.ts'
 import { cmdDiscipline, cmdLifecycle } from './cli-lifecycle.ts'
 import { cmdSkills } from './cli-skills.ts'
@@ -64,7 +65,7 @@ function usage(version: string): void {
 用法:
   npx dsh-coding-kit --version | -V
   npx dsh-coding-kit --help | -h
-  npx dsh-coding-kit init [--preset NAME] [--target PATH] [--yes]  （NAME 词表: harness-only）
+  npx dsh-coding-kit init [--preset NAME] [--tools all|none|LIST] [--profile core|expanded] [--host-adapt|--no-host-adapt] [--target PATH] [--yes]  （NAME 词表: harness-only）
   npx dsh-coding-kit upgrade [--target PATH] [--yes]
   npx dsh-coding-kit refresh-ide-blocks [--target PATH] [--dry-run] [--yes] [--json]
   npx dsh-coding-kit check [--target PATH]
@@ -143,43 +144,194 @@ function compareVersion(a: string, b: string): number {
   return 0
 }
 
+const INIT_USAGE =
+  'init [--preset NAME] [--tools all|none|LIST] [--profile core|expanded] [--host-adapt|--no-host-adapt] [--target PATH] [--yes]  （NAME 词表: harness-only）'
+
+/** 非 TTY / CI：须显式 `--tools`（对齐 OpenSpec） */
+export function isInteractiveInit(
+  stdin: { isTTY?: boolean | undefined } = process.stdin,
+): boolean {
+  return Boolean(stdin.isTTY)
+}
+
+export type InitToolsSelection =
+  | { mode: 'none' }
+  | { mode: 'hosts'; ids: string[]; toolsArg: string }
+
+/** 解析 init `--tools`；`none` 仅 init；`all`=适配表全量 */
+export function parseInitToolsArg(
+  toolsArg: string,
+  knownIds: string[],
+): InitToolsSelection {
+  const tokens = Array.from(
+    new Set(
+      toolsArg
+        .split(',')
+        .map((s) => s.trim())
+        .filter((s) => s.length > 0),
+    ),
+  )
+  if (tokens.length < 1) {
+    fail(`init --tools 须为 all|none|LIST（逗号分隔 host_id）\n用法: ${INIT_USAGE}`)
+  }
+  if (tokens.includes('none')) {
+    if (tokens.length !== 1) {
+      fail(`init --tools none 不可与其它 host_id 混用\n用法: ${INIT_USAGE}`)
+    }
+    return { mode: 'none' }
+  }
+  if (tokens.includes('all')) {
+    if (tokens.length !== 1) {
+      fail(`init --tools all 不可与其它 host_id 混用\n用法: ${INIT_USAGE}`)
+    }
+    return { mode: 'hosts', ids: [...knownIds], toolsArg: 'all' }
+  }
+  const known = new Set(knownIds)
+  const unknown = tokens.filter((id) => !known.has(id))
+  if (unknown.length > 0) {
+    fail(
+      `init --tools 未知 host_id: ${unknown.join(', ')}（合法: ${knownIds.join(', ')}）\n用法: ${INIT_USAGE}`,
+    )
+  }
+  return { mode: 'hosts', ids: tokens, toolsArg: tokens.join(',') }
+}
+
+/**
+ * TTY 询问宿主选型（可注入 stdin/stdout；测用 mock Readable）。
+ * 接受：逗号多选 / all / none。
+ */
+export async function promptInitTools(
+  knownIds: string[],
+  io: {
+    input?: NodeJS.ReadableStream
+    output?: NodeJS.WritableStream
+  } = {},
+): Promise<InitToolsSelection> {
+  const input = io.input ?? process.stdin
+  const output = io.output ?? process.stdout
+  const rl = readline.createInterface({ input, output, terminal: false })
+  const ask = (q: string): Promise<string> =>
+    new Promise((resolve) => {
+      rl.question(q, (answer) => resolve(answer))
+    })
+  try {
+    output.write(
+      `请选择要物化的 IDE/宿主（多选逗号分隔，或 all / none）\n可选: ${knownIds.join(', ')}\n`,
+    )
+    for (;;) {
+      const raw = (await ask('> ')).trim()
+      if (!raw) {
+        output.write('须输入 all、none 或 host_id 列表（不可空）\n')
+        continue
+      }
+      try {
+        return parseInitToolsArg(raw, knownIds)
+      } catch (err) {
+        if (err instanceof CliError) {
+          output.write(`${err.message}\n`)
+          continue
+        }
+        throw err
+      }
+    }
+  } finally {
+    rl.close()
+  }
+}
+
 async function cmdInit(args: string[], pkgVersion: string): Promise<void> {
   if (args.includes('--help') || args.includes('-h')) {
-    console.log('用法: npx dsh-coding-kit init [--preset NAME] [--target PATH] [--yes]  （NAME 词表: harness-only）')
+    console.log(`用法: npx dsh-coding-kit ${INIT_USAGE}`)
     return
   }
   const yes = args.includes('--yes')
-  let rest = args.filter((a) => a !== '--yes')
+  const hostAdapt = args.includes('--host-adapt')
+  const noHostAdapt = args.includes('--no-host-adapt')
+  if (hostAdapt && noHostAdapt) {
+    fail(`init: --host-adapt 与 --no-host-adapt 不可同现\n用法: ${INIT_USAGE}`)
+  }
+  let rest = args.filter(
+    (a) => a !== '--yes' && a !== '--host-adapt' && a !== '--no-host-adapt',
+  )
   const { value: preset, rest: r1 } = takeOption(rest, '--preset')
   rest = r1
   const { value: targetArg, rest: r2 } = takeOption(rest, '--target')
   rest = r2
-  if (rest.length > 0) fail(`init 未知参数: ${rest.join(' ')}`)
+  const hasToolsFlag = rest.includes('--tools')
+  const { value: toolsArg, rest: r3 } = takeOption(rest, '--tools')
+  rest = r3
+  if (hasToolsFlag && toolsArg === undefined) {
+    fail(`init --tools 须跟 all|none|LIST\n用法: ${INIT_USAGE}`)
+  }
+  const { value: profileArg, rest: r4 } = takeOption(rest, '--profile')
+  rest = r4
+  if (rest.length > 0) fail(`init 未知参数: ${rest.join(' ')}\n用法: ${INIT_USAGE}`)
+
+  const profile = profileArg ?? 'core'
+  if (profile !== 'core' && profile !== 'expanded') {
+    fail(`init 仅支持 --profile core|expanded（收到: ${profile}）\n用法: ${INIT_USAGE}`)
+  }
 
   const target = resolveTarget(process.cwd(), targetArg)
   const chosenPreset = preset || 'harness-only'
   if (!(VALID_PRESETS as readonly string[]).includes(chosenPreset)) {
     fail(`init --preset 取值非法: ${chosenPreset}（合法词表: ${VALID_PRESETS.join(' / ')}）`)
   }
+
+  const knownIds = listKnownHostIds()
+  let selection: InitToolsSelection
+  if (toolsArg === undefined) {
+    if (!isInteractiveInit()) {
+      fail(
+        `init 非交互环境须显式 --tools all|none|LIST（对齐 OpenSpec；禁止假装已询问）\n用法: ${INIT_USAGE}`,
+      )
+    }
+    selection = await promptInitTools(knownIds)
+  } else {
+    selection = parseInitToolsArg(toolsArg, knownIds)
+  }
+
   const existing = await readManifest(target)
   if (existing) {
     console.log(`manifest 已存在，跳过写入: ${manifestPath(target)}`)
-    if (!yes) console.log('init 完成。')
-    return
+  } else {
+    const mf: Manifest = {
+      version: pkgVersion,
+      preset: chosenPreset,
+      ide: [],
+      from_version: null,
+      upgraded_at: nowUtc(),
+    }
+    const dest = manifestWritePath(target)
+    mkdirSync(path.dirname(dest), { recursive: true })
+    await writeFile(dest, `${JSON.stringify(mf, null, 2)}\n`, 'utf8')
+    console.log(`已写入 manifest: ${dest}`)
+    console.log(`manifest: ${dest}`)
   }
 
-  const mf: Manifest = {
-    version: pkgVersion,
-    preset: chosenPreset,
-    ide: [],
-    from_version: null,
-    upgraded_at: nowUtc(),
+  // freeze：`--no-host-adapt` → 只做过程根，不 apply、不写粘性（避免「记住了却未物化」）
+  const shouldApply = selection.mode === 'hosts' && !noHostAdapt
+  if (selection.mode === 'none') {
+    console.log('已跳过 host 物化（--tools none）')
+  } else if (!shouldApply) {
+    console.log('已跳过 host 物化（--no-host-adapt；未写粘性）')
+  } else {
+    const applyArgs = [
+      'apply',
+      '--tools',
+      selection.toolsArg,
+      '--profile',
+      profile,
+      '--target',
+      target,
+    ]
+    if (yes) applyArgs.push('--yes')
+    console.log(
+      `联动 host apply（同进程）: --tools ${selection.toolsArg} --profile ${profile}${yes ? ' --yes' : '（dry-run；加 --yes 写盘）'}`,
+    )
+    await cmdHost(applyArgs)
   }
-  const dest = manifestWritePath(target)
-  mkdirSync(path.dirname(dest), { recursive: true })
-  await writeFile(dest, `${JSON.stringify(mf, null, 2)}\n`, 'utf8')
-  console.log(`已写入 manifest: ${dest}`)
-  console.log(`manifest: ${dest}`)
+
   if (!yes) console.log('init 完成。')
 }
 

@@ -33,7 +33,8 @@
 |------|------|
 | **2.0.0–2.0.2** | F6 管道 + 多宿主 README/录屏（**已发**） |
 | **2.1.0** | **本规划**：多平台 **技能发现 + 编排 UX/等价面** · expanded commands（可选 profile） |
-| **2.1.x+** | 观察项：workspaces · `ontology-check` CLI · onboard 教学命令（另闸） |
+| **2.1.1** | host tools 安装/更新 UX · init 选平台 → [`PLAN_2_1_1_host_tools_ux_v1_zh.md`](./PLAN_2_1_1_host_tools_ux_v1_zh.md) |
+| **2.1.x+ / 2.2** | 观察项：workspaces · `ontology-check` CLI · onboard 教学命令（另闸） |
 
 ---
 

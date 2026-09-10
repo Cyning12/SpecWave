@@ -3,6 +3,9 @@
  * apply：always_on + commands(core|expanded) + skills（跳过 30/40）。
  * update：刷新产品 commands/skills；conflict 默认不覆盖（`--force` 显式）。
  * U-01：契约嗅探不匹配 → exit 2 零写入。
+ * 2.1.1 W1：`.coding-kit/host-tools.json` 粘性；`--tools all`；成功 --yes 写粘性。
+ * 2.1.1 W2：`host update` 解析序 A — CLI `--tools` → 粘性 → 否则 exit 1。
+ * 2.1.1 W3：`init --tools` 同进程可调用 `cmdHost(['apply', …])`（勿 shell 自调）。
  * 本波禁止：bump / publish / 默认分发 30/40 / onboard / kit-30 slash。
  */
 import {
@@ -40,15 +43,161 @@ import { yamlLoad } from './yaml.ts'
 export { sniffHostContract } from './host-contract.ts'
 
 const HOST_USAGE =
-  'host validate [--file PATH] [--json]\n  host apply --tools LIST [--profile core|expanded] [--target PATH] [--file PATH] [--json] [--dry-run|--yes]\n  host update [--tools LIST] [--profile core|expanded] [--target PATH] [--file PATH] [--json] [--dry-run|--yes] [--force]'
+  'host validate [--file PATH] [--json]\n  host apply --tools LIST|all [--profile core|expanded] [--target PATH] [--file PATH] [--json] [--dry-run|--yes]\n  host update [--tools LIST|all] [--profile core|expanded] [--target PATH] [--file PATH] [--json] [--dry-run|--yes] [--force]'
 
 const APPLY_USAGE =
-  'host apply --tools cursor,claude [--profile core|expanded] [--target PATH] [--file PATH] [--json] [--dry-run|--yes]'
+  'host apply --tools cursor,claude|all [--profile core|expanded] [--target PATH] [--file PATH] [--json] [--dry-run|--yes]'
 
 const UPDATE_USAGE =
-  'host update [--tools LIST] [--profile core|expanded] [--target PATH] [--file PATH] [--json] [--dry-run|--yes] [--force]'
+  'host update [--tools LIST|all] [--profile core|expanded] [--target PATH] [--file PATH] [--json] [--dry-run|--yes] [--force]'
 
 const DEFAULT_EXAMPLE_REL = path.join('assets', 'ide', 'host-adapt', 'examples', 'mvp-hosts.yaml')
+
+/** 粘性文件（相对 `.coding-kit/`） */
+const HOST_TOOLS_STICKY_REL = 'host-tools.json'
+
+export type HostToolsSticky = {
+  version: number
+  host_ids: string[]
+  profile: string
+  updated_at: string
+  kit_semver?: string
+}
+
+function hostToolsStickyAbs(target: string): string {
+  return kitLayoutJoin(target, HOST_TOOLS_STICKY_REL)
+}
+
+function kitPackageSemver(): string | undefined {
+  try {
+    const raw = readFileSync(path.join(packageRoot(), 'package.json'), 'utf8')
+    const pkg = JSON.parse(raw) as { version?: unknown }
+    return typeof pkg.version === 'string' && pkg.version.trim().length > 0
+      ? pkg.version.trim()
+      : undefined
+  } catch {
+    return undefined
+  }
+}
+
+/** 解析并校验粘性 JSON；损坏 → exit 2 */
+export function parseHostToolsSticky(raw: string): HostToolsSticky {
+  let data: unknown
+  try {
+    data = JSON.parse(raw) as unknown
+  } catch {
+    fail(
+      '粘性文件 JSON 损坏: .coding-kit/host-tools.json（请删除后重新 host apply / update）',
+      2,
+    )
+  }
+  if (!isPlainObject(data)) {
+    fail(
+      '粘性文件 schema 无效: .coding-kit/host-tools.json（根须为对象；请删除后重建）',
+      2,
+    )
+  }
+  if (data.version !== 1) {
+    fail(
+      `粘性文件 schema 无效: version 须为 1（收到: ${String(data.version)}）；请删除后重建`,
+      2,
+    )
+  }
+  if (
+    !Array.isArray(data.host_ids) ||
+    data.host_ids.length < 1 ||
+    !data.host_ids.every((id) => typeof id === 'string' && id.trim().length > 0)
+  ) {
+    fail(
+      '粘性文件 schema 无效: host_ids 须为非空字符串数组；请删除后重建',
+      2,
+    )
+  }
+  if (typeof data.profile !== 'string' || data.profile.trim().length < 1) {
+    fail('粘性文件 schema 无效: profile 须为非空字符串；请删除后重建', 2)
+  }
+  if (typeof data.updated_at !== 'string' || data.updated_at.trim().length < 1) {
+    fail('粘性文件 schema 无效: updated_at 须为非空字符串；请删除后重建', 2)
+  }
+  if (data.kit_semver !== undefined && typeof data.kit_semver !== 'string') {
+    fail('粘性文件 schema 无效: kit_semver 须为字符串；请删除后重建', 2)
+  }
+  const sticky: HostToolsSticky = {
+    version: 1,
+    host_ids: uniqueKeepOrder(
+      (data.host_ids as string[]).map((s) => s.trim()).filter((s) => s.length > 0),
+    ),
+    profile: data.profile.trim(),
+    updated_at: data.updated_at.trim(),
+  }
+  if (typeof data.kit_semver === 'string' && data.kit_semver.trim().length > 0) {
+    sticky.kit_semver = data.kit_semver.trim()
+  }
+  return sticky
+}
+
+/** 读取粘性；缺失 → null；损坏 → exit 2 */
+export function loadHostToolsSticky(target: string): HostToolsSticky | null {
+  const abs = hostToolsStickyAbs(target)
+  if (!existsSync(abs)) return null
+  let raw: string
+  try {
+    raw = readFileSync(abs, 'utf8')
+  } catch {
+    fail('粘性文件无法读取: .coding-kit/host-tools.json（请删除后重建）', 2)
+  }
+  return parseHostToolsSticky(raw)
+}
+
+/** apply/update --yes 成功写盘后写入/更新粘性（dry-run 不调用） */
+export function writeHostToolsSticky(
+  target: string,
+  hostIds: string[],
+  profile: string,
+): void {
+  const abs = hostToolsStickyAbs(target)
+  const body: HostToolsSticky = {
+    version: 1,
+    host_ids: uniqueKeepOrder(hostIds),
+    profile,
+    updated_at: new Date().toISOString(),
+  }
+  const semver = kitPackageSemver()
+  if (semver) body.kit_semver = semver
+  mkdirSync(path.dirname(abs), { recursive: true })
+  atomicWrite(abs, `${JSON.stringify(body, null, 2)}\n`)
+}
+
+/**
+ * 解析 --tools LIST|all（`none` 仅 init，apply/update 拒）。
+ * `all` = 适配表全部 host_id（表顺序）。
+ */
+function resolveToolsList(
+  toolsArg: string,
+  knownIds: string[],
+  cmd: 'host apply' | 'host update',
+  usage: string,
+): string[] {
+  const tokens = uniqueKeepOrder(
+    toolsArg
+      .split(',')
+      .map((s) => s.trim())
+      .filter((s) => s.length > 0),
+  )
+  if (tokens.length < 1) {
+    fail(`${cmd} 须 --tools LIST|all（逗号分隔 host_id）\n用法: ${usage}`)
+  }
+  if (tokens.includes('none')) {
+    fail(`${cmd} 不支持 --tools none（仅 init）\n用法: ${usage}`)
+  }
+  if (tokens.includes('all')) {
+    if (tokens.length !== 1) {
+      fail(`${cmd} --tools all 不可与其它 host_id 混用\n用法: ${usage}`)
+    }
+    return uniqueKeepOrder(knownIds)
+  }
+  return tokens
+}
 
 /** core 五 verb：Cursor 扁平 kit-<verb>.md；Claude 子目录 <verb>.md */
 const CORE_COMMAND_VERBS = [
@@ -287,6 +436,27 @@ export function validateHostAdaptDoc(data: unknown): HostValidateIssue[] {
 function resolveValidateFile(fileArg: string | undefined): string {
   if (fileArg) return path.resolve(process.cwd(), fileArg)
   return path.join(packageRoot(), DEFAULT_EXAMPLE_REL)
+}
+
+/** 适配表 host_id 列表（表顺序）；供 init 询问 / `--tools` 校验复用 */
+export function listKnownHostIds(fileArg?: string): string[] {
+  const fileAbs = resolveValidateFile(fileArg)
+  if (!existsSync(fileAbs)) {
+    fail(`host 适配表不存在: ${fileAbs}`)
+  }
+  let data: unknown
+  try {
+    data = yamlLoad(readFileSync(fileAbs, 'utf8'))
+  } catch (err) {
+    fail(`host 适配表 YAML 解析失败: ${(err as Error).message}`)
+  }
+  const issues = validateHostAdaptDoc(data)
+  if (issues.length > 0) {
+    fail(
+      `host 适配表无效:\n${issues.map((e) => `  - [${e.code}] ${e.path}: ${e.message}`).join('\n')}`,
+    )
+  }
+  return asHostRows(data).map((r) => r.host_id)
 }
 
 async function cmdHostValidate(args: string[]): Promise<void> {
@@ -951,11 +1121,11 @@ async function cmdHostApply(args: string[]): Promise<void> {
   }
   let rest = args.filter((a) => a !== '--yes' && a !== '--dry-run' && a !== '--json')
   if (!rest.includes('--tools')) {
-    fail(`host apply 须 --tools LIST（逗号分隔 host_id）\n用法: ${APPLY_USAGE}`)
+    fail(`host apply 须 --tools LIST|all（逗号分隔 host_id）\n用法: ${APPLY_USAGE}`)
   }
   const toolsIdx = rest.indexOf('--tools')
   if (toolsIdx + 1 >= rest.length || rest[toolsIdx + 1]!.startsWith('-')) {
-    fail(`host apply 须 --tools LIST\n用法: ${APPLY_USAGE}`)
+    fail(`host apply 须 --tools LIST|all\n用法: ${APPLY_USAGE}`)
   }
   const { value: toolsArg, rest: rTools } = takeOption(rest, '--tools')
   rest = rTools
@@ -966,14 +1136,6 @@ async function cmdHostApply(args: string[]): Promise<void> {
   const { value: fileArg, rest: rFile } = takeOptionalFlag(rest, '--file', APPLY_USAGE)
   rest = rFile
   if (rest.length > 0) fail(`host apply 未知参数: ${rest.join(' ')}\n用法: ${APPLY_USAGE}`)
-
-  const toolIds = uniqueKeepOrder(
-    (toolsArg ?? '')
-      .split(',')
-      .map((s) => s.trim())
-      .filter((s) => s.length > 0),
-  )
-  if (toolIds.length < 1) fail(`host apply 须 --tools LIST（逗号分隔 host_id）\n用法: ${APPLY_USAGE}`)
 
   const profile = profileArg ?? 'core'
   assertHostProfile(profile, 'host apply', APPLY_USAGE)
@@ -990,7 +1152,7 @@ async function cmdHostApply(args: string[]): Promise<void> {
   const baseReport = {
     command: 'host apply' as const,
     mode,
-    hosts: toolIds,
+    hosts: [] as string[],
     planned: [] as string[],
     written: [] as string[],
     skipped: [] as string[],
@@ -1018,7 +1180,10 @@ async function cmdHostApply(args: string[]): Promise<void> {
   }
 
   const rows = asHostRows(data)
-  const known = new Set(rows.map((r) => r.host_id))
+  const knownIds = rows.map((r) => r.host_id)
+  const known = new Set(knownIds)
+  const toolIds = resolveToolsList(toolsArg ?? '', knownIds, 'host apply', APPLY_USAGE)
+  baseReport.hosts = toolIds
   const unknown = toolIds.filter((id) => !known.has(id))
   if (unknown.length > 0) {
     fail(`host apply 未知 host_id: ${unknown.join(', ')}\n用法: ${APPLY_USAGE}`)
@@ -1067,6 +1232,7 @@ async function cmdHostApply(args: string[]): Promise<void> {
     written = committed.written
     removed = committed.removed
     backup = committed.backup
+    writeHostToolsSticky(target, toolIds, profile)
   }
 
   const report: HostWriteReport = {
@@ -1177,17 +1343,19 @@ async function cmdHostUpdate(args: string[]): Promise<void> {
   const rows = asHostRows(data)
   const knownIds = rows.map((r) => r.host_id)
   const known = new Set(knownIds)
+  // W2 方案 A：CLI `--tools` → 粘性 host_ids → 否则 exit 1（相对 2.1.0 全表为 BREAKING 小）
   let toolIds: string[]
-  if (toolsArg === undefined) {
-    toolIds = uniqueKeepOrder(knownIds)
+  if (toolsArg !== undefined) {
+    toolIds = resolveToolsList(toolsArg, knownIds, 'host update', UPDATE_USAGE)
   } else {
-    toolIds = uniqueKeepOrder(
-      toolsArg
-        .split(',')
-        .map((s) => s.trim())
-        .filter((s) => s.length > 0),
-    )
-    if (toolIds.length < 1) fail(`host update 须 --tools LIST（逗号分隔 host_id）\n用法: ${UPDATE_USAGE}`)
+    const sticky = loadHostToolsSticky(target)
+    if (sticky !== null && sticky.host_ids.length >= 1) {
+      toolIds = uniqueKeepOrder(sticky.host_ids)
+    } else {
+      fail(
+        `host update 无粘性且未传 --tools：请先 host apply / init，或传 --tools LIST / --tools all\n用法: ${UPDATE_USAGE}`,
+      )
+    }
   }
   const unknown = toolIds.filter((id) => !known.has(id))
   if (unknown.length > 0) {
@@ -1238,6 +1406,7 @@ async function cmdHostUpdate(args: string[]): Promise<void> {
     written = committed.written
     removed = committed.removed
     backup = committed.backup
+    writeHostToolsSticky(target, toolIds, profile)
   }
 
   const report: HostWriteReport = {
