@@ -64,7 +64,7 @@ describe('2.x W1 host validate', { concurrency: 1 }, () => {
   })
 
   it('用法错误（未知子命令 / 未知参数）→ exit 1', () => {
-    const unknownSub = runCli(['host', 'apply'])
+    const unknownSub = runCli(['host', 'update'])
     assert.equal(unknownSub.status, 1, unknownSub.combined)
     const unknownFlag = runCli(['host', 'validate', '--nope'])
     assert.equal(unknownFlag.status, 1, unknownFlag.combined)

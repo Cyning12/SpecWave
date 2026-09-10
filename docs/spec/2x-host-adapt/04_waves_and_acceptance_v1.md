@@ -22,11 +22,11 @@
 
 ### W2 · Cursor + Claude 物化
 
-- [ ] `host apply --tools cursor,claude --profile core --dry-run` 报告完整  
-- [ ] `--yes` 写入 always_on + **commands(core)**；不碰 S2  
-- [ ] Cursor 命令面板可见 `kit-verify` 等（手工或脚本断言文件存在）  
-- [ ] local / 用户块不被覆写（对标 marker-local 纪律）  
-- [ ] **`HG-AUDIT-R1`** for `task_2x_host_adapt_w2_cursor_claude`
+- [x] `host apply --tools cursor,claude --profile core --dry-run` 报告完整  
+- [x] `--yes` 写入 always_on + **commands(core)**；不碰 S2  
+- [x] Cursor 命令面板可见 `kit-verify` 等（手工或脚本断言文件存在）  
+- [x] local / 用户块不被覆写（对标 marker-local 纪律）  
+- [x] **`HG-AUDIT-R1`** for `task_2x_host_adapt_w2_cursor_claude`（2026-09-10 · 00 代签 · R1 pass）
 
 ### W3 · Skills + update
 
@@ -67,3 +67,4 @@
 | 2026-09-10 | 初稿 |
 | 2026-09-10 | 签收：W0 勾选完成；W1–W5 挂 audit 闸 |
 | 2026-09-10 | W1 验收全勾 · task CLOSE |
+| 2026-09-10 | W2 验收全勾 · task CLOSE |

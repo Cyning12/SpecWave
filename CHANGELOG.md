@@ -6,7 +6,8 @@
 
 ### Added
 
-- **`host validate`**：校验 `assets/ide/host-adapt/` 声明式宿主适配表（schema + MVP 示例；S2 `target`/`target_dir` → exit 2；本波无 `host apply`）
+- **`host validate`**：校验 `assets/ide/host-adapt/` 声明式宿主适配表（schema + MVP 示例；S2 `target`/`target_dir` → exit 2）
+- **`host apply`**：`--tools cursor,claude --profile core` 物化 always_on + core commands（默认 dry-run；`--yes` 写盘；S2 拒；local 块不覆写；覆写先备份）
 
 ### Docs
 

@@ -98,7 +98,8 @@ npx dsh-coding-kit sync prompts [--target PATH] [--yes] [--force] [--json]
 npx dsh-coding-kit skills install [--target DIR] [--out DIR] [--global] [--force] [--with-execute-hats]
 npx dsh-coding-kit skills build [--with-execute-hats]
 npx dsh-coding-kit skills check
-npx dsh-coding-kit host validate [--file PATH] [--json]   # 2.x W1 · host-adapt table (read-only; no apply)
+npx dsh-coding-kit host validate [--file PATH] [--json]
+npx dsh-coding-kit host apply --tools cursor,claude --profile core [--target PATH] [--file PATH] [--json] [--dry-run|--yes]
 npx dsh-coding-kit wiki export --json
 npx dsh-coding-kit task lint-done
 npx dsh-coding-kit task lint-wiki-delta

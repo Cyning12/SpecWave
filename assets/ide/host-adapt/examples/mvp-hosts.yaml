@@ -1,5 +1,6 @@
 # Host-adapt 声明式适配表 · MVP 宿主三角（dsh / cursor / claude）
 # 校验：npx dsh-coding-kit host validate [--file PATH]
+# 物化：npx dsh-coding-kit host apply --tools cursor,claude --profile core [--dry-run|--yes]
 # schema：../host-adapt.schema.json
 version: "1"
 hosts:
