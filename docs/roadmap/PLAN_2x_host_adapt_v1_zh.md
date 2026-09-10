@@ -1,8 +1,9 @@
 # 规划 · 2.0 · 宿主适配（F6）
 
 > **状态**：`signed`（**HG-NEXT-2X** / 系列闸 · 2026-09-10 维护者「批准」）  
-> **基线**：`dsh-coding-kit@1.12.1` · 1.x 收口 **CLOSED**（见 [`AUDIT_1x_residual_after_1_12_1_zh.md`](./AUDIT_1x_residual_after_1_12_1_zh.md)）  
+> **基线**：`dsh-coding-kit@2.0.0` **published** · 1.x 收口 **CLOSED**（见 [`AUDIT_1x_residual_after_1_12_1_zh.md`](./AUDIT_1x_residual_after_1_12_1_zh.md)）  
 > **系列 SPEC**：[`docs/spec/2x-host-adapt/`](../spec/2x-host-adapt/)（**signed**）  
+> **验收归档**：[`ACCEPTANCE_2x_host_adapt_2_0_0_zh.md`](./ACCEPTANCE_2x_host_adapt_2_0_0_zh.md)  
 > **上游**：高层架构 F6 · Ruler 对标 · OpenSpec commands 借鉴  
 > **Open Folder**：`dsh-coding-kit/`  
 > **本文件不做**：改 `src/`（须各 wave `HG-AUDIT-R1`）· npm publish · 云 Policy
@@ -11,7 +12,7 @@
 
 ## 一句话
 
-1.x 内部一致性与收口已完成；**现行产品主线 = `2.0.0` F6**：单一规范源 → N 宿主（always_on + skills + **commands**）物化，DSH 仍为首个宿主。
+1.x 内部一致性与收口已完成；**F6 @2.0.0 已发版**；现行 git 准备 **`2.0.1`** docs patch（过程档回填）；下一可选主线 2.0.x / 2.1。
 
 ---
 
@@ -20,7 +21,8 @@
 | 版本 | 定位 |
 |------|------|
 | **1.12.x** | 1.x **CLOSED**（含 patch `1.12.1` docs） |
-| **2.0.0** | F6 宿主适配表落地（major） |
+| **2.0.0** | F6 宿主适配表落地（major）· **published** |
+| **2.0.1** | patch：publish 后过程档归档回填（无产品行为变更） |
 | **2.0.x / 2.1** | 可选：更多宿主、workspaces 观察项、ontology-check CLI（另 SPEC） |
 
 ---
@@ -50,7 +52,7 @@
 | **W2** | Cursor + Claude：always_on + commands(core) | `HG-AUDIT-R1` | **DONE** |
 | **W3** | skills 落点 + `host update` | `HG-AUDIT-R1` | **DONE** |
 | **W4** | DSH 行 + U-01 | `HG-AUDIT-R1` | **DONE** |
-| **W5** | dogfood / CHANGELOG / bump 2.0.0 | **`HG-PUBLISH`** | **DONE**（git/tag `v2.0.0`）· **HG-PUBLISH pending** |
+| **W5** | dogfood / CHANGELOG / bump 2.0.0 | **`HG-PUBLISH`** | **DONE**（git/tag `v2.0.0` · **npm published**） |
 
 **MVP 宿主三角**：`dsh` + `cursor` + `claude`。
 
@@ -73,8 +75,8 @@
 |---------------|--------|--------|
 | **HG-NEXT-2X** | **approved**（2026-09-10 · 维护者「批准」） | ~~开 2.x 规划主线~~ |
 | **HG-SPEC-SIGNOFF** | **approved**（同上 · 00 代签） | ~~系列定稿~~ |
-| **HG-AUDIT-R1** | pending（按 wave） | 各实现 30 |
-| **HG-PUBLISH** | pending | `2.0.0` npm publish |
+| **HG-AUDIT-R1** | approved（W1–W5） | ~~各实现 30~~ |
+| **HG-PUBLISH** | **approved**（2026-09-10 · 人 publish · `latest=2.0.0`） | ~~`2.0.0` npm publish~~ |
 
 ---
 
@@ -98,3 +100,4 @@
 | 2026-09-10 | W3 **DONE**（skills 落点 + host update · 40 CLOSE） |
 | 2026-09-10 | W4 **DONE**（DSH 行 + U-01 · 40 CLOSE） |
 | 2026-09-10 | W5 **DONE**（git/tag `v2.0.0` · 40 CLOSE）· **HG-PUBLISH pending** |
+| 2026-09-10 | **HG-PUBLISH=approved** · `latest=2.0.0`；立档 `ACCEPTANCE_2x_host_adapt_2_0_0_zh.md`；开 `2.0.1` docs patch |

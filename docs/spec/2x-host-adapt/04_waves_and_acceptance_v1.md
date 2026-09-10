@@ -44,8 +44,8 @@
 
 - [x] 四门绿 · F5 钉点 → `2.0.0`  
 - [x] dogfood：干净仓 apply cursor+claude  
-- [ ] 人 `npm publish`（**HG-PUBLISH**）
-- [x] **`HG-AUDIT-R1`** for `task_2x_host_adapt_w5_release`（2026-09-10 · 00 代签 · R1 pass；**HG-PUBLISH 仍 pending**）
+- [x] 人 `npm publish`（**HG-PUBLISH=approved** · 2026-09-10 · `latest=2.0.0`）
+- [x] **`HG-AUDIT-R1`** for `task_2x_host_adapt_w5_release`（2026-09-10 · 00 代签 · R1 pass）
 
 ---
 
@@ -72,3 +72,4 @@
 | 2026-09-10 | W3 验收全勾 · task CLOSE |
 | 2026-09-10 | W4 验收全勾 · task CLOSE |
 | 2026-09-10 | W5 四门/dogfood 勾 · F5=2.0.0 · **待人 publish**（未 CLOSE） |
+| 2026-09-10 | **人 publish** · `HG-PUBLISH=approved` · W5 全勾 · 系列归档 |

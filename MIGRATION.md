@@ -1,10 +1,10 @@
 # Migration · `@cyning/harness` → `dsh-coding-kit`
 
-> **状态**：1.12 收口 **DONE** · kit **`1.12.1` published**（npm `latest`）· `@cyning/harness` **已 deprecate**（2026-09-10）  
-> **包钉**：请钉 `dsh-coding-kit@1.12.1`（本文件不代替 `package.json`）  
+> **状态**：1.12 收口 **DONE** · kit **`2.0.0` published**（npm `latest` · F6）· `@cyning/harness` **已 deprecate**（2026-09-10）  
+> **包钉**：请钉 `dsh-coding-kit@2.0.0`（或更新后的 `2.0.1` docs patch；本文件不代替 `package.json`）  
 > **布局真值（F4 方案 B）**：新落盘根 = **`.coding-kit/`**；**`.cyning-harness/`** = legacy **只读**（探测 / 升级源；**不删除**）  
 > **人闸**：`HG-EOS-DATE` / `HG-PUBLISH` = **approved**（人实操 · 2026-09-10）· **禁止** Agent 执行 `npm deprecate` / `npm publish`  
-> **下一主线**：2.0 F6 · [`docs/roadmap/PLAN_2x_host_adapt_v1_zh.md`](docs/roadmap/PLAN_2x_host_adapt_v1_zh.md)（draft）
+> **F6 归档**：[`docs/roadmap/ACCEPTANCE_2x_host_adapt_2_0_0_zh.md`](docs/roadmap/ACCEPTANCE_2x_host_adapt_2_0_0_zh.md) · 规划 [`docs/roadmap/PLAN_2x_host_adapt_v1_zh.md`](docs/roadmap/PLAN_2x_host_adapt_v1_zh.md)
 
 ---
 
@@ -112,3 +112,4 @@ DEPRECATED: use dsh-coding-kit instead. See https://github.com/Cyning12/dsh-codi
 | 2026-09-10 | **人**：kit `1.12.0` publish + `@cyning/harness` deprecate；`HG-EOS-DATE` / `HG-PUBLISH` approved；日历改「已公布」 |
 | 2026-09-10 | **拟发 `1.12.1`**：docs patch（RELEASING 顺序 + 过程档回填入包）；publish 后消费者可钉 `1.12.1`；deprecate registry 文案仍为 `1.12.0` |
 | 2026-09-10 | **`1.12.1` published**（npm `latest`）；1.x CLOSED；下一主线 2.0 F6 规划 |
+| 2026-09-10 | **`2.0.0` published**（F6 宿主适配）；归档 `ACCEPTANCE_2x_host_adapt_2_0_0_zh.md`；拟发 `2.0.1` docs patch |

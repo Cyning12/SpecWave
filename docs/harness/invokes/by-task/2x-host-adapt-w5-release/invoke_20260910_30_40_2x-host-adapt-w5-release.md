@@ -3,9 +3,9 @@
 > **hat**：30-execute → 40-self-check  
 > **task**：`docs/tasks/done/task_2x_host_adapt_w5_release.md`  
 > **日期**：2026-09-10  
-> **状态**：`closed`（publish **待人 / HG-PUBLISH pending**）  
+> **状态**：`closed` · **HG-PUBLISH=approved**（人 publish · `latest=2.0.0`）  
 > **HG-AUDIT-R1**：approved（00 代签）  
-> **HG-PUBLISH**：pending（仅人）
+> **HG-PUBLISH**：**approved**（2026-09-10 · 人）
 
 ---
 
@@ -55,8 +55,8 @@ dogfood 临时仓 apply cursor+claude；四门绿；CHANGELOG 2.0.0；F5 钉点�
 
 - [x] 四门绿 · F5 钉点 → `2.0.0`  
 - [x] dogfood：干净仓 apply cursor+claude  
-- [x] **人** `npm publish`（**待人 / HG-PUBLISH pending**；本棒不执行）  
-- [x] task 过程档关账（publish 项标「待人」）
+- [x] **人** `npm publish`（**HG-PUBLISH=approved** · `latest=2.0.0` · 2026-09-10）  
+- [x] task 过程档关账（publish 已勾）
 
 ## 40 结果
 
@@ -64,8 +64,8 @@ dogfood 临时仓 apply cursor+claude；四门绿；CHANGELOG 2.0.0；F5 钉点�
 |----|------|------|
 | 四门 + F5=`2.0.0` | **pass** | 40 复跑四门全绿；`package.json`=`2.0.0`；tag `v2.0.0` @ `6c412b0` |
 | dogfood cursor+claude | **pass** | 30：临时仓 apply exit 0 · planned/written 26 · 无 conflict |
-| 人 npm publish | **待人** | **HG-PUBLISH pending**；未 `npm publish` / `git push` |
-| 过程档关账 | **pass** | task → `done`（publish 项未勾）；PLAN W5 git/tag DONE；spec README W5 done |
+| 人 npm publish | **pass** | **HG-PUBLISH=approved** · `npm view` → `latest=2.0.0` |
+| 过程档关账 | **pass** | task → `done`；PLAN/SPEC/`04` 归档；验收档立 |
 
 ### 40 复跑命令（2026-09-10）
 
@@ -74,7 +74,7 @@ npm run typecheck && npm test && npm run build && npm run test:lib
 → typecheck OK · npm test 369 pass / 0 fail · build OK · test:lib 4 pass · exit 0
 ```
 
-**结论**：W5 过程档 CLOSE；git/tag `v2.0.0` **DONE**；**HG-PUBLISH pending**。STOP：未 npm publish / git push / 改 tag / 改 src。
+**结论**：W5 **全闭合**；git/tag `v2.0.0` · **npm `latest=2.0.0`** · 系列归档完成。后续 `2.0.1` docs patch。
 
 ## 修订记录
 
@@ -83,3 +83,4 @@ npm run typecheck && npm test && npm run build && npm run test:lib
 | 2026-09-10 | 00 开棒 · 待 30 |
 | 2026-09-10 | 30 bump/tag 就绪 · 待 40；**禁止 publish/push**；未 CLOSE |
 | 2026-09-10 | **40 CLOSE** · 四门复跑绿 · invoke closed · task 迁 done · **HG-PUBLISH pending** |
+| 2026-09-10 | **人 publish 核验** · **HG-PUBLISH=approved** · 归档回填 |
