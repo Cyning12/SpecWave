@@ -1,6 +1,8 @@
 /**
- * host 子命令（2.x W1–W2）：validate（只读）+ apply（always_on + commands core）。
- * 本波禁止：skills 物化、host update、bump / publish。
+ * host 子命令（2.x W1–W3）：validate + apply + update。
+ * apply：always_on + commands(core) + skills（跳过 30/40）。
+ * update：刷新产品 commands/skills；conflict 默认不覆盖（`--force` 显式）。
+ * 本波禁止：bump / publish / 默认分发 30/40 / onboard。
  */
 import {
   copyFileSync,
@@ -26,13 +28,17 @@ import {
   takeOption,
   toRel,
 } from './cli-shared.ts'
+import { isExecuteHatSkipped } from './cli-skills.ts'
 import { yamlLoad } from './yaml.ts'
 
 const HOST_USAGE =
-  'host validate [--file PATH] [--json]\n  host apply --tools LIST [--profile core] [--target PATH] [--file PATH] [--json] [--dry-run|--yes]'
+  'host validate [--file PATH] [--json]\n  host apply --tools LIST [--profile core] [--target PATH] [--file PATH] [--json] [--dry-run|--yes]\n  host update [--tools LIST] [--profile core] [--target PATH] [--file PATH] [--json] [--dry-run|--yes] [--force]'
 
 const APPLY_USAGE =
   'host apply --tools cursor,claude [--profile core] [--target PATH] [--file PATH] [--json] [--dry-run|--yes]'
+
+const UPDATE_USAGE =
+  'host update [--tools LIST] [--profile core] [--target PATH] [--file PATH] [--json] [--dry-run|--yes] [--force]'
 
 const DEFAULT_EXAMPLE_REL = path.join('assets', 'ide', 'host-adapt', 'examples', 'mvp-hosts.yaml')
 
@@ -313,12 +319,13 @@ async function cmdHostValidate(args: string[]): Promise<void> {
 }
 
 type AlwaysOnEntry = { target: string; source: string }
+type DirFromEntry = { target_dir: string; from: string }
 type CommandsEntry = { target_dir: string; from: string; profile?: string }
 type HostRow = {
   host_id: string
   surfaces: {
     always_on: AlwaysOnEntry[]
-    skills: unknown[]
+    skills: DirFromEntry[]
     commands: CommandsEntry[]
   }
 }
@@ -327,7 +334,7 @@ type PlannedOp = 'write' | 'merge' | 'skip_identical' | 'conflict'
 
 type PlannedItem = {
   hostId: string
-  kind: 'always_on' | 'command'
+  kind: 'always_on' | 'command' | 'skill'
   destRel: string
   destAbs: string
   sourceRel: string
@@ -336,9 +343,9 @@ type PlannedItem = {
   nextText: string
 }
 
-type ApplyReport = {
-  command: 'host apply'
-  mode: 'dry-run' | 'apply'
+type HostWriteReport = {
+  command: 'host apply' | 'host update'
+  mode: 'dry-run' | 'apply' | 'update'
   hosts: string[]
   planned: string[]
   written: string[]
@@ -349,15 +356,18 @@ type ApplyReport = {
   verdict: 'PASS' | 'FAIL'
 }
 
+type SkillSource = { sourceRel: string; innerRel: string }
+
 function takeOptionalFlag(
   args: string[],
   name: string,
   usage: string,
+  cmd = 'host apply',
 ): { value: string | undefined; rest: string[] } {
   const idx = args.indexOf(name)
   if (idx === -1) return { value: undefined, rest: args }
   if (idx + 1 >= args.length || args[idx + 1]!.startsWith('-')) {
-    fail(`host apply ${name} 须跟值\n用法: ${usage}`)
+    fail(`${cmd} ${name} 须跟值\n用法: ${usage}`)
   }
   return takeOption(args, name)
 }
@@ -444,8 +454,51 @@ function expandFromGlob(fromPat: string, root: string): string[] {
   return []
 }
 
-function backupsRoot(target: string): string {
-  return kitLayoutJoin(target, 'backups', 'host-apply')
+function expandSkillSources(fromPat: string, root: string): SkillSource[] {
+  const n = normalizeSlashPath(fromPat).replace(/^\.\//, '')
+  const out: SkillSource[] = []
+  const walkFiles = (absDir: string, sourceDirRel: string, innerPrefix: string): void => {
+    if (!existsSync(absDir) || !statSync(absDir).isDirectory()) return
+    for (const name of readdirSync(absDir).sort()) {
+      const abs = path.join(absDir, name)
+      const st = statSync(abs)
+      const sourceRel = normalizeSlashPath(path.join(sourceDirRel, name))
+      const innerRel = normalizeSlashPath(path.join(innerPrefix, name))
+      if (st.isDirectory()) {
+        if (isExecuteHatSkipped(absDir, name, false)) continue
+        walkFiles(abs, sourceRel, innerRel)
+      } else if (st.isFile()) {
+        out.push({ sourceRel, innerRel })
+      }
+    }
+  }
+  if (n.endsWith('/*')) {
+    const parentRel = n.slice(0, -2)
+    const parentAbs = path.join(root, parentRel)
+    if (!existsSync(parentAbs) || !statSync(parentAbs).isDirectory()) {
+      fail(`host 缺 skills 源目录: ${parentRel}`, 2)
+    }
+    for (const name of readdirSync(parentAbs).sort()) {
+      const abs = path.join(parentAbs, name)
+      if (!statSync(abs).isDirectory()) continue
+      if (isExecuteHatSkipped(parentAbs, name, false)) continue
+      walkFiles(abs, normalizeSlashPath(path.join(parentRel, name)), name)
+    }
+    return out.sort((a, b) => a.sourceRel.localeCompare(b.sourceRel))
+  }
+  const abs = path.join(root, n)
+  if (existsSync(abs) && statSync(abs).isDirectory()) {
+    if (!isExecuteHatSkipped(path.dirname(abs), path.basename(n), false)) {
+      walkFiles(abs, n, path.basename(n))
+    }
+  }
+  return out.sort((a, b) => a.sourceRel.localeCompare(b.sourceRel))
+}
+
+type BackupFamily = 'host-apply' | 'host-update'
+
+function backupsRoot(target: string, family: BackupFamily): string {
+  return kitLayoutJoin(target, 'backups', family)
 }
 
 function backupFile(target: string, genDir: string, rel: string): string {
@@ -463,8 +516,8 @@ function atomicWrite(abs: string, body: string): void {
   renameSync(tmp, abs)
 }
 
-function pruneBackups(target: string): void {
-  const root = backupsRoot(target)
+function pruneBackups(target: string, family: BackupFamily): void {
+  const root = backupsRoot(target, family)
   if (!existsSync(root)) return
   const gens = readdirSync(root)
     .filter((n) => statSync(path.join(root, n)).isDirectory())
@@ -474,8 +527,13 @@ function pruneBackups(target: string): void {
   }
 }
 
-function printApplyHuman(report: ApplyReport): void {
-  console.log(`HOST APPLY: ${report.mode}`)
+function hostBanner(command: HostWriteReport['command']): string {
+  return command === 'host update' ? 'HOST UPDATE' : 'HOST APPLY'
+}
+
+function printHostHuman(report: HostWriteReport): void {
+  const banner = hostBanner(report.command)
+  console.log(`${banner}: ${report.mode}`)
   console.log(`hosts: ${report.hosts.join(', ')}`)
   const sections: Array<['planned' | 'written' | 'skipped' | 'conflict', string[]]> = [
     ['planned', report.planned],
@@ -489,12 +547,13 @@ function printApplyHuman(report: ApplyReport): void {
     else for (const p of items) console.log(`  ${p}`)
   }
   if (report.backup) console.log(`backup: ${report.backup}`)
-  console.log(`HOST APPLY: ${report.verdict}`)
+  console.log(`${banner}: ${report.verdict}`)
 }
 
-function emitApplyFail(
+function emitHostFail(
   json: boolean,
-  payload: Omit<ApplyReport, 'ok' | 'verdict'> & { errors?: HostValidateIssue[]; message?: string },
+  command: HostWriteReport['command'],
+  payload: Omit<HostWriteReport, 'ok' | 'verdict'> & { errors?: HostValidateIssue[]; message?: string },
   extraLines: string[],
 ): never {
   if (json) {
@@ -511,9 +570,35 @@ function emitApplyFail(
     )
   } else {
     for (const line of extraLines) console.error(line)
-    console.log('HOST APPLY: FAIL')
+    console.log(`${hostBanner(command)}: FAIL`)
   }
   fail('', 2)
+}
+
+function commitPlannedWrites(
+  target: string,
+  items: PlannedItem[],
+  family: BackupFamily,
+): { written: string[]; backup: string | null } {
+  const toWrite = items.filter((i) => i.op === 'write' || i.op === 'merge')
+  for (const item of toWrite) assertNotS2Abs(item.destAbs)
+  const needBackup = toWrite.filter((i) => existsSync(i.destAbs))
+  let backup: string | null = null
+  let genDir: string | null = null
+  if (needBackup.length > 0) {
+    const ts = new Date().toISOString().replace(/[:.]/g, '-')
+    genDir = path.join(backupsRoot(target, family), ts)
+    mkdirSync(genDir, { recursive: true })
+    backup = toRel(target, genDir)
+  }
+  const written: string[] = []
+  for (const item of toWrite) {
+    if (genDir && existsSync(item.destAbs)) backupFile(target, genDir, item.destRel)
+    atomicWrite(item.destAbs, item.nextText)
+    written.push(item.destRel)
+  }
+  if (needBackup.length > 0) pruneBackups(target, family)
+  return { written, backup }
 }
 
 function planApply(opts: {
@@ -628,7 +713,31 @@ function planApply(opts: {
       }
     }
 
-    // skills 行本波跳过（W3）
+    // skills：与表一致物化；跳过 30/40（isExecuteHatSkipped）
+    for (const entry of row.surfaces.skills ?? []) {
+      const sources = expandSkillSources(entry.from, opts.pkgRoot)
+      for (const src of sources) {
+        const sourceAbs = path.join(opts.pkgRoot, src.sourceRel)
+        const destAbs = path.resolve(opts.target, entry.target_dir, src.innerRel)
+        const destRel = pushDest(toRel(opts.target, destAbs), destAbs)
+        const sourceBody = readFileSync(sourceAbs, 'utf8')
+        const exists = existsSync(destAbs)
+        const existing = exists ? readFileSync(destAbs, 'utf8') : null
+        let op: PlannedOp = 'write'
+        if (exists && existing === sourceBody) op = 'skip_identical'
+        items.push({
+          hostId,
+          kind: 'skill',
+          destRel,
+          destAbs,
+          sourceRel: src.sourceRel,
+          sourceAbs,
+          op,
+          nextText: sourceBody,
+        })
+      }
+    }
+
     for (const entry of row.surfaces.commands) {
       if (entry.profile && entry.profile !== opts.profile) continue
       const matched = expandFromGlob(entry.from, opts.pkgRoot).filter((rel) =>
@@ -666,6 +775,18 @@ function planApply(opts: {
     }
   }
   return { items, s2 }
+}
+
+function remapUpdateConflicts(items: PlannedItem[], force: boolean): void {
+  for (const item of items) {
+    if ((item.kind === 'command' || item.kind === 'skill') && item.op === 'write' && existsSync(item.destAbs)) {
+      if (!force) item.op = 'conflict'
+    }
+    if (item.kind === 'always_on' && item.op === 'conflict' && force) {
+      const existing = existsSync(item.destAbs) ? readFileSync(item.destAbs, 'utf8') : ''
+      if (!productSpanHasLocal(existing)) item.op = 'write'
+    }
+  }
 }
 
 async function cmdHostApply(args: string[]): Promise<void> {
@@ -735,13 +856,14 @@ async function cmdHostApply(args: string[]): Promise<void> {
     data = yamlLoad(readFileSync(fileAbs, 'utf8'))
   } catch (err) {
     const msg = `YAML 解析失败: ${(err as Error).message}`
-    emitApplyFail(json, { ...baseReport, errors: [{ path: '$', code: 'parse', message: msg }] }, [msg])
+    emitHostFail(json, 'host apply', { ...baseReport, errors: [{ path: '$', code: 'parse', message: msg }] }, [msg])
   }
 
   const issues = validateHostAdaptDoc(data)
   if (issues.length > 0) {
-    emitApplyFail(
+    emitHostFail(
       json,
+      'host apply',
       { ...baseReport, errors: issues },
       issues.map((e) => `  - [${e.code}] ${e.path}: ${e.message}`),
     )
@@ -763,8 +885,9 @@ async function cmdHostApply(args: string[]): Promise<void> {
   })
   if (s2.length > 0) {
     const uniq = uniqueKeepOrder(s2)
-    emitApplyFail(
+    emitHostFail(
       json,
+      'host apply',
       {
         ...baseReport,
         errors: uniq.map((p) => ({
@@ -781,28 +904,15 @@ async function cmdHostApply(args: string[]): Promise<void> {
   const skipped = items.filter((i) => i.op === 'skip_identical').map((i) => i.destRel)
   const conflict = items.filter((i) => i.op === 'conflict').map((i) => i.destRel)
 
-  const written: string[] = []
+  let written: string[] = []
   let backup: string | null = null
   if (yes) {
-    const toWrite = items.filter((i) => i.op === 'write' || i.op === 'merge')
-    for (const item of toWrite) assertNotS2Abs(item.destAbs)
-    const needBackup = toWrite.filter((i) => existsSync(i.destAbs))
-    let genDir: string | null = null
-    if (needBackup.length > 0) {
-      const ts = new Date().toISOString().replace(/[:.]/g, '-')
-      genDir = path.join(backupsRoot(target), ts)
-      mkdirSync(genDir, { recursive: true })
-      backup = toRel(target, genDir)
-    }
-    for (const item of toWrite) {
-      if (genDir && existsSync(item.destAbs)) backupFile(target, genDir, item.destRel)
-      atomicWrite(item.destAbs, item.nextText)
-      written.push(item.destRel)
-    }
-    if (needBackup.length > 0) pruneBackups(target)
+    const committed = commitPlannedWrites(target, items, 'host-apply')
+    written = committed.written
+    backup = committed.backup
   }
 
-  const report: ApplyReport = {
+  const report: HostWriteReport = {
     command: 'host apply',
     mode,
     hosts: toolIds,
@@ -815,7 +925,169 @@ async function cmdHostApply(args: string[]): Promise<void> {
     verdict: 'PASS',
   }
   if (json) console.log(JSON.stringify(report, null, 2))
-  else printApplyHuman(report)
+  else printHostHuman(report)
+}
+
+async function cmdHostUpdate(args: string[]): Promise<void> {
+  if (args.includes('--help') || args.includes('-h')) {
+    console.log(`用法: npx dsh-coding-kit ${UPDATE_USAGE}`)
+    return
+  }
+  const yes = args.includes('--yes')
+  const dryRunFlag = args.includes('--dry-run')
+  const json = args.includes('--json')
+  const force = args.includes('--force')
+  if (yes && dryRunFlag) {
+    fail(`host update: --yes 与 --dry-run 不可同现\n用法: ${UPDATE_USAGE}`)
+  }
+  let rest = args.filter(
+    (a) => a !== '--yes' && a !== '--dry-run' && a !== '--json' && a !== '--force',
+  )
+  let toolsArg: string | undefined
+  if (rest.includes('--tools')) {
+    const toolsIdx = rest.indexOf('--tools')
+    if (toolsIdx + 1 >= rest.length || rest[toolsIdx + 1]!.startsWith('-')) {
+      fail(`host update 须 --tools LIST\n用法: ${UPDATE_USAGE}`)
+    }
+    const taken = takeOption(rest, '--tools')
+    toolsArg = taken.value
+    rest = taken.rest
+  }
+  const { value: profileArg, rest: rProfile } = takeOptionalFlag(
+    rest,
+    '--profile',
+    UPDATE_USAGE,
+    'host update',
+  )
+  rest = rProfile
+  const { value: targetArg, rest: rTarget } = takeOptionalFlag(
+    rest,
+    '--target',
+    UPDATE_USAGE,
+    'host update',
+  )
+  rest = rTarget
+  const { value: fileArg, rest: rFile } = takeOptionalFlag(rest, '--file', UPDATE_USAGE, 'host update')
+  rest = rFile
+  if (rest.length > 0) fail(`host update 未知参数: ${rest.join(' ')}\n用法: ${UPDATE_USAGE}`)
+
+  const profile = profileArg ?? 'core'
+  if (profile !== 'core') {
+    fail(`host update 本波仅支持 --profile core（收到: ${profile}）\n用法: ${UPDATE_USAGE}`)
+  }
+
+  const target = resolveTarget(process.cwd(), targetArg)
+  if (!existsSync(target) || !statSync(target).isDirectory()) {
+    fail(`host update target 不存在或不是目录: ${target}`)
+  }
+
+  const fileAbs = resolveValidateFile(fileArg)
+  if (!existsSync(fileAbs)) fail(`host update 文件不存在: ${fileAbs}`)
+
+  const mode: 'dry-run' | 'update' = yes ? 'update' : 'dry-run'
+  const baseReport = {
+    command: 'host update' as const,
+    mode,
+    hosts: [] as string[],
+    planned: [] as string[],
+    written: [] as string[],
+    skipped: [] as string[],
+    conflict: [] as string[],
+    backup: null as string | null,
+  }
+
+  let data: unknown
+  try {
+    data = yamlLoad(readFileSync(fileAbs, 'utf8'))
+  } catch (err) {
+    const msg = `YAML 解析失败: ${(err as Error).message}`
+    emitHostFail(json, 'host update', { ...baseReport, errors: [{ path: '$', code: 'parse', message: msg }] }, [
+      msg,
+    ])
+  }
+
+  const issues = validateHostAdaptDoc(data)
+  if (issues.length > 0) {
+    emitHostFail(
+      json,
+      'host update',
+      { ...baseReport, errors: issues },
+      issues.map((e) => `  - [${e.code}] ${e.path}: ${e.message}`),
+    )
+  }
+
+  const rows = asHostRows(data)
+  const knownIds = rows.map((r) => r.host_id)
+  const known = new Set(knownIds)
+  let toolIds: string[]
+  if (toolsArg === undefined) {
+    toolIds = uniqueKeepOrder(knownIds)
+  } else {
+    toolIds = uniqueKeepOrder(
+      toolsArg
+        .split(',')
+        .map((s) => s.trim())
+        .filter((s) => s.length > 0),
+    )
+    if (toolIds.length < 1) fail(`host update 须 --tools LIST（逗号分隔 host_id）\n用法: ${UPDATE_USAGE}`)
+  }
+  const unknown = toolIds.filter((id) => !known.has(id))
+  if (unknown.length > 0) {
+    fail(`host update 未知 host_id: ${unknown.join(', ')}\n用法: ${UPDATE_USAGE}`)
+  }
+  baseReport.hosts = toolIds
+
+  const { items, s2 } = planApply({
+    target,
+    rows,
+    toolIds,
+    profile,
+    pkgRoot: packageRoot(),
+  })
+  remapUpdateConflicts(items, force)
+  if (s2.length > 0) {
+    const uniq = uniqueKeepOrder(s2)
+    emitHostFail(
+      json,
+      'host update',
+      {
+        ...baseReport,
+        errors: uniq.map((p) => ({
+          path: p,
+          code: 's2' as const,
+          message: `路径命中 S2 过程域（拒）: ${p}`,
+        })),
+      },
+      uniq.map((p) => `  - [s2] ${p}`),
+    )
+  }
+
+  const planned = items.filter((i) => i.op === 'write' || i.op === 'merge').map((i) => i.destRel)
+  const skipped = items.filter((i) => i.op === 'skip_identical').map((i) => i.destRel)
+  const conflict = items.filter((i) => i.op === 'conflict').map((i) => i.destRel)
+
+  let written: string[] = []
+  let backup: string | null = null
+  if (yes) {
+    const committed = commitPlannedWrites(target, items, 'host-update')
+    written = committed.written
+    backup = committed.backup
+  }
+
+  const report: HostWriteReport = {
+    command: 'host update',
+    mode,
+    hosts: toolIds,
+    planned,
+    written: yes ? written : [],
+    skipped,
+    conflict,
+    backup,
+    ok: true,
+    verdict: 'PASS',
+  }
+  if (json) console.log(JSON.stringify(report, null, 2))
+  else printHostHuman(report)
 }
 
 export async function cmdHost(args: string[]): Promise<void> {
@@ -831,6 +1103,10 @@ export async function cmdHost(args: string[]): Promise<void> {
   }
   if (sub === 'apply') {
     await cmdHostApply(rest)
+    return
+  }
+  if (sub === 'update') {
+    await cmdHostUpdate(rest)
     return
   }
   fail(`host 子命令未知: ${sub}\n用法: ${HOST_USAGE}`)

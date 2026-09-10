@@ -30,9 +30,9 @@
 
 ### W3 · Skills + update
 
-- [ ] skills 落点行进表；与 `skills install` 路径矩阵成文一致  
-- [ ] `host update` 刷新产品 commands/skills；conflict 默认不覆盖（`--force` 显式）  
-- [ ] **`HG-AUDIT-R1`** for `task_2x_host_adapt_w3_skills_update`
+- [x] skills 落点行进表；与 `skills install` 路径矩阵成文一致  
+- [x] `host update` 刷新产品 commands/skills；conflict 默认不覆盖（`--force` 显式）  
+- [x] **`HG-AUDIT-R1`** for `task_2x_host_adapt_w3_skills_update`（2026-09-10 · 00 代签 · R1 pass）
 
 ### W4 · DSH + U-01
 
@@ -68,3 +68,4 @@
 | 2026-09-10 | 签收：W0 勾选完成；W1–W5 挂 audit 闸 |
 | 2026-09-10 | W1 验收全勾 · task CLOSE |
 | 2026-09-10 | W2 验收全勾 · task CLOSE |
+| 2026-09-10 | W3 验收全勾 · task CLOSE |

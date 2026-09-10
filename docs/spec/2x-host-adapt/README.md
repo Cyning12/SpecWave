@@ -48,7 +48,7 @@
 | W0 | `2x-host-adapt-w0-signoff` | **done** |
 | W1 | `2x-host-adapt-w1-schema` | **done** |
 | W2 | `2x-host-adapt-w2-cursor-claude` | **done** |
-| W3 | `2x-host-adapt-w3-skills-update` | active |
+| W3 | `2x-host-adapt-w3-skills-update` | **done** |
 | W4 | `2x-host-adapt-w4-dsh-u01` | active |
 | W5 | `2x-host-adapt-w5-release` | active |
 
@@ -77,3 +77,4 @@ docs/spec/2x-host-adapt/
 | 2026-09-10 | **HG-SPEC-SIGNOFF=approved**；W0 DONE；拆 W1–W5 |
 | 2026-09-10 | W1 **done**（40 CLOSE） |
 | 2026-09-10 | W2 **done**（40 CLOSE） |
+| 2026-09-10 | W3 **done**（40 CLOSE） |

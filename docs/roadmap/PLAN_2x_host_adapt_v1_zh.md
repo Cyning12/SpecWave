@@ -48,7 +48,7 @@
 | **W0** | SPEC 定稿 · 本规划签收 · 拆 task | **`HG-SPEC-SIGNOFF`** · **`HG-NEXT-2X`** | **DONE** |
 | **W1** | 适配表 schema + validate CLI | `HG-AUDIT-R1` | **DONE** |
 | **W2** | Cursor + Claude：always_on + commands(core) | `HG-AUDIT-R1` | **DONE** |
-| **W3** | skills 落点 + `host update` | `HG-AUDIT-R1` | active · pending audit |
+| **W3** | skills 落点 + `host update` | `HG-AUDIT-R1` | **DONE** |
 | **W4** | DSH 行 + U-01 | `HG-AUDIT-R1` | active · pending audit |
 | **W5** | dogfood / CHANGELOG / bump 2.0.0 | **`HG-PUBLISH`** | active · pending |
 
@@ -95,3 +95,4 @@
 | 2026-09-10 | **批准**：HG-NEXT-2X + HG-SPEC-SIGNOFF；W0 DONE；拆 W1–W5 |
 | 2026-09-10 | W1 **DONE**（schema + host validate · 40 CLOSE） |
 | 2026-09-10 | W2 **DONE**（host apply cursor+claude core · 40 CLOSE） |
+| 2026-09-10 | W3 **DONE**（skills 落点 + host update · 40 CLOSE） |

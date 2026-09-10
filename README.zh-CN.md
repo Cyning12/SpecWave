@@ -100,6 +100,7 @@ npx dsh-coding-kit skills build [--with-execute-hats]
 npx dsh-coding-kit skills check
 npx dsh-coding-kit host validate [--file PATH] [--json]
 npx dsh-coding-kit host apply --tools cursor,claude --profile core [--target PATH] [--file PATH] [--json] [--dry-run|--yes]
+npx dsh-coding-kit host update [--tools LIST] [--profile core] [--target PATH] [--file PATH] [--json] [--dry-run|--yes] [--force]
 npx dsh-coding-kit wiki export --json
 npx dsh-coding-kit task lint-done
 npx dsh-coding-kit task lint-wiki-delta

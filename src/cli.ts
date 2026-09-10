@@ -87,6 +87,7 @@ function usage(version: string): void {
   npx dsh-coding-kit skills check
   npx dsh-coding-kit host validate [--file PATH] [--json]
   npx dsh-coding-kit host apply --tools LIST [--profile core] [--target PATH] [--file PATH] [--json] [--dry-run|--yes]
+  npx dsh-coding-kit host update [--tools LIST] [--profile core] [--target PATH] [--file PATH] [--json] [--dry-run|--yes] [--force]
   npx dsh-coding-kit wiki export --json [--target PATH]
   npx dsh-coding-kit task lint-done [--target PATH]
   npx dsh-coding-kit task lint-wiki-delta [--target PATH] [--scope all|active|done] [--strict] [--json]

@@ -253,7 +253,7 @@ DSH runtime 自动扫描 <repo>/.dsh/skills 与 $HOME/.dsh/skills 并按需加�
 证据锚点 packages/skill/skill-filesystem/src/index.ts:246 / :253，详见 README「扫描验证」节。
 `
 
-const EXECUTE_HAT_DIRS = new Set(['harness-30-execute', 'harness-40-self-check'])
+export const EXECUTE_HAT_DIRS = new Set(['harness-30-execute', 'harness-40-self-check'])
 
 function posixNorm(absPath: string): string {
   return path.resolve(absPath).replace(/\\/g, '/')
@@ -269,7 +269,7 @@ function isCodingKitDest(absDest: string): boolean {
   )
 }
 
-function isExecuteHatSkipped(
+export function isExecuteHatSkipped(
   parentDir: string,
   name: string,
   withExecuteHats: boolean,
