@@ -17,7 +17,7 @@ Both entries ship from the same npm package **`dsh-coding-kit@2.1.1`**. The plug
 
 ### Multi-host in one package (F6 · 2.0 + skills/orch · 2.1 · tools UX · 2.1.1)
 
-One declarative table → native landing on several hosts (always_on + skills + **commands**). Verify truth stays in the CLI (`failClosed` exit **2**); IDE slash/commands only orchestrate.
+One declarative table → native landing on several hosts (always_on + skills + **commands**). Verify truth stays in the CLI (`failClosed` exit **2**); IDE slash/commands only orchestrate. **Installing the npm package does not materialize IDE files** (no postinstall); run `init --tools` / `host apply` explicitly.
 
 | Host | What `host apply` writes (profile `core`) |
 |------|-------------------------------------------|
@@ -26,25 +26,34 @@ One declarative table → native landing on several hosts (always_on + skills + 
 | **DSH** | `.dsh/skills/` — hat skills **+** orchestration `kit-*` (discoverable via `/`; **no** `.dsh/commands/`) |
 | **agents** (optional) | `AGENTS.md` fragment · `.agents/skills/` |
 
-**2.1 additions** (same package): Claude `/kit:` namespace UX · DSH `.dsh/skills/kit-*` orchestration · optional `--profile expanded` for `kit-hat-*` thin shells (default remains `core`).  
-**2.1.1**: sticky `.coding-kit/host-tools.json` · `host update --yes` refreshes **selected** hosts · `init --tools` (TTY asks; CI must pass `--tools`).
+**2.1 additions** (same package): Claude `/kit:` namespace UX · DSH `.dsh/skills/kit-*` orchestration · optional `--profile expanded` for `kit-hat-*` thin shells (default remains `core`).
+
+**2.1.1 · install / upgrade UX** (aligned with OpenSpec `init --tools`):
+
+| Topic | Behavior |
+|-------|----------|
+| Sticky | Successful `--yes` write of `host apply` / `host update` / `init` (when materializing) updates `.coding-kit/host-tools.json` (`host_ids` + `profile`). Dry-run does **not** write sticky. |
+| `--tools` | `LIST` (e.g. `cursor,claude,dsh`) · `all` (every host_id in the adapt table) · `none` (**init only**: process root, no host materialize). `host apply` **always** requires `--tools`. |
+| `host update` (scheme **A**) | Resolve order: CLI `--tools` → sticky → else **exit 1**. With sticky, `host update --yes` refreshes **only** selected hosts. **BREAKING (small)** vs 2.1.0 “omit `--tools` = full table”. |
+| `init` | TTY without `--tools` → **asks** (multi-select / all / none). Non-TTY / CI without `--tools` → **exit 1**. `tools≠none` and not `--no-host-adapt` → in-process `host apply` + sticky. `--no-host-adapt` → no apply and **no** sticky. |
 
 Shortest path (dry-run first, then write):
 
 ```bash
-npx dsh-coding-kit host validate
-npx dsh-coding-kit host apply --tools cursor,claude,dsh --profile core
-npx dsh-coding-kit host apply --tools cursor,claude,dsh --profile core --yes
+npx dsh-coding-kit@2.1.1 host validate
+npx dsh-coding-kit@2.1.1 host apply --tools cursor,claude,dsh --profile core
+npx dsh-coding-kit@2.1.1 host apply --tools cursor,claude,dsh --profile core --yes
 # optional: --profile expanded   # kit-hat-* thin shells
+# optional: --tools all
 
 # After upgrading the package: refresh sticky hosts (no need to re-list --tools)
-npx dsh-coding-kit host update --yes
+npx dsh-coding-kit@2.1.1 host update --yes
 
-# First-time / CI init with host selection (or --tools none for process root only)
-npx dsh-coding-kit init --preset harness-only --tools cursor,claude,dsh --yes
+# First-time / CI: init + host selection (process-root only: --tools none)
+npx dsh-coding-kit@2.1.1 init --preset harness-only --tools cursor,claude,dsh --yes
 ```
 
-After `--yes`, Cursor Command Palette should see `kit-verify` / `kit-gate-status` / …; Claude Code should see `/kit:verify` etc.; DSH should list matching `.dsh/skills/kit-*`. Details: [`assets/ide/host-adapt/README.md`](assets/ide/host-adapt/README.md) · dogfood/recording checklist: [`docs/guides/DOGFOOD_host_adapt_cursor_claude_录屏清单_v1_zh.md`](docs/guides/DOGFOOD_host_adapt_cursor_claude_录屏清单_v1_zh.md).
+After `--yes`, Cursor Command Palette should see `kit-verify` / `kit-gate-status` / …; Claude Code should see `/kit:verify` etc.; DSH should list matching `.dsh/skills/kit-*`. Full matrix: [`assets/ide/host-adapt/README.md`](assets/ide/host-adapt/README.md) · dogfood/recording: [`docs/guides/DOGFOOD_host_adapt_cursor_claude_录屏清单_v1_zh.md`](docs/guides/DOGFOOD_host_adapt_cursor_claude_录屏清单_v1_zh.md) · plan: [`docs/roadmap/PLAN_2_1_1_host_tools_ux_v1_zh.md`](docs/roadmap/PLAN_2_1_1_host_tools_ux_v1_zh.md).
 
 The `@deepseek-ai/cordis` and `@deepseek-ai/dsh-tools` entries in `peerDependencies` are the **DSH host plugin contract** (needed only when the host loads this package as a plugin; not needed for CLI-only use), and are marked **optional** in `peerDependenciesMeta`.
 
@@ -107,7 +116,7 @@ Some IDEs / yaml-language-server treat the root `cordis.patch.yml` as an RFC6902
 P0 gates and G1–G7 (**delivered in 1.2.0**):
 
 ```bash
-npx dsh-coding-kit init [--preset NAME] [--tools all|none|LIST] [--profile core|expanded] [--yes]   # NAME vocabulary: harness-only (the only legal value)
+npx dsh-coding-kit init [--preset NAME] [--tools all|none|LIST] [--profile core|expanded] [--host-adapt|--no-host-adapt] [--yes]   # NAME vocabulary: harness-only (the only legal value)
 npx dsh-coding-kit upgrade --yes
 npx dsh-coding-kit refresh-ide-blocks [--target PATH] [--dry-run] [--yes] [--json]
 npx dsh-coding-kit check
@@ -302,7 +311,7 @@ Three surfaces, not interchangeable: **System/Re-anchor** = short identity; **fu
 
 ## Releasing (maintainers)
 
-**Current package (git)**: **`dsh-coding-kit@2.1.1`** (tag ready · **npm `latest` unchanged until human publish**). Prior: **2.1.0** (skills/orch · published).
+**Current package**: **`dsh-coding-kit@2.1.1`** — **npm `latest=2.1.1`** (2026-09-10 · human publish · tag `v2.1.1`). Prior: **2.1.0** (skills/orch).
 
 Release process: see [RELEASING.md](RELEASING.md) — hard pre-publish checklist (commit-before-publish · four green gates · version pins · Agent may bump/tag · **human-only `npm publish`**; institutionalizes the DEF-001 lesson).
 

@@ -30,7 +30,7 @@
 | HG-SPEC-SIGNOFF | approved | — | |
 | HG-TASK-DRAFT | **approved** | 22, 30 | 2026-09-10 · 00 代签 |
 | HG-AUDIT-R1 | **approved** | **30** | 2026-09-10 · 00 代签 · R1=`docs/harness/reviews/task_2_1_1_host_tools_ux_w4_docs_release_audit_R1_20260910.md` · W1–W3 CLOSE |
-| HG-PUBLISH | **pending** | publish | **仅人** |
+| HG-PUBLISH | **approved** | publish | 2026-09-10 · 人 · `npm view`=`2.1.1` |
 
 ---
 
@@ -86,3 +86,4 @@
 | 2026-09-10 | W1–W3 CLOSE · R1 代签可 30 |
 | 2026-09-10 | 30：全文 host-adapt + bump 2.1.1 + 四门绿；tag 待 commit；HG-PUBLISH pending |
 | 2026-09-10 | **CLOSE** · 00 复跑四门 `FOUR_GATES_EXIT=0` · 归档 · 待人 commit/tag/publish |
+| 2026-09-10 | **HG-PUBLISH=approved** · registry `2.1.1` · 根 README 完整 UX 回填 |

@@ -17,7 +17,7 @@
 
 ### 一包多宿主（F6 · 2.0 + 技能/编排 · 2.1 · tools UX · 2.1.1）
 
-单一声明式适配表 → 多个宿主原生落点（always_on + skills + **commands**）。Verify 真值仍在 CLI（`failClosed` exit **2**）；IDE slash/command 只编排。
+单一声明式适配表 → 多个宿主原生落点（always_on + skills + **commands**）。Verify 真值仍在 CLI（`failClosed` exit **2**）；IDE slash/command 只编排。**装 npm 包不会自动物化 IDE 文件**（无 postinstall）；须显式跑 `init --tools` / `host apply`。
 
 | 宿主 | `host apply`（profile `core`）写入 |
 |------|-------------------------------------|
@@ -26,25 +26,34 @@
 | **DSH** | `.dsh/skills/` — 帽子技能 **+** 编排 `kit-*`（`/` 可发现；**不**建 `.dsh/commands/`） |
 | **agents**（可选） | `AGENTS.md` 片段 · `.agents/skills/` |
 
-**2.1 增量**（同一包）：Claude `/kit:` 命名空间 · DSH `.dsh/skills/kit-*` 编排 · 可选 `--profile expanded` 物化 `kit-hat-*` 薄壳（默认仍 `core`）。  
-**2.1.1**：粘性 `.coding-kit/host-tools.json` · `host update --yes` 刷**已选**宿主 · `init --tools`（TTY 询问；CI 须显式传）。
+**2.1 增量**（同一包）：Claude `/kit:` 命名空间 · DSH `.dsh/skills/kit-*` 编排 · 可选 `--profile expanded` 物化 `kit-hat-*` 薄壳（默认仍 `core`）。
+
+**2.1.1 · 安装/升级 UX**（对齐 OpenSpec `init --tools`）：
+
+| 主题 | 行为 |
+|------|------|
+| 粘性 | `host apply` / `host update` / `init`（含物化）在 `--yes` 成功写盘后更新 `.coding-kit/host-tools.json`（`host_ids` + `profile`）。dry-run **不**写粘性。 |
+| `--tools` | `LIST`（如 `cursor,claude,dsh`）· `all`（适配表全部 host_id）· `none`（**仅 init**：只过程根、不物化）。`host apply` **必须**带 `--tools`。 |
+| `host update`（方案 **A**） | 解析序：CLI `--tools` → 粘性 → 否则 **exit 1**。有粘性时 `host update --yes` **只**刷已选宿主。相对 2.1.0「省略 `--tools` = 全表」为 **BREAKING（小）**。 |
+| `init` | TTY 无 `--tools` → **询问**（多选 / all / none）。非 TTY / CI 无 `--tools` → **exit 1**。`tools≠none` 且未 `--no-host-adapt` → 同进程 `host apply` + 写粘性。`--no-host-adapt` → 不 apply **亦不**写粘性。 |
 
 最短路径（先 dry-run，再写盘）：
 
 ```bash
-npx dsh-coding-kit host validate
-npx dsh-coding-kit host apply --tools cursor,claude,dsh --profile core
-npx dsh-coding-kit host apply --tools cursor,claude,dsh --profile core --yes
+npx dsh-coding-kit@2.1.1 host validate
+npx dsh-coding-kit@2.1.1 host apply --tools cursor,claude,dsh --profile core
+npx dsh-coding-kit@2.1.1 host apply --tools cursor,claude,dsh --profile core --yes
 # 可选：--profile expanded   # kit-hat-* 薄壳
+# 可选：--tools all
 
 # 升包后：刷粘性已选宿主（不必再抄 --tools）
-npx dsh-coding-kit host update --yes
+npx dsh-coding-kit@2.1.1 host update --yes
 
-# 首次 / CI：init 选型（仅过程根用 --tools none）
-npx dsh-coding-kit init --preset harness-only --tools cursor,claude,dsh --yes
+# 首次 / CI：init 选型（仅过程根：--tools none）
+npx dsh-coding-kit@2.1.1 init --preset harness-only --tools cursor,claude,dsh --yes
 ```
 
-`--yes` 后：Cursor 命令面板应可见 `kit-verify` / `kit-gate-status` 等；Claude Code 应对应出现 `/kit:verify` 等；DSH 应列出 `.dsh/skills/kit-*`。细则见 [`assets/ide/host-adapt/README.md`](assets/ide/host-adapt/README.md)；录屏/对照操作清单见 [`docs/guides/DOGFOOD_host_adapt_cursor_claude_录屏清单_v1_zh.md`](docs/guides/DOGFOOD_host_adapt_cursor_claude_录屏清单_v1_zh.md)。
+`--yes` 后：Cursor 命令面板应可见 `kit-verify` / `kit-gate-status` 等；Claude Code 应对应出现 `/kit:verify` 等；DSH 应列出 `.dsh/skills/kit-*`。完整矩阵见 [`assets/ide/host-adapt/README.md`](assets/ide/host-adapt/README.md)；录屏清单见 [`docs/guides/DOGFOOD_host_adapt_cursor_claude_录屏清单_v1_zh.md`](docs/guides/DOGFOOD_host_adapt_cursor_claude_录屏清单_v1_zh.md)；规划见 [`docs/roadmap/PLAN_2_1_1_host_tools_ux_v1_zh.md`](docs/roadmap/PLAN_2_1_1_host_tools_ux_v1_zh.md)。
 
 `peerDependencies` 中的 `@deepseek-ai/cordis` 与 `@deepseek-ai/dsh-tools` 是 **DSH 宿主插件契约**（仅宿主加载本包为插件时需要；CLI-only 不需要），已在 `peerDependenciesMeta` 标为 **optional**。
 
@@ -107,7 +116,7 @@ profile 档语义：
 P0 闸与 G1–G7（**1.2.0 已交付**）：
 
 ```bash
-npx dsh-coding-kit init [--preset NAME] [--tools all|none|LIST] [--profile core|expanded] [--yes]   # NAME 词表: harness-only（唯一合法值）
+npx dsh-coding-kit init [--preset NAME] [--tools all|none|LIST] [--profile core|expanded] [--host-adapt|--no-host-adapt] [--yes]   # NAME 词表: harness-only（唯一合法值）
 npx dsh-coding-kit upgrade --yes
 npx dsh-coding-kit refresh-ide-blocks [--target PATH] [--dry-run] [--yes] [--json]
 npx dsh-coding-kit check
@@ -302,7 +311,7 @@ Skills **不能**覆盖全部过程能力。Host 要嵌套 Harness 过程，须�
 
 ## 发版（维护者）
 
-**现行包（git）**：**`dsh-coding-kit@2.1.1`**（tag 就绪 · **npm `latest` 在人 publish 前不变**）。前一发版：**2.1.0**（技能/编排 · published）。
+**现行包**：**`dsh-coding-kit@2.1.1`** — **npm `latest=2.1.1`**（2026-09-10 · 人 publish · tag `v2.1.1`）。前一发版：**2.1.0**（技能/编排）。
 
 发布流程见 [RELEASING.md](RELEASING.md) —— publish 前硬步骤 checklist（先 commit 后 publish · 四门全绿 · 版本钉同步 · **Agent 可 bump/tag** · **`npm publish` 仅人**；DEF-001 教训制度化）。
 

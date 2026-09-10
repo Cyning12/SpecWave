@@ -1,12 +1,12 @@
 # 规划 · 2.1.1 · host tools 安装/更新 UX（对齐 OpenSpec init）
 
-> **状态**：`signed` · **CLOSED**（W0–W4 DONE · **HG-PUBLISH=pending** · 2026-09-10）  
+> **状态**：`signed` · **CLOSED**（W0–W4 DONE · **HG-PUBLISH=approved** · `2.1.1` **published** · 2026-09-10）  
 > **目标发版**：`dsh-coding-kit@2.1.1`（**patch** · UX / 入口）  
 > **基线**：`2.1.0` **published**（技能+编排 parity）  
 > **系列 SPEC**：[`docs/spec/2_1_1-host-tools-ux/`](../spec/2_1_1-host-tools-ux/)（`signed` · IMPLEMENTED）  
 > **对标**：[OpenSpec `init --tools`](https://github.com/Fission-AI/OpenSpec)（交互选平台 · `all`/`none`/列表 · `update` 刷已选）  
 > **Open Folder**：`dsh-coding-kit/`  
-> **待人**：release commit · tag `v2.1.1` · **`HG-PUBLISH`** npm publish（Agent **禁** publish）
+> **npm**：`latest=2.1.1`（人 publish · tag `v2.1.1`）
 
 ---
 
@@ -88,7 +88,7 @@
 | **HG-NEXT-211** | **approved** | 开 2.1.1 实现 · 2026-09-10 |
 | **HG-SPEC-SIGNOFF** | **approved** | SPEC 定稿 · UPDATE-DEFAULT=A · 2026-09-10 |
 | **HG-AUDIT-R1** | **approved**（W1–W4） | 各波已代签 |
-| **HG-PUBLISH** | **pending** | `2.1.1` publish（仅人） |
+| **HG-PUBLISH** | **approved** | `2.1.1` · 2026-09-10 人 · `npm view`=`2.1.1` |
 
 ---
 
@@ -122,3 +122,4 @@ TTY 下 `init` 无 `--tools` 时出现平台多选（cursor / claude / dsh / age
 | 2026-09-10 | 维护者 **接受方案 A**；W4 **强制完整更新** `assets/ide/host-adapt/README.md` |
 | 2026-09-10 | **签收** HG-NEXT-211 / HG-SPEC-SIGNOFF · W0 CLOSE · 拆 W1–W4 · 派 W1 三十 |
 | 2026-09-10 | W0–W4 **IMPLEMENTED** · 验收档立 · **HG-PUBLISH** 待人 |
+| 2026-09-10 | **HG-PUBLISH=approved** · registry `2.1.1` · 根 README 补全 2.1.1 UX |

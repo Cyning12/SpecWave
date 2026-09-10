@@ -1,7 +1,7 @@
 {
   "name": "dsh-coding-kit",
   "version": "2.1.1",
-  "description": "DSH plugin + P0 CLI: ICVO coding standards (Inform · Constrain · Verify · Orchestrate). Plugin does not auto-inject; call apply_coding_standards. CLI: npx dsh-coding-kit.",
+  "description": "DSH plugin + P0 CLI + multi-host IDE landing (Cursor/Claude/DSH). ICVO standards; load≠inject. 2.1.1: sticky host-tools, host update A, init --tools. npx dsh-coding-kit",
   "license": "MIT",
   "author": "Cyning",
   "type": "module",

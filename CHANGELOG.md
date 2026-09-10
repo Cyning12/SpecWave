@@ -9,7 +9,7 @@
 > 主题：**patch** —— host tools **安装/更新 UX**；`init` 询问 IDE/宿主（**对齐** OpenSpec）；粘性选型；`host update` 缺省方案 A。  
 > 规划：[`docs/roadmap/PLAN_2_1_1_host_tools_ux_v1_zh.md`](docs/roadmap/PLAN_2_1_1_host_tools_ux_v1_zh.md) · SPEC：[`docs/spec/2_1_1-host-tools-ux/`](docs/spec/2_1_1-host-tools-ux/)  
 >
-> **发布状态**：git/tag 就绪 · **npm `latest` 在人 publish 前不变**（`HG-PUBLISH` pending）。
+> **发布状态**：**已 npm 发版**（`latest=2.1.1` · 2026-09-10 人执行 publish · tag `v2.1.1` · `HG-PUBLISH=approved`）。
 
 ### Added
 
@@ -25,6 +25,7 @@
 
 - **完整改写** [`assets/ide/host-adapt/README.md`](assets/ide/host-adapt/README.md)（CLI · 粘性 · 解析序 A · `init --tools` · dogfood；删除 2.1.0「无参=全表」与预告脚注）
 - 仓根 README 双文件 / 录屏清单 / Demo：升包后 `host update --yes` · `init --tools` 选型一句；F5 钉点 `2.1.1`
+- （publish 后）过程档确认 registry `latest=2.1.1`；验收 [`docs/roadmap/ACCEPTANCE_2_1_1_host_tools_ux_2_1_1_zh.md`](docs/roadmap/ACCEPTANCE_2_1_1_host_tools_ux_2_1_1_zh.md)；根 README「一包多宿主」补全 2.1.1 UX 表
 
 ## [2.1.0] - 2026-09-10
 
