@@ -31,6 +31,13 @@
 | `copilot` | `.github/copilot-instructions.md` 等 | 待 F6 SPEC |
 | `codex` | 待查上游约定 | 待 F6 SPEC |
 
+### 已知缺口（2026-09-10 补记 · 不改 prep 签收范围）
+
+| 缺口 | 说明 | 承接 |
+|------|------|------|
+| **commands 表面未列** | 本表仅 always_on 片段；缺 `.cursor/commands` / `.claude/commands` 等 | [`../2x-host-adapt/01_landing_surface_matrix_v1.md`](../2x-host-adapt/01_landing_surface_matrix_v1.md) |
+| **skills IDE 落点未列** | 包内 `skills install` 主攻 `.dsh/skills`；多宿主 skills 路径未进本表 | 同上 · `02`/`03` |
+
 ## DSH 契约嗅探（需求条文 · 1.12 只成文）
 
 - **需求 ID**：U-01（架构）  
@@ -51,3 +58,4 @@
 |------|------|
 | 2026-09-10 | W4 初版盘点 |
 | 2026-09-10 | prep **signed/done** |
+| 2026-09-10 | 补记 commands/skills 缺口 POINTER → `docs/spec/2x-host-adapt/`（**不**重开 prep 范围） |

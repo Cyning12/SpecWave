@@ -1,9 +1,10 @@
 # Migration · `@cyning/harness` → `dsh-coding-kit`
 
-> **状态**：1.12 收口 **DONE** · kit **拟发 `1.12.1`**（docs patch · git/tag 就绪 · **待人 npm publish**；registry `latest` 仍为 `1.12.0`）· `@cyning/harness` **已 deprecate**（2026-09-10）  
-> **包钉**：人 publish `1.12.1` 后请钉 `dsh-coding-kit@1.12.1`（当前 registry `latest` 仍为 `1.12.0`；本文件不代替 `package.json`）  
+> **状态**：1.12 收口 **DONE** · kit **`1.12.1` published**（npm `latest`）· `@cyning/harness` **已 deprecate**（2026-09-10）  
+> **包钉**：请钉 `dsh-coding-kit@1.12.1`（本文件不代替 `package.json`）  
 > **布局真值（F4 方案 B）**：新落盘根 = **`.coding-kit/`**；**`.cyning-harness/`** = legacy **只读**（探测 / 升级源；**不删除**）  
-> **人闸**：`HG-EOS-DATE` / `HG-PUBLISH` = **approved**（人实操 · 2026-09-10）· **禁止** Agent 执行 `npm deprecate` / `npm publish`
+> **人闸**：`HG-EOS-DATE` / `HG-PUBLISH` = **approved**（人实操 · 2026-09-10）· **禁止** Agent 执行 `npm deprecate` / `npm publish`  
+> **下一主线**：2.0 F6 · [`docs/roadmap/PLAN_2x_host_adapt_v1_zh.md`](docs/roadmap/PLAN_2x_host_adapt_v1_zh.md)（draft）
 
 ---
 
@@ -110,3 +111,4 @@ DEPRECATED: use dsh-coding-kit instead. See https://github.com/Cyning12/dsh-codi
 | 2026-09-10 | W2：填入 EOS **提案**日历（announce 2026-09-10 · 新注册截止 2026-10-10 · EOS 2026-12-31）；`HG-EOS-DATE` 仍 pending · **未** deprecate |
 | 2026-09-10 | **人**：kit `1.12.0` publish + `@cyning/harness` deprecate；`HG-EOS-DATE` / `HG-PUBLISH` approved；日历改「已公布」 |
 | 2026-09-10 | **拟发 `1.12.1`**：docs patch（RELEASING 顺序 + 过程档回填入包）；publish 后消费者可钉 `1.12.1`；deprecate registry 文案仍为 `1.12.0` |
+| 2026-09-10 | **`1.12.1` published**（npm `latest`）；1.x CLOSED；下一主线 2.0 F6 规划 |

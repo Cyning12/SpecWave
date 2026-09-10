@@ -3,6 +3,7 @@ import { readFile, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { cmdGraph } from './cli-graph.ts'
+import { cmdHost } from './cli-host.ts'
 import { cmdRefreshIdeBlocks, countStaleIdeLiterals } from './cli-refresh-ide-blocks.ts'
 import { cmdDiscipline, cmdLifecycle } from './cli-lifecycle.ts'
 import { cmdSkills } from './cli-skills.ts'
@@ -84,6 +85,7 @@ function usage(version: string): void {
   npx dsh-coding-kit skills install [--target DIR] [--out DIR] [--global] [--force] [--with-execute-hats]
   npx dsh-coding-kit skills build [--with-execute-hats]
   npx dsh-coding-kit skills check
+  npx dsh-coding-kit host validate [--file PATH] [--json]
   npx dsh-coding-kit wiki export --json [--target PATH]
   npx dsh-coding-kit task lint-done [--target PATH]
   npx dsh-coding-kit task lint-wiki-delta [--target PATH] [--scope all|active|done] [--strict] [--json]
@@ -899,6 +901,10 @@ export async function runCli(argv: string[]): Promise<void> {
   }
   if (cmd === 'skills') {
     await cmdSkills(rest)
+    return
+  }
+  if (cmd === 'host') {
+    await cmdHost(rest)
     return
   }
   if (cmd === 'sync') {

@@ -4,17 +4,26 @@
 
 ## [Unreleased]
 
+### Added
+
+- **`host validate`**：校验 `assets/ide/host-adapt/` 声明式宿主适配表（schema + MVP 示例；S2 `target`/`target_dir` → exit 2；本波无 `host apply`）
+
+### Docs
+
+- **2.x F6 规划签收**：`HG-NEXT-2X` / `HG-SPEC-SIGNOFF` approved；`docs/spec/2x-host-adapt/` signed；拆 W1–W5 tasks（实现仍须各波 `HG-AUDIT-R1`）
+
 ## [1.12.1] - 2026-09-10
 
 > 主题：**patch** —— RELEASING checklist 顺序修正（`npm view` 仅在 ⑨）+ 发版后过程档回填入 npm 包；**无产品行为变更**。
 >
-> **发布状态**：**git/tag 就绪 · 待人 npm publish**（直至人执行 publish，registry `latest` 仍为 `1.12.0`）。
+> **发布状态**：**已 npm 发版**（`latest=1.12.1` · 2026-09-10 人执行 publish · tag `v1.12.1`）。
 
 ### Docs
 
 - 发版后回填：`1.12.0` 已 npm 发版；`@cyning/harness` 已 deprecate（`MIGRATION.md` · RELEASING · 系列闸）
-- RELEASING：禁止在 ⑨ 之前提前 `npm view`；「最近一次发版」改为 preparing `1.12.1` / tag 就绪
-- F5=B 钉点随包升至 `1.12.1`（ontology / discipline / README）；消费者 publish 后可钉 `1.12.1`（deprecate registry 文案仍含 `1.12.0`，未改）
+- RELEASING：禁止在 ⑨ 之前提前 `npm view`；「最近一次发版」钉 `1.12.1`
+- F5=B 钉点随包升至 `1.12.1`（ontology / discipline / README）
+- （publish 后）过程档确认 registry `latest=1.12.1`；1.x **CLOSED** → 2.x 规划见 `docs/roadmap/PLAN_2x_host_adapt_v1_zh.md`
 
 ## [1.12.0] - 2026-09-10
 

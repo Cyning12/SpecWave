@@ -7,7 +7,8 @@
 | slug | 路径 | 状态 | 一句话 |
 |------|------|------|--------|
 | `1x-mvp` | [`1x-mvp/`](./1x-mvp/) | **signed** · **1.11.0 published** · 三方验收通过 | 1.x MVP F1–F5；下一版见 [`1x-closeout/`](./1x-closeout/) |
-| `1x-closeout` | [`1x-closeout/`](./1x-closeout/) | **signed** · **1.12.0 published** · `@cyning/harness` deprecated | EOS/测稳/本体论浅落地/F6 预备；见 [`../roadmap/PLAN_post_1.11_zh.md`](../roadmap/PLAN_post_1.11_zh.md) |
+| `1x-closeout` | [`1x-closeout/`](./1x-closeout/) | **signed** · **CLOSED**（`1.12.0`+`1.12.1`）· `@cyning/harness` deprecated | 1.x 收口完成；审计见 [`../roadmap/AUDIT_1x_residual_after_1_12_1_zh.md`](../roadmap/AUDIT_1x_residual_after_1_12_1_zh.md) |
+| `2x-host-adapt` | [`2x-host-adapt/`](./2x-host-adapt/) | **signed** · HG-SPEC-SIGNOFF=approved · 实现按 wave `HG-AUDIT-R1` | F6 2.0：四类落点 + commands；规划 [`../roadmap/PLAN_2x_host_adapt_v1_zh.md`](../roadmap/PLAN_2x_host_adapt_v1_zh.md) |
 | `doc-health` | [`doc-health/`](./doc-health/) | draft · HG-SPEC-SIGNOFF=pending | 文档健康度 + CLOSE 强绑定 · 试点 ops-desk-api |
 | `self-tech-graph` | [`self-tech-graph/`](./self-tech-graph/) | **signed** · **W0–W4 CLOSE** · **已发 1.9.1**（npm `latest` · tag `v1.9.1`） | kit 自身三层技术图谱 + 外置三树迁留 · 读序见 [`self-tech-graph/README.md`](./self-tech-graph/README.md) |
 

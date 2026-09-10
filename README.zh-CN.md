@@ -98,6 +98,7 @@ npx dsh-coding-kit sync prompts [--target PATH] [--yes] [--force] [--json]
 npx dsh-coding-kit skills install [--target DIR] [--out DIR] [--global] [--force] [--with-execute-hats]
 npx dsh-coding-kit skills build [--with-execute-hats]
 npx dsh-coding-kit skills check
+npx dsh-coding-kit host validate [--file PATH] [--json]   # 2.x W1 · 宿主适配表只读校验（无 apply）
 npx dsh-coding-kit wiki export --json
 npx dsh-coding-kit task lint-done
 npx dsh-coding-kit task lint-wiki-delta

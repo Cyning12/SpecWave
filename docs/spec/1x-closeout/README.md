@@ -1,10 +1,11 @@
 # 1.x 收口 · 1.12.0 · SPEC 系列
 
-> **状态**：`signed` / **DONE（W1–W4 · `1.12.0` published · `@cyning/harness` deprecated）**  
+> **状态**：`signed` / **DONE · 1.x CLOSED**（`1.12.0` published · patch `1.12.1` · `@cyning/harness` deprecated）  
 > **spec_slug**：`1x-closeout`  
-> **拟发版**：`dsh-coding-kit@1.12.0`  
-> **上游规划**：[`docs/roadmap/PLAN_post_1.11_zh.md`](../../roadmap/PLAN_post_1.11_zh.md)（**signed** · 下一版=1.12）  
-> **上游验收**：`.workbuddy/output/验收报告-1.11.0-F1-F5.md`（通过）  
+> **发版**：`dsh-coding-kit@1.12.0` + `@1.12.1`  
+> **上游规划**：[`docs/roadmap/PLAN_post_1.11_zh.md`](../../roadmap/PLAN_post_1.11_zh.md)  
+> **1.x 审计**：[`../../roadmap/AUDIT_1x_residual_after_1_12_1_zh.md`](../../roadmap/AUDIT_1x_residual_after_1_12_1_zh.md)（无阻塞遗漏）  
+> **2.x**：[`../../roadmap/PLAN_2x_host_adapt_v1_zh.md`](../../roadmap/PLAN_2x_host_adapt_v1_zh.md) · [`../2x-host-adapt/`](../2x-host-adapt/)  
 > **Open Folder**：`dsh-coding-kit/`  
 > **本系列不做**：F6 多宿主编译 · 2.0 major · Agent publish/deprecate
 
@@ -56,7 +57,9 @@
 
 1. [`PLAN_post_1.11_zh.md`](../../roadmap/PLAN_post_1.11_zh.md)  
 2. 本 README  
-3. 各 wave task（`docs/tasks/` · W1–W4）
+3. [`host_landing_inventory_v1.md`](./host_landing_inventory_v1.md)（P6-prep）  
+4. 各 wave task（`docs/tasks/` · W1–W4）  
+5. **2.0 草稿（非本系列）**：[`../2x-host-adapt/`](../2x-host-adapt/)
 
 ---
 
@@ -66,3 +69,5 @@
 |------|------|
 | 2026-09-10 | 系列夹初立；规划签收下一版=1.12 |
 | 2026-09-10 | **HG-CLOSEOUT-SIGNOFF=approved**（00 代签）；开 W1–W4 收口 |
+| 2026-09-10 | 读序挂 `2x-host-adapt` draft（commands / 借鉴研究） |
+| 2026-09-10 | **1.x CLOSED**（`1.12.1`）；挂 AUDIT + PLAN_2x |

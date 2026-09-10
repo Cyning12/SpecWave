@@ -1,0 +1,51 @@
+# Host-adapt 声明式适配表 · MVP 宿主三角（dsh / cursor / claude）
+# 校验：npx dsh-coding-kit host validate [--file PATH]
+# schema：../host-adapt.schema.json
+version: "1"
+hosts:
+  - host_id: dsh
+    surfaces:
+      always_on: []
+      skills:
+        - target_dir: .dsh/skills
+          from: assets/skills/*
+      # DSH：工具调用为主，commands 可空
+      commands: []
+      verify:
+        kind: cli
+        bin: dsh-coding-kit
+        failClosed: true
+
+  - host_id: cursor
+    surfaces:
+      always_on:
+        - target: .cursor/rules/05-kit-starter.mdc
+          source: assets/ide/adapters/cursor-harness-starter.mdc.example
+      skills:
+        - target_dir: .cursor/skills
+          from: assets/skills/*
+      commands:
+        - target_dir: .cursor/commands
+          from: assets/ide/commands/cursor/*
+          profile: core
+      verify:
+        kind: cli
+        bin: dsh-coding-kit
+        failClosed: true
+
+  - host_id: claude
+    surfaces:
+      always_on:
+        - target: CLAUDE.md
+          source: assets/ide/adapters/CLAUDE.md.fragment.example
+      skills:
+        - target_dir: .claude/skills
+          from: assets/skills/*
+      commands:
+        - target_dir: .claude/commands
+          from: assets/ide/commands/claude/*
+          profile: core
+      verify:
+        kind: cli
+        bin: dsh-coding-kit
+        failClosed: true

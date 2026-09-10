@@ -1,10 +1,11 @@
 # 规划 · 1.11.0 之后 · 1.12 / 2.0
 
-> **状态**：`approved`（**HG-NEXT-PLAN** · 2026-09-10 维护者「先 1.12」）  
-> **基线**：`dsh-coding-kit@1.11.0` · PR #30 · 验收报告 `.workbuddy/output/验收报告-1.11.0-F1-F5.md`  
-> **拟发版**：`dsh-coding-kit@1.12.0`  
+> **状态**：`approved`（**HG-NEXT-PLAN** · 2026-09-10）· **1.x 路径 CLOSED**（`1.12.1` · 见 [`AUDIT_1x_residual_after_1_12_1_zh.md`](./AUDIT_1x_residual_after_1_12_1_zh.md)）  
+> **基线**：`dsh-coding-kit@1.12.1`（收口自 `1.11.0` / `1.12.0`）  
+> **1.x 拟发版（已完成）**：`1.12.0` + patch `1.12.1`  
+> **2.x 规划**：[`PLAN_2x_host_adapt_v1_zh.md`](./PLAN_2x_host_adapt_v1_zh.md)（**HG-NEXT-2X** pending）  
+> **系列 SPEC**：[`docs/spec/1x-closeout/`](../spec/1x-closeout/) · [`docs/spec/2x-host-adapt/`](../spec/2x-host-adapt/)  
 > **上游纪律**：`delivery/高层架构设计.md` §4.3 / §6 —— **MVP ⊂ 完整版**；F6 须建立在 F1–F5 真值源之上（已满足）  
-> **系列 SPEC**：[`docs/spec/1x-closeout/`](../spec/1x-closeout/)  
 > **Open Folder**：`dsh-coding-kit/`  
 > **本文件不做**：改码 · npm publish · 填 EOS 日（仅人）
 
@@ -12,7 +13,7 @@
 
 ## 一句话
 
-1.11 已把内部一致性（F1–F5）做完；**下一可发版本已定为 `1.12.0`（1.x 收口）**，再开 **`2.0.0`（F6 宿主适配表）**——禁止跳过收口直接铺跨宿主。
+1.11 已把内部一致性（F1–F5）做完；**1.12.x 收口已完成（含 `1.12.1`）**；**下一主线 = `2.0.0` F6**（见 [`PLAN_2x_host_adapt_v1_zh.md`](./PLAN_2x_host_adapt_v1_zh.md)）。
 
 ---
 
@@ -72,11 +73,13 @@
 
 | ID | 内容 | 验收草案 |
 |----|------|----------|
-| **F6** | 宿主适配表：单一规范源 → N 宿主原生配置位；默认落点 **`AGENTS.md`** | ≥2 个非 DSH 宿主可物化；DSH 仍为首个 |
+| **F6** | 宿主适配表：单一规范源 → N 宿主原生配置位；落点含 **always_on + skills + commands**（默认文档锚仍含 **`AGENTS.md`**） | ≥2 非 DSH 宿主可物化（建议 Cursor+Claude）；DSH 为首个；**commands 可发现** |
 | **U-01** | DSH 契约版本嗅探 + 不匹配降级 | 错版本不静默写坏 |
 | **V5**（可选同波或紧随） | 重复常量 / 测试口径单一化 | 架构 V5 |
 
-**开工闸**：1.12 P0（至少 C1 日历成文；deprecate 实操可与 2.0 并行但须人闸）· 独立 `docs/spec/2x-host-adapt/`（或等价）整包签收。
+**开工闸**：1.12 收口已完成（含 C1 deprecate）· 独立 [`docs/spec/2x-host-adapt/`](../spec/2x-host-adapt/) **整包签收**（当前 `draft`）后才开 30。
+
+**2.0 草稿输入（2026-09-10）**：`2x-host-adapt` · 四类落点矩阵 · `kit-*` commands 目录 · OpenSpec/Ruler/Spec Kit 借鉴研究（见夹内 `01`–`03`）。
 
 ---
 
@@ -115,7 +118,8 @@
 | 4 | F6 预备 | **采纳建议**：进 1.12，仅 P6-prep 声明清单 |
 
 **`HG-NEXT-PLAN`**：**approved（1.12 路径）** · 2026-09-10  
-**2.0 / F6**：本波 **拒开工**；等 1.12 收口后再签独立 SPEC。
+**1.x**：**CLOSED**（`1.12.1` · 2026-09-10 审计）  
+**2.0 / F6**：**规划已签**（`HG-NEXT-2X` + `HG-SPEC-SIGNOFF` · 2026-09-10）；实现按 wave 须 **`HG-AUDIT-R1`**（见 [`PLAN_2x_host_adapt_v1_zh.md`](./PLAN_2x_host_adapt_v1_zh.md)）。
 
 ---
 
@@ -135,3 +139,6 @@
 | 2026-09-10 | 初稿：验收通过后规划 1.12 收口 + 2.0 F6 |
 | 2026-09-10 | **拍板先 1.12**；开放项收敛为 EOS 日历；挂 `docs/spec/1x-closeout/` |
 | 2026-09-10 | **1.12.0 published** + `@cyning/harness` deprecated；`HG-EOS-DATE` / `HG-PUBLISH` approved |
+| 2026-09-10 | F6 验收草案扩 commands；挂 `docs/spec/2x-host-adapt/` draft（拒开工实现） |
+| 2026-09-10 | **1.12.1 published**；1.x **CLOSED** 审计；开 `PLAN_2x_host_adapt_v1_zh.md` |
+| 2026-09-10 | **批准** HG-NEXT-2X + HG-SPEC-SIGNOFF；2.x 规划 signed |

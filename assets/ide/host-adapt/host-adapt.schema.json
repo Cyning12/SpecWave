@@ -1,0 +1,97 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Cyning12/dsh-coding-kit/assets/ide/host-adapt/host-adapt.schema.json",
+  "title": "DSH host-adapt table",
+  "description": "Declarative host adaptation table (F6 / 2.x W1). Surfaces: always_on, skills, commands; optional verify. target / target_dir must not hit S2_TRUTH_PREFIXES (validated by CLI, not this schema alone).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "hosts"],
+  "properties": {
+    "version": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Table schema version (string, e.g. \"1\")."
+    },
+    "hosts": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/HostRow" }
+    }
+  },
+  "$defs": {
+    "HostRow": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["host_id", "surfaces"],
+      "properties": {
+        "host_id": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Host identifier (e.g. dsh, cursor, claude)."
+        },
+        "surfaces": { "$ref": "#/$defs/Surfaces" }
+      }
+    },
+    "Surfaces": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["always_on", "skills", "commands"],
+      "properties": {
+        "always_on": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/AlwaysOnEntry" }
+        },
+        "skills": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/DirFromEntry" }
+        },
+        "commands": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/CommandsEntry" }
+        },
+        "verify": { "$ref": "#/$defs/VerifyEntry" }
+      }
+    },
+    "AlwaysOnEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["target", "source"],
+      "properties": {
+        "target": { "type": "string", "minLength": 1 },
+        "source": { "type": "string", "minLength": 1 }
+      }
+    },
+    "DirFromEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["target_dir", "from"],
+      "properties": {
+        "target_dir": { "type": "string", "minLength": 1 },
+        "from": { "type": "string", "minLength": 1 }
+      }
+    },
+    "CommandsEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["target_dir", "from"],
+      "properties": {
+        "target_dir": { "type": "string", "minLength": 1 },
+        "from": { "type": "string", "minLength": 1 },
+        "profile": {
+          "type": "string",
+          "enum": ["core", "expanded", "custom"]
+        }
+      }
+    },
+    "VerifyEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "bin"],
+      "properties": {
+        "kind": { "type": "string", "const": "cli" },
+        "bin": { "type": "string", "minLength": 1 },
+        "failClosed": { "type": "boolean" }
+      }
+    }
+  }
+}

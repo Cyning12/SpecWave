@@ -9,24 +9,20 @@
 
 | 项 | 值 |
 |----|-----|
-| **npm `latest`** | **`1.12.0`**（registry · **直至人 publish `1.12.1`**） |
-| **git** | **preparing `1.12.1`** · tag `v1.12.1` 就绪（本波 push 后） |
-| **主题** | patch：RELEASING 清单顺序修正 + 发版后过程档回填入包；无产品行为变更 |
-| **旧包** | `@cyning/harness` **已 deprecate**（2026-09-10 · 文案仍钉 `dsh-coding-kit@1.12.0` · **未**改 registry deprecate 文案） |
+| **npm `latest`** | **`1.12.1`**（registry · 2026-09-10 人 publish） |
+| **git** | tag `v1.12.1` |
+| **主题** | patch：RELEASING 清单顺序修正 + 发版后过程档回填；无产品行为变更 |
+| **旧包** | `@cyning/harness` **已 deprecate**（2026-09-10 · registry 文案仍钉 `dsh-coding-kit@1.12.0`） |
+| **1.x** | **CLOSED**（见 `docs/roadmap/AUDIT_1x_residual_after_1_12_1_zh.md`） |
+| **下一主线** | **2.0 F6**（`docs/roadmap/PLAN_2x_host_adapt_v1_zh.md` · SPEC draft） |
 
-### 本波状态（1.12.1 · 待人 publish）
+### 前一发版（1.12.0）
 
-1. Agent：bump / 钉点 / 四门 / pack dry-run / commit / tag / push（①–⑦）  
-2. **人**：`npm publish`（⑧）→ registry `latest` → `1.12.1`  
-3. 人 publish 后：按下方 **⑨** 核验 + 更新过程档为已发布  
+1. ~~`npm publish`~~ · `latest` → `1.12.0`  
+2. ~~`npm deprecate @cyning/harness`~~  
+3. 过程档回填后以 **1.12.1** 再发 patch 收口文档
 
-### 前一发版人侧已完成（1.12.0）
-
-1. ~~`npm publish`~~ · registry `latest` → `1.12.0`  
-2. ~~`npm deprecate @cyning/harness "…"`~~ · deprecated 字段已回钉文案（含 `dsh-coding-kit@1.12.0`）  
-3. 过程档回填：`MIGRATION.md` · 本文件 · CHANGELOG 发布状态  
-
-> 下方 checklist 供本波 / 下一次发版勾选；勿永久勾死。
+> 下方 checklist 供下一次发版勾选；勿永久勾死。
 
 ## 硬步骤（按序执行 · 全部满足后方可 publish）
 
