@@ -49,7 +49,7 @@
 | **W1** | 适配表 schema + validate CLI | `HG-AUDIT-R1` | **DONE** |
 | **W2** | Cursor + Claude：always_on + commands(core) | `HG-AUDIT-R1` | **DONE** |
 | **W3** | skills 落点 + `host update` | `HG-AUDIT-R1` | **DONE** |
-| **W4** | DSH 行 + U-01 | `HG-AUDIT-R1` | active · pending audit |
+| **W4** | DSH 行 + U-01 | `HG-AUDIT-R1` | **DONE** |
 | **W5** | dogfood / CHANGELOG / bump 2.0.0 | **`HG-PUBLISH`** | active · pending |
 
 **MVP 宿主三角**：`dsh` + `cursor` + `claude`。
@@ -96,3 +96,4 @@
 | 2026-09-10 | W1 **DONE**（schema + host validate · 40 CLOSE） |
 | 2026-09-10 | W2 **DONE**（host apply cursor+claude core · 40 CLOSE） |
 | 2026-09-10 | W3 **DONE**（skills 落点 + host update · 40 CLOSE） |
+| 2026-09-10 | W4 **DONE**（DSH 行 + U-01 · 40 CLOSE） |

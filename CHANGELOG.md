@@ -9,6 +9,7 @@
 - **`host validate`**：校验 `assets/ide/host-adapt/` 声明式宿主适配表（schema + MVP 示例；S2 `target`/`target_dir` → exit 2）
 - **`host apply`**：`--tools cursor,claude --profile core` 物化 always_on + core commands（默认 dry-run；`--yes` 写盘；S2 拒；local 块不覆写；覆写先备份）
 - **`host update`**：刷新产品 commands/skills（默认 dry-run；conflict 不覆盖；`--force` 显式覆盖并备份；跳过 30/40）；`host apply` W3 起同步物化 skills
+- **U-01**：`host apply`/`host update` 嗅探适配表 version 与可选 `@deepseek-ai/dsh-tools` peer；不匹配 → exit 2 零写入（`--json` 含 `contract.status`）；`--tools dsh` 允许 commands=[] 且不写 kit-* slash
 
 ### Docs
 

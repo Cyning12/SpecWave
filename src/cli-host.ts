@@ -1,7 +1,8 @@
 /**
- * host 子命令（2.x W1–W3）：validate + apply + update。
+ * host 子命令（2.x W1–W4）：validate + apply + update。
  * apply：always_on + commands(core) + skills（跳过 30/40）。
  * update：刷新产品 commands/skills；conflict 默认不覆盖（`--force` 显式）。
+ * U-01：契约嗅探不匹配 → exit 2 零写入。
  * 本波禁止：bump / publish / 默认分发 30/40 / onboard。
  */
 import {
@@ -29,7 +30,13 @@ import {
   toRel,
 } from './cli-shared.ts'
 import { isExecuteHatSkipped } from './cli-skills.ts'
+import {
+  evaluateHostContract,
+  type HostContractResult,
+} from './host-contract.ts'
 import { yamlLoad } from './yaml.ts'
+
+export { sniffHostContract } from './host-contract.ts'
 
 const HOST_USAGE =
   'host validate [--file PATH] [--json]\n  host apply --tools LIST [--profile core] [--target PATH] [--file PATH] [--json] [--dry-run|--yes]\n  host update [--tools LIST] [--profile core] [--target PATH] [--file PATH] [--json] [--dry-run|--yes] [--force]'
@@ -352,6 +359,7 @@ type HostWriteReport = {
   skipped: string[]
   conflict: string[]
   backup: string | null
+  contract?: HostContractResult
   ok: boolean
   verdict: 'PASS' | 'FAIL'
 }
@@ -573,6 +581,37 @@ function emitHostFail(
     console.log(`${hostBanner(command)}: FAIL`)
   }
   fail('', 2)
+}
+
+function tableVersionOf(data: unknown): string {
+  if (isPlainObject(data) && typeof data.version === 'string') return data.version
+  return ''
+}
+
+function emitU01Degraded(
+  json: boolean,
+  command: HostWriteReport['command'],
+  base: Omit<HostWriteReport, 'ok' | 'verdict' | 'contract'>,
+  contract: HostContractResult,
+): never {
+  const extraLines = [
+    'U-01: 宿主契约不匹配（degraded），拒绝写盘',
+    ...contract.reasons.map((r) => `  - ${r}`),
+  ]
+  emitHostFail(
+    json,
+    command,
+    {
+      ...base,
+      planned: [],
+      written: [],
+      skipped: [],
+      conflict: [],
+      backup: null,
+      contract,
+    },
+    extraLines,
+  )
 }
 
 function commitPlannedWrites(
@@ -876,6 +915,11 @@ async function cmdHostApply(args: string[]): Promise<void> {
     fail(`host apply 未知 host_id: ${unknown.join(', ')}\n用法: ${APPLY_USAGE}`)
   }
 
+  const contract = evaluateHostContract(tableVersionOf(data))
+  if (contract.status === 'degraded') {
+    emitU01Degraded(json, 'host apply', baseReport, contract)
+  }
+
   const { items, s2 } = planApply({
     target,
     rows,
@@ -921,6 +965,7 @@ async function cmdHostApply(args: string[]): Promise<void> {
     skipped,
     conflict,
     backup,
+    contract,
     ok: true,
     verdict: 'PASS',
   }
@@ -1037,6 +1082,11 @@ async function cmdHostUpdate(args: string[]): Promise<void> {
   }
   baseReport.hosts = toolIds
 
+  const contract = evaluateHostContract(tableVersionOf(data))
+  if (contract.status === 'degraded') {
+    emitU01Degraded(json, 'host update', baseReport, contract)
+  }
+
   const { items, s2 } = planApply({
     target,
     rows,
@@ -1083,6 +1133,7 @@ async function cmdHostUpdate(args: string[]): Promise<void> {
     skipped,
     conflict,
     backup,
+    contract,
     ok: true,
     verdict: 'PASS',
   }

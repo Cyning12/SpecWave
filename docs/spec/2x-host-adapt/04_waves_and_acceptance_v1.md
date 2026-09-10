@@ -36,9 +36,9 @@
 
 ### W4 · DSH + U-01
 
-- [ ] DSH 行：commands 允许空；tools/skills 为主  
-- [ ] U-01：契约/宿主版本不匹配 → 降级提示 + 非静默写坏（测覆盖）  
-- [ ] **`HG-AUDIT-R1`** for `task_2x_host_adapt_w4_dsh_u01`
+- [x] DSH 行：commands 允许空；tools/skills 为主  
+- [x] U-01：契约/宿主版本不匹配 → 降级提示 + 非静默写坏（测覆盖）  
+- [x] **`HG-AUDIT-R1`** for `task_2x_host_adapt_w4_dsh_u01`（2026-09-10 · 00 代签 · R1 pass）
 
 ### W5 · 发版
 
@@ -69,3 +69,4 @@
 | 2026-09-10 | W1 验收全勾 · task CLOSE |
 | 2026-09-10 | W2 验收全勾 · task CLOSE |
 | 2026-09-10 | W3 验收全勾 · task CLOSE |
+| 2026-09-10 | W4 验收全勾 · task CLOSE |

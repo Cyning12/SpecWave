@@ -5,6 +5,11 @@ import { fileURLToPath } from 'node:url'
 import type { Context } from '@deepseek-ai/cordis'
 import { defineTool } from '@deepseek-ai/dsh-tools'
 import { isS2RelPath } from './cli-shared.ts'
+import {
+  evaluateHostContract,
+  SUPPORTED_HOST_ADAPT_TABLE_VERSION,
+  type HostContractResult,
+} from './host-contract.ts'
 
 export const name = 'coding-kit'
 export const inject = ['tools', 'systemPrompt']
@@ -175,6 +180,14 @@ export async function copyDirNoClobber(
   return { copied, skipped }
 }
 
+function pluginHostContract(): HostContractResult {
+  return evaluateHostContract(SUPPORTED_HOST_ADAPT_TABLE_VERSION)
+}
+
+function u01DegradeLines(contract: HostContractResult): string[] {
+  return ['U-01: 宿主契约不匹配（degraded）', ...contract.reasons]
+}
+
 function maybeLegacyHint(): string {
   const markers = [
     path.join(process.cwd(), '.cyning-harness'),
@@ -217,14 +230,20 @@ export function apply(ctx: Context): void {
       const persist = args.persist !== false
       const bundle = await loadMarkdownBundle(profile)
       const hint = maybeLegacyHint()
+      const contract = pluginHostContract()
+      const degrade = contract.status === 'degraded' ? u01DegradeLines(contract) : []
 
       if (bundle.files.length === 0) {
-        return `apply_coding_standards: no markdown files under ${bundle.root} (source=${bundle.source}).`
+        return [
+          ...degrade,
+          `apply_coding_standards: no markdown files under ${bundle.root} (source=${bundle.source}).`,
+        ].filter(Boolean).join('\n')
       }
 
       if (persist) {
         if (!systemPrompt) {
           return [
+            ...degrade,
             'apply_coding_standards: persist requested but systemPrompt service is unavailable.',
             `source=${bundle.source} files=${bundle.files.length}`,
             'Fallback: one-shot preview follows.',
@@ -242,6 +261,7 @@ export function apply(ctx: Context): void {
       }
 
       const lines = [
+        ...degrade,
         persist
           ? 'Coding standards registered into system prompt context `coding-kit.standards`.'
           : 'Coding standards returned one-shot (not persisted into system prompt).',
@@ -277,6 +297,13 @@ export function apply(ctx: Context): void {
       const destRel = (args.dest as string | undefined) ?? '.coding-kit'
       if (destRel !== '.coding-kit' && destRel !== '.dsh/coding-kit') {
         return 'init_coding_kit: dest not allowed'
+      }
+      const contract = pluginHostContract()
+      if (contract.status === 'degraded') {
+        return [
+          'init_coding_kit: U-01 宿主契约不匹配（degraded），拒绝复制（copied=0）',
+          ...contract.reasons,
+        ].join('\n')
       }
       const dest = path.resolve(process.cwd(), destRel)
       const src = defaultAssetsRoot()

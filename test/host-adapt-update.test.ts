@@ -18,10 +18,12 @@ type RunResult = {
 }
 
 function runCli(args: string[], opts: { cwd?: string } = {}): RunResult {
+  const env = { ...process.env }
+  delete env.DSH_CK_DSH_TOOLS_VERSION
   const result = spawnSync(process.execPath, ['--experimental-strip-types', CLI_TS, ...args], {
     encoding: 'utf8',
     cwd: opts.cwd ?? KIT,
-    env: { ...process.env },
+    env,
   })
   const stdout = result.stdout ?? ''
   const stderr = result.stderr ?? ''

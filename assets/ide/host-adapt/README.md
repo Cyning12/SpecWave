@@ -12,5 +12,6 @@
 | claude | `.claude/skills` | 同上 |
 | agents | `.agents/skills` | 同上 |
 
+- **DSH**：`commands: []` 合法；`--tools dsh` 只物化 `.dsh/skills`，不写 `.cursor/commands` / kit-* slash。**U-01** 契约不匹配时 apply/update exit 2、零写入。
 - **apply**：缺失则写入；内容相同 skip；commands 不同则覆写（W2 纪律）。W3 起同时物化 skills。
 - **update**：刷新产品 commands + skills（always_on 产品块按 apply 同纪律刷新，local 永不覆写）。目标已存在且内容不同 → **conflict，默认 skip**；`--force` 才覆盖（先备份 `.coding-kit/backups/host-update/<UTCts>/`，保留 5 代）。
