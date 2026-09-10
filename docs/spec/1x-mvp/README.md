@@ -170,4 +170,4 @@ docs/spec/1x-mvp/
 
 ## 给 Cursor / 下一棒
 
-`1x-mvp` W1–W4 **DONE** · **1.11.0 published** · 三方验收通过；下一棒见 [`docs/roadmap/PLAN_post_1.11_zh.md`](../../roadmap/PLAN_post_1.11_zh.md)（建议 **1.12 收口 → 2.0 F6**）；残余 **`HG-EOS-DATE`**
+`1x-mvp` W1–W4 **DONE** · **1.11.0 published** · 三方验收通过；**下一版 1.12** 见 [`docs/spec/1x-closeout/`](../1x-closeout/)；残余 **`HG-EOS-DATE`**

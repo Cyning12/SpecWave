@@ -8,6 +8,7 @@
 
 - 发版后回填：`1.11.0` 已 npm 发版说明（README 双文件 · RELEASING「最近一次发版」· 系列 `HG-PUBLISH` · MIGRATION）
 - 新增 [`docs/roadmap/PLAN_post_1.11_zh.md`](docs/roadmap/PLAN_post_1.11_zh.md)：1.12 收口 + 2.0 F6 规划（三方验收通过后）
+- **拍板先 1.12**：`docs/spec/1x-closeout/` + `task_1x_closeout_w1_ci_dogfood`（draft · 待系列/task 签）
 
 ## [1.11.0] - 2026-09-09
 
