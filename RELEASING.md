@@ -9,18 +9,18 @@
 
 | 项 | 值 |
 |----|-----|
-| **npm `latest`** | **`2.0.0`**（registry · 直至人 publish `2.0.1`） |
-| **git** | preparing **`2.0.1`** · tag `v2.0.1` 就绪 · **待人 npm publish** |
-| **主题** | patch：`2.0.0` publish 后过程档归档回填（无产品行为变更） |
-| **前一发版** | **`2.0.0` published**（2026-09-10 · tag `v2.0.0` · F6 宿主适配） |
+| **npm `latest`** | **`2.0.1`**（registry · 直至人 publish `2.0.2`） |
+| **git** | preparing **`2.0.2`** · tag `v2.0.2` 就绪 · **待人 npm publish** |
+| **主题** | patch：README 多宿主首屏 + Cursor/Claude 录屏清单（无产品行为变更） |
+| **前一发版** | **`2.0.1` published**（2026-09-10 · tag `v2.0.1` · 2.0.0 归档回填） |
 | **旧包** | `@cyning/harness` **已 deprecate**（2026-09-10 · registry 文案仍钉 `dsh-coding-kit@1.12.0`） |
 | **1.x** | **CLOSED**（见 `docs/roadmap/AUDIT_1x_residual_after_1_12_1_zh.md`） |
 | **下一主线** | **2.0.x / 2.1**（更多宿主、workspaces 观察项；另 SPEC） |
 
-### 前一发版（2.0.0）
+### 前一发版（2.0.1）
 
-1. ~~`npm publish`~~ · `latest` → `2.0.0`（人 · 2026-09-10）  
-2. 过程档回填后以 **2.0.1** 再发 patch 收口文档（本 checklist 供 `2.0.1` 勾选）
+1. ~~`npm publish`~~ · `latest` → `2.0.1`（人 · 2026-09-10）  
+2. 过程档回填后以 **2.0.2** 补多宿主 README 叙事（本 checklist 供 `2.0.2` 勾选）
 
 > 下方 checklist 供下一次发版勾选；勿永久勾死。
 

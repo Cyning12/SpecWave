@@ -2,7 +2,7 @@
 
 [简体中文](README.zh-CN.md) | English
 
-**dsh-coding-kit@2.0.1** is a **bundle plugin** for DeepSeek Harness (DSH), shipping a **P0 gate CLI** and the **G1–G7 process commands**. The discipline assets remain ICVO (Inform · Constrain · Verify · Orchestrate).
+**dsh-coding-kit@2.0.2** is a **bundle plugin** for DeepSeek Harness (DSH), shipping a **P0 gate CLI**, **G1–G7 process commands**, and **multi-host IDE landing** (Cursor · Claude Code · DSH). The discipline assets remain ICVO (Inform · Constrain · Verify · Orchestrate).
 
 > **Loading ≠ injecting.** Installing or loading this plugin does **not** automatically rewrite the system prompt. `apply()` only registers tools. Only after you or the model calls `apply_coding_standards` will later turns' runtime context contain `# Coding Standards`.
 
@@ -11,9 +11,30 @@
 | Who you are | Entry | Do NOT |
 |-------------|-------|--------|
 | DSH session / model calling tools | `dsh plugin add dsh-coding-kit` | Don't just `npm install` (without the bundle layer the tools won't appear) |
-| Cursor / CI / daily gates on existing repos | `npx dsh-coding-kit` | Don't treat the plugin `init_coding_kit` and the CLI `init` as the same entry |
+| Cursor / Claude Code / CI on existing repos | `npx dsh-coding-kit` (+ optional `host apply`) | Don't treat the plugin `init_coding_kit` and the CLI `init` as the same entry |
 
-Both entries ship from the same npm package **`dsh-coding-kit@2.0.1`**. The plugin surface and the CLI surface do not replace each other.
+Both entries ship from the same npm package **`dsh-coding-kit@2.0.2`**. The plugin surface and the CLI surface do not replace each other.
+
+### Multi-host in one package (F6 · 2.0)
+
+One declarative table → native landing on several hosts (always_on + skills + **commands**). Verify truth stays in the CLI (`failClosed` exit **2**); IDE slash/commands only orchestrate.
+
+| Host | What `host apply` writes (profile `core`) |
+|------|-------------------------------------------|
+| **Cursor** | `.cursor/rules/*.mdc` · `.cursor/commands/kit-*.md` · `.cursor/skills/` |
+| **Claude Code** | `CLAUDE.md` product marker block · `.claude/commands/kit-*.md` · `.claude/skills/` |
+| **DSH** | `.dsh/skills/` (commands may be empty — tools-first; no fake kit-* slash) |
+| **agents** (optional) | `AGENTS.md` fragment · `.agents/skills/` |
+
+Shortest path (dry-run first, then write):
+
+```bash
+npx dsh-coding-kit host validate
+npx dsh-coding-kit host apply --tools cursor,claude --profile core
+npx dsh-coding-kit host apply --tools cursor,claude --profile core --yes
+```
+
+After `--yes`, Cursor Command Palette should see `kit-verify` / `kit-gate-status` / …; Claude Code should see the matching `.claude/commands/kit-*.md` slash files. Details: [`assets/ide/host-adapt/README.md`](assets/ide/host-adapt/README.md) · dogfood/recording checklist: [`docs/guides/DOGFOOD_host_adapt_cursor_claude_录屏清单_v1_zh.md`](docs/guides/DOGFOOD_host_adapt_cursor_claude_录屏清单_v1_zh.md).
 
 The `@deepseek-ai/cordis` and `@deepseek-ai/dsh-tools` entries in `peerDependencies` are the **DSH host plugin contract** (needed only when the host loads this package as a plugin; not needed for CLI-only use), and are marked **optional** in `peerDependenciesMeta`.
 
@@ -71,7 +92,7 @@ Note (asymmetric read/write roots, made explicit in 1.3.0): the **read side** (`
 
 Some IDEs / yaml-language-server treat the root `cordis.patch.yml` as an RFC6902 JSON Patch and report missing `op` / `path` / `value`. This is a false positive and can be ignored; the file must keep the `- insert` form — do not convert it to JSON Patch.
 
-## Entry B · CLI (Cursor / CI)
+## Entry B · CLI (Cursor / Claude Code / CI)
 
 P0 gates and G1–G7 (**delivered in 1.2.0**):
 
@@ -107,7 +128,7 @@ npx dsh-coding-kit task lint-wiki-delta
 npx dsh-coding-kit task check --file PATH
 ```
 
-`host apply` / `host update` sniff the host-adapt table version and optional `@deepseek-ai/dsh-tools` peer (**U-01**): mismatch → exit 2 and no writes (`--json` includes `contract.status`). `--tools dsh` allows empty commands and does not install kit-* slash commands.
+`host apply` / `host update` sniff the host-adapt table version and optional `@deepseek-ai/dsh-tools` peer (**U-01**): mismatch → exit 2 and no writes (`--json` includes `contract.status`). `--tools dsh` allows empty commands and does not install kit-* slash commands. See **Multi-host in one package** above for Cursor + Claude landing paths.
 
 This **source repo** dogfoods `graph yaml compile|check|export` against `docs/_tech_graph/` (**not** shipped in the npm package; https://github.com/Cyning12/dsh-coding-kit/tree/main/docs/_tech_graph).
 
@@ -183,15 +204,15 @@ When a task declares `test_strategy=required`, `audit` / `verify` run the D5 har
 
 Full checklist, layout rules (F4 scheme B), and **published** EOS / deprecate calendar: see [`MIGRATION.md`](./MIGRATION.md).
 
-After pinning **dsh-coding-kit@2.0.1** you can drop `@cyning/harness`. Minimal path, three steps (required, in order):
+After pinning **dsh-coding-kit@2.0.2** you can drop `@cyning/harness`. Minimal path, three steps (required, in order):
 
-1. Replace the `devDependency` `@cyning/harness` with `dsh-coding-kit` (pin `2.0.1`).
-2. Run `npx dsh-coding-kit upgrade --yes` at the repo root (reads `.coding-kit/manifest.json` if present, else legacy `.cyning-harness/manifest.json`; **writes** `.coding-kit/manifest.json` with `version` pinned at 2.0.1 and `from_version` recording the old number; **does not delete** `.cyning-harness/`).
+1. Replace the `devDependency` `@cyning/harness` with `dsh-coding-kit` (pin `2.0.2`).
+2. Run `npx dsh-coding-kit upgrade --yes` at the repo root (reads `.coding-kit/manifest.json` if present, else legacy `.cyning-harness/manifest.json`; **writes** `.coding-kit/manifest.json` with `version` pinned at 2.0.2 and `from_version` recording the old number; **does not delete** `.cyning-harness/`).
 3. In CI / scripts, replace `npx @cyning/harness` with `npx dsh-coding-kit`.
 
 **Layout**: new kit process files land under **`.coding-kit/`**. `.cyning-harness/` remains **legacy read-only**. Do not treat `.cyning-harness` as the new standard root.
 
-Skill installation is **recommended, not required** (the minimal path does not depend on DSH scanning skills). Commands are always `npx dsh-coding-kit`. **`@cyning/harness` is deprecated** on npm (2026-09-10 · maintainer-only); pin **`dsh-coding-kit@2.0.1`** and migrate via `MIGRATION.md`.
+Skill installation is **recommended, not required** (the minimal path does not depend on DSH scanning skills). Commands are always `npx dsh-coding-kit`. **`@cyning/harness` is deprecated** on npm (2026-09-10 · maintainer-only); pin **`dsh-coding-kit@2.0.2`** and migrate via `MIGRATION.md`.
 
 ### FAQ · pnpm peer
 
@@ -202,12 +223,12 @@ If pnpm install still fails on the peer chain (e.g. resolving to an unpublished 
 Paste the whole block:
 
 ````text
-You = the maintenance agent of this repository. Migrate this repo from @cyning/harness to dsh-coding-kit@2.0.1.
+You = the maintenance agent of this repository. Migrate this repo from @cyning/harness to dsh-coding-kit@2.0.2.
 
 Minimal path (required, in order):
-1. package.json devDependency: delete @cyning/harness, replace with dsh-coding-kit (pinned at 2.0.1).
+1. package.json devDependency: delete @cyning/harness, replace with dsh-coding-kit (pinned at 2.0.2).
 2. Run at the repo root: npx dsh-coding-kit upgrade --yes
-   (reads .coding-kit/manifest.json or legacy .cyning-harness/manifest.json; writes .coding-kit/manifest.json; version pinned at 2.0.1, from_version records the old number; never deletes .cyning-harness/; never overwrites docs/tasks, reviews, invokes/by-task.)
+   (reads .coding-kit/manifest.json or legacy .cyning-harness/manifest.json; writes .coding-kit/manifest.json; version pinned at 2.0.2, from_version records the old number; never deletes .cyning-harness/; never overwrites docs/tasks, reviews, invokes/by-task.)
 3. Replace every npx @cyning/harness in CI and scripts with npx dsh-coding-kit.
 Commands are always npx dsh-coding-kit. Never write npx @cyning/harness skills build again.
 See MIGRATION.md for layout (.coding-kit vs legacy) and EOS calendar (pending human gates).
@@ -271,7 +292,7 @@ Three surfaces, not interchangeable: **System/Re-anchor** = short identity; **fu
 
 ## Releasing (maintainers)
 
-**Current package (git)**: **`dsh-coding-kit@2.0.1`** (tag ready · **npm `latest` still `2.0.0` until human publish**). Prior: **2.0.0** published 2026-09-10 (F6 host-adapt).
+**Current package (git)**: **`dsh-coding-kit@2.0.2`** (tag ready · **npm `latest` still `2.0.1` until human publish**). Prior: **2.0.1** published 2026-09-10 (docs archive after F6).
 
 Release process: see [RELEASING.md](RELEASING.md) — hard pre-publish checklist (commit-before-publish · four green gates · version pins · Agent may bump/tag · **human-only `npm publish`**; institutionalizes the DEF-001 lesson).
 

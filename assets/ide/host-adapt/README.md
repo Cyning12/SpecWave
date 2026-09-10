@@ -1,17 +1,34 @@
-# Host-adapt · skills 落点矩阵
+# Host-adapt · 落点矩阵与 CLI
 
 > 适配表示例：[`examples/mvp-hosts.yaml`](./examples/mvp-hosts.yaml)  
-> Schema：[`host-adapt.schema.json`](./host-adapt.schema.json)
+> Schema：[`host-adapt.schema.json`](./host-adapt.schema.json)  
+> 仓根叙事：README「一包多宿主（F6）」· 录屏清单：[`../../../docs/guides/DOGFOOD_host_adapt_cursor_claude_录屏清单_v1_zh.md`](../../../docs/guides/DOGFOOD_host_adapt_cursor_claude_录屏清单_v1_zh.md)
 
-`host apply` / `host update` 按表物化 **skills**（源 `assets/skills/*`）。默认**跳过** `harness-30-execute` / `harness-40-self-check`（与 `skills install` 同一套 `EXECUTE_HAT_DIRS` / `isExecuteHatSkipped`，禁止 `--with-execute-hats`）。
+## CLI
 
-| host_id | skills 落点 | 与 skills install |
-|---------|-------------|-------------------|
-| dsh | `.dsh/skills` | 与 `skills install --target` 默认 dest 一致 |
-| cursor | `.cursor/skills` | host-adapt 额外 IDE 落点 |
-| claude | `.claude/skills` | 同上 |
-| agents | `.agents/skills` | 同上 |
+```bash
+npx dsh-coding-kit host validate [--file PATH] [--json]
+npx dsh-coding-kit host apply --tools cursor,claude --profile core [--dry-run|--yes]
+npx dsh-coding-kit host update [--tools LIST] [--yes] [--force]
+```
 
-- **DSH**：`commands: []` 合法；`--tools dsh` 只物化 `.dsh/skills`，不写 `.cursor/commands` / kit-* slash。**U-01** 契约不匹配时 apply/update exit 2、零写入。
-- **apply**：缺失则写入；内容相同 skip；commands 不同则覆写（W2 纪律）。W3 起同时物化 skills。
-- **update**：刷新产品 commands + skills（always_on 产品块按 apply 同纪律刷新，local 永不覆写）。目标已存在且内容不同 → **conflict，默认 skip**；`--force` 才覆盖（先备份 `.coding-kit/backups/host-update/<UTCts>/`，保留 5 代）。
+- 默认 **dry-run**；`--yes` 才写盘。  
+- **U-01**：表 version / 可选 `dsh-tools` peer 不匹配 → exit **2**、零写入。  
+- 默认**跳过** `harness-30-execute` / `harness-40-self-check`（与 `skills install` 同口径）。
+
+## 宿主 × 表面（MVP）
+
+| host_id | always_on | commands (core) | skills |
+|---------|-----------|-----------------|--------|
+| `cursor` | `.cursor/rules/*.mdc` | `.cursor/commands/kit-*.md` | `.cursor/skills` |
+| `claude` | `CLAUDE.md`（marker merge） | `.claude/commands/kit-*.md` | `.claude/skills` |
+| `dsh` | （可空） | **可空**（不强迫 slash） | `.dsh/skills`（≈ `skills install --target`） |
+| `agents` | `AGENTS.md` | 可空 | `.agents/skills` |
+
+Core 五命令：`kit-apply-standards` · `kit-verify` · `kit-gate-status` · `kit-init-guide` · `kit-hat-reanchor`（前缀 **`kit-`**；禁止冒充 `opsx-*`）。
+
+## 纪律
+
+- **S2**（`docs/tasks` / reviews / invokes）永不作为物化 target。  
+- **local** 块（`cyning-harness-local`）永不覆写。  
+- **update**：conflict 默认 skip；`--force` 显式覆盖并备份 `.coding-kit/backups/host-update/`。

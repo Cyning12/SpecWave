@@ -4,11 +4,24 @@
 
 ## [Unreleased]
 
+## [2.0.2] - 2026-09-10
+
+> 主题：**patch** —— README 首屏补「一包多宿主」（Cursor + Claude Code + DSH）+ 录屏对照清单；**无产品行为变更**。
+>
+> **发布状态**：**git/tag 就绪 · 待人 npm publish**（直至人执行 ⑧，registry `latest` 仍为 `2.0.1`）。
+
+### Docs
+
+- README 双文件：入口表含 Claude Code；新增 **Multi-host / 一包多宿主** 节（落点表 + `host apply` 最短路径）
+- 录屏清单：`docs/guides/DOGFOOD_host_adapt_cursor_claude_录屏清单_v1_zh.md`
+- `assets/ide/host-adapt/README.md` 扩为完整表面矩阵（always_on / commands / skills）
+- F5=B 钉点随包升至 `2.0.2`
+
 ## [2.0.1] - 2026-09-10
 
 > 主题：**patch** —— `2.0.0` 人 publish 后过程档归档回填 + F5 钉点随包；**无产品行为变更**。
 >
-> **发布状态**：**git/tag 就绪 · 待人 npm publish**（直至人执行 ⑧，registry `latest` 仍为 `2.0.0`）。
+> **发布状态**：**已 npm 发版**（`latest=2.0.1` · 2026-09-10 人执行 publish · tag `v2.0.1`）。
 
 ### Docs
 
@@ -16,6 +29,7 @@
 - 验收归档：`docs/roadmap/ACCEPTANCE_2x_host_adapt_2_0_0_zh.md`
 - MIGRATION / RELEASING：「最近一次发版」钉 `2.0.0` published；preparing `2.0.1`
 - F5=B 钉点随包升至 `2.0.1`（ontology / discipline / README）
+- （publish 后）过程档确认 registry `latest=2.0.1`
 
 ## [2.0.0] - 2026-09-10
 
