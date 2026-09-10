@@ -316,9 +316,11 @@ describe('1.2.1 skills install I1–I12', { concurrency: 1 }, () => {
     // DEF-010: skills --help 必须输出子命令 usage——根 usage 独有串否定断言（任一改动退回根 usage 即红）
     assert.equal(/gate-check/.test(skillsHelp.combined), false, 'skills --help 输出了根 usage（含 gate-check）')
     assert.equal(/lifecycle dry-run/.test(skillsHelp.combined), false, 'skills --help 输出了根 usage（含 lifecycle dry-run）')
-    assert.equal(/specgate CLI \(v/.test(skillsHelp.combined), false, 'skills --help 输出了根 usage 头')
+    // 负向：skills --help 不得输出根 usage 头（改名后须钉现名，否则恒真失效）
+    assert.equal(/SpecWave CLI \(v/.test(skillsHelp.combined), false, 'skills --help 输出了根 usage 头')
     const rootHelp = runCli(['--help'])
     assert.equal(rootHelp.status, 0, rootHelp.combined)
+    assert.match(rootHelp.combined, /SpecWave CLI \(v/, '根 --help 须含现名 SpecWave CLI 头')
     assert.match(rootHelp.combined, /skills install/)
     assert.match(rootHelp.combined, /skills build/)
     assert.match(rootHelp.combined, /skills check/)

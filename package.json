@@ -1,6 +1,6 @@
 {
   "name": "spec-wave",
-  "version": "2.1.2",
+  "version": "2.1.3",
   "description": "SpecWave — multi-host coding CLI (Cursor/Claude/DSH) + P0 gates/Harness. Formerly SpecGate / dsh-coding-kit. npx spec-wave",
   "license": "MIT",
   "author": "Cyning",

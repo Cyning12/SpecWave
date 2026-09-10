@@ -1,4 +1,4 @@
-# Host-adapt · 落点矩阵与 CLI（2.1.2）
+# Host-adapt · 落点矩阵与 CLI（2.1.3）
 
 > 适配表示例：[`examples/mvp-hosts.yaml`](./examples/mvp-hosts.yaml)  
 > Schema：[`host-adapt.schema.json`](./host-adapt.schema.json)  
@@ -38,7 +38,7 @@ npx spec-wave init --preset harness-only [--tools all|none|LIST] [--profile core
   "host_ids": ["cursor", "claude", "dsh", "agents"],
   "profile": "core",
   "updated_at": "2026-09-10T00:00:00.000Z",
-  "kit_semver": "2.1.2"
+  "kit_semver": "2.1.3"
 }
 ```
 
@@ -58,7 +58,7 @@ npx spec-wave init --preset harness-only [--tools all|none|LIST] [--profile core
 升包后推荐：
 
 ```bash
-npx spec-wave@2.1.2 host update --yes
+npx spec-wave@2.1.3 host update --yes
 ```
 
 ## `init` 选型（对齐 OpenSpec）
@@ -103,10 +103,10 @@ Expanded（`--profile expanded`）：`kit-hat-00-delegate` · `kit-hat-10-spec` 
 ```bash
 # 首次 / 改选型
 node ./lib/cli.js host apply --tools cursor,claude,dsh,agents --profile core --yes
-# 或：npx spec-wave@2.1.2 host apply --tools cursor,claude,dsh,agents --profile core --yes
+# 或：npx spec-wave@2.1.3 host apply --tools cursor,claude,dsh,agents --profile core --yes
 
 # 升包后只刷已选（读粘性；不必再抄 LIST）
-npx spec-wave@2.1.2 host update --yes
+npx spec-wave@2.1.3 host update --yes
 ```
 
 落点（`.cursor/` · `.claude/` · `.dsh/` · `.agents/` · `CLAUDE.md` · `AGENTS.md`）**应入库**。  

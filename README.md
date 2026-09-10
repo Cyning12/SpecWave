@@ -2,7 +2,7 @@
 
 [简体中文](README.zh-CN.md) | English
 
-**SpecWave** (`spec-wave@2.1.2`) is a **multi-host coding CLI** (Cursor · Claude Code · optional DSH) with **P0 gate / Harness process commands** and IDE landing. Formerly **SpecGate** / **dsh-coding-kit**. Discipline assets remain ICVO (Inform · Constrain · Verify · Orchestrate).
+**SpecWave** (`spec-wave@2.1.3`) is a **multi-host coding CLI** (Cursor · Claude Code · optional DSH) with **P0 gate / Harness process commands** and IDE landing. Formerly **SpecGate** / **dsh-coding-kit**. Discipline assets remain ICVO (Inform · Constrain · Verify · Orchestrate).
 
 > **Loading ≠ injecting.** Installing or loading the optional DSH plugin does **not** automatically rewrite the system prompt. `apply()` only registers tools. Only after you or the model calls `apply_coding_standards` will later turns' runtime context contain `# Coding Standards`.
 
@@ -13,7 +13,7 @@
 | Cursor / Claude Code / CI on existing repos | `npx spec-wave` (+ optional `host apply`) | Don't treat the plugin `init_coding_kit` and the CLI `init` as the same entry |
 | DSH session / model calling tools (optional) | `dsh plugin add spec-wave` (`dsh-coding-kit` **deprecated** — do not add the old name) | Don't just `npm install` (without the bundle layer the tools won't appear) |
 
-Primary entry is **`npx spec-wave`** from npm package **`spec-wave@2.1.2`**. Transition bins `specgate` and `dsh-coding-kit` still work. The plugin surface and the CLI surface do not replace each other.
+Primary entry is **`npx spec-wave`** from npm package **`spec-wave@2.1.3`**. Transition bins `specgate` and `dsh-coding-kit` still work. The plugin surface and the CLI surface do not replace each other.
 
 ### Multi-host in one package (F6 · 2.0 + skills/orch · 2.1 · tools UX · 2.1.1)
 
@@ -40,17 +40,17 @@ One declarative table → native landing on several hosts (always_on + skills + 
 Shortest path (dry-run first, then write):
 
 ```bash
-npx spec-wave@2.1.2 host validate
-npx spec-wave@2.1.2 host apply --tools cursor,claude,dsh --profile core
-npx spec-wave@2.1.2 host apply --tools cursor,claude,dsh --profile core --yes
+npx spec-wave@2.1.3 host validate
+npx spec-wave@2.1.3 host apply --tools cursor,claude,dsh --profile core
+npx spec-wave@2.1.3 host apply --tools cursor,claude,dsh --profile core --yes
 # optional: --profile expanded   # kit-hat-* thin shells
 # optional: --tools all
 
 # After upgrading the package: refresh sticky hosts (no need to re-list --tools)
-npx spec-wave@2.1.2 host update --yes
+npx spec-wave@2.1.3 host update --yes
 
 # First-time / CI: init + host selection (process-root only: --tools none)
-npx spec-wave@2.1.2 init --preset harness-only --tools cursor,claude,dsh --yes
+npx spec-wave@2.1.3 init --preset harness-only --tools cursor,claude,dsh --yes
 ```
 
 After `--yes`, Cursor Command Palette should see `kit-verify` / `kit-gate-status` / …; Claude Code should see `/kit:verify` etc.; DSH should list matching `.dsh/skills/kit-*`. Full matrix: [`assets/ide/host-adapt/README.md`](assets/ide/host-adapt/README.md) · dogfood/recording: [`docs/guides/DOGFOOD_host_adapt_cursor_claude_录屏清单_v1_zh.md`](docs/guides/DOGFOOD_host_adapt_cursor_claude_录屏清单_v1_zh.md) · plan: [`docs/roadmap/PLAN_2_1_1_host_tools_ux_v1_zh.md`](docs/roadmap/PLAN_2_1_1_host_tools_ux_v1_zh.md).
@@ -159,7 +159,7 @@ This **source repo** dogfoods `graph yaml compile|check|export` against `docs/_t
 
 Since 1.7.0 the graph-facing behavior of `graph yaml export` / `graph yaml check` is corrected: ① export writes `graph_id` from the yaml-declared value (`data.graph_id`, e.g. `00_main`) as the single source of truth into graphs/nodes/edges, no longer the path-namespaced id (e.g. `l0/00_main`) — path ids remain input-compat only (`--graph-id` / file discovery); ② `check --all` filters graph.json slices with the same declared-value source as export output, so kit-produced root graph.json and check mutually recognize each other; ③ export preserves edge labels for every mark type (`?>` / `~>` / `::…` / `[…]`) — topology-protocol marks are carried as edge attributes instead of dropping the label text; ④ the Mermaid class block emitted by compile is driven by `nodes[].kind` (`flow`/`struct`/`external` → `phase`/`doc`/`infra`), with id-based inference kept as a fallback for nodes without `kind`. Exit codes are unchanged. **Consumer note**: consumers depending on the old export output (namespaced graph_id / dropped labels) must re-run `graph yaml export`.
 
-`check` compares `manifest.version` against the package version three ways (up-to-date / upgradeable / higher). Since 1.5.2, when the manifest carries a non-null `from_version` (i.e. it was migrated from the old `@cyning/harness` product line), a "higher" comparison reports a cross-product-line migration (`@cyning/harness X → dsh-coding-kit Y` — version numbers are not comparable across product lines) and suggests `npx spec-wave upgrade --yes`, instead of a misleading "possible downgrade" warning; since 1.7.0 this criterion is narrowed so only a `from_version` in the old product line's vocabulary (the 2.x series) takes the migration wording — a kit-line (1.x) `from_version` and `from_version: null` both keep the original three-way wording. The exit code is unchanged (always 0).
+`check` compares `manifest.version` against the package version three ways (up-to-date / upgradeable / higher). Since 1.5.2, when the manifest carries a non-null `from_version` (i.e. it was migrated from the old `@cyning/harness` product line), a "higher" comparison reports a cross-product-line migration (`@cyning/harness X → spec-wave Y` — version numbers are not comparable across product lines) and suggests `npx spec-wave upgrade --yes`, instead of a misleading "possible downgrade" warning; since 1.7.0 this criterion is narrowed so only a `from_version` in the old product line's vocabulary (the 2.x series) takes the migration wording — a kit-line (1.x) `from_version` and `from_version: null` both keep the original three-way wording. The exit code is unchanged (always 0).
 
 ### refresh-ide-blocks (R-07 · literal refresh of stale commands in existing IDE blocks)
 
@@ -228,15 +228,15 @@ When a task declares `test_strategy=required`, `audit` / `verify` run the D5 har
 
 Full checklist, layout rules (F4 scheme B), and **published** EOS / deprecate calendar: see [`MIGRATION.md`](./MIGRATION.md).
 
-After pinning **spec-wave@2.1.2** you can drop `@cyning/harness`. Minimal path, three steps (required, in order):
+After pinning **spec-wave@2.1.3** you can drop `@cyning/harness`. Minimal path, three steps (required, in order):
 
-1. Replace the `devDependency` `@cyning/harness` with `spec-wave` (pin `2.1.2`; formerly `dsh-coding-kit`).
-2. Run `npx spec-wave upgrade --yes` at the repo root (reads `.coding-kit/manifest.json` if present, else legacy `.cyning-harness/manifest.json`; **writes** `.coding-kit/manifest.json` with `version` pinned at 2.1.2 and `from_version` recording the old number; **does not delete** `.cyning-harness/`).
+1. Replace the `devDependency` `@cyning/harness` with `spec-wave` (pin `2.1.3`; formerly `dsh-coding-kit`).
+2. Run `npx spec-wave upgrade --yes` at the repo root (reads `.coding-kit/manifest.json` if present, else legacy `.cyning-harness/manifest.json`; **writes** `.coding-kit/manifest.json` with `version` pinned at 2.1.3 and `from_version` recording the old number; **does not delete** `.cyning-harness/`).
 3. In CI / scripts, replace `npx @cyning/harness` / `npx dsh-coding-kit` with `npx spec-wave`.
 
 **Layout**: new kit process files land under **`.coding-kit/`**. `.cyning-harness/` remains **legacy read-only**. Do not treat `.cyning-harness` as the new standard root.
 
-Skill installation is **recommended, not required** (the minimal path does not depend on DSH scanning skills). Commands are always `npx spec-wave`. **`@cyning/harness` is deprecated** on npm (2026-09-10 · maintainer-only); pin **`spec-wave@2.1.2`** and migrate via `MIGRATION.md`.
+Skill installation is **recommended, not required** (the minimal path does not depend on DSH scanning skills). Commands are always `npx spec-wave`. **`@cyning/harness` is deprecated** on npm (2026-09-10 · maintainer-only); pin **`spec-wave@2.1.3`** and migrate via `MIGRATION.md`.
 
 ### FAQ · pnpm peer
 
@@ -247,12 +247,12 @@ If pnpm install still fails on the peer chain (e.g. resolving to an unpublished 
 Paste the whole block:
 
 ````text
-You = the maintenance agent of this repository. Migrate this repo from @cyning/harness to spec-wave@2.1.2.
+You = the maintenance agent of this repository. Migrate this repo from @cyning/harness to spec-wave@2.1.3.
 
 Minimal path (required, in order):
-1. package.json devDependency: delete @cyning/harness, replace with spec-wave (pinned at 2.1.2; formerly dsh-coding-kit).
+1. package.json devDependency: delete @cyning/harness, replace with spec-wave (pinned at 2.1.3; formerly dsh-coding-kit).
 2. Run at the repo root: npx spec-wave upgrade --yes
-   (reads .coding-kit/manifest.json or legacy .cyning-harness/manifest.json; writes .coding-kit/manifest.json; version pinned at 2.1.2, from_version records the old number; never deletes .cyning-harness/; never overwrites docs/tasks, reviews, invokes/by-task.)
+   (reads .coding-kit/manifest.json or legacy .cyning-harness/manifest.json; writes .coding-kit/manifest.json; version pinned at 2.1.3, from_version records the old number; never deletes .cyning-harness/; never overwrites docs/tasks, reviews, invokes/by-task.)
 3. Replace every npx @cyning/harness and npx dsh-coding-kit in CI and scripts with npx spec-wave.
 Commands are always npx spec-wave. Never write npx @cyning/harness skills build again.
 See MIGRATION.md for layout (.coding-kit vs legacy) and EOS calendar (pending human gates).
@@ -316,7 +316,7 @@ Three surfaces, not interchangeable: **System/Re-anchor** = short identity; **fu
 
 ## Releasing (maintainers)
 
-**Current package**: **`spec-wave@2.1.2`** — **preparing publish** (human: `git tag v2.1.2` · `npm publish` · `HG-PUBLISH` pending). Prior published: **`2.1.1`** (host tools UX · tag/npm dual-identity history — see CHANGELOG `[2.1.2]`).
+**Current package**: **`spec-wave@2.1.3`** — **preparing publish** (human: `git tag v2.1.3` · `npm publish`). Prior published: **`2.1.2`** (rename closeout · see CHANGELOG).
 
 Release process: see [RELEASING.md](RELEASING.md) — hard pre-publish checklist (commit-before-publish · four green gates · version pins · Agent may bump/tag · **human-only `npm publish`**; institutionalizes the DEF-001 lesson).
 

@@ -4,12 +4,25 @@
 
 ## [Unreleased]
 
+## [2.1.3] - 2026-09-10
+
+> 主题：**patch** —— 2.1.2 改名收口 **残余修复**（README 对齐 · 负向断言防恒真 · **发布溯源自动化**）。  
+> 说明：用户口称「2.1.2.1」；npm/semver 仅三段 → 正式版号 **`2.1.3`**。  
+>
+> **发布状态**：**准备 publish**（工作树已 bump · 待人 `npm publish`）。
+
+### Fixed
+
+- **改名收尾**：README 双语 `check` 迁移示例改为 `@cyning/harness X → spec-wave Y`（对齐 CLI）。
+- **测钉**：`skills --help` 负向断言改钉 `SpecWave CLI`（防改名后恒真）；根 `--help` 正向断言现名头。
+- **发布溯源测**：`test/release-tag-identity.test.ts` 校验 `git tag v<version>` 的 `package.json#name/#version`；CI checkout `fetch-tags`。
+
 ## [2.1.2] - 2026-09-10
 
 > 主题：**patch** —— SpecWave **改名收口**（身份面 · 迁移链切断 · 对外文案 · `init --yes` · **tag↔npm 可溯源**）。  
 > 规划：[`docs/roadmap/PLAN_2_1_2_rename_closeout_v1_zh.md`](docs/roadmap/PLAN_2_1_2_rename_closeout_v1_zh.md) · SPEC：[`docs/spec/2_1_2-rename-closeout/`](docs/spec/2_1_2-rename-closeout/)  
 >
-> **发布状态**：**发版准备中**（工作树 `2.1.2` · 四门绿 · ACCEPTANCE 草稿就绪；**`HG-PUBLISH` / `HG-DEPRECATE-HARNESS` 仍 pending · 仅人** · 勿声称已 published）。
+> **发布状态**：**已 published** · `HG-PUBLISH` / `HG-DEPRECATE-HARNESS=approved` · tag **`v2.1.2`** ↔ `spec-wave@2.1.2`。
 
 ### Changed
 

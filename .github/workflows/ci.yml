@@ -14,6 +14,10 @@ jobs:
         node: ['22.x', '24.x']  # 对齐 package.json engines: ^22.19.0 || >=24.0.0
     steps:
       - uses: actions/checkout@v4
+        with:
+          # 发布溯源测需 git tag v<version>（test/release-tag-identity.test.ts）
+          fetch-tags: true
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node }}

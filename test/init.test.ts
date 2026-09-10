@@ -104,7 +104,7 @@ describe('2.1.1 W3 init --tools / TTY / host-adapt', { concurrency: 1 }, () => {
     })
   })
 
-  it('2.1.2 B-INIT-YES：--yes 无 --tools → exit 1（快速失败，不挂起）', async () => {
+  it('2.1.3 B-INIT-YES：--yes 无 --tools → exit 1（快速失败，不挂起）', async () => {
     await withTemp(async (dir) => {
       const r = runCli(['init', '--preset', 'harness-only', '--yes', '--target', dir])
       assert.equal(r.status, 1, r.combined)
