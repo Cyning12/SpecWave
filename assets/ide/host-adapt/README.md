@@ -24,7 +24,7 @@ npx dsh-coding-kit host update [--tools LIST] [--profile core|expanded] [--yes] 
 | `cursor` | `.cursor/rules/*.mdc` | `.cursor/commands/kit-*.md` | `.cursor/skills` |
 | `claude` | `CLAUDE.md`（marker merge） | `.claude/commands/kit/<verb>.md`（`/kit:verb`） | `.claude/skills` |
 | `dsh` | （可空） | **`[]`（禁止 `.dsh/commands`）** | `.dsh/skills`：帽子 `assets/skills/*` **+** 编排 `assets/ide/skills-orch/*`（`/kit-*`；上游 deepseek-harness `project-dsh` / `docs/subsystems/skills.md`） |
-| `agents` | `AGENTS.md` | 可空 | `.agents/skills` |
+| `agents` | `AGENTS.md`（产品 marker + **local** 定制） | 可空 | `.agents/skills` |
 
 Core 五命令：`kit-apply-standards` · `kit-verify` · `kit-gate-status` · `kit-init-guide` · `kit-hat-reanchor`（前缀 **`kit-`**；禁止冒充 `opsx-*`）。  
 Expanded（`--profile expanded`）：`kit-hat-00-delegate` · `kit-hat-10-spec` · `kit-hat-10-task` · `kit-hat-20-spec-audit` · `kit-hat-20-task-audit` · `kit-graph-check` · `kit-sync-prompts-guide`（Claude：`kit/hat-…` / `kit/graph-check` 等 → `/kit:hat-…`）。
@@ -37,11 +37,14 @@ Expanded（`--profile expanded`）：`kit-hat-00-delegate` · `kit-hat-10-spec` 
 
 ## 本仓 dogfood（强制建议）
 
-`dsh-coding-kit` **源码仓也是消费者**：维护者用同一套 `/kit` · `harness-*` 推进本仓 task。发版后或改 assets 后在仓根执行：
+`dsh-coding-kit` **源码仓也是消费者**：维护者用同一套 `/kit` · `harness-*` · **`AGENTS.md` / `.agents/skills`** 推进本仓 task。发版后或改 assets 后在仓根执行：
 
 ```bash
-node ./lib/cli.js host apply --tools cursor,claude,dsh --profile core --yes
-# 或：npx dsh-coding-kit@<本包版本> host update --tools cursor,claude,dsh --yes
+node ./lib/cli.js host apply --tools cursor,claude,dsh,agents --profile core --yes
+# 或：npx dsh-coding-kit@<本包版本> host update --tools cursor,claude,dsh,agents --yes
 ```
 
-落点（`.cursor/` · `.claude/` · `.dsh/` · `CLAUDE.md`）**应入库**，便于 Open Folder 本仓即见 slash/技能；真值源仍是 `assets/`，`host update` 刷新副本。
+落点（`.cursor/` · `.claude/` · `.dsh/` · `.agents/` · `CLAUDE.md` · `AGENTS.md`）**应入库**。  
+**`AGENTS.md`**：上方 harness 产品块 = 通用 Agent 入口；仓特定导航写在 `cyning-harness-local` 块（upgrade 不覆写）。真值源仍是 `assets/`。
+
+> 省略 `--tools` 的 `host update` = 适配表 **全量**（含 agents）。只刷三角时请显式列出 host_id。
