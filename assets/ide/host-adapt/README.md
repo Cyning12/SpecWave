@@ -34,3 +34,14 @@ Expanded（`--profile expanded`）：`kit-hat-00-delegate` · `kit-hat-10-spec` 
 - **S2**（`docs/tasks` / reviews / invokes）永不作为物化 target。  
 - **local** 块（`cyning-harness-local`）永不覆写。  
 - **update**：conflict 默认 skip；`--force` 显式覆盖并备份 `.coding-kit/backups/host-update/`。
+
+## 本仓 dogfood（强制建议）
+
+`dsh-coding-kit` **源码仓也是消费者**：维护者用同一套 `/kit` · `harness-*` 推进本仓 task。发版后或改 assets 后在仓根执行：
+
+```bash
+node ./lib/cli.js host apply --tools cursor,claude,dsh --profile core --yes
+# 或：npx dsh-coding-kit@<本包版本> host update --tools cursor,claude,dsh --yes
+```
+
+落点（`.cursor/` · `.claude/` · `.dsh/` · `CLAUDE.md`）**应入库**，便于 Open Folder 本仓即见 slash/技能；真值源仍是 `assets/`，`host update` 刷新副本。
