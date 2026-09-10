@@ -4,11 +4,36 @@
 
 ## [Unreleased]
 
+## [1.12.0] - 2026-09-10
+
+> 主题：**1.x 收口** —— EOS 提案日历 · 全量测稳/dogfood · 本体论浅落地 · F6 宿主落点预备清单；发版职责仍为 **Agent 可 bump / 人仅 publish**。
+>
+> **发布状态**：**git tag 就绪 · 待人 `npm publish`**（registry `latest` 在人 publish 前仍为 `1.11.0`）。
+>
+> **消费者提示（置顶）**：
+>
+> - 过程落盘根仍为 **`.coding-kit/`**；legacy `.cyning-harness/` 只读不删（同 1.11）。
+> - **未**执行 `@cyning/harness` 的 `npm deprecate`（`MIGRATION.md` 已有 **提案**日历 · 待 `HG-EOS-DATE`）。
+> - 本体论：浅测 + `docs/ontology/` 投影；**无**新 `ontology-check` CLI。
+
+### Added
+
+- `test/ontology-shallow.test.ts`：ontology 结构 / ONTO- / `product_semver` 浅校验（O1）
+- `docs/ontology/CURRENT_CAPABILITY.md` · `DISCIPLINE_ALIGNMENT.md`（O2/O3）
+- `docs/spec/1x-closeout/` 系列 + W1–W4 tasks/audits/invokes
+- `docs/spec/1x-closeout/host_landing_inventory_v1.md`（P6-prep）
+- `docs/releases/06_1_11_to_1_12.md`（D1）
+
+### Changed
+
+- `MIGRATION.md`：EOS **提案**日历（announce 2026-09-10 · 新注册截止 2026-10-10 · EOS 2026-12-31）；deprecate **仅人**
+- `delivery/promotion/`：标 1.x MVP DONE + 链 `PLAN_post_1.11`；1.12 收口 DONE（待人 publish）
+- F5=B 钉点随包升至 `1.12.0`（ontology / discipline / README）
+
 ### Docs
 
-- 发版后回填：`1.11.0` 已 npm 发版说明（README 双文件 · RELEASING「最近一次发版」· 系列 `HG-PUBLISH` · MIGRATION）
-- 新增 [`docs/roadmap/PLAN_post_1.11_zh.md`](docs/roadmap/PLAN_post_1.11_zh.md)：1.12 收口 + 2.0 F6 规划（三方验收通过后）
-- **拍板先 1.12**：`docs/spec/1x-closeout/` + `task_1x_closeout_w1_ci_dogfood`（draft · 待系列/task 签）
+- [`docs/roadmap/PLAN_post_1.11_zh.md`](docs/roadmap/PLAN_post_1.11_zh.md)（已签「先 1.12」）
+- RELEASING「最近一次发版」：注明 tag 就绪、待人 publish
 
 ## [1.11.0] - 2026-09-09
 

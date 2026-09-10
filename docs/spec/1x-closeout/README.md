@@ -1,6 +1,6 @@
 # 1.x 收口 · 1.12.0 · SPEC 系列
 
-> **状态**：`draft`（规划已签「先 1.12」· 系列 SPEC 待整包签 `HG-CLOSEOUT-SIGNOFF`）  
+> **状态**：`signed` / **done（W1–W4 齐 · tag `v1.12.0` · 待人 publish）**  
 > **spec_slug**：`1x-closeout`  
 > **拟发版**：`dsh-coding-kit@1.12.0`  
 > **上游规划**：[`docs/roadmap/PLAN_post_1.11_zh.md`](../../roadmap/PLAN_post_1.11_zh.md)（**signed** · 下一版=1.12）  
@@ -31,13 +31,13 @@
 
 ## Wave
 
-| Wave | 覆盖 | 人闸 |
-|------|------|------|
-| **W0** | 本系列起草 · task 拆分 | `HG-CLOSEOUT-SIGNOFF`（可与首 task 同签） |
-| **W1** | C2 + C3 | 无硬闸 |
-| **W2** | C1 | **`HG-EOS-DATE`**（deprecate 实操仅人） |
-| **W3** | O1–O3 | `HG-AUDIT-R1`（若改 `src/`/`test/`） |
-| **W4** | P6-prep + D1/D2 · 发版准备 | 人 publish |
+| Wave | 覆盖 | 人闸 | 状态 |
+|------|------|------|------|
+| **W0** | 本系列起草 · task 拆分 | `HG-CLOSEOUT-SIGNOFF` | **signed** |
+| **W1** | C2 + C3 | 无硬闸 | 见 task |
+| **W2** | C1 | **`HG-EOS-DATE`**（deprecate 实操仅人） | 日历提案成文；deprecate 仍人 |
+| **W3** | O1–O3 | `HG-AUDIT-R1` | 见 task |
+| **W4** | P6-prep + D1/D2 · 发版准备 | 人 publish | 见 task |
 
 ---
 
@@ -46,9 +46,9 @@
 | human_gate_id | status | blocks |
 |---------------|--------|--------|
 | **HG-NEXT-PLAN** | **approved** | ~~版本选型~~（「先 1.12」） |
-| **HG-CLOSEOUT-SIGNOFF** | **pending** | 系列正文定稿后整包签 |
-| **HG-EOS-DATE** | **pending** | W2 deprecate |
-| **HG-PUBLISH** | pending（每波） | 1.12.0 publish 仅人 |
+| **HG-CLOSEOUT-SIGNOFF** | **approved**（00 代签 · 2026-09-10 · 用户「授权00签收，开始完成此版本」） | 系列正文定稿 |
+| **HG-EOS-DATE** | **pending** | W2 deprecate 实操（日历提案可先成文） |
+| **HG-PUBLISH** | pending | 1.12.0 **publish 仅人**（Agent 可 bump/tag） |
 
 ---
 
@@ -56,7 +56,7 @@
 
 1. [`PLAN_post_1.11_zh.md`](../../roadmap/PLAN_post_1.11_zh.md)  
 2. 本 README  
-3. 各 wave task（`docs/tasks/active/task_1x_closeout_w*.md`）
+3. 各 wave task（`docs/tasks/` · W1–W4）
 
 ---
 
@@ -65,3 +65,4 @@
 | 日期 | 摘要 |
 |------|------|
 | 2026-09-10 | 系列夹初立；规划签收下一版=1.12 |
+| 2026-09-10 | **HG-CLOSEOUT-SIGNOFF=approved**（00 代签）；开 W1–W4 收口 |

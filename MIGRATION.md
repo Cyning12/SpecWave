@@ -1,9 +1,9 @@
 # Migration · `@cyning/harness` → `dsh-coding-kit`
 
-> **状态**：文档面就绪（1x-mvp **W3 / F3+F4**）· kit **`1.11.0` 已 npm 发版**（2026-09-09）  
-> **包钉**：消费者请钉 `dsh-coding-kit@1.11.0`（与 npm `latest` 一致；本文件不代替 `package.json`）  
+> **状态**：1.12 收口 · EOS **提案日历已成文**（W2）· kit 拟发 **`1.12.0`**（待人 publish；npm `latest` 在人 publish 前仍为 `1.11.0`）  
+> **包钉**：以 `package.json` / 发版后 `npm view` 为准；本文件不代替包真值  
 > **布局真值（F4 方案 B）**：新落盘根 = **`.coding-kit/`**；**`.cyning-harness/`** = legacy **只读**（探测 / 升级源；**不删除**）  
-> **人闸**：`HG-EOS-DATE` 仍 **pending**（阻塞旧包 `npm deprecate`）· kit 本波 **publish 已完成** · **禁止** Agent 执行 `npm deprecate` / 再次擅自 publish
+> **人闸**：`HG-EOS-DATE` 仍 **pending**（阻塞旧包 `npm deprecate`）· **禁止** Agent 执行 `npm deprecate` / `npm publish`
 
 ---
 
@@ -49,15 +49,15 @@
 
 ## EOS / deprecate（提案日历 · 待人闸）
 
-> 下列日期为 **提案占位**，**未**经 `HG-EOS-DATE=approved`，**未**执行 `npm deprecate`。  
-> 不得对外宣称「旧包已 deprecate」直至维护者实操并更新本表。
+> 下列日期为 **提案**（1.12 W2 成文），**未**经 `HG-EOS-DATE=approved`，**未**执行 `npm deprecate`。  
+> 不得对外宣称「旧包已 deprecate」直至维护者实操并把本表状态改为「已公布」。
 
-| 里程碑 | 提案日（占位） | 状态 |
-|--------|----------------|------|
-| 公开时间表 + 本文件成文 | 2026-09-09 | **文档面 DONE（W3）** |
-| 新注册截止（建议 ≤ EOS） | **TBD** | 待 `HG-EOS-DATE` |
-| EOS（End of Support） | **TBD** | 待 `HG-EOS-DATE` |
-| `npm deprecate @cyning/harness "…"` | **TBD · 仅人** | 待 `HG-EOS-DATE`（kit `1.11.0` 已发版；deprecate ≠ kit publish） |
+| 里程碑 | 提案日 | 状态 |
+|--------|--------|------|
+| 公开时间表 + 本文件成文 | **2026-09-10**（提案宣布日） | **提案 · 待 `HG-EOS-DATE`** |
+| 新注册截止（建议） | **2026-10-10** | **提案 · 待 `HG-EOS-DATE`** |
+| EOS（End of Support） | **2026-12-31** | **提案 · 待 `HG-EOS-DATE`** |
+| `npm deprecate @cyning/harness "…"` | **同波争取 · 仅人**（建议不晚于新注册截止） | **未执行** · 待 `HG-EOS-DATE`（deprecate ≠ kit publish） |
 
 ### Deprecate 文案草稿（仅人 · 实操时粘贴）
 
@@ -108,3 +108,4 @@ DEPRECATED: use dsh-coding-kit instead. See https://github.com/Cyning12/dsh-codi
 |------|------|
 | 2026-09-09 | W3 初版：方案 B 布局 + 最小路径 + EOS 提案占位（`HG-EOS-DATE` pending） |
 | 2026-09-09 | kit **1.11.0** 已 npm 发版；本文件包钉与状态条对齐 `latest` |
+| 2026-09-10 | W2：填入 EOS **提案**日历（announce 2026-09-10 · 新注册截止 2026-10-10 · EOS 2026-12-31）；`HG-EOS-DATE` 仍 pending · **未** deprecate |

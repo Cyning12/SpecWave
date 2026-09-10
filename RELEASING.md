@@ -9,12 +9,19 @@
 
 | 项 | 值 |
 |----|-----|
-| **npm `latest`** | **`1.11.0`**（registry 已核 · 2026-09-09） |
-| **git** | tag `v1.11.0` · PR [#30](https://github.com/Cyning12/dsh-coding-kit/pull/30) 已合入 `main` |
-| **主题** | 1.x MVP F1–F5 · `.coding-kit` · F5=B · Agent bump / 人仅 publish |
-| **未做** | `@cyning/harness` 的 `npm deprecate`（仍待 `HG-EOS-DATE`） |
+| **git 包版本 / tag** | **`1.12.0` / `v1.12.0`**（Agent bump 完成 · **待人 publish**） |
+| **npm `latest`（registry）** | 人 publish 前仍为 **`1.11.0`**（2026-09-09 · PR [#30](https://github.com/Cyning12/dsh-coding-kit/pull/30)） |
+| **主题** | 1.x 收口：EOS 提案日历 · 测稳/dogfood · 本体论浅落地 · P6-prep |
+| **未做（人闸）** | ⑧ `npm publish` · `@cyning/harness` `npm deprecate`（`HG-EOS-DATE`） |
 
-> 下方 checklist 供**下一次**发版勾选；勿因 1.11.0 已完成而永久勾死（以免下次漏步）。
+### STOP · 人侧下一步（1.12.0）
+
+1. 确认远端已有 `main` + tag `v1.12.0`  
+2. 工作树干净后执行：**`npm publish`**（仅人；`prepublishOnly` 会重跑四门）  
+3. 按下方硬步骤 **⑨** 核验 registry 已切到 `1.12.0`  
+4. （可选同波）签 `HG-EOS-DATE` 后 **`npm deprecate @cyning/harness "…"`**（文案见 `MIGRATION.md`）
+
+> 下方 checklist 供勾选；本波 Agent 已完成 ①–⑦（及 bump/tag），**⑧ 仅人**。
 
 ## 硬步骤（按序执行 · 全部满足后方可 publish）
 

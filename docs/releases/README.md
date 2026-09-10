@@ -14,6 +14,7 @@
 | [03_defects_debt_ledger.md](03_defects_debt_ledger.md) | Full ledger: 27 defects line by line, 18 debts by disposition, DEF-027 hotfix story |
 | [04_engineering_method.md](04_engineering_method.md) | Method retrospective: role chain, PRD orders, test-first, declare-first, pipeline evolution |
 | [05_upgrade_guide.md](05_upgrade_guide.md) | Consumer upgrade guide by installed version, incl. `refresh-ide-blocks` walkthrough |
+| [06_1_11_to_1_12.md](06_1_11_to_1_12.md) | **1.11 → 1.12 收口短记**（D1 · 不重写本系列旧篇） |
 
 ## Version timeline
 
