@@ -33,8 +33,8 @@ init 选 IDE/宿主 → 物化落点；粘性记住选型 → update 升级刷�
 |---------------|--------|--------|
 | **HG-NEXT-211** | **approved** | 开实现 · 2026-09-10 |
 | **HG-SPEC-SIGNOFF** | **approved** | 定稿 · UPDATE-DEFAULT=**A** · 2026-09-10 |
-| **HG-AUDIT-R1** | pending（W2+）/ W1 **approved** | 各波 30 |
-| **HG-PUBLISH** | pending | publish 仅人 |
+| **HG-AUDIT-R1** | **approved**（W1–W4） | 各波已代签 |
+| **HG-PUBLISH** | **approved** | `2.1.1` · 2026-09-10 人 · `npm view`=`2.1.1` |
 
 ---
 
