@@ -2,7 +2,7 @@
 
 简体中文 | [English](README.md)
 
-**dsh-coding-kit@1.12.0** 是 DeepSeek Harness（DSH）的 **bundle 插件**，并带 **P0 闸 CLI** 与 **G1–G7 过程命令**。纪律资产仍是 ICVO（Inform · Constrain · Verify · Orchestrate）。
+**dsh-coding-kit@1.12.1** 是 DeepSeek Harness（DSH）的 **bundle 插件**，并带 **P0 闸 CLI** 与 **G1–G7 过程命令**。纪律资产仍是 ICVO（Inform · Constrain · Verify · Orchestrate）。
 
 > **加载 ≠ 注入。** 安装或加载本插件 **不会** 自动改写 system prompt。`apply()` 只注册工具。必须由你或模型调用 `apply_coding_standards` 之后，后续回合的 runtime context 才会含 `# Coding Standards`。
 
@@ -13,7 +13,7 @@
 | DSH 会话 / 模型调工具 | `dsh plugin add dsh-coding-kit` | 不要只 `npm install`（缺 bundle 层则工具不出现） |
 | Cursor / CI / 存量仓日常闸 | `npx dsh-coding-kit` | 不要把插件 `init_coding_kit` 与 CLI `init` 当成同一入口 |
 
-两条入口同一 npm 包 **`dsh-coding-kit@1.12.0`**。插件面与 CLI 面互不替代。
+两条入口同一 npm 包 **`dsh-coding-kit@1.12.1`**。插件面与 CLI 面互不替代。
 
 `peerDependencies` 中的 `@deepseek-ai/cordis` 与 `@deepseek-ai/dsh-tools` 是 **DSH 宿主插件契约**（仅宿主加载本包为插件时需要；CLI-only 不需要），已在 `peerDependenciesMeta` 标为 **optional**。
 
@@ -178,15 +178,15 @@ kit **源码仓**以 `docs/_tech_graph/` 做 `graph yaml compile|check|export` �
 
 完整清单、F4 方案 B 布局与 **已公布** EOS / deprecate 日历：见 [`MIGRATION.md`](./MIGRATION.md)。
 
-钉 **dsh-coding-kit@1.12.0** 后可去掉 `@cyning/harness`。最小路径三步（必须，按序）：
+钉 **dsh-coding-kit@1.12.1** 后可去掉 `@cyning/harness`。最小路径三步（必须，按序）：
 
-1. 把 `devDependency` `@cyning/harness` 换成 `dsh-coding-kit`（钉 `1.12.0`）。
-2. 在仓根执行 `npx dsh-coding-kit upgrade --yes`（读优先 `.coding-kit/manifest.json`，否则 legacy `.cyning-harness/manifest.json`；**写入** `.coding-kit/manifest.json`，`version` 钉 1.12.0，`from_version` 记旧号；**不删除** `.cyning-harness/`）。
+1. 把 `devDependency` `@cyning/harness` 换成 `dsh-coding-kit`（钉 `1.12.1`）。
+2. 在仓根执行 `npx dsh-coding-kit upgrade --yes`（读优先 `.coding-kit/manifest.json`，否则 legacy `.cyning-harness/manifest.json`；**写入** `.coding-kit/manifest.json`，`version` 钉 1.12.1，`from_version` 记旧号；**不删除** `.cyning-harness/`）。
 3. CI / 脚本里把 `npx @cyning/harness` 换成 `npx dsh-coding-kit`。
 
 **布局**：过程落盘现行根为 **`.coding-kit/`**；`.cyning-harness/` 为 **legacy 只读**。勿再把 `.cyning-harness` 当新标准目录。
 
-Skill 安装为 **推荐、非必须**（最小路径不依赖 DSH 扫 skill）。命令一律 `npx dsh-coding-kit`。旧包 **`@cyning/harness` 已在 npm deprecate**（2026-09-10 · 仅维护者可操作）；请钉 **`dsh-coding-kit@1.12.0`** 并按 `MIGRATION.md` 迁移。
+Skill 安装为 **推荐、非必须**（最小路径不依赖 DSH 扫 skill）。命令一律 `npx dsh-coding-kit`。旧包 **`@cyning/harness` 已在 npm deprecate**（2026-09-10 · 仅维护者可操作）；请钉 **`dsh-coding-kit@1.12.1`** 并按 `MIGRATION.md` 迁移。
 
 ### FAQ · pnpm peer
 
@@ -197,12 +197,12 @@ Skill 安装为 **推荐、非必须**（最小路径不依赖 DSH 扫 skill）�
 整段粘贴：
 
 ````text
-你 = 本仓库维护 Agent。把本仓从 @cyning/harness 迁到 dsh-coding-kit@1.12.0。
+你 = 本仓库维护 Agent。把本仓从 @cyning/harness 迁到 dsh-coding-kit@1.12.1。
 
 最小路径（必须，按序）：
-1. package.json 的 devDependency：删除 @cyning/harness，改为 dsh-coding-kit（钉 1.12.0）。
+1. package.json 的 devDependency：删除 @cyning/harness，改为 dsh-coding-kit（钉 1.12.1）。
 2. 在仓根执行：npx dsh-coding-kit upgrade --yes
-   （读 .coding-kit/manifest.json 或 legacy .cyning-harness/manifest.json；写入 .coding-kit/manifest.json；version 钉 1.12.0，from_version 记旧号；不删除 .cyning-harness/；不覆盖 docs/tasks、reviews、invokes/by-task。）
+   （读 .coding-kit/manifest.json 或 legacy .cyning-harness/manifest.json；写入 .coding-kit/manifest.json；version 钉 1.12.1，from_version 记旧号；不删除 .cyning-harness/；不覆盖 docs/tasks、reviews、invokes/by-task。）
 3. CI 与脚本里所有 npx @cyning/harness 换成 npx dsh-coding-kit。
 命令一律 npx dsh-coding-kit。禁止再写 npx @cyning/harness skills build。
 布局与 EOS 日历见 MIGRATION.md（人闸未批前不得宣称已 deprecate）。
@@ -266,7 +266,7 @@ Skills **不能**覆盖全部过程能力。Host 要嵌套 Harness 过程，须�
 
 ## 发版（维护者）
 
-**现行包（git）**：**`dsh-coding-kit@1.12.0`**（tag 就绪 · **npm `latest` 在人 publish 前仍为 `1.11.0`**）。前一发版：1.11.0 · 2026-09-09 · PR #30。
+**现行包（git）**：**`dsh-coding-kit@1.12.1`**（tag 就绪 · **npm `latest` 在人 publish 前仍为 `1.12.0`**）。前一发版：1.12.0 · 2026-09-10。
 
 发布流程见 [RELEASING.md](RELEASING.md) —— publish 前硬步骤 checklist（先 commit 后 publish · 四门全绿 · 版本钉同步 · **Agent 可 bump/tag** · **`npm publish` 仅人**；DEF-001 教训制度化）。
 

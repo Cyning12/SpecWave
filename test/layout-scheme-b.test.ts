@@ -32,7 +32,7 @@ describe('F4 layout resolve (scheme B)', () => {
       assert.equal(leg.abs, legacyLayoutJoin(dir, 'manifest.json'))
 
       await mkdir(path.join(dir, KIT_LAYOUT_DIR), { recursive: true })
-      await writeFile(path.join(dir, KIT_LAYOUT_DIR, 'manifest.json'), '{"version":"1.12.0"}\n', 'utf8')
+      await writeFile(path.join(dir, KIT_LAYOUT_DIR, 'manifest.json'), '{"version":"1.12.1"}\n', 'utf8')
       const kit = resolveLayoutFile(dir, 'manifest.json')
       assert.equal(kit.source, 'kit')
       assert.equal(kit.abs, kitLayoutJoin(dir, 'manifest.json'))

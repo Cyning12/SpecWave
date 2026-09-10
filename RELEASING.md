@@ -9,18 +9,24 @@
 
 | 项 | 值 |
 |----|-----|
-| **npm `latest`** | **`1.12.0`**（registry 已核 · 2026-09-10 · 人 publish） |
-| **git** | tag `v1.12.0` · commit `ab0ed6d` · 已推 `origin` |
-| **主题** | 1.x 收口：EOS 日历 · 测稳/dogfood · 本体论浅落地 · P6-prep |
-| **旧包** | `@cyning/harness` **已 deprecate**（同日 · `HG-EOS-DATE` · 文案钉 `dsh-coding-kit@1.12.0`） |
+| **npm `latest`** | **`1.12.0`**（registry · **直至人 publish `1.12.1`**） |
+| **git** | **preparing `1.12.1`** · tag `v1.12.1` 就绪（本波 push 后） |
+| **主题** | patch：RELEASING 清单顺序修正 + 发版后过程档回填入包；无产品行为变更 |
+| **旧包** | `@cyning/harness` **已 deprecate**（2026-09-10 · 文案仍钉 `dsh-coding-kit@1.12.0` · **未**改 registry deprecate 文案） |
 
-### 本波人侧已完成（1.12.0）
+### 本波状态（1.12.1 · 待人 publish）
+
+1. Agent：bump / 钉点 / 四门 / pack dry-run / commit / tag / push（①–⑦）  
+2. **人**：`npm publish`（⑧）→ registry `latest` → `1.12.1`  
+3. 人 publish 后：按下方 **⑨** 核验 + 更新过程档为已发布  
+
+### 前一发版人侧已完成（1.12.0）
 
 1. ~~`npm publish`~~ · registry `latest` → `1.12.0`  
 2. ~~`npm deprecate @cyning/harness "…"`~~ · deprecated 字段已回钉文案（含 `dsh-coding-kit@1.12.0`）  
 3. 过程档回填：`MIGRATION.md` · 本文件 · CHANGELOG 发布状态  
 
-> 下方 checklist 供**下一次**发版勾选；勿因 1.12.0 已完成而永久勾死。
+> 下方 checklist 供本波 / 下一次发版勾选；勿永久勾死。
 
 ## 硬步骤（按序执行 · 全部满足后方可 publish）
 
