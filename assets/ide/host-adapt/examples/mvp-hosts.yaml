@@ -1,7 +1,7 @@
 # Host-adapt 声明式适配表 · MVP 宿主（dsh / cursor / claude / agents）
 # 校验：npx dsh-coding-kit host validate [--file PATH]
-# 物化：npx dsh-coding-kit host apply --tools cursor,claude --profile core [--dry-run|--yes]
-# 刷新：npx dsh-coding-kit host update [--tools LIST] [--dry-run|--yes] [--force]
+# 物化：npx dsh-coding-kit host apply --tools cursor,claude --profile core|expanded [--dry-run|--yes]
+# 刷新：npx dsh-coding-kit host update [--tools LIST] [--profile core|expanded] [--dry-run|--yes] [--force]
 # schema：../host-adapt.schema.json
 # skills 落点矩阵：../README.md
 version: "1"
@@ -10,9 +10,13 @@ hosts:
     surfaces:
       always_on: []
       skills:
+        # 帽子六条（跳过 30/40）
         - target_dir: .dsh/skills
           from: assets/skills/*
-      # DSH：工具调用为主，commands 可空
+        # 编排五条（B-DSH-ORCH=B · /kit-* skill；上游无 .dsh/commands）
+        - target_dir: .dsh/skills
+          from: assets/ide/skills-orch/*
+      # DSH：slash 发现根 = .dsh/skills；commands 必须空
       commands: []
       verify:
         kind: cli
@@ -31,6 +35,9 @@ hosts:
         - target_dir: .cursor/commands
           from: assets/ide/commands/cursor/*
           profile: core
+        - target_dir: .cursor/commands
+          from: assets/ide/commands/cursor/*
+          profile: expanded
       verify:
         kind: cli
         bin: dsh-coding-kit
@@ -45,9 +52,12 @@ hosts:
         - target_dir: .claude/skills
           from: assets/skills/*
       commands:
-        - target_dir: .claude/commands
-          from: assets/ide/commands/claude/*
+        - target_dir: .claude/commands/kit
+          from: assets/ide/commands/claude/kit/*
           profile: core
+        - target_dir: .claude/commands/kit
+          from: assets/ide/commands/claude/kit/*
+          profile: expanded
       verify:
         kind: cli
         bin: dsh-coding-kit

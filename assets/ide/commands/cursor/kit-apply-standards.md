@@ -1,5 +1,7 @@
 ---
-description: 指导应用 coding standards（POINTER；不静默改 S2）
+name: "/kit-apply-standards"
+id: "kit-apply-standards"
+description: "指导应用 coding standards（POINTER；不静默改 S2）"
 kit_command_id: kit-apply-standards
 ---
 

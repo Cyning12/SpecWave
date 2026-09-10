@@ -4,6 +4,26 @@
 
 ## [Unreleased]
 
+## [2.1.0] - 2026-09-10
+
+> 主题：**minor** —— 多平台 **技能（Skills）+ 编排（Commands）** parity（Cursor / Claude Code / DSH）；在 2.0 F6 管道之上补发现性与 UX。
+>
+> **发布状态**：**git/tag 就绪 · 待人 npm publish**（直至人执行 ⑧，registry `latest` 仍为既有版本）。
+
+### Added
+
+- **W1 Skills parity**：`host apply --tools cursor,claude,dsh --profile core` 三方 skills 六条 harness 断言；录屏 `/h` 口径；默认仍跳过 30/40
+- **W2 Commands UX**：Claude `kit/<verb>.md` → `/kit:verb`；Cursor frontmatter `name`/`description`；旧扁平 Claude 文件迁移策略
+- **W3 DSH 编排（B-DSH-ORCH=B）**：core 编排意图写入 `.dsh/skills/kit-*`（`/` 可发现）；**不**创建 `.dsh/commands/`
+- **W4 expanded**：`--profile expanded` 物化 `kit-hat-*` 等薄壳；默认 `core` 不变；`host update` conflict / `--force` 与 2.0 一致
+
+### Docs
+
+- README 双文件「一包多宿主」补 2.1（Claude `/kit:` · DSH kit skills · `--profile expanded`）
+- 录屏清单 / `05` Demo 包钉对齐 `2.1.0`
+- 规划 / SPEC：`docs/roadmap/PLAN_2_1_skills_orchestration_v1_zh.md` · `docs/spec/2_1-skills-orchestration/`
+- F5=B 钉点随包升至 `2.1.0`
+
 ## [2.0.2] - 2026-09-10
 
 > 主题：**patch** —— README 首屏补「一包多宿主」（Cursor + Claude Code + DSH）+ 录屏对照清单；**无产品行为变更**。

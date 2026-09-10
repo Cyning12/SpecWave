@@ -1,9 +1,9 @@
 /**
  * host 子命令（2.x W1–W4）：validate + apply + update。
- * apply：always_on + commands(core) + skills（跳过 30/40）。
+ * apply：always_on + commands(core|expanded) + skills（跳过 30/40）。
  * update：刷新产品 commands/skills；conflict 默认不覆盖（`--force` 显式）。
  * U-01：契约嗅探不匹配 → exit 2 零写入。
- * 本波禁止：bump / publish / 默认分发 30/40 / onboard。
+ * 本波禁止：bump / publish / 默认分发 30/40 / onboard / kit-30 slash。
  */
 import {
   copyFileSync,
@@ -14,6 +14,7 @@ import {
   renameSync,
   rmSync,
   statSync,
+  unlinkSync,
   writeFileSync,
 } from 'node:fs'
 import path from 'node:path'
@@ -39,25 +40,79 @@ import { yamlLoad } from './yaml.ts'
 export { sniffHostContract } from './host-contract.ts'
 
 const HOST_USAGE =
-  'host validate [--file PATH] [--json]\n  host apply --tools LIST [--profile core] [--target PATH] [--file PATH] [--json] [--dry-run|--yes]\n  host update [--tools LIST] [--profile core] [--target PATH] [--file PATH] [--json] [--dry-run|--yes] [--force]'
+  'host validate [--file PATH] [--json]\n  host apply --tools LIST [--profile core|expanded] [--target PATH] [--file PATH] [--json] [--dry-run|--yes]\n  host update [--tools LIST] [--profile core|expanded] [--target PATH] [--file PATH] [--json] [--dry-run|--yes] [--force]'
 
 const APPLY_USAGE =
-  'host apply --tools cursor,claude [--profile core] [--target PATH] [--file PATH] [--json] [--dry-run|--yes]'
+  'host apply --tools cursor,claude [--profile core|expanded] [--target PATH] [--file PATH] [--json] [--dry-run|--yes]'
 
 const UPDATE_USAGE =
-  'host update [--tools LIST] [--profile core] [--target PATH] [--file PATH] [--json] [--dry-run|--yes] [--force]'
+  'host update [--tools LIST] [--profile core|expanded] [--target PATH] [--file PATH] [--json] [--dry-run|--yes] [--force]'
 
 const DEFAULT_EXAMPLE_REL = path.join('assets', 'ide', 'host-adapt', 'examples', 'mvp-hosts.yaml')
 
-const CORE_COMMAND_FILES = [
-  'kit-apply-standards.md',
-  'kit-verify.md',
-  'kit-gate-status.md',
-  'kit-init-guide.md',
-  'kit-hat-reanchor.md',
+/** core 五 verb：Cursor 扁平 kit-<verb>.md；Claude 子目录 <verb>.md */
+const CORE_COMMAND_VERBS = [
+  'verify',
+  'gate-status',
+  'init-guide',
+  'apply-standards',
+  'hat-reanchor',
 ] as const
 
-const CORE_COMMAND_SET = new Set<string>(CORE_COMMAND_FILES)
+type CoreCommandVerb = (typeof CORE_COMMAND_VERBS)[number]
+
+/**
+ * expanded stems：Cursor = kit-<stem>.md；Claude kit/ = <stem>.md → /kit:<stem>
+ * 至少五条 hat；另含 graph-check / sync-prompts-guide。禁 kit-30 / kit-publish。
+ */
+const EXPANDED_COMMAND_STEMS = [
+  'hat-00-delegate',
+  'hat-10-spec',
+  'hat-10-task',
+  'hat-20-spec-audit',
+  'hat-20-task-audit',
+  'graph-check',
+  'sync-prompts-guide',
+] as const
+
+type ExpandedCommandStem = (typeof EXPANDED_COMMAND_STEMS)[number]
+
+function parseCoreCommandBasename(base: string): CoreCommandVerb | null {
+  for (const verb of CORE_COMMAND_VERBS) {
+    if (base === `kit-${verb}.md` || base === `${verb}.md`) return verb
+  }
+  return null
+}
+
+function parseExpandedCommandBasename(base: string): ExpandedCommandStem | null {
+  for (const stem of EXPANDED_COMMAND_STEMS) {
+    if (base === `kit-${stem}.md` || base === `${stem}.md`) return stem
+  }
+  return null
+}
+
+/** expanded ⊇ core：请求 expanded 时仍物化 profile:core 条目 */
+function commandEntryApplies(entryProfile: string | undefined, requested: string): boolean {
+  if (!entryProfile) return true
+  if (entryProfile === requested) return true
+  if (requested === 'expanded' && entryProfile === 'core') return true
+  return false
+}
+
+function assertHostProfile(profile: string, cmd: 'host apply' | 'host update', usage: string): void {
+  if (profile !== 'core' && profile !== 'expanded') {
+    fail(`${cmd} 仅支持 --profile core|expanded（收到: ${profile}）\n用法: ${usage}`)
+  }
+}
+
+/** 旧 Claude 扁平落点（2.0）：.claude/commands/kit-<verb>.md */
+function legacyClaudeFlatCommandRels(): string[] {
+  return CORE_COMMAND_VERBS.map((v) => `.claude/commands/kit-${v}.md`)
+}
+
+function findLegacyClaudeFlatCommands(target: string): string[] {
+  return legacyClaudeFlatCommandRels().filter((rel) => existsSync(path.join(target, rel)))
+}
 
 const PRODUCT_BEGIN = '<!-- cyning-harness:begin -->'
 const PRODUCT_END = '<!-- cyning-harness:end -->'
@@ -358,6 +413,8 @@ type HostWriteReport = {
   written: string[]
   skipped: string[]
   conflict: string[]
+  /** 旧 Claude 扁平 kit-*.md 将删/已删（备份后清除，禁新旧双份） */
+  removed: string[]
   backup: string | null
   contract?: HostContractResult
   ok: boolean
@@ -543,11 +600,14 @@ function printHostHuman(report: HostWriteReport): void {
   const banner = hostBanner(report.command)
   console.log(`${banner}: ${report.mode}`)
   console.log(`hosts: ${report.hosts.join(', ')}`)
-  const sections: Array<['planned' | 'written' | 'skipped' | 'conflict', string[]]> = [
+  const sections: Array<
+    ['planned' | 'written' | 'skipped' | 'conflict' | 'removed', string[]]
+  > = [
     ['planned', report.planned],
     ['written', report.written],
     ['skipped', report.skipped],
     ['conflict', report.conflict],
+    ['removed', report.removed],
   ]
   for (const [label, items] of sections) {
     console.log(`${label} (${items.length}):`)
@@ -607,6 +667,7 @@ function emitU01Degraded(
       written: [],
       skipped: [],
       conflict: [],
+      removed: [],
       backup: null,
       contract,
     },
@@ -614,21 +675,34 @@ function emitU01Degraded(
   )
 }
 
+function ensureBackupGen(
+  target: string,
+  family: BackupFamily,
+  genDir: string | null,
+): { genDir: string; backup: string } {
+  if (genDir) return { genDir, backup: toRel(target, genDir) }
+  const ts = new Date().toISOString().replace(/[:.]/g, '-')
+  const next = path.join(backupsRoot(target, family), ts)
+  mkdirSync(next, { recursive: true })
+  return { genDir: next, backup: toRel(target, next) }
+}
+
 function commitPlannedWrites(
   target: string,
   items: PlannedItem[],
   family: BackupFamily,
-): { written: string[]; backup: string | null } {
+  legacyRemoveRels: string[] = [],
+): { written: string[]; removed: string[]; backup: string | null } {
   const toWrite = items.filter((i) => i.op === 'write' || i.op === 'merge')
   for (const item of toWrite) assertNotS2Abs(item.destAbs)
-  const needBackup = toWrite.filter((i) => existsSync(i.destAbs))
+  const needBackup =
+    toWrite.some((i) => existsSync(i.destAbs)) || legacyRemoveRels.length > 0
   let backup: string | null = null
   let genDir: string | null = null
-  if (needBackup.length > 0) {
-    const ts = new Date().toISOString().replace(/[:.]/g, '-')
-    genDir = path.join(backupsRoot(target, family), ts)
-    mkdirSync(genDir, { recursive: true })
-    backup = toRel(target, genDir)
+  if (needBackup) {
+    const ensured = ensureBackupGen(target, family, null)
+    genDir = ensured.genDir
+    backup = ensured.backup
   }
   const written: string[] = []
   for (const item of toWrite) {
@@ -636,8 +710,21 @@ function commitPlannedWrites(
     atomicWrite(item.destAbs, item.nextText)
     written.push(item.destRel)
   }
-  if (needBackup.length > 0) pruneBackups(target, family)
-  return { written, backup }
+  const removed: string[] = []
+  for (const rel of legacyRemoveRels) {
+    const abs = path.join(target, rel)
+    if (!existsSync(abs)) continue
+    if (!genDir) {
+      const ensured = ensureBackupGen(target, family, genDir)
+      genDir = ensured.genDir
+      backup = ensured.backup
+    }
+    backupFile(target, genDir, rel)
+    unlinkSync(abs)
+    removed.push(rel)
+  }
+  if (needBackup || removed.length > 0) pruneBackups(target, family)
+  return { written, removed, backup }
 }
 
 function planApply(opts: {
@@ -778,17 +865,40 @@ function planApply(opts: {
     }
 
     for (const entry of row.surfaces.commands) {
-      if (entry.profile && entry.profile !== opts.profile) continue
-      const matched = expandFromGlob(entry.from, opts.pkgRoot).filter((rel) =>
-        CORE_COMMAND_SET.has(path.basename(rel)),
-      )
-      const have = new Set(matched.map((rel) => path.basename(rel)))
-      const missing = CORE_COMMAND_FILES.filter((n) => !have.has(n))
-      if (missing.length > 0) {
-        fail(
-          `host apply 缺 core 命令资产（from=${entry.from}）: ${missing.join(', ')}`,
-          2,
+      if (!commandEntryApplies(entry.profile, opts.profile)) continue
+      const band: 'core' | 'expanded' = entry.profile === 'expanded' ? 'expanded' : 'core'
+      const matched = expandFromGlob(entry.from, opts.pkgRoot).filter((rel) => {
+        const base = path.basename(rel)
+        return band === 'core'
+          ? parseCoreCommandBasename(base) !== null
+          : parseExpandedCommandBasename(base) !== null
+      })
+      if (band === 'core') {
+        const have = new Set(
+          matched
+            .map((rel) => parseCoreCommandBasename(path.basename(rel)))
+            .filter((v): v is CoreCommandVerb => v !== null),
         )
+        const missing = CORE_COMMAND_VERBS.filter((v) => !have.has(v))
+        if (missing.length > 0) {
+          fail(
+            `host apply 缺 core 命令资产（from=${entry.from}）: ${missing.map((v) => `${v}.md|kit-${v}.md`).join(', ')}`,
+            2,
+          )
+        }
+      } else {
+        const have = new Set(
+          matched
+            .map((rel) => parseExpandedCommandBasename(path.basename(rel)))
+            .filter((v): v is ExpandedCommandStem => v !== null),
+        )
+        const missing = EXPANDED_COMMAND_STEMS.filter((v) => !have.has(v))
+        if (missing.length > 0) {
+          fail(
+            `host apply 缺 expanded 命令资产（from=${entry.from}）: ${missing.map((v) => `${v}.md|kit-${v}.md`).join(', ')}`,
+            2,
+          )
+        }
       }
       for (const sourceRelRaw of matched) {
         const sourceRel = normalizeSlashPath(sourceRelRaw)
@@ -866,9 +976,7 @@ async function cmdHostApply(args: string[]): Promise<void> {
   if (toolIds.length < 1) fail(`host apply 须 --tools LIST（逗号分隔 host_id）\n用法: ${APPLY_USAGE}`)
 
   const profile = profileArg ?? 'core'
-  if (profile !== 'core') {
-    fail(`host apply 本波仅支持 --profile core（收到: ${profile}）\n用法: ${APPLY_USAGE}`)
-  }
+  assertHostProfile(profile, 'host apply', APPLY_USAGE)
 
   const target = resolveTarget(process.cwd(), targetArg)
   if (!existsSync(target) || !statSync(target).isDirectory()) {
@@ -887,6 +995,7 @@ async function cmdHostApply(args: string[]): Promise<void> {
     written: [] as string[],
     skipped: [] as string[],
     conflict: [] as string[],
+    removed: [] as string[],
     backup: null as string | null,
   }
 
@@ -947,12 +1056,16 @@ async function cmdHostApply(args: string[]): Promise<void> {
   const planned = items.filter((i) => i.op === 'write' || i.op === 'merge').map((i) => i.destRel)
   const skipped = items.filter((i) => i.op === 'skip_identical').map((i) => i.destRel)
   const conflict = items.filter((i) => i.op === 'conflict').map((i) => i.destRel)
+  // Claude 在工具列表时：清除旧扁平 kit-*.md，禁止与 kit/<verb>.md 双份并存
+  const legacyRemove = toolIds.includes('claude') ? findLegacyClaudeFlatCommands(target) : []
 
   let written: string[] = []
+  let removed: string[] = []
   let backup: string | null = null
   if (yes) {
-    const committed = commitPlannedWrites(target, items, 'host-apply')
+    const committed = commitPlannedWrites(target, items, 'host-apply', legacyRemove)
     written = committed.written
+    removed = committed.removed
     backup = committed.backup
   }
 
@@ -964,6 +1077,7 @@ async function cmdHostApply(args: string[]): Promise<void> {
     written: yes ? written : [],
     skipped,
     conflict,
+    removed: yes ? removed : legacyRemove,
     backup,
     contract,
     ok: true,
@@ -1017,9 +1131,7 @@ async function cmdHostUpdate(args: string[]): Promise<void> {
   if (rest.length > 0) fail(`host update 未知参数: ${rest.join(' ')}\n用法: ${UPDATE_USAGE}`)
 
   const profile = profileArg ?? 'core'
-  if (profile !== 'core') {
-    fail(`host update 本波仅支持 --profile core（收到: ${profile}）\n用法: ${UPDATE_USAGE}`)
-  }
+  assertHostProfile(profile, 'host update', UPDATE_USAGE)
 
   const target = resolveTarget(process.cwd(), targetArg)
   if (!existsSync(target) || !statSync(target).isDirectory()) {
@@ -1038,6 +1150,7 @@ async function cmdHostUpdate(args: string[]): Promise<void> {
     written: [] as string[],
     skipped: [] as string[],
     conflict: [] as string[],
+    removed: [] as string[],
     backup: null as string | null,
   }
 
@@ -1115,12 +1228,15 @@ async function cmdHostUpdate(args: string[]): Promise<void> {
   const planned = items.filter((i) => i.op === 'write' || i.op === 'merge').map((i) => i.destRel)
   const skipped = items.filter((i) => i.op === 'skip_identical').map((i) => i.destRel)
   const conflict = items.filter((i) => i.op === 'conflict').map((i) => i.destRel)
+  const legacyRemove = toolIds.includes('claude') ? findLegacyClaudeFlatCommands(target) : []
 
   let written: string[] = []
+  let removed: string[] = []
   let backup: string | null = null
   if (yes) {
-    const committed = commitPlannedWrites(target, items, 'host-update')
+    const committed = commitPlannedWrites(target, items, 'host-update', legacyRemove)
     written = committed.written
+    removed = committed.removed
     backup = committed.backup
   }
 
@@ -1132,6 +1248,7 @@ async function cmdHostUpdate(args: string[]): Promise<void> {
     written: yes ? written : [],
     skipped,
     conflict,
+    removed: yes ? removed : legacyRemove,
     backup,
     contract,
     ok: true,

@@ -83,6 +83,7 @@ describe('2.x W2 host apply', { concurrency: 1 }, () => {
       assert.deepEqual(parsed.written, [])
       const planned = parsed.planned.join('\n')
       assert.match(planned, /\.cursor\/commands\/kit-verify\.md/)
+      assert.match(planned, /\.claude\/commands\/kit\/verify\.md/)
       assert.match(planned, /CLAUDE\.md/)
       assert.match(planned, /\.cursor\/rules\//)
       assert.deepEqual(listRelFiles(dir), [])
@@ -108,10 +109,15 @@ describe('2.x W2 host apply', { concurrency: 1 }, () => {
       assert.equal(parsed.mode, 'apply')
       assert.equal(parsed.ok, true)
       assert.equal(existsSync(path.join(dir, '.cursor', 'commands', 'kit-verify.md')), true)
-      assert.equal(existsSync(path.join(dir, '.claude', 'commands', 'kit-verify.md')), true)
+      assert.equal(existsSync(path.join(dir, '.claude', 'commands', 'kit', 'verify.md')), true)
+      assert.equal(existsSync(path.join(dir, '.claude', 'commands', 'kit-verify.md')), false)
       assert.equal(existsSync(path.join(dir, 'CLAUDE.md')), true)
       assert.equal(existsSync(path.join(dir, '.cursor', 'rules', '05-kit-starter.mdc')), true)
       assert.ok(parsed.written.includes('.cursor/commands/kit-verify.md'), JSON.stringify(parsed.written))
+      assert.ok(
+        parsed.written.includes('.claude/commands/kit/verify.md'),
+        JSON.stringify(parsed.written),
+      )
     })
   })
 

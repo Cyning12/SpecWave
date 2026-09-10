@@ -1,5 +1,7 @@
 ---
-description: 扫人工闸与 status（声称与闸表冲突则 STOP）
+name: "/kit-gate-status"
+id: "kit-gate-status"
+description: "扫人工闸与 status（声称与闸表冲突则 STOP）"
 kit_command_id: kit-gate-status
 ---
 

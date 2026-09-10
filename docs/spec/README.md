@@ -9,6 +9,7 @@
 | `1x-mvp` | [`1x-mvp/`](./1x-mvp/) | **signed** · **1.11.0 published** · 三方验收通过 | 1.x MVP F1–F5；下一版见 [`1x-closeout/`](./1x-closeout/) |
 | `1x-closeout` | [`1x-closeout/`](./1x-closeout/) | **signed** · **CLOSED**（`1.12.0`+`1.12.1`）· `@cyning/harness` deprecated | 1.x 收口完成；审计见 [`../roadmap/AUDIT_1x_residual_after_1_12_1_zh.md`](../roadmap/AUDIT_1x_residual_after_1_12_1_zh.md) |
 | `2x-host-adapt` | [`2x-host-adapt/`](./2x-host-adapt/) | **signed** · **IMPLEMENTED** · **`2.0.0` published** · 归档 [`../roadmap/ACCEPTANCE_2x_host_adapt_2_0_0_zh.md`](../roadmap/ACCEPTANCE_2x_host_adapt_2_0_0_zh.md) | F6：四类落点 + commands；规划 [`../roadmap/PLAN_2x_host_adapt_v1_zh.md`](../roadmap/PLAN_2x_host_adapt_v1_zh.md) |
+| `2_1-skills-orchestration` | [`2_1-skills-orchestration/`](./2_1-skills-orchestration/) | **signed** · **HG-NEXT-21** / **HG-SPEC-SIGNOFF=approved** · 实现中 W1–W5 | 2.1：多平台技能发现 + 编排 UX/等价面；规划 [`../roadmap/PLAN_2_1_skills_orchestration_v1_zh.md`](../roadmap/PLAN_2_1_skills_orchestration_v1_zh.md) |
 | `doc-health` | [`doc-health/`](./doc-health/) | draft · HG-SPEC-SIGNOFF=pending | 文档健康度 + CLOSE 强绑定 · 试点 ops-desk-api |
 | `self-tech-graph` | [`self-tech-graph/`](./self-tech-graph/) | **signed** · **W0–W4 CLOSE** · **已发 1.9.1**（npm `latest` · tag `v1.9.1`） | kit 自身三层技术图谱 + 外置三树迁留 · 读序见 [`self-tech-graph/README.md`](./self-tech-graph/README.md) |
 

@@ -12,7 +12,7 @@
 
 ## 一句话
 
-1.x 内部一致性与收口已完成；**F6 @2.0.0 已发版**；现行 git 准备 **`2.0.1`** docs patch（过程档回填）；下一可选主线 2.0.x / 2.1。
+1.x 内部一致性与收口已完成；**F6 @2.0.0 已发版**；docs patch 至 **`2.0.2`**；下一主线 **2.1 多平台技能+编排**（见下表）。
 
 ---
 
@@ -22,8 +22,9 @@
 |------|------|
 | **1.12.x** | 1.x **CLOSED**（含 patch `1.12.1` docs） |
 | **2.0.0** | F6 宿主适配表落地（major）· **published** |
-| **2.0.1** | patch：publish 后过程档归档回填（无产品行为变更） |
-| **2.0.x / 2.1** | 可选：更多宿主、workspaces 观察项、ontology-check CLI（另 SPEC） |
+| **2.0.1–2.0.2** | patch：过程档 / 多宿主 README·录屏（无管道行为变更） |
+| **2.1.0** | **主线**：多平台技能发现 + 编排 UX/等价面 · [`PLAN_2_1_skills_orchestration_v1_zh.md`](./PLAN_2_1_skills_orchestration_v1_zh.md)（`draft` · 闸 pending） |
+| **2.1.x+** | 观察：workspaces · ontology-check CLI · onboard（另 SPEC） |
 
 ---
 
@@ -101,3 +102,4 @@
 | 2026-09-10 | W4 **DONE**（DSH 行 + U-01 · 40 CLOSE） |
 | 2026-09-10 | W5 **DONE**（git/tag `v2.0.0` · 40 CLOSE）· **HG-PUBLISH pending** |
 | 2026-09-10 | **HG-PUBLISH=approved** · `latest=2.0.0`；立档 `ACCEPTANCE_2x_host_adapt_2_0_0_zh.md`；开 `2.0.1` docs patch |
+| 2026-09-10 | 下一主线钉 **2.1**：[`PLAN_2_1_skills_orchestration_v1_zh.md`](./PLAN_2_1_skills_orchestration_v1_zh.md)（技能+编排 · 闸 pending） |

@@ -1,5 +1,7 @@
 ---
-description: 分清插件 init_coding_kit 与 CLI init（双入口不合并）
+name: "/kit-init-guide"
+id: "kit-init-guide"
+description: "分清插件 init_coding_kit 与 CLI init（双入口不合并）"
 kit_command_id: kit-init-guide
 ---
 

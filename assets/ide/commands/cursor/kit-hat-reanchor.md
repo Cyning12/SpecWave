@@ -1,5 +1,7 @@
 ---
-description: 长对话丢帽时重锚（不替代 30 授权）
+name: "/kit-hat-reanchor"
+id: "kit-hat-reanchor"
+description: "长对话丢帽时重锚（不替代 30 授权）"
 kit_command_id: kit-hat-reanchor
 ---
 
