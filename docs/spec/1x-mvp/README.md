@@ -137,7 +137,7 @@ docs/spec/1x-mvp/
 | 3 | F5 钉点模式 A vs B | **B**（2026-09-09）→ 只钉 ontology/discipline/README；仓根 SPEC = 历史 epic |
 | 4 | F2 分层强制粒度 | **默认文档-only**（1.x 不引入云/远程四层引擎；若 task 需代码分层再开补充闸） |
 
-**residual_risks**：EOS 日历空（旧包 deprecate 未执行）；本体论深化实践仍属后续。
+**residual_risks**：EOS 日历空（旧包 deprecate 未执行）；本体论深化 / F6 见 [`docs/roadmap/PLAN_post_1.11_zh.md`](../../roadmap/PLAN_post_1.11_zh.md)。
 
 ---
 
@@ -170,4 +170,4 @@ docs/spec/1x-mvp/
 
 ## 给 Cursor / 下一棒
 
-`1x-mvp` W1–W4 **DONE** · **1.11.0 published**；残余 **`HG-EOS-DATE`**（旧包 deprecate）；下一发版仍走 RELEASING（Agent bump · 人 publish）
+`1x-mvp` W1–W4 **DONE** · **1.11.0 published** · 三方验收通过；下一棒见 [`docs/roadmap/PLAN_post_1.11_zh.md`](../../roadmap/PLAN_post_1.11_zh.md)（建议 **1.12 收口 → 2.0 F6**）；残余 **`HG-EOS-DATE`**
