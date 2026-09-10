@@ -8,7 +8,7 @@
 
 > 主题：**minor** —— 多平台 **技能（Skills）+ 编排（Commands）** parity（Cursor / Claude Code / DSH）；在 2.0 F6 管道之上补发现性与 UX。
 >
-> **发布状态**：**git/tag 就绪 · 待人 npm publish**（直至人执行 ⑧，registry `latest` 仍为既有版本）。
+> **发布状态**：**已 npm 发版**（`latest=2.1.0` · 2026-09-10 人执行 publish · tag `v2.1.0`）。
 
 ### Added
 
@@ -23,12 +23,13 @@
 - 录屏清单 / `05` Demo 包钉对齐 `2.1.0`
 - 规划 / SPEC：`docs/roadmap/PLAN_2_1_skills_orchestration_v1_zh.md` · `docs/spec/2_1-skills-orchestration/`
 - F5=B 钉点随包升至 `2.1.0`
+- （publish 后）过程档确认 registry `latest=2.1.0`；验收 [`docs/roadmap/ACCEPTANCE_2_1_skills_orch_2_1_0_zh.md`](docs/roadmap/ACCEPTANCE_2_1_skills_orch_2_1_0_zh.md)
 
 ## [2.0.2] - 2026-09-10
 
 > 主题：**patch** —— README 首屏补「一包多宿主」（Cursor + Claude Code + DSH）+ 录屏对照清单；**无产品行为变更**。
 >
-> **发布状态**：**git/tag 就绪 · 待人 npm publish**（直至人执行 ⑧，registry `latest` 仍为 `2.0.1`）。
+> **发布状态**：**已 npm 发版**（`latest=2.0.2` · 2026-09-10 人执行 publish · tag `v2.0.2`）。
 
 ### Docs
 

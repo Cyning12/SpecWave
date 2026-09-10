@@ -1,12 +1,13 @@
 # 2.1 · 多平台技能 + 编排 · SPEC 系列
 
-> **状态**：`signed`（**HG-SPEC-SIGNOFF=approved** · 2026-09-10 · 维护者「签收」）  
+> **状态**：`signed` · **IMPLEMENTED** · **`2.1.0` published**（**HG-PUBLISH=approved** · 2026-09-10 · 人）  
 > **spec_slug**：`2_1-skills-orchestration`  
-> **目标包**：`dsh-coding-kit@2.1.0`  
-> **上游规划**：[`PLAN_2_1_skills_orchestration_v1_zh.md`](../../roadmap/PLAN_2_1_skills_orchestration_v1_zh.md)（**signed**）  
+> **目标包**：`dsh-coding-kit@2.1.0`（npm `latest` · tag `v2.1.0`）  
+> **上游规划**：[`PLAN_2_1_skills_orchestration_v1_zh.md`](../../roadmap/PLAN_2_1_skills_orchestration_v1_zh.md)（**signed** · W0–W5 **DONE**）  
+> **验收归档**：[`../../roadmap/ACCEPTANCE_2_1_skills_orch_2_1_0_zh.md`](../../roadmap/ACCEPTANCE_2_1_skills_orch_2_1_0_zh.md)  
 > **基线**：[`2x-host-adapt`](../2x-host-adapt/) @ `2.0.0` **IMPLEMENTED**  
 > **Open Folder**：`dsh-coding-kit/`  
-> **实现**：W1–W5 各须 `HG-AUDIT-R1`；**禁止** Agent `npm publish`
+> **实现**：W1–W5 **DONE**（commit `6d66484` · tag `v2.1.0` · **npm published**）
 
 ---
 
@@ -25,7 +26,7 @@
 5. [`03_host_ux_mapping_v1.md`](./03_host_ux_mapping_v1.md)  
 6. [`04_waves_and_acceptance_v1.md`](./04_waves_and_acceptance_v1.md)  
 7. [`05_demo_narrative_v1.md`](./05_demo_narrative_v1.md)（对外宣讲双轴流程）  
-8. Task：`docs/tasks/active/task_2_1_skills_orch_w0_planning.md`
+8. Tasks：`docs/tasks/done/task_2_1_skills_orch_w*.md`
 
 ---
 
@@ -35,8 +36,8 @@
 |---------------|--------|--------|
 | **HG-NEXT-21** | **approved**（2026-09-10） | ~~开 W1+ 实现~~ |
 | **HG-SPEC-SIGNOFF** | **approved**（2026-09-10） | ~~本系列定稿~~ |
-| **HG-AUDIT-R1** | pending | 各波 30 |
-| **HG-PUBLISH** | pending | `2.1.0` publish（仅人） |
+| **HG-AUDIT-R1** | **approved**（W1–W5） | ~~各波 30~~ |
+| **HG-PUBLISH** | **approved**（2026-09-10 · 人） | ~~`2.1.0` publish~~ |
 
 ---
 
@@ -58,3 +59,4 @@
 | 2026-09-10 | draft 立档 |
 | 2026-09-10 | B-DSH-ORCH=B 上游对齐；增 05 Demo 叙事 |
 | 2026-09-10 | **signed** · HG-NEXT-21 / HG-SPEC-SIGNOFF=approved |
+| 2026-09-10 | **published** · HG-PUBLISH=approved · `latest=2.1.0` |

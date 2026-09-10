@@ -113,3 +113,4 @@ DEPRECATED: use dsh-coding-kit instead. See https://github.com/Cyning12/dsh-codi
 | 2026-09-10 | **拟发 `1.12.1`**：docs patch（RELEASING 顺序 + 过程档回填入包）；publish 后消费者可钉 `1.12.1`；deprecate registry 文案仍为 `1.12.0` |
 | 2026-09-10 | **`1.12.1` published**（npm `latest`）；1.x CLOSED；下一主线 2.0 F6 规划 |
 | 2026-09-10 | **`2.0.0` published**（F6 宿主适配）；归档 `ACCEPTANCE_2x_host_adapt_2_0_0_zh.md`；拟发 `2.0.1` docs patch |
+| 2026-09-10 | **`2.1.0` published**（多平台技能+编排）；归档 `ACCEPTANCE_2_1_skills_orch_2_1_0_zh.md`；消费者钉 `dsh-coding-kit@2.1.0` |

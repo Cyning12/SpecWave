@@ -1,6 +1,6 @@
 # 规划 · 2.1 · 多平台技能 + 编排
 
-> **状态**：`signed`（**HG-NEXT-21** / **HG-SPEC-SIGNOFF=approved** · 2026-09-10 · 维护者「签收」）  
+> **状态**：`signed` · **CLOSED**（**HG-PUBLISH=approved** · `2.1.0` published · 2026-09-10）  
 > **目标发版**：`dsh-coding-kit@2.1.0`（minor · 在 `2.0.x` 之上）  
 > **基线**：`2.0.0` F6 host-adapt **published** · 现行 docs 钉至 `2.0.2`  
 > **系列 SPEC**：[`docs/spec/2_1-skills-orchestration/`](../spec/2_1-skills-orchestration/)（`draft`）  
@@ -71,7 +71,7 @@
 | **W2** | Commands UX：Claude `/kit:` · Cursor frontmatter · `host apply/update` | `HG-AUDIT-R1` | **DONE** |
 | **W3** | DSH：core 编排 → `.dsh/skills`（B 已冻结）+ `/name` dogfood + 测 | `HG-AUDIT-R1` | **DONE** |
 | **W4** | `profile=expanded`（kit-hat-* 等）+ conflict/`update` | `HG-AUDIT-R1` | **DONE** |
-| **W5** | dogfood（Cursor+Claude+DSH）· CHANGELOG · bump **2.1.0** | **`HG-PUBLISH`**（仅人） | **DONE（git/tag）** · publish pending |
+| **W5** | dogfood（Cursor+Claude+DSH）· CHANGELOG · bump **2.1.0** | **`HG-PUBLISH`**（仅人） | **DONE**（git/tag + **npm published**） |
 
 ---
 
@@ -91,8 +91,8 @@
 |---------------|--------|--------|
 | **HG-NEXT-21** | **approved**（2026-09-10 · 维护者「签收」） | ~~开 2.1 实现主线（W1+）~~ |
 | **HG-SPEC-SIGNOFF** | **approved**（同上） | ~~`2_1-skills-orchestration` 定稿~~ |
-| **HG-AUDIT-R1** | pending（各波） | 各实现 30 |
-| **HG-PUBLISH** | pending | `2.1.0` npm publish（仅人） |
+| **HG-AUDIT-R1** | **approved**（W1–W5） | ~~各实现 30~~ |
+| **HG-PUBLISH** | **approved**（2026-09-10 · 人 publish · `latest=2.1.0`） | ~~`2.1.0` npm publish~~ |
 
 `pending` → `approved` **仅人**（各波 R1 / publish）；系列闸已签收。
 
@@ -135,3 +135,5 @@ npx dsh-coding-kit@2.1.0 host apply --tools cursor,claude,dsh --profile core --y
 | 2026-09-10 | **W2 DONE**（Claude `kit/<verb>` + Cursor frontmatter + 扁平迁移）· 开 W3 |
 | 2026-09-10 | **W3 DONE**（DSH `.dsh/skills/kit-*` · 禁 `.dsh/commands`）· 开 W4 |
 | 2026-09-10 | **W4 DONE**（expanded kit-hat-*）· 开 W5 bump 2.1.0（禁 Agent publish） |
+| 2026-09-10 | **W5 DONE（git/tag）** · `6d66484` · `v2.1.0` · **HG-PUBLISH pending** |
+| 2026-09-10 | **HG-PUBLISH=approved** · `latest=2.1.0`；立档 `ACCEPTANCE_2_1_skills_orch_2_1_0_zh.md` |

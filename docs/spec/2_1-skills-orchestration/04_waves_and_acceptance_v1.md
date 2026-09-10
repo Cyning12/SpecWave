@@ -42,8 +42,8 @@
 ### W5 · 发版
 
 - [x] 更新录屏清单 · README「一包多宿主」2.1 段  
-- [x] CHANGELOG · bump `2.1.0` · 四门绿 · tag `v2.1.0`  
-- [ ] **`HG-PUBLISH`** 仅人 · `npm view` = `2.1.0`
+- [x] CHANGELOG · bump `2.1.0` · 四门绿 · tag `v2.1.0`（commit `6d66484`）  
+- [x] **`HG-PUBLISH`** 仅人 · `npm view` = `2.1.0`（2026-09-10 · approved）
 
 ---
 
@@ -69,3 +69,4 @@
 | 2026-09-10 | W3：`.dsh/skills/kit-*` 编排 + 禁 `.dsh/commands`（R1 闸行待 00） |
 | 2026-09-10 | W4：`--profile expanded` kit-hat-* + conflict/force（R1 闸行待 00） |
 | 2026-09-10 | W5：文档/CHANGELOG/bump/tag 勾选；`HG-PUBLISH` 仍 pending（仅人） |
+| 2026-09-10 | W5：`HG-PUBLISH=approved` · `npm view`=`2.1.0` |

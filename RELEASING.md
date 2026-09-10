@@ -9,18 +9,19 @@
 
 | 项 | 值 |
 |----|-----|
-| **npm `latest`** | **既有 registry**（直至人 publish **`2.1.0`**；Agent 禁 publish） |
-| **git** | preparing **`2.1.0`** · tag `v2.1.0` 就绪 · **待人 `git push --follow-tags` + `npm publish`** |
+| **npm `latest`** | **`2.1.0`**（2026-09-10 · 人 publish） |
+| **git** | tag **`v2.1.0`** · commit `6d66484` |
 | **主题** | minor：多平台 Skills + Commands parity（Claude `/kit:` · DSH kit skills · `--profile expanded`） |
-| **前一发版** | **`2.0.2`** git/tag 就绪（多宿主 README patch；publish 状态以 registry 为准） |
+| **前一发版** | **`2.0.2`**（多宿主 README patch · 已 published） |
 | **旧包** | `@cyning/harness` **已 deprecate**（2026-09-10 · registry 文案仍钉 `dsh-coding-kit@1.12.0`） |
 | **1.x** | **CLOSED**（见 `docs/roadmap/AUDIT_1x_residual_after_1_12_1_zh.md`） |
 | **下一主线** | **2.1.x+**（workspaces / onboard 等观察项；另闸） |
+| **验收** | [`docs/roadmap/ACCEPTANCE_2_1_skills_orch_2_1_0_zh.md`](docs/roadmap/ACCEPTANCE_2_1_skills_orch_2_1_0_zh.md) |
 
 ### 前一发版（2.0.x）
 
-1. `2.0.0` / `2.0.1` 已 npm 发版（人 · 2026-09-10）  
-2. `2.0.2` 多宿主 README 叙事（git/tag）；本 checklist 供 **`2.1.0`** 勾选
+1. `2.0.0` / `2.0.1` / `2.0.2` 已 npm 发版（人 · 2026-09-10）  
+2. `2.1.0` 多平台技能+编排（本 checklist ⑨ 已核 `npm view`=`2.1.0`）
 
 > 下方 checklist 供下一次发版勾选；勿永久勾死。
 
