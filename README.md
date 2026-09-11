@@ -316,7 +316,7 @@ Three surfaces, not interchangeable: **System/Re-anchor** = short identity; **fu
 
 ## Releasing (maintainers)
 
-**Current package**: **`spec-wave@2.1.3`** — **preparing publish** (human: `git tag v2.1.3` · `npm publish`). Prior published: **`2.1.2`** (rename closeout · see CHANGELOG).
+**Current package**: **`spec-wave@2.1.3`** — **published** (`latest` · tag `v2.1.3`). Prior: **`2.1.2`** (rename closeout).
 
 Release process: see [RELEASING.md](RELEASING.md) — hard pre-publish checklist (commit-before-publish · four green gates · version pins · Agent may bump/tag · **human-only `npm publish`**; institutionalizes the DEF-001 lesson).
 

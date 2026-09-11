@@ -10,17 +10,16 @@
 
 | 项 | 值 |
 |----|-----|
-| **工作树（准备中）** | **`spec-wave@2.1.3`**（**未 published** · 改名收口残余修复 · 待人 publish） |
-| **registry `latest`（仍）** | **`spec-wave@2.1.2`**（**已 published** · 2026-09-10 · 人 · tag **`v2.1.2`**） |
-| **前一 latest** | **`spec-wave@2.1.1`**（改名半完成史实） |
+| **工作树 / registry `latest`** | **`spec-wave@2.1.3`**（**已 published** · 2026-09-11 · 人 · tag **`v2.1.3`** ↔ 同 commit） |
+| **前一 latest** | **`spec-wave@2.1.2`**（改名收口） |
 | **旧包名** | **`dsh-coding-kit`** · **已 deprecate**（文案 → `spec-wave`） |
-| **git（史实 · 2.1.1）** | tag **`v2.1.1`** · 改名前身份；**已用 `v2.1.2` 重建可溯源点**；本轮再发 **`v2.1.3`**（**禁止** `git tag -f`） |
-| **主题（准备中 · 2.1.3）** | README/断言收尾 · 发布溯源测（tag↔package.json） |
+| **git（史实 · 2.1.1）** | tag **`v2.1.1`** · 改名前身份；**`v2.1.2` / `v2.1.3`** 为 SpecWave 身份可溯源点（**禁止** `git tag -f`） |
+| **主题（已发 · 2.1.3）** | README/断言收尾 · 发布溯源测（tag↔package.json） |
 | **主题（已发 · 2.1.2）** | SpecWave 改名收口 |
 | **前一发版** | **`2.1.2`** · **`2.1.1`** · **`2.1.0`** |
 | **更早旧包** | `@cyning/harness` **已 deprecate**（文案指 **`spec-wave`**） |
 | **1.x** | **CLOSED** |
-| **下一主线** | **人 publish `2.1.3`** → 其后 2.1.x+ / 2.2 |
+| **下一主线** | **2.1.x+ / 2.2**（workspaces / onboard 等观察项；另闸） |
 | **验收（2.1.2）** | [`docs/roadmap/ACCEPTANCE_2_1_2_rename_closeout_2_1_2_zh.md`](docs/roadmap/ACCEPTANCE_2_1_2_rename_closeout_2_1_2_zh.md) · **CLOSED** |
 | **验收（2.1.1 UX）** | [`docs/roadmap/ACCEPTANCE_2_1_1_host_tools_ux_2_1_1_zh.md`](docs/roadmap/ACCEPTANCE_2_1_1_host_tools_ux_2_1_1_zh.md) |
 | **规划 / SPEC（2.1.2）** | [`docs/roadmap/PLAN_2_1_2_rename_closeout_v1_zh.md`](docs/roadmap/PLAN_2_1_2_rename_closeout_v1_zh.md) · [`docs/spec/2_1_2-rename-closeout/`](docs/spec/2_1_2-rename-closeout/) |
@@ -31,7 +30,7 @@
 2. `2.1.0` 多平台技能+编排（registry 曾为 `latest=2.1.0`）  
 3. `2.1.1` host tools UX（checklist ⑨ 已核 · registry **仍** `latest=2.1.1` 直至 `2.1.2` publish）
 
-> 下方通用硬步骤供勾选；本轮以 **2.1.3** 为目标版本。
+> 下方通用硬步骤供勾选；下一发版另开版本号。
 
 ## 硬步骤（按序执行 · 全部满足后方可 publish）
 
@@ -45,13 +44,13 @@
 - [ ] **⑧ npm publish（仅人）**：`npm publish`（`prepublishOnly` 会自动重跑②四门；⑦已核对清单）。**Agent 不得执行本步。**
 - [ ] **⑨ publish 后核验 + 过程档状态更新**：`npm view spec-wave version`（及 `dist-tags`）确认新版本已生效；抽样验证；更新过程档状态为已发布。（人 publish 后 · Agent 可代核）
 
-### 人 checklist · `2.1.3` 发版（**仅人** · Agent 禁执行）
+### 人 checklist · `2.1.3` 发版（**已完成** · 2026-09-11）
 
-1. [ ] 确认工作树已 commit（含 bump `2.1.3` · CHANGELOG · 钉点 · 四门绿 · tag `v2.1.3`）  
-2. [ ] `git push origin main && git push origin v2.1.3`  
-3. [ ] `npm publish`（包名 `spec-wave` · 版本 `2.1.3`）  
-4. [ ] 探针：`npm view spec-wave version` → `2.1.3`；`git show v2.1.3:package.json` → `name=spec-wave` · `version=2.1.3`  
-5. [ ] （可选）刷新 deprecate 文案钉点至 `@2.1.3`  
+1. [x] 确认工作树已 commit（含 bump `2.1.3` · CHANGELOG · 钉点 · 四门绿 · tag `v2.1.3`）  
+2. [x] `git push origin main && git push origin v2.1.3`（或等价）  
+3. [x] `npm publish`（包名 `spec-wave` · 版本 `2.1.3`）  
+4. [x] 探针：`npm view spec-wave version` → `2.1.3`；`git show v2.1.3:package.json` → `name=spec-wave` · `version=2.1.3`  
+5. [x] （可选）deprecate 文案钉点 — 人以执行时为准  
 
 ### 人 checklist · `2.1.2` 发版（**已完成** · 史实）
 

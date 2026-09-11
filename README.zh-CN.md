@@ -316,7 +316,7 @@ Skills **不能**覆盖全部过程能力。Host 要嵌套 Harness 过程，须�
 
 ## 发版（维护者）
 
-**现行包**：**`spec-wave@2.1.3`** — **准备 publish**（人：`git tag v2.1.3` · `npm publish`）。前一已发：**`2.1.2`**（改名收口 · 见 CHANGELOG）。
+**现行包**：**`spec-wave@2.1.3`** — **已 published**（`latest` · tag `v2.1.3`）。前一已发：**`2.1.2`**（改名收口）。
 
 发布流程见 [RELEASING.md](RELEASING.md) —— publish 前硬步骤 checklist（先 commit 后 publish · 四门全绿 · 版本钉同步 · **Agent 可 bump/tag** · **`npm publish` 仅人**；DEF-001 教训制度化）。
 
