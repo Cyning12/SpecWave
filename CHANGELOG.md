@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+### Added
+
+- **2.2-W3（C2）**：`verify --json` 输出**只增不改**补四字段（安全设计 §7.2 · SPEC 02 §W3）：`traceId`（单次运行标识 · 进程内生成 · 不接外部遥测）、`exitCode`（与进程退出码同源）、`source`（注入判定来源 package/override）、`injectedFiles`（注入文件清单 · 复用 M1 注入收集单一实现，新模块 `src/inject-collect.ts` 收口，插件面 `loadMarkdownBundle` 契约不变）。既有字段名与语义不变；task/spec 两模式同口径。测试：`test/cli-verify-observability.test.ts`（四字段存在 + exitCode 一致性 + 旧字段回归 + 键集 diff 级钉死）。
+
 ## [2.1.3] - 2026-09-10
 
 > 主题：**patch** —— 2.1.2 改名收口 **残余修复**（README 对齐 · 负向断言防恒真 · **发布溯源自动化**）。  

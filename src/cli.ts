@@ -1,3 +1,4 @@
+import { randomBytes } from 'node:crypto'
 import { existsSync, mkdirSync, readFileSync, renameSync } from 'node:fs'
 import { readFile, writeFile } from 'node:fs/promises'
 import path from 'node:path'
@@ -25,6 +26,7 @@ import { cmdSync } from './cli-sync.ts'
 import { cmdTaskCheck, cmdTaskLintDone, cmdTaskLintWikiDelta, lintWikiDeltaMissing } from './cli-task-extra.ts'
 import { cmdPins } from './cli-pins.ts'
 import { cmdWiki } from './cli-wiki.ts'
+import { loadMarkdownBundle, type AssetSource } from './inject-collect.ts'
 
 type Manifest = {
   version: string
@@ -52,6 +54,25 @@ const CLOSE_GUARD_ORDER = [
 ]
 // init --preset 合法词表（DEF-013 D1：当前唯一合法值；新增 preset 须先扩展此常量）
 const VALID_PRESETS = ['harness-only'] as const
+
+// 2.2-W3 C2（安全设计 §7.2 · SPEC 02 §W3）：verify --json 可观测四字段 —— 契约只增不改。
+// exitCode 同源纪律（R3）：BLOCKED 退出码唯一常量，JSON 字段与 fail() 共用，禁止两处各算。
+const VERIFY_BLOCKED_EXIT_CODE = 2
+
+// verify --json 可观测载荷：traceId 单次运行标识（进程内时间戳+随机 · 零依赖零云 · 不接外部遥测）；
+// source/injectedFiles 复用 M1 注入清单单一实现（inject-collect · DEF-017 同口径 · profile 取注入默认档 l1+l2），
+// 作为提示词供应链（T-03）取证基线。
+type VerifyObservability = {
+  traceId: string
+  source: AssetSource
+  injectedFiles: string[]
+}
+
+async function collectVerifyObservability(): Promise<VerifyObservability> {
+  const traceId = `verify-${Date.now().toString(36)}-${randomBytes(4).toString('hex')}`
+  const bundle = await loadMarkdownBundle('l1+l2')
+  return { traceId, source: bundle.source, injectedFiles: bundle.files }
+}
 
 async function readPkgVersion(): Promise<string> {
   if (process.env.HARNESS_VERSION) return process.env.HARNESS_VERSION
@@ -598,6 +619,7 @@ async function verifySpecMode(
   target: string,
   specFile: string,
   opts: { json: boolean; allowNoSpecReview: boolean; allowNoReview: boolean; withWikiLint: boolean },
+  obs: VerifyObservability | null,
 ): Promise<void> {
   const abs = resolveTaskPath(target, specFile)
   const label = path.basename(abs)
@@ -606,6 +628,8 @@ async function verifySpecMode(
     extra?: { waived?: string[]; skipped?: string },
     wikiLint?: WikiLintGateResult | null,
   ): void => {
+    // obs 恒非空：emitJson 全部调用点均在 opts.json 守卫内（obs 仅 --json 时计算）
+    const o = obs as VerifyObservability
     console.log(
       JSON.stringify(
         {
@@ -614,6 +638,10 @@ async function verifySpecMode(
           spec: specFile,
           blocked,
           verdict: blocked ? 'BLOCKED' : 'PASS',
+          traceId: o.traceId,
+          exitCode: blocked ? VERIFY_BLOCKED_EXIT_CODE : 0,
+          source: o.source,
+          injectedFiles: o.injectedFiles,
           ...(extra?.skipped ? { skipped: extra.skipped } : {}),
           ...(extra?.waived && extra.waived.length > 0 ? { waived: extra.waived } : {}),
           ...(wikiLint ? { wiki_lint: wikiLintJson(wikiLint) } : {}),
@@ -635,7 +663,7 @@ async function verifySpecMode(
         printWikiLintIssues(wikiLint)
         console.log(`VERIFY: BLOCKED · wiki_delta 缺口（lint-wiki-delta · scope=all）· ${label}`)
       }
-      fail('', 2)
+      fail('', VERIFY_BLOCKED_EXIT_CODE)
     }
     if (opts.json) emitJson(false, { skipped: 'bugfix / skip_spec_audit' }, wikiLint)
     else {
@@ -650,7 +678,7 @@ async function verifySpecMode(
   if (!reviewFound && !allowFlag) {
     if (opts.json) emitJson(true)
     else console.log(`VERIFY: BLOCKED · missing spec R<n> review · ${label}`)
-    fail('', 2)
+    fail('', VERIFY_BLOCKED_EXIT_CODE)
   }
   const waived: string[] = []
   if (!reviewFound && allowFlag) {
@@ -667,7 +695,7 @@ async function verifySpecMode(
       printWikiLintIssues(wikiLint)
       console.log(`VERIFY: BLOCKED · wiki_delta 缺口（lint-wiki-delta · scope=all）· ${label}`)
     }
-    fail('', 2)
+    fail('', VERIFY_BLOCKED_EXIT_CODE)
   }
   if (opts.json) emitJson(false, { waived }, wikiLint)
   else {
@@ -706,16 +734,20 @@ async function cmdVerify(args: string[]): Promise<void> {
   if (rest.length > 0) fail(`verify 未知参数: ${rest.join(' ')}`)
   // C1-b（2.2-W2）：gate 面 --target 须落 git 仓内（F-W2-02 · 安全设计 §2.2.4 跨仓引用禁止）
   const target = resolveTarget(process.cwd(), targetArg, { requireGitRoot: true })
+  // 2.2-W3 C2：--json 时预计算可观测载荷（task / spec 两模式同一份 · traceId 单次运行级）
+  const obs = json ? await collectVerifyObservability() : null
   // --task 与 --spec 互斥（旧包 lib/cli.js#487-491 语义 · exit 1 用法错误）
   if (taskFile && specFile) fail('verify：--task 与 --spec 互斥')
   if (specFile) {
-    await verifySpecMode(target, specFile, { json, allowNoSpecReview, allowNoReview, withWikiLint })
+    await verifySpecMode(target, specFile, { json, allowNoSpecReview, allowNoReview, withWikiLint }, obs)
     return
   }
   if (!taskFile) fail('verify 须指定 --task FILE 或 --spec FILE')
   const abs = resolveTaskPath(target, taskFile)
   const label = path.basename(abs)
   const emitJson = (blocked: boolean, waived?: string[], wikiLint?: WikiLintGateResult | null): void => {
+    // obs 恒非空：emitJson 全部调用点均在 if (json) 守卫内（obs 仅 --json 时计算）
+    const o = obs as VerifyObservability
     console.log(
       JSON.stringify(
         {
@@ -724,6 +756,10 @@ async function cmdVerify(args: string[]): Promise<void> {
           task: taskFile,
           blocked,
           verdict: blocked ? 'BLOCKED' : 'PASS',
+          traceId: o.traceId,
+          exitCode: blocked ? VERIFY_BLOCKED_EXIT_CODE : 0,
+          source: o.source,
+          injectedFiles: o.injectedFiles,
           ...(waived && waived.length > 0 ? { waived } : {}),
           ...(wikiLint ? { wiki_lint: wikiLintJson(wikiLint) } : {}),
         },
@@ -735,7 +771,7 @@ async function cmdVerify(args: string[]): Promise<void> {
   if (!existsSync(abs)) {
     if (json) emitJson(true)
     else console.log(`VERIFY: BLOCKED · task 文件不存在 · ${label}`)
-    fail('', 2)
+    fail('', VERIFY_BLOCKED_EXIT_CODE)
   }
   const content = await readFile(abs, 'utf8')
   const formatted = formatGateCheck(abs, content)
@@ -749,20 +785,20 @@ async function cmdVerify(args: string[]): Promise<void> {
         : 'gate-check blocked'
     if (json) emitJson(true)
     else console.log(`VERIFY: BLOCKED · ${reason} · ${label}`)
-    fail('', 2)
+    fail('', VERIFY_BLOCKED_EXIT_CODE)
   }
   const test = runTestCheck(target, taskFile)
   if (!test.ok) {
     if (json) emitJson(true)
     else console.log(`VERIFY: BLOCKED · ${test.reason} · ${label}`)
-    fail('', 2)
+    fail('', VERIFY_BLOCKED_EXIT_CODE)
   }
   // DEF-003 阶段二 T4：R<n> 审查文存在性硬闸（findReview 与 status / dry-run 同口径 · cli-checks 单一实现源）
   const reviewFound = findReview(target, abs)
   if (!reviewFound && !allowNoReview) {
     if (json) emitJson(true)
     else console.log(`VERIFY: BLOCKED · missing R<n> review · ${label}`)
-    fail('', 2)
+    fail('', VERIFY_BLOCKED_EXIT_CODE)
   }
   const waived: string[] = []
   if (!reviewFound && allowNoReview) {
@@ -777,7 +813,7 @@ async function cmdVerify(args: string[]): Promise<void> {
   if (!invoke.ok && !allowInvokeGap) {
     if (json) emitJson(true)
     else console.log(`VERIFY: BLOCKED · missing pre-30 invoke hats: ${invoke.missing.join(',')} · ${label}`)
-    fail('', 2)
+    fail('', VERIFY_BLOCKED_EXIT_CODE)
   }
   if (!invoke.ok && allowInvokeGap) {
     waived.push(`missing pre-30 invoke hats: ${invoke.missing.join(',')}（--allow-invoke-gap 豁免）`)
@@ -797,7 +833,7 @@ async function cmdVerify(args: string[]): Promise<void> {
         printWikiLintIssues(wikiLint)
         console.log(`VERIFY: BLOCKED · wiki_delta 缺口（lint-wiki-delta · scope=all）· ${label}`)
       }
-      fail('', 2)
+      fail('', VERIFY_BLOCKED_EXIT_CODE)
     }
     if (json) emitJson(false, waived, wikiLint)
     else {
