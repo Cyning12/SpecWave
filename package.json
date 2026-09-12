@@ -1,7 +1,7 @@
 {
   "name": "spec-wave",
   "version": "2.1.3",
-  "description": "SpecWave — multi-host coding CLI (Cursor/Claude/DSH) + P0 gates/Harness. Formerly SpecGate / dsh-coding-kit. npx spec-wave",
+  "description": "SpecWave — multi-host coding CLI (Cursor / Claude Code / DSH / agents) + P0 gates & Harness process track. Spec-driven discipline: mechanical gates (exit 2), S2 audit trail, hat roles. Formerly SpecGate / dsh-coding-kit. npx spec-wave",
   "license": "MIT",
   "author": "Cyning",
   "type": "module",
@@ -51,12 +51,21 @@
   },
   "homepage": "https://github.com/Cyning12/SpecWave#readme",
   "keywords": [
+    "spec-wave",
+    "specwave",
+    "specgate",
+    "spec-driven-development",
+    "sdd",
+    "agents-md",
+    "ai-coding",
+    "coding-standards",
+    "guardrails",
+    "cursor",
+    "claude-code",
+    "cli",
     "dsh-plugin",
     "deepseek-harness",
-    "cordis",
-    "coding-standards",
-    "icvo",
-    "sdd"
+    "cordis"
   ],
   "peerDependencies": {
     "@deepseek-ai/cordis": "^4.0.1",
