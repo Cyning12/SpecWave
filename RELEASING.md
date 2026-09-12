@@ -10,18 +10,21 @@
 
 | 项 | 值 |
 |----|-----|
-| **工作树 / registry `latest`** | **`spec-wave@2.2.0`**（**bump 已落 · 待发版** · 2026-09-11 · tag `v2.2.0` 待人打 · publish 归维护者；registry `latest` 仍为 **2.1.3**，publish 后回填本行） |
-| **前一 latest** | **`spec-wave@2.1.2`**（改名收口） |
+| **工作树 / registry `latest`** | **`spec-wave@2.2.0`**（**已 published** · 2026-09-11 · 人 · tag **`v2.2.0`** ↔ bump commit `60b8640`） |
+| **前一 latest** | **`spec-wave@2.1.3`**（发布溯源自动化 patch） |
 | **旧包名** | **`dsh-coding-kit`** · **已 deprecate**（文案 → `spec-wave`） |
-| **git（史实 · 2.1.1）** | tag **`v2.1.1`** · 改名前身份；**`v2.1.2` / `v2.1.3`** 为 SpecWave 身份可溯源点（**禁止** `git tag -f`） |
+| **git（史实 · 2.1.1）** | tag **`v2.1.1`** · 改名前身份；**`v2.1.2` / `v2.1.3` / `v2.2.0`** 为 SpecWave 身份可溯源点（**禁止** `git tag -f`） |
+| **主题（已发 · 2.2.0）** | 闭环起步：W1 版本/身份钉自动化（核心）+ W2–W7 安全封堵 / 可观测字段 / 上手断档 / 术语表 / 三宿主 / 小清理 |
 | **主题（已发 · 2.1.3）** | README/断言收尾 · 发布溯源测（tag↔package.json） |
 | **主题（已发 · 2.1.2）** | SpecWave 改名收口 |
-| **前一发版** | **`2.1.2`** · **`2.1.1`** · **`2.1.0`** |
+| **前一发版** | **`2.1.3`** · **`2.1.2`** · **`2.1.1`** · **`2.1.0`** |
 | **更早旧包** | `@cyning/harness` **已 deprecate**（文案指 **`spec-wave`**） |
 | **1.x** | **CLOSED** |
-| **下一主线** | **2.1.x+ / 2.2**（workspaces / onboard 等观察项；另闸） |
+| **下一主线** | **2.3 候选**（pins fix 同文件多钉面覆盖 · 叙事行语义盲区 等机制债；workspaces / onboard 观察项；另闸） |
+| **验收（2.2.0）** | [`docs/roadmap/ACCEPTANCE_2_2_closed_loop_start_2_2_0_zh.md`](docs/roadmap/ACCEPTANCE_2_2_closed_loop_start_2_2_0_zh.md) · **CLOSED** |
 | **验收（2.1.2）** | [`docs/roadmap/ACCEPTANCE_2_1_2_rename_closeout_2_1_2_zh.md`](docs/roadmap/ACCEPTANCE_2_1_2_rename_closeout_2_1_2_zh.md) · **CLOSED** |
 | **验收（2.1.1 UX）** | [`docs/roadmap/ACCEPTANCE_2_1_1_host_tools_ux_2_1_1_zh.md`](docs/roadmap/ACCEPTANCE_2_1_1_host_tools_ux_2_1_1_zh.md) |
+| **规划 / SPEC（2.2.0）** | [`docs/roadmap/PLAN_2_2_closed_loop_start_v1_zh.md`](docs/roadmap/PLAN_2_2_closed_loop_start_v1_zh.md) · [`docs/spec/2_2-closed-loop-start/`](docs/spec/2_2-closed-loop-start/) |
 | **规划 / SPEC（2.1.2）** | [`docs/roadmap/PLAN_2_1_2_rename_closeout_v1_zh.md`](docs/roadmap/PLAN_2_1_2_rename_closeout_v1_zh.md) · [`docs/spec/2_1_2-rename-closeout/`](docs/spec/2_1_2-rename-closeout/) |
 
 ### 前一发版（2.0.x–2.1.1）
@@ -43,6 +46,14 @@
 - [ ] **⑦ npm pack --dry-run 检查**：`npm pack --dry-run` 逐行核对 tarball 清单 —— 无 `test/` 泄漏、无工作区/私仓文件；仅 `package.json#files` 白名单（`bin` / `lib` / `assets` / `cordis.patch.yml` / `README.md` / `LICENSE`）内的内容入包。（Agent 可做）
 - [ ] **⑧ npm publish（仅人）**：`npm publish`（`prepublishOnly` 会自动重跑②四门；⑦已核对清单）。**Agent 不得执行本步。**
 - [ ] **⑨ publish 后核验 + 过程档状态更新**：`npm view spec-wave version`（及 `dist-tags`）确认新版本已生效；抽样验证；更新过程档状态为已发布。（人 publish 后 · Agent 可代核）
+
+### 人 checklist · `2.2.0` 发版（**已完成** · 2026-09-11）
+
+1. [x] 确认工作树已 commit（含 bump `2.2.0` · CHANGELOG · 钉点 12/12 · 四门绿 · tag `v2.2.0` ↔ `60b8640`）
+2. [x] `git push origin main && git push origin v2.2.0`（origin/main = `3a2b407`）
+3. [x] `npm publish`（包名 `spec-wave` · 版本 `2.2.0`）
+4. [x] 探针：`npm view spec-wave version` → `2.2.0`；`git show v2.2.0:package.json` → `name=spec-wave` · `version=2.2.0`
+5. [x] 回填 ACCEPTANCE / 过程档为已 published（Agent 代核 ⑨）
 
 ### 人 checklist · `2.1.3` 发版（**已完成** · 2026-09-11）
 

@@ -11,7 +11,7 @@
 > 主题：**minor** —— **闭环起步（closed-loop start）**：W1 版本/身份钉自动化（核心）+ W2–W7 安全封堵 / 可观测字段 / 上手断档 / 术语表 / 三宿主 / 小清理；**不动 schema、不动架构、不加 hooks**。  
 > 规划：[`docs/roadmap/PLAN_2_2_closed_loop_start_v1_zh.md`](docs/roadmap/PLAN_2_2_closed_loop_start_v1_zh.md) · SPEC：[`docs/spec/2_2-closed-loop-start/`](docs/spec/2_2-closed-loop-start/)  
 >
-> **发布状态**：**待发版**（bump 已落 main · tag `v2.2.0` 待人打 · `npm publish` 归维护者 · 发布三步核对单见 `RELEASING.md`）。
+> **发布状态**：**已 published** · tag **`v2.2.0`** ↔ `spec-wave@2.2.0`（人 · 2026-09-11 核验 `latest=2.2.0`）。
 
 ### Added
 
@@ -31,7 +31,7 @@
 
 ### Docs
 
-- W1–W7 七 task 全 CLOSE（`docs/tasks/done/` · 459/459 测试绿）；`docs/spec/README.md` `2_2-closed-loop-start` 行转 IMPLEMENTED（待发版）。
+- W1–W7 七 task 全 CLOSE（`docs/tasks/done/` · 459/459 测试绿）；`docs/spec/README.md` `2_2-closed-loop-start` 行转 IMPLEMENTED（2.2.0 已 published）。
 - pins 首次实战（本 bump）：7 钉面偏差一键 `pins fix --yes` 对齐；发现同文件双钉面（pin-11/12）单次运行串行写互相覆盖缺陷，二跑幂等收敛（候选债项 · 留痕 `task_2_2_closed_loop_w8_release_prep`）。
 
 ## [2.1.3] - 2026-09-10
