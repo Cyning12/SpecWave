@@ -1,6 +1,6 @@
 # Task：2.2 W8 · 发版前 bump（2.1.3 → 2.2.0 · closed-loop start 发版准备）
 
-> **状态**：`active`（HG-TASK-DRAFT=approved · HG-AUDIT-R1=approved · 2026-09-11 会话预授权 · 00 代签落表） · **wave**：W8（2.2.0 收尾发版准备）  
+> **状态**：`done`（HG-TASK-DRAFT=approved · HG-AUDIT-R1=approved · 30+40 闭环完成 · 2026-09-11） · **wave**：W8（2.2.0 收尾发版准备）  
 > **关联 SPEC**：[`docs/spec/2_2-closed-loop-start/README.md`](../../spec/2_2-closed-loop-start/README.md)（目标包 `spec-wave@2.2.0` minor）· [`01_release_pins_v1.md`](../../spec/2_2-closed-loop-start/01_release_pins_v1.md)（pins 机制 · 本波首次实战消费）  
 > **发版纪律**：[`RELEASING.md`](../../../RELEASING.md) 硬步骤 ①–⑤（本波只做 bump 段；⑧ publish 仅人）  
 > **Open Folder**：仓根
