@@ -1,5 +1,5 @@
 import path from 'node:path'
-import { fail, resolveTarget, takeOption } from './cli-shared.ts'
+import { fail, resolveTarget, takeOption, toRel } from './cli-shared.ts'
 import {
   allGraphIds,
   checkGraph,
@@ -157,7 +157,7 @@ async function cmdGraphIngest(args: string[]): Promise<void> {
   if (rest.length > 0) fail(`graph ingest 未知参数: ${rest.join(' ')}`)
   const target = resolveTarget(process.cwd(), targetArg)
   const result = ingestRepoIdempotent(target, { actor: actor || 'system', source: 'cli', dryRun })
-  console.log(`目标: ${target}`)
+  console.log(`目标: ${toRel(process.cwd(), target)}`) // C3（2.2-W2）：目标打印相对化
   console.log(`新事件: ${result.count}`)
   console.log(`跳过（已存在）: ${result.skipped}`)
   if (dryRun) console.log('mode: dry-run（未写入）')

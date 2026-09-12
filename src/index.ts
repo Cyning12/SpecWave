@@ -4,7 +4,7 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import type { Context } from '@deepseek-ai/cordis'
 import { defineTool } from '@deepseek-ai/dsh-tools'
-import { isS2RelPath } from './cli-shared.ts'
+import { findGitRoot, isS2RelPath } from './cli-shared.ts'
 import {
   evaluateHostContract,
   SUPPORTED_HOST_ADAPT_TABLE_VERSION,
@@ -38,8 +38,11 @@ function defaultAssetsRoot(): string {
 
 // DEF-017: 从 cwd 逐级向上探测 .coding-kit / .dsh/coding-kit，
 // 在最近的含 .git 的祖先目录处截止（git root 内向上查找；无 .git 时查到文件系统根）。
+// 2.2-W2 C1-b：git-root 探测复用 cli-shared.findGitRoot（T-02 唯一实现源 · 不新造）；
+// 截止语义不变——git root 层自身仍先探候选再就地截止，不越过 git root 向上。
 function userOverrideRoot(): string | undefined {
   let dir = process.cwd()
+  const gitRoot = findGitRoot(dir)
   for (;;) {
     const candidates = [
       path.join(dir, '.coding-kit'),
@@ -47,7 +50,7 @@ function userOverrideRoot(): string | undefined {
     ]
     const hit = candidates.find((candidate) => existsSync(candidate))
     if (hit) return hit
-    if (existsSync(path.join(dir, '.git'))) return undefined
+    if (gitRoot !== null && dir === gitRoot) return undefined
     const parent = path.dirname(dir)
     if (parent === dir) return undefined
     dir = parent

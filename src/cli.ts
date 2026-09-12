@@ -8,7 +8,7 @@ import { cmdHost, listKnownHostIds } from './cli-host.ts'
 import { cmdRefreshIdeBlocks, countStaleIdeLiterals } from './cli-refresh-ide-blocks.ts'
 import { cmdDiscipline, cmdLifecycle } from './cli-lifecycle.ts'
 import { cmdSkills } from './cli-skills.ts'
-import { buildDoneSnapshot, CliError, evaluateMayStart30, extractSection, extractTaskSlug, fail, findGate, kitLayoutJoin, KIT_LAYOUT_DIR, LEGACY_LAYOUT_DIR, legacyLayoutHint, normalizeSlug, packageRoot, parseHarnessMeta, parseHumanGates, resolveLayoutFile, resolveTarget, resolveTaskPath, STATUS_RE, takeOption } from './cli-shared.ts'
+import { buildDoneSnapshot, CliError, evaluateMayStart30, extractSection, extractTaskSlug, fail, findGate, kitLayoutJoin, KIT_LAYOUT_DIR, LEGACY_LAYOUT_DIR, legacyLayoutHint, normalizeSlug, packageRoot, parseHarnessMeta, parseHumanGates, resolveLayoutFile, resolveTarget, resolveTaskPath, STATUS_RE, takeOption, toRel } from './cli-shared.ts'
 import {
   checkPre30InvokeHats,
   evalCloseGuard,
@@ -403,7 +403,7 @@ async function cmdCheck(args: string[], pkgVersion: string): Promise<void> {
   if (rest.length > 0) fail(`check 未知参数: ${rest.join(' ')}`)
   const target = resolveTarget(process.cwd(), targetArg)
   const manifest = await readManifest(target)
-  console.log(`目标: ${target}`)
+  console.log(`目标: ${toRel(process.cwd(), target)}`) // C3（2.2-W2）：目标打印相对化（toRel 口径）
   console.log(`包版本: ${pkgVersion}`)
   if (!manifest) {
     console.log('状态: 未接入（无 .coding-kit/manifest.json 或 legacy .cyning-harness/manifest.json）')
@@ -496,16 +496,17 @@ async function cmdGateCheck(args: string[]): Promise<void> {
   const { value: taskFile, rest: r2 } = takeOption(rest, '--task')
   rest = r2
   if (rest.length > 0) fail(`gate-check 未知参数: ${rest.join(' ')}`)
-  const target = resolveTarget(process.cwd(), targetArg)
+  // C1-b（2.2-W2）：gate 面 --target 须落 git 仓内（F-W2-02）；C3：目标打印相对化（toRel 口径）
+  const target = resolveTarget(process.cwd(), targetArg, { requireGitRoot: true })
   const mf = await readManifest(target)
   if (!json) {
     console.log('=== Harness gate-check ===')
-    console.log(`目标: ${target}`)
+    console.log(`目标: ${toRel(process.cwd(), target)}`)
     if (mf) {
       console.log(`manifest.version: ${mf.version}`)
       console.log(`manifest.preset: ${mf.preset}`)
     } else {
-      console.log(`manifest: (未接入 · 无 ${manifestPath(target)})`)
+      console.log(`manifest: (未接入 · 无 ${toRel(process.cwd(), manifestPath(target))})`) // C3（2.2-W2）：相对口径
     }
     console.log('')
   }
@@ -547,8 +548,9 @@ async function cmdAudit(args: string[]): Promise<void> {
   const { value: taskFile, rest: r2 } = takeOption(rest, '--task')
   rest = r2
   if (rest.length > 0) fail(`audit 未知参数: ${rest.join(' ')}`)
-  const target = resolveTarget(process.cwd(), targetArg)
-  console.log(`目标: ${target}`)
+  // C1-b（2.2-W2）：gate 面 --target 须落 git 仓内（F-W2-02）；C3：目标打印相对化（toRel 口径）
+  const target = resolveTarget(process.cwd(), targetArg, { requireGitRoot: true })
+  console.log(`目标: ${toRel(process.cwd(), target)}`)
   if (taskFile) console.log(`task: ${taskFile}`)
 
   let gateOk = true
@@ -702,7 +704,8 @@ async function cmdVerify(args: string[]): Promise<void> {
   const withWikiLint = rest.includes('--with-wiki-lint')
   rest = rest.filter((a) => a !== '--with-wiki-lint')
   if (rest.length > 0) fail(`verify 未知参数: ${rest.join(' ')}`)
-  const target = resolveTarget(process.cwd(), targetArg)
+  // C1-b（2.2-W2）：gate 面 --target 须落 git 仓内（F-W2-02 · 安全设计 §2.2.4 跨仓引用禁止）
+  const target = resolveTarget(process.cwd(), targetArg, { requireGitRoot: true })
   // --task 与 --spec 互斥（旧包 lib/cli.js#487-491 语义 · exit 1 用法错误）
   if (taskFile && specFile) fail('verify：--task 与 --spec 互斥')
   if (specFile) {

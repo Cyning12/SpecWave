@@ -14,7 +14,7 @@ import {
   writeFileSync,
 } from 'node:fs'
 import path from 'node:path'
-import { assertNotS2Abs, fail, kitLayoutJoin, resolveTarget, takeOption } from './cli-shared.ts'
+import { assertNotS2Abs, fail, kitLayoutJoin, resolveTarget, takeOption, toRel } from './cli-shared.ts'
 
 // ---------- T1：marker 块解析器（§3 冻结形态 · 纯函数 · 不写盘） ----------
 
@@ -443,7 +443,7 @@ const MALFORMED_LABEL: Record<MalformedKind, string> = {
 
 function printHumanReport(report: Report, scans: FileScan[]): void {
   console.log('=== refresh-ide-blocks (' + report.mode + ') ===')
-  console.log('目标: ' + report.target)
+  console.log('目标: ' + toRel(process.cwd(), report.target)) // C3（2.2-W2）：目标打印相对化
   console.log('git: ' + report.git)
   for (const f of report.files) {
     const scan = scans.find((s) => s.path === f.path)

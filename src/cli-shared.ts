@@ -29,8 +29,42 @@ export function packageRoot(): string {
   return path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 }
 
-export function resolveTarget(cwd: string, targetArg?: string): string {
-  return path.resolve(targetArg || cwd)
+/**
+ * T-02 git-root 探测唯一真值源（C1-b · DEF-017 同算法）：
+ * 从 start 逐级向上找最近含 .git 的祖先目录；无 .git 一路查到文件系统根，返回 null。
+ * 插件侧 override 根探测（index.ts userOverrideRoot）与 CLI --target 归属校验共用本实现，不新造。
+ */
+export function findGitRoot(start: string): string | null {
+  let dir = path.resolve(start)
+  for (;;) {
+    if (existsSync(path.join(dir, '.git'))) return dir
+    const parent = path.dirname(dir)
+    if (parent === dir) return null
+    dir = parent
+  }
+}
+
+/**
+ * 解析 --target（缺省=cwd）。
+ * C1-b（2.2-W2 · 安全设计 §2.2.4 跨仓引用禁止）：opts.requireGitRoot=true 时
+ * target 须落在某 git 仓内（findGitRoot 向上探测），否则 fail(1)（用法错误档 · 非静默接受）。
+ * 默认不校验：init / host / refresh-ide-blocks 等非 git 仓合法面不回归（refresh-ide-blocks
+ * 显式支持 git=none 备份回滚档）。
+ */
+export function resolveTarget(
+  cwd: string,
+  targetArg?: string,
+  opts?: { requireGitRoot?: boolean },
+): string {
+  const target = path.resolve(targetArg || cwd)
+  if (opts?.requireGitRoot && !findGitRoot(target)) {
+    fail(
+      `错误: --target 不在任何 git 仓内（向上未找到 .git）: ${target}\n` +
+        '迁移: 先在该目录执行 git init，或将 --target 指向既有 git 仓内的路径。',
+      1,
+    )
+  }
+  return target
 }
 
 export function takeOption(
@@ -272,8 +306,27 @@ export function normalizeSlug(slug: string): string {
   return String(slug).replace(/_/g, '-')
 }
 
+/**
+ * C1-a（2.2-W2 · T-13 任意文件读穿越封堵 · D-W2-ABS-PATH-UX 冻结：拒止+迁移指引 exit 1）：
+ * --task/--spec 单点收口（覆盖 cli.ts verify/audit/gate-check/--spec 4 调用点及
+ * cli-checks / cli-status / cli-timeline 全部共用方 —— 禁逐调用点补丁 F-W2-04）。
+ * 拒 target 之外的路径：绝对路径在 target 外、或相对路径经 .. 逃逸（F-W2-01/F-W2-03），
+ * 一律在读文件之前 fail(1)（不留读痕）；target 内绝对路径（存量 CI 合法用法）放行。
+ */
 export function resolveTaskPath(target: string, taskFile: string): string {
-  return path.isAbsolute(taskFile) ? taskFile : path.join(target, taskFile)
+  const abs = path.isAbsolute(taskFile)
+    ? path.normalize(taskFile)
+    : path.resolve(target, taskFile)
+  const rel = path.relative(target, abs)
+  if (rel === '..' || rel.startsWith(`..${path.sep}`) || path.isAbsolute(rel)) {
+    fail(
+      `错误: --task/--spec 拒绝 target 之外的路径: ${taskFile}\n` +
+        '迁移: 将文件放入 target 仓内，改用仓内相对路径（如 docs/tasks/active/task_*.md）。\n' +
+        '示例: npx spec-wave verify --target <repo> --task docs/tasks/active/<file>.md',
+      1,
+    )
+  }
+  return abs
 }
 
 export function readTextIfExists(file: string): string | null {
@@ -281,9 +334,15 @@ export function readTextIfExists(file: string): string | null {
   return readFileSync(file, 'utf8')
 }
 
+/**
+ * 相对化展示口径（C3 · 2.2-W2：stdout 不再出现绝对目标路径）。
+ * 永不回落绝对路径：相等 → '.'；base 之外 → '..' 相对形（反斜杠统一归一为正斜杠）。
+ * 既有调用方（cli-host backup/destRel · cli-status · cli-timeline）输入恒在 base 内，行为不变；
+ * base 外路径的 S2 判定由 isS2AbsPath(destAbs) 独立兜底，不依赖本函数的绝对回落。
+ */
 export function toRel(target: string, abs: string): string {
   const rel = path.relative(target, abs)
-  if (!rel || rel.startsWith('..')) return abs.replace(/\\/g, '/')
+  if (!rel) return '.'
   return rel.split(path.sep).join('/')
 }
 

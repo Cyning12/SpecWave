@@ -8,6 +8,7 @@ import {
   parseHarnessMeta,
   resolveTarget,
   takeOption,
+  toRel,
 } from './cli-shared.ts'
 
 const DONE_DIR_CANDIDATES = ['docs/tasks/done', 'docs/harness/tasks/done']
@@ -329,7 +330,7 @@ export async function cmdTaskLintDone(args: string[]): Promise<void> {
   if (rest.length > 0) fail(`task lint-done 未知参数: ${rest.join(' ')}`)
   const target = resolveTarget(process.cwd(), targetArg)
   const result = lintDoneInvokes(target)
-  console.log(`目标: ${target}`)
+  console.log(`目标: ${toRel(process.cwd(), target)}`) // C3（2.2-W2）：目标打印相对化
   console.log(`done slugs: ${result.doneCount} · invoke dirs: ${result.invokeCount}`)
   for (const slug of result.extra) console.log(`warn: invokes 有而 done 无（进行中？）: ${slug}`)
   if (!result.ok) {
@@ -370,7 +371,7 @@ export async function cmdTaskLintWikiDelta(args: string[]): Promise<void> {
   }
   if (json) console.log(JSON.stringify(result, null, 2))
   else {
-    console.log(`目标: ${target}`)
+    console.log(`目标: ${toRel(process.cwd(), target)}`) // C3（2.2-W2）：目标打印相对化
     console.log(
       `scope: ${result.scope} · scanned: ${result.scanned} · strict: ${result.strict} · missing: ${result.missing.length} · issues: ${result.issues.length}`,
     )

@@ -24,6 +24,8 @@ function runCli(args: string[], cwd = KIT): RunResult {
 
 async function withTemp(fn: (dir: string) => Promise<void>): Promise<void> {
   const dir = await mkdtemp(path.join(os.tmpdir(), 'dsh-ck-vspec-'))
+  // 2.2-W2 C1-b：verify/audit/gate-check 的 --target 须落 git 仓内 → fixture seed .git（消费者仓仿真）
+  await mkdir(path.join(dir, '.git'), { recursive: true })
   try {
     await fn(dir)
   } finally {
