@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import { spawnSync } from 'node:child_process'
 import { existsSync } from 'node:fs'
-import { mkdir, mkdtemp, realpath, rm, writeFile } from 'node:fs/promises'
+import { mkdir, mkdtemp, realpath, rm, symlink, writeFile } from 'node:fs/promises'
 import os from 'node:os'
 import path from 'node:path'
 import { describe, it } from 'node:test'
@@ -257,6 +257,69 @@ describe('2.2-W2 C1 · CLI 负向（/etc/hosts 类 · 不留读痕）', () => {
         assert.notEqual(r.status, 0, `${cmd}: ${r.combined}`)
         assert.match(r.combined, /git/, `${cmd}: ${r.combined}`)
       }
+    })
+  })
+})
+
+describe('2.2.1 · P0 C1 symlink 穿透封堵（验收报告 §2 W2 D 行复现 · realpath 归卡）', () => {
+  it('仓内 symlink → 仓外文件：verify / gate-check / audit / --spec 四调用点一律拒 · exit 非 0 · 不留读痕', async () => {
+    await withTempRepo(async (repo) => {
+      await withTemp(async (outside) => {
+        const secret = await writeRel(outside, 'secret-task.md', SENTINEL)
+        await mkdir(path.join(repo, 'docs', 'tasks', 'active'), { recursive: true })
+        await symlink(secret, path.join(repo, 'docs', 'tasks', 'active', 'link.md'))
+        const points: Array<[string, string]> = [
+          ['verify', '--task'],
+          ['gate-check', '--task'],
+          ['audit', '--task'],
+          ['verify', '--spec'],
+        ]
+        for (const [cmd, flag] of points) {
+          const r = runCli([cmd, '--target', repo, flag, 'docs/tasks/active/link.md'])
+          const label = cmd + ' ' + flag
+          assert.notEqual(r.status, 0, label + ': ' + r.combined)
+          assert.equal(r.combined.includes(SENTINEL), false, label + ' 不得读取仓外文件内容')
+          assert.match(r.combined, /相对路径/, label + ' 报错须含迁移指引')
+        }
+      })
+    })
+  })
+
+  it('resolveTaskPath 单元：symlink 穿仓即拒（realpath 归卡 · 双侧 realpath）', async () => {
+    await withTempRepo(async (repo) => {
+      await withTemp(async (outside) => {
+        const secret = await writeRel(outside, 'secret.md', SENTINEL)
+        const link = path.join(repo, 'link.md')
+        await symlink(secret, link)
+        assert.throws(() => resolveTaskPath(repo, 'link.md'), /拒绝|target 之外/)
+      })
+    })
+  })
+
+  it('悬空 symlink 保持「未找到」语义（F-P1-05 · existsSync 跟随兜底 · 与缺失文件同口径）', async () => {
+    await withTempRepo(async (repo) => {
+      await mkdir(path.join(repo, 'docs', 'tasks', 'active'), { recursive: true })
+      await symlink('no-such-target.md', path.join(repo, 'docs', 'tasks', 'active', 'dangling.md'))
+      // verify：缺失文件口径 exit 2 BLOCKED「文件不存在」（不得漂移成他种报错）
+      const v = runCli(['verify', '--target', repo, '--task', 'docs/tasks/active/dangling.md'])
+      assert.equal(v.status, 2, v.combined)
+      assert.match(v.combined, /文件不存在|未找到/)
+      // gate-check：exit 1「未找到」
+      const g = runCli(['gate-check', '--target', repo, '--task', 'docs/tasks/active/dangling.md'])
+      assert.equal(g.status, 1, g.combined)
+      assert.match(g.combined, /未找到|文件不存在/)
+    })
+  })
+
+  it('仓内 symlink → 仓内文件 放行不破（F-P1-04 · 存量合法用法）', async () => {
+    await withTempRepo(async (repo) => {
+      await seedPassingTask(repo)
+      await symlink(path.basename(TASK_REL), path.join(repo, 'docs', 'tasks', 'active', 'link_ok.md'))
+      // 单点收口：symlink 解析后仍归卡仓内 → 不拒（gate-check 无 review/invoke 依赖，纯闸面放行证据）
+      const abs = resolveTaskPath(repo, 'docs/tasks/active/link_ok.md')
+      assert.equal(abs, path.join(repo, 'docs', 'tasks', 'active', 'link_ok.md'))
+      const r = runCli(['gate-check', '--target', repo, '--task', 'docs/tasks/active/link_ok.md'])
+      assert.equal(r.status, 0, r.combined)
     })
   })
 })

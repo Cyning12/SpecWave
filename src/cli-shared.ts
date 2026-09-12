@@ -1,4 +1,4 @@
-import { existsSync, readFileSync } from 'node:fs'
+import { existsSync, readFileSync, realpathSync } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -327,7 +327,22 @@ export function resolveTaskPath(target: string, taskFile: string): string {
   const abs = path.isAbsolute(taskFile)
     ? path.normalize(taskFile)
     : path.resolve(target, taskFile)
-  const rel = path.relative(target, abs)
+  // 2.2.1 · P0 symlink 穿透封堵：词法归卡之上叠加 realpath 归卡（验收报告 §2 W2 D 行）。
+  // 双侧 realpath（target 自身也归一）：macOS /tmp→/private/tmp 等系统级 symlink 靶场下
+  // 不误拒仓内合法路径（F-P1-04）；仓内 symlink 指仓内文件放行，指仓外文件即拒。
+  // 悬空/不存在路径 realpathSync 抛错 → 回落词法对，existsSync 跟随语义兜底「未找到」（F-P1-05）。
+  const real = (p: string): string => {
+    try {
+      return realpathSync(p)
+    } catch {
+      // 悬空/不存在：realpath 最近现存祖先再拼余量（双侧口径一致，
+      // 避免 macOS /tmp→/private/tmp 下 target 已归一而 abs 未归一造成误拒 · F-P1-05 兜底）
+      const parent = path.dirname(p)
+      if (parent === p) return p
+      return path.join(real(parent), path.basename(p))
+    }
+  }
+  const rel = path.relative(real(target), real(abs))
   if (rel === '..' || rel.startsWith(`..${path.sep}`) || path.isAbsolute(rel)) {
     fail(
       `错误: --task/--spec 拒绝 target 之外的路径: ${taskFile}\n` +

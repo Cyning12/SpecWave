@@ -248,15 +248,25 @@ function diffLines(oldC: string, newC: string): Array<{ before: string; after: s
   return hunks
 }
 
-/** 为可修偏差计算新内容（regex/regex-all：capture group 1 替换为期望值）。 */
-function planFix(root: string, pin: Pin, truth: string, result: PinResult): FixPlan | null {
+/**
+ * 为可修偏差计算新内容（regex/regex-all：capture group 1 替换为期望值）。
+ * baseContent（2.2.1 · P1 同文件多钉面聚合）：提供时以其为基准累计替换，
+ * 避免同文件后写覆盖先写（验收报告 §2 W1 · 静默部分修复）；不提供则读盘（旧口径）。
+ */
+function planFix(
+  root: string,
+  pin: Pin,
+  truth: string,
+  result: PinResult,
+  baseContent?: string,
+): FixPlan | null {
   const kind = pin.extract.kind
   if (result.status !== 'mismatch') return null
   if (!pin.fixable) return null
   if (kind !== 'regex' && kind !== 'regex-all') return null
   const loc = resolvePinPath(root, pin)
   if (!loc || !existsSync(loc.abs)) return null
-  const oldContent = readFileSync(loc.abs, 'utf8')
+  const oldContent = baseContent ?? readFileSync(loc.abs, 'utf8')
   const flags = (pin.extract.flags ?? 'm') + 'd'
   const re = new RegExp(pin.extract.pattern ?? '', flags)
   const spans: Array<[number, number]> = []
@@ -334,11 +344,18 @@ function cmdPinsFix(root: string, yes: boolean): void {
   const byId = new Map(pins.map((p) => [p.id, p]))
   const plans: FixPlan[] = []
   const unfixable: Array<{ result: PinResult; reason: string }> = []
+  // 2.2.1 · P1 按文件聚合：同文件多钉面基于累计内容依序 plan，写盘只写最终内容一次
+  const cumulative = new Map<string, string>()
   for (const r of deviations) {
     const pin = byId.get(r.id)!
-    const plan = planFix(root, pin, truth, r)
-    if (plan) plans.push(plan)
-    else unfixable.push({ result: r, reason: unfixableReason(pin, r) })
+    const loc = resolvePinPath(root, pin)
+    const plan = planFix(root, pin, truth, r, loc ? cumulative.get(loc.rel) : undefined)
+    if (plan) {
+      plans.push(plan)
+      cumulative.set(plan.rel, plan.newContent)
+    } else {
+      unfixable.push({ result: r, reason: unfixableReason(pin, r) })
+    }
   }
   // S2 硬拒写：任何拟写落点命中 S2 → 整体拒写（先判后写 · 零备份残留 · 无豁免参数 · F-A1-04 / 00 §3）
   const s2hits = plans.filter((p) => isS2RelPath(p.rel))
@@ -364,10 +381,16 @@ function cmdPinsFix(root: string, yes: boolean): void {
     if (unfixable.length > 0) fail('PINS FIX: ' + unfixable.length + ' 处不可修（须人工）', 2)
     return
   }
+  // 同文件只写一次（最终累计内容）· 只备份一次（写前旧值 · F-P1-07 一次收敛）
+  const written = new Set<string>()
   for (const p of plans) {
+    if (written.has(p.rel)) continue
+    let final = p
+    for (const q of plans) if (q.rel === p.rel) final = q
     const abs = path.resolve(root, p.rel)
     copyFileSync(abs, abs + '.bak')
-    writeFileSync(abs, p.newContent)
+    writeFileSync(abs, final.newContent)
+    written.add(p.rel)
     console.log('[written] ' + p.rel + '（备份 ' + p.rel + '.bak）')
   }
   console.log('PINS FIX: 写入 ' + plans.length + ' 处 · 不可修 ' + unfixable.length + ' 处')

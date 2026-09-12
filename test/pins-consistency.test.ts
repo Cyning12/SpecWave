@@ -88,6 +88,25 @@ const FIXTURE_PINS_YAML = [
   '',
 ].join('\n')
 
+
+const DUAL_PINS_YAML = FIXTURE_PINS_YAML + [
+  '  - id: pin-11',
+  '    path: assets/ide/host-adapt/README.md',
+  "    extract: { kind: regex-all, pattern: 'spec-wave@(\\d+\\.\\d+\\.\\d+)', flags: g }",
+  '    expected: { kind: package-version }',
+  '    required: true',
+  '    fixable: true',
+  '  - id: pin-12',
+  '    path: assets/ide/host-adapt/README.md',
+  "    extract: { kind: regex, pattern: '落点矩阵与 CLI（(\\d+\\.\\d+\\.\\d+)）', flags: m }",
+  '    expected: { kind: package-version }',
+  '    required: true',
+  '    fixable: true',
+  '',
+].join('\n')
+
+const DUAL_GOOD = '# 落点矩阵与 CLI（' + FIXTURE_VERSION + '）\n\nsync: spec-wave@' + FIXTURE_VERSION + ' · update: spec-wave@' + FIXTURE_VERSION + '\n'
+const DUAL_BROKEN = DUAL_GOOD.split(FIXTURE_VERSION).join('9.9.9')
 async function writeRel(dir: string, rel: string, body: string): Promise<void> {
   const abs = path.join(dir, rel)
   await mkdir(path.dirname(abs), { recursive: true })
@@ -287,6 +306,32 @@ describe('W1-A1 release pins · B组 fixture 仓行为', { concurrency: 1 }, () 
         name: string
       }
       assert.equal(pkg.name, 'wrong-name', 'package.json 真值源侧永不被 fix 反向改')
+    })
+  })
+
+  it('B11 同文件双钉面一次 fix 收敛（2.2.1 P1 · pin-11/12 场景 · 杜绝 exit 0 留坏值）', async () => {
+    await withTemp(async (dir) => {
+      await makeFixture(dir)
+      await writeRel(dir, 'assets/release-pins.yaml', DUAL_PINS_YAML)
+      await writeRel(dir, 'assets/ide/host-adapt/README.md', DUAL_GOOD)
+      const ok = runCli(['pins', 'check'], dir)
+      assert.equal(ok.status, 0, '基线双钉面应绿: ' + ok.combined)
+      // 同时破坏 pin-11（regex-all 两处）与 pin-12（regex 标题行）
+      await writeRel(dir, 'assets/ide/host-adapt/README.md', DUAL_BROKEN)
+      const bad = runCli(['pins', 'check'], dir)
+      assert.equal(bad.status, 2, bad.combined)
+      assert.match(bad.combined, /pin-11/)
+      assert.match(bad.combined, /pin-12/)
+      // 单次 fix --yes 必须一次收敛（聚合写盘 · 后写不覆盖先写）
+      const fix = runCli(['pins', 'fix', '--yes'], dir)
+      assert.equal(fix.status, 0, fix.combined)
+      const after = await readFile(path.join(dir, 'assets/ide/host-adapt/README.md'), 'utf8')
+      assert.equal(after, DUAL_GOOD, '同文件双钉面须全部写回真值（不得静默部分修复）')
+      const bak = await readFile(path.join(dir, 'assets/ide/host-adapt/README.md.bak'), 'utf8')
+      assert.equal(bak, DUAL_BROKEN, '.bak 须保留写前旧值且同文件只备份一次')
+      const check = runCli(['pins', 'check'], dir)
+      assert.equal(check.status, 0, '一次 fix 后 check 须转绿（exit 0 自称全修 = 实际全修）: ' + check.combined)
+      assert.match(check.combined, /PINS: PASS/)
     })
   })
 
