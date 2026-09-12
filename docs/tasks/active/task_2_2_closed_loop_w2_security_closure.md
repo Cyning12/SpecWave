@@ -1,6 +1,6 @@
 # Task：2.2 W2 · 安全封堵（C1 路径穿越收口 + C3 停止输出绝对路径）
 
-> **状态**：`draft` · **wave**：W2  
+> **状态**：`done`（HG-TASK-DRAFT=approved · HG-AUDIT-R1=approved · 30+40 闭环完成 · 2026-09-11） · **wave**：W2  
 > **关联 SPEC**：[`docs/spec/2_2-closed-loop-start/02_security_closure_v1.md`](../../spec/2_2-closed-loop-start/02_security_closure_v1.md) §W2（C1+C3）· [`06_waves_and_acceptance_v1.md`](../../spec/2_2-closed-loop-start/06_waves_and_acceptance_v1.md) §W2  
 > **依赖**：无硬依赖（可与 W1 并行；建议 W1 先落）  
 > **Open Folder**：仓根
@@ -50,11 +50,11 @@
 
 ## 范围
 
-- [ ] **C1-a**：`resolveTaskPath` 层**一处收口**——拒 target 外绝对路径 + 相对路径解析后归卡 target 内（含 `..` 逃逸拒止）；收口自动覆盖 `cli.ts` 4 个调用点（:510 / :554 / :597 / :710），**禁逐调用点补丁**
-- [ ] **C1-b**：`resolveTarget` 增 git-root 归属校验（复用 T-02 既有 git-root 探测能力，不新造）
-- [ ] **C1-c**：拒止报错文案含迁移指引（相对路径写法）· exit 1（D-W2-ABS-PATH-UX 冻结值）
-- [ ] **C3**：`cli.ts:403/500/548` 三处 `目标: <abs>` 打印改相对路径，复用 `cli-shared.ts:284-288` `toRel(target, abs)`；其余 stdout/stderr 绝对目标路径同口径排查
-- [ ] 负向测试：/etc/hosts 类绝对路径 · `..` 逃逸 · 非 git 仓 target；stdout 无绝对目标路径断言
+- [x] **C1-a**：`resolveTaskPath` 层**一处收口**——拒 target 外绝对路径 + 相对路径解析后归卡 target 内（含 `..` 逃逸拒止）；收口自动覆盖 `cli.ts` 4 个调用点（:510 / :554 / :597 / :710），**禁逐调用点补丁**
+- [x] **C1-b**：`resolveTarget` 增 git-root 归属校验（复用 T-02 既有 git-root 探测能力，不新造）
+- [x] **C1-c**：拒止报错文案含迁移指引（相对路径写法）· exit 1（D-W2-ABS-PATH-UX 冻结值）
+- [x] **C3**：`cli.ts:403/500/548` 三处 `目标: <abs>` 打印改相对路径，复用 `cli-shared.ts:284-288` `toRel(target, abs)`；其余 stdout/stderr 绝对目标路径同口径排查
+- [x] 负向测试：/etc/hosts 类绝对路径 · `..` 逃逸 · 非 git 仓 target；stdout 无绝对目标路径断言
 
 ## 非范围
 
@@ -81,16 +81,16 @@
 
 ## 验收标准
 
-- [ ] `verify --task /etc/hosts` 及等价绝对路径输入 → 非 0 退出且**不读取目标文件**（输出不含其内容 · 负向测试钉死）
-- [ ] 相对路径 `..` 逃逸 target → 同口径拒止（负向测试）
-- [ ] `--target` 指向非 git 仓路径 → 明确报错非 0（非静默接受 · 负向测试）
-- [ ] 封堵在 `resolveTaskPath` 层单点收口（代码审查可验 · 4 调用点零补丁）
-- [ ] `verify`/`audit` 等命令 stdout 不再出现绝对目标路径（测试断言 · 相对路径输出与 target 参数无关地稳定）
-- [ ] 拒止报错含相对路径迁移指引
-- [ ] 合法相对路径用例回归全绿（现有 406 用例不破）
-- [ ] `npm run typecheck` / `npm test` / `npm run build` / `npm run test:lib` 四门绿（与 `.github/workflows/ci.yml` 一致 · 06 硬纪律 A-2.2-12）
-- [ ] `npx --yes spec-wave task lint-wiki-delta --target .` 通过（wiki_delta 预检）
-- [ ] 波末 `npx spec-wave gate-check --task <本 task>` 通过（HG-AUDIT-R1=approved 后）
+- [x] `verify --task /etc/hosts` 及等价绝对路径输入 → 非 0 退出且**不读取目标文件**（输出不含其内容 · 负向测试钉死）
+- [x] 相对路径 `..` 逃逸 target → 同口径拒止（负向测试）
+- [x] `--target` 指向非 git 仓路径 → 明确报错非 0（非静默接受 · 负向测试）
+- [x] 封堵在 `resolveTaskPath` 层单点收口（代码审查可验 · 4 调用点零补丁）
+- [x] `verify`/`audit` 等命令 stdout 不再出现绝对目标路径（测试断言 · 相对路径输出与 target 参数无关地稳定）
+- [x] 拒止报错含相对路径迁移指引
+- [x] 合法相对路径用例回归全绿（现有 406 用例不破）
+- [x] `npm run typecheck` / `npm test` / `npm run build` / `npm run test:lib` 四门绿（与 `.github/workflows/ci.yml` 一致 · 06 硬纪律 A-2.2-12）
+- [x] `npx --yes spec-wave task lint-wiki-delta --target .` 通过（wiki_delta 预检）
+- [x] 波末 `npx spec-wave gate-check --task <本 task>` 通过（HG-AUDIT-R1=approved 后）
 
 ---
 
@@ -162,19 +162,45 @@ S2 永不可写 · P0 不可绕过 · exit 码冻结为 1（用法错误档）·
 
 ### 自检结论（执行者）
 
-（30/40 回填 · 四门验证表 + dogfood 实测）
+（30/40 同 Agent 闭环 · 2026-09-11 · 全部命令真实执行 · 完整输出见 invoke `invoke_20260911_30_40_2-2-closed-loop-w2-security-closure.md` 与交付汇报）
+
+**实现摘要**：`src/cli-shared.ts` 新增 `findGitRoot`（T-02 向上探测 .git 唯一实现源 · index.ts `userOverrideRoot` 改复用不新造）；`resolveTaskPath` 单点收口（target 外绝对路径 / `..` 逃逸一律读前 fail(1) · 覆盖 cli.ts 4 调用点 + cli-checks/cli-status/cli-timeline 共用方 · target 内绝对路径存量用法放行）；`resolveTarget` 增 `requireGitRoot` 选项并在 verify（task+spec 双模）/audit/gate-check 三命令接线（init/host/refresh-ide-blocks 等非 git 合法面默认不校验 · refresh-ide-blocks git=none 备份回滚档不回归）；`toRel` 口径收口为「永不落绝对路径」（相等→`.` · base 外→`..` 相对形 · 既有调用方输入恒在 base 内行为不变）；`目标:` 打印相对化 7 处（cli.ts ×3 + manifest 未接入行 + cli-task-extra ×2 + cli-graph ×1 + cli-refresh-ide-blocks ×1）。
+
+**验证命令与退出码**（cwd=仓根 · 行为自证用本地构建产物 `node bin/specgate.js`（npx 发布版 2.1.3 尚无本波代码））：
+
+| 命令 | exit | 结果 |
+|------|------|------|
+| `npx spec-wave verify --target . --task docs/tasks/active/task_2_2_closed_loop_w2_security_closure.md`（开工前 GATE_VERIFY） | 0 | VERIFY: PASS · HG-TASK-DRAFT/HG-AUDIT-R1 均 approved 与声称一致 |
+| `node bin/specgate.js verify --target . --task /etc/hosts` | **1** | `错误: --task/--spec 拒绝 target 之外的路径: /etc/hosts` + 迁移指引（相对路径写法 + 示例）；`grep -cE '127.0.0.1\|localhost'` = **0**（不留读痕） |
+| `node bin/specgate.js verify --target . --task ../../etc/passwd`（`..` 逃逸） | **1** | 同口径拒止 + 迁移指引 |
+| `node bin/specgate.js verify/audit --target $(mktemp -d)`（非 git 仓） | **1** | `错误: --target 不在任何 git 仓内（向上未找到 .git）` + git init 迁移指引（F-W2-02 非静默接受） |
+| stdout 绝对路径扫描：`gate-check/audit/check --target .` 输出 grep `$(pwd)` | 0 命中 | `目标: .` · `manifest: (未接入 · 无 .coding-kit/manifest.json)` 相对口径 |
+| `node bin/specgate.js verify --target . --task <本 task>`（合法相对路径回归 · 新码） | 0 | VERIFY: PASS |
+| `npm run typecheck` | 0 | 0 错 |
+| `npm test` | 0 | **439/439 pass**（421 基线 + 新增 cli-security-closure 18 测；8 份 gate 面 fixture seed `.git` 成消费者仓仿真 · 用例意图零改动） |
+| `npm run build` | 0 | — |
+| `npm run test:lib` | 0 | 4/4 pass |
+| `node bin/specgate.js task lint-wiki-delta --target .` | 0 | LINT-WIKI-DELTA: PASS · scanned 54 · missing 0 |
+| `npx spec-wave gate-check --task docs/tasks/active/task_2_2_closed_loop_w2_security_closure.md` | 0 | 闸检查：未发现阻塞 |
+
+**验收 10 条全部 pass**（/etc/hosts + 哨兵文件双向不留读痕 · `..` 逃逸 · 非 git 仓 · 单点收口 diff 可审（cli.ts 4 调用点零补丁）· stdout 断言含 `--target .` vs `--target <abs>` 输出稳定 · 迁移指引文案 · 439 回归 · 四门 + lint-wiki-delta + gate-check）。
+
+**已知未测项**：CI workflow 实跑（本地四门与 CI 同源已绿）；`verify --json` / `gate-check --json` 的 `target` 字段仍为绝对路径（JSON 契约只增不改 · W3 非范围条款 · C3 范围为人读 `目标:` 行）；符号链接逃逸（仓内 symlink 指向仓外）未封堵（task 范围为词法归卡 · 安全设计 §2.2.4 realpath 档归后续波次）。
 
 ---
 
 ### KPI（00）
 
-（`kpi_aggregator: CLOSE` · 关账回填）
+Task_KPI%: 100（验收 10/10 自证通过 · 四门绿 · 负向三链（/etc/hosts · `..` 逃逸 · 非 git 仓）实测 exit 1 且无读痕 · 439/439 测试含 18 新增全绿 · 单点收口零调用点补丁）
 
 ---
 
 ### 经验总结
 
-（`experience_capture: recommended` · 关账回填）
+1. **安全收口先看「既有合法面」再定 enforcement 面**：`resolveTarget` 是全命令共用入口，git-root 校验若无条件硬加会击穿 init / refresh-ide-blocks（git=none 备份回滚档为明示特性）等非 git 合法面；以 `requireGitRoot` 选项仅在 verify/audit/gate-check gate 面接线，兼顾 SPEC「target 须落在 git 仓内」与不误伤存量用法。
+2. **fixture 即消费者仓仿真**：C1-b 落地后 8 份 gate 面测试 fixture seed `.git` 即全绿——行为变更类 task 的旧测影响面（K7）可用「fixture 补真」消解而非放宽实现。
+3. **工具语义收口优于新造**：`toRel` 原「越界回落绝对路径」口径与 C3 直接冲突；核实全部调用方输入恒在 base 内后，把口径收口为「永不落绝对路径」（`.` / `..` 相对形），单工具复用成立（R2 钉案）且零调用方回归。macOS `/var`→`/private/var` 符号链接会使 `--target` 拼写与 cwd realpath 错位，测试比较前须 realpath 归一（assets.test.ts 既有先例）。
+4. **wiki_delta 作答**：`none` —— 安全行为变更落 CHANGELOG（发版棒）；以上为仓内工程经验，无可晋升 coding_wiki 的通用编码规范增量（stable 判定由 CLOSE 棒复核 · 与元信息 `wiki_delta_note` 一致）。
 
 ---
 
@@ -183,3 +209,4 @@ S2 永不可写 · P0 不可绕过 · exit 码冻结为 1（用法错误档）·
 | 日期 | 说明 |
 |------|------|
 | 2026-09-11 | 初稿 · 10-task 批量拆波（W2–W7 每波一份 · 00 委派）· 预填 Harness 元信息 + wiki_delta |
+| 2026-09-11 | W2 实现落地 · 30+40 闭环：resolveTaskPath 单点收口 + findGitRoot/requireGitRoot + toRel 口径收口 + 目标打印相对化 7 处 · cli-security-closure 18 测新增 · 验收 10/10 自证全过（提交 1e49052） |
