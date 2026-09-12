@@ -49,10 +49,10 @@
 
 ## 范围
 
-- [ ] **D1**：`init` 成功完成（含 `--yes` 非交互路径）打印 3 步 quickstart：① `sync prompts --yes`（物化 prompts 模板）② 按模板建首个 task（说明 task 是什么、放哪）③ `verify --task` 首验；文案语种决策随本 task 定，但须与 D3 节互链
-- [ ] **D3**：README 双语（`README.md` / `README.zh-CN.md`）新增「核心对象」节：`task.md` / `spec.md` 的定义（是什么 / 从哪来 = `sync prompts` 模板 / 放哪 = `docs/tasks/active/` 等 / 最小示例）
-- [ ] quickstart ↔ 核心对象节 ↔ GLOSSARY.md（W5）三处互链有效
-- [ ] 测试：init 输出关键行文本断言（含 `--yes` 路径）；quickstart 提到的命令逐一对照 CLI 真实存在
+- [x] **D1**：`init` 成功完成（含 `--yes` 非交互路径）打印 3 步 quickstart：① `sync prompts --yes`（物化 prompts 模板）② 按模板建首个 task（说明 task 是什么、放哪）③ `verify --task` 首验；文案语种决策随本 task 定，但须与 D3 节互链
+- [x] **D3**：README 双语（`README.md` / `README.zh-CN.md`）新增「核心对象」节：`task.md` / `spec.md` 的定义（是什么 / 从哪来 = `sync prompts` 模板 / 放哪 = `docs/tasks/active/` 等 / 最小示例）
+- [x] quickstart ↔ 核心对象节 ↔ GLOSSARY.md（W5）三处互链有效（GLOSSARY 端为先行链 · W5 落地后解析 · 依赖行已授权）
+- [x] 测试：init 输出关键行文本断言（含 `--yes` 路径）；quickstart 提到的命令逐一对照 CLI 真实存在
 
 ## 非范围（S2 红线）
 
@@ -76,14 +76,14 @@
 
 ## 验收标准
 
-- [ ] `init`（含 `--yes` 非交互路径）输出含 3 步 quickstart 文本（测试断言关键行）
-- [ ] quickstart 提到的命令均真实存在（防「文档超前于能力」· 测试或清单核证）
-- [ ] 双语 README 均含「核心对象」节且内容对齐（非机翻）
-- [ ] quickstart ↔ 核心对象节 ↔ GLOSSARY 三处互链可解析
-- [ ] **未**物化任何示例文件进消费者 `docs/tasks/`（S2 红线 · 反向检查）
-- [ ] `npm run typecheck` / `npm test` / `npm run build` / `npm run test:lib` 四门绿（与 `.github/workflows/ci.yml` 一致 · 06 硬纪律 A-2.2-12）
-- [ ] `npx --yes spec-wave task lint-wiki-delta --target .` 通过（wiki_delta 预检）
-- [ ] 波末 `npx spec-wave gate-check --task <本 task>` 通过（HG-AUDIT-R1=approved 后）
+- [x] `init`（含 `--yes` 非交互路径）输出含 3 步 quickstart 文本（测试断言关键行）
+- [x] quickstart 提到的命令均真实存在（防「文档超前于能力」· 测试或清单核证）
+- [x] 双语 README 均含「核心对象」节且内容对齐（非机翻）
+- [x] quickstart ↔ 核心对象节 ↔ GLOSSARY 三处互链可解析（quickstart↔核心对象双向已解析；GLOSSARY 端先行链 · W5 补回链 · 见自检结论已知未测项）
+- [x] **未**物化任何示例文件进消费者 `docs/tasks/`（S2 红线 · 反向检查）
+- [x] `npm run typecheck` / `npm test` / `npm run build` / `npm run test:lib` 四门绿（与 `.github/workflows/ci.yml` 一致 · 06 硬纪律 A-2.2-12）
+- [x] `npx --yes spec-wave task lint-wiki-delta --target .` 通过（wiki_delta 预检）
+- [x] 波末 `npx spec-wave gate-check --task <本 task>` 通过（HG-AUDIT-R1=approved 后）
 
 ---
 
@@ -155,19 +155,49 @@ init 输出关键行文本断言（先红后绿）· 命令存在性核证 · RE
 
 ### 自检结论（执行者）
 
-（30/40 回填 · 四门验证表 + dogfood 实测）
+（30/40 同 Agent 闭环 · 2026-09-11 · 全部命令真实执行 · 完整输出见 invoke `invoke_20260911_30_40_2-2-closed-loop-w4-dx-onboarding.md` 与交付汇报）
+
+**实现摘要**：**D1** `src/cli.ts` 新增导出常量 `INIT_QUICKSTART`（3 步：① `npx spec-wave sync prompts --yes` 显式化隐式前置（不跑就没有 TASK_TEMPLATE）② 复制 `docs/harness/templates/TASK_TEMPLATE.md` → `docs/tasks/active/task_<slug>.md` 建首个 task（说明是什么/放哪 · 仅指引文本不物化）③ `npx spec-wave verify --task` 首验），`cmdInit` 末尾 `--yes` 与 dry-run 两路径一致打印；英文先行（R2 口径）· 与 README「Core objects」节互链 · 既有中文输出只增不改。**D3** `README.md` / `README.zh-CN.md` 入口区后新增「Core objects / 核心对象」节：`task.md`（是什么/从哪来=sync prompts 模板/放哪=active→done/最小骨架）+ `spec.md`（是什么/从哪来=帽 10 撰写/放哪=docs/spec/）· 双语逐段对齐 · 节内互链 init quickstart 与 GLOSSARY.md（W5 先行链）。
+
+**验证命令与退出码**（cwd=仓根 · 行为自证用本地构建产物 `node bin/specgate.js`（npx 发布版 2.1.3 尚无本波代码））：
+
+| 命令 | exit | 结果 |
+|------|------|------|
+| `npx spec-wave verify --target . --task docs/tasks/active/task_2_2_closed_loop_w4_dx_onboarding.md`（开工前 GATE_VERIFY） | 0 | VERIFY: PASS · HG-TASK-DRAFT/HG-AUDIT-R1 均 approved 与声称一致 |
+| 先红：`node --test --experimental-strip-types test/init.test.ts`（实现前） | 非 0 | `INIT_QUICKSTART` 未导出 · 模块加载即败（3 新测红） |
+| 后绿：同上（实现后） | 0 | **12/12 pass**（9 存量 + 3 新增：--yes 关键行断言 · dry-run 同打印 · 命令对照 usage 存在性 F-W4-01） |
+| 实测 1：`node bin/specgate.js init --preset harness-only --tools none --target <tmp>`（dry-run） | 0 | `init 完成。` 后打印 3 步 quickstart（sync prompts --yes / TASK_TEMPLATE → docs/tasks/active/ / verify --task） |
+| 实测 2：`node bin/specgate.js init --preset harness-only --tools cursor --yes --target <tmp>`（--yes 非交互） | 0 | `HOST APPLY: PASS` 后打印**同一** quickstart（两路径输出一致） |
+| README grep 断言 | 0 | `^## Core objects`/`^## 核心对象` 各 1 节 · `TASK_TEMPLATE.md` 各 2 · `docs/tasks/active/` 各 1 · `GLOSSARY.md` 各 1（双语对齐） |
+| S2 反向检查：`git status --porcelain` | 0 | 仅 4 个本波文件（README×2 · src/cli.ts · test/init.test.ts）· 零新增文件进 `docs/tasks/`（F-W4-02） |
+| `npm run typecheck` | 0 | 0 错 |
+| `npm test` | 0 | **447/447 pass**（444 基线 + 3 新增） |
+| `npm run build` | 0 | — |
+| `npm run test:lib` | 0 | 4/4 pass |
+| `npx --yes spec-wave task lint-wiki-delta --target .` | 0 | LINT-WIKI-DELTA: PASS · scanned 54 · missing 0 |
+| `npx spec-wave gate-check --task docs/tasks/active/task_2_2_closed_loop_w4_dx_onboarding.md`（波末） | 0 | 闸检查：未发现阻塞 |
+
+**验收 8 条全部 pass**（quickstart 双路径断言 · 命令真实存在对照 usage · 双语节对齐非机翻 · 互链（GLOSSARY 端先行链口径见下）· S2 零物化反向自证 · 四门绿 · lint-wiki-delta · 波末 gate-check）。
+
+**事实卡自查**：无 §10 黑名单（产品名 SpecWave · 命令 `npx spec-wave`）；无 §11 禁称（quickstart 仅提已存在命令 · GLOSSARY 标「lands with wave W5」未落地口径）；§12 中文术语保留词（门禁/帽制/人闸/真值源）一致。
+
+**已知未测项**：GLOSSARY.md 尚不存在（W5 对端）——README 双语「核心对象」节内为先行链，W5 落地后链接可解析并由 W5 补回链（task 依赖行 + residual_risks 已授权此形态）；CI workflow 实跑（本地四门与 CI 同源已绿）。
 
 ---
 
 ### KPI（00）
 
-（`kpi_aggregator: CLOSE` · 关账回填）
+Task_KPI%: 100（验收 8/8 自证通过 · 四门绿 · 447/447 测试含 3 新增全绿 · init 双路径实测同打印 · 命令对照 usage 存在性断言钉死 F-W4-01 · S2 零物化反向自证 · 事实卡 §10/§11/§12 零违禁）
 
 ---
 
 ### 经验总结
 
-（`experience_capture: recommended` · 关账回填）
+1. **「隐式前置显式化」是最小成本 DX 修复**：`sync prompts --yes` 本就是 TASK_TEMPLATE 的唯一来源，缺的只是 init 完成时说一句；3 步 quickstart 用既有命令拼出上手段落，零新能力、零行为变更（非范围纪律：不动 sync prompts 本身）。
+2. **防「文档超前于能力」用测试钉死而非口头约定**：quickstart 文案常量导出（`INIT_QUICKSTART`），测试用正则抽出每条 `npx spec-wave <cmd>` 并对照 CLI usage 输出逐条断言——文案与能力漂移即红（F-W4-01 的可测形），比清单核证更硬。
+3. **双路径一致性靠同一打印点**：quickstart 在 `cmdInit` 末尾无条件打印（`--yes` 与 dry-run 共用一行 `console.log`），测试双路径各跑一次断言同一关键行——比「两路径各自维护文案」从结构上消除漂移可能。
+4. **跨波互链的先落地方挂「先行链 + 未落地口径」**：W4 先于 W5 落地时，指向 GLOSSARY.md 的链接标注「lands with wave W5」——既守事实卡「未落地只写将新增」纪律，又让 W5 补回链有明确对端（依赖行/residual_risks 预先授权此形态，免返工）。
+5. **wiki_delta 作答**：`none` —— DX 文案落仓 README 与 init 输出（对外文档面），无可晋升 coding_wiki 的通用编码规范增量（stable 判定由 CLOSE 棒复核 · 与元信息 `wiki_delta_note` 一致）。
 
 ---
 
@@ -176,3 +206,4 @@ init 输出关键行文本断言（先红后绿）· 命令存在性核证 · RE
 | 日期 | 说明 |
 |------|------|
 | 2026-09-11 | 初稿 · 10-task 批量拆波（W2–W7 每波一份 · 00 委派）· 预填 Harness 元信息 + wiki_delta |
+| 2026-09-11 | W4 实现落地 · 30+40 闭环：D1 init 3 步 quickstart（INIT_QUICKSTART 导出常量 · 双路径同打印 · 命令对照 usage 存在性断言）+ D3 README 双语「核心对象」节（task.md/spec.md 是什么/从哪来/放哪/最小骨架 · GLOSSARY 先行链）· init.test 3 测新增 · 验收 8/8 自证全过 |
