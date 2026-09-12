@@ -20,7 +20,7 @@
 | **前一发版** | **`2.1.3`** · **`2.1.2`** · **`2.1.1`** · **`2.1.0`** |
 | **更早旧包** | `@cyning/harness` **已 deprecate**（文案指 **`spec-wave`**） |
 | **1.x** | **CLOSED** |
-| **下一主线** | **2.3 候选**（pins fix 同文件多钉面覆盖 · 叙事行语义盲区 等机制债；workspaces / onboard 观察项；另闸） |
+| **下一主线** | **2.3 候选**（钉面修复：同文件多钉面覆盖 · 叙事行语义盲区 等机制债；workspaces / onboard 观察项；另闸） |
 | **验收（2.2.0）** | [`docs/roadmap/ACCEPTANCE_2_2_closed_loop_start_2_2_0_zh.md`](docs/roadmap/ACCEPTANCE_2_2_closed_loop_start_2_2_0_zh.md) · **CLOSED** |
 | **验收（2.1.2）** | [`docs/roadmap/ACCEPTANCE_2_1_2_rename_closeout_2_1_2_zh.md`](docs/roadmap/ACCEPTANCE_2_1_2_rename_closeout_2_1_2_zh.md) · **CLOSED** |
 | **验收（2.1.1 UX）** | [`docs/roadmap/ACCEPTANCE_2_1_1_host_tools_ux_2_1_1_zh.md`](docs/roadmap/ACCEPTANCE_2_1_1_host_tools_ux_2_1_1_zh.md) |
