@@ -1,6 +1,6 @@
 # Task：2.2 W5 · 双语 GLOSSARY.md（D2）
 
-> **状态**：`draft` · **wave**：W5  
+> **状态**：`done`（HG-TASK-DRAFT=approved · HG-AUDIT-R1=approved · 30+40 闭环完成 · 2026-09-11） · **wave**：W5  
 > **关联 SPEC**：[`docs/spec/2_2-closed-loop-start/03_dx_onboarding_v1.md`](../../spec/2_2-closed-loop-start/03_dx_onboarding_v1.md) §W5（D2）· [`06_waves_and_acceptance_v1.md`](../../spec/2_2-closed-loop-start/06_waves_and_acceptance_v1.md) §W5  
 > **依赖**：无硬依赖；W4 README 核心对象节互链对端（双向互链以先落地一方先链、后落地一方补链，或同波合并前对齐）  
 > **Open Folder**：仓根

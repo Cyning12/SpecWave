@@ -13,6 +13,7 @@
 | 2026-09-11 | [`task_2_2_closed_loop_w2_security_closure.md`](./task_2_2_closed_loop_w2_security_closure.md) | 2.2.0 W2 · C1+C3 安全封堵：`resolveTaskPath` 单点收口拒 target 外路径（D-W2-ABS-PATH-UX exit 1 + 迁移指引）· `--target` git-root 归属校验（gate 面）· `目标:` 打印相对化 · 439/439 测试 · 不 bump 版本号 |
 | 2026-09-11 | [`task_2_2_closed_loop_w3_verify_json_fields.md`](./task_2_2_closed_loop_w3_verify_json_fields.md) | 2.2.0 W3 · C2 可观测字段：`verify --json` 只增不改补 `traceId`/`exitCode`/`source`/`injectedFiles`（inject-collect 收口 · exitCode 同源常量 · task/spec 双模）· 444/444 测试 · 不 bump 版本号 |
 | 2026-09-11 | [`task_2_2_closed_loop_w4_dx_onboarding.md`](./task_2_2_closed_loop_w4_dx_onboarding.md) | 2.2.0 W4 · D1+D3 上手断档：`init` 完成打印 3 步 quickstart（sync prompts 隐式前置显式化 · 双路径同打印 · 命令对照 usage 存在性断言）+ README 双语「核心对象」节（task.md/spec.md 是什么/从哪来/放哪/最小骨架 · GLOSSARY 先行链）· 447/447 测试 · 不 bump 版本号 |
+| 2026-09-11 | [`task_2_2_closed_loop_w5_glossary.md`](./task_2_2_closed_loop_w5_glossary.md) | 2.2.0 W5 · D2 双语 GLOSSARY：仓根 `GLOSSARY.md`（中英分节 · 4 组首小时概念 + 事实卡 §12 保留词 · 双语 5+5 对齐 · 回链 README 核心对象节）+ README 双语首屏链接 + W4 先行链互链闭合 · 447/447 测试 · 不 bump 版本号 |
 | 2026-08-28 | [`task_self_tech_graph_w4_closeout.md`](./task_self_tech_graph_w4_closeout.md) | self-tech-graph W4 dogfood 互链 + Docs · **已发 1.9.1** |
 | 2026-08-28 | [`task_self_tech_graph_w3_ci_migrate.md`](./task_self_tech_graph_w3_ci_migrate.md) | self-tech-graph W3 CI + 02_version + inventory 迁回 · 随 1.9.1 发布 |
 | 2026-08-28 | [`task_self_tech_graph_w2_yaml.md`](./task_self_tech_graph_w2_yaml.md) | self-tech-graph W2 yaml L0+L2 dogfood · 随 1.9.1 发布 |
