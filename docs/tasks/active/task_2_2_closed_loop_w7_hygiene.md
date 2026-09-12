@@ -1,6 +1,6 @@
 # Task：2.2 W7 · 工程健康小清理（E1 HARNESS_META_HEADING 常量 + C7 dest 白名单显式化）
 
-> **状态**：`draft` · **wave**：W7  
+> **状态**：`done`（HG-TASK-DRAFT=approved · HG-AUDIT-R1=approved · 30+40 闭环完成 · 2026-09-11） · **wave**：W7  
 > **关联 SPEC**：[`docs/spec/2_2-closed-loop-start/05_hygiene_v1.md`](../../spec/2_2-closed-loop-start/05_hygiene_v1.md)（E1+C7 全篇）· [`06_waves_and_acceptance_v1.md`](../../spec/2_2-closed-loop-start/06_waves_and_acceptance_v1.md) §W7  
 > **依赖**：无硬依赖（纯内部重构 · 建议排后减少与 W2/W3 同文件冲突）  
 > **Open Folder**：仓根
@@ -183,11 +183,11 @@ SPEC 05 §4 已定：常量集中 `cli-shared.ts` 导出【采纳 · 18 处消�
 
 ### KPI（00）
 
-（`kpi_aggregator: CLOSE` · 关账回填）
+Task_KPI%: 100（验收 7/7 自证通过 · 四门绿 · 447/447 测试全绿（基线 447 · 零新增零失败）· grep 双归零（heading 字面量 / 白名单字面量均仅剩常量定义处）· 输出字节抽查等价 · 零行为变更红线守住）
 
 - rubric：`KPI_RUBRIC_v1_2` · 30+40 同 Agent 闭环 · 无返工（一轮通过）
 - 范围守界：7 src 文件纯重构 · 零行为/输出变更 · 无范围蠕入（god-file / spawn / cyning-harness 入单 / isS2RelPath 均未碰）
-- 质量门：四门绿 + lint-wiki-delta PASS + gate-check PASS · grep 双归零（heading 字面量 / 白名单字面量均仅剩常量定义处）
+- 质量门：四门绿 + lint-wiki-delta PASS + gate-check PASS
 
 ---
 
