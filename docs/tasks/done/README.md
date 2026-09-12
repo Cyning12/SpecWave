@@ -9,6 +9,7 @@
 
 | 关账日 | task | 摘要 |
 |--------|------|------|
+| 2026-09-12 | [`task_2_2_1_patch.md`](./task_2_2_1_patch.md) | 2.2.1 patch · 验收报告 PASS-with-issues 四项修复：`resolveTaskPath` 双侧 realpath 归卡（C1 symlink 穿透封堵 · 四调用点单点收口）+ `pins fix` 按文件聚合（同文件多钉面一次写盘收敛）+ `.gitignore` 加 `.workbuddy/` + `files` 加 GLOSSARY.md · bump 2.2.1（pins 11/12 · pin-10 tag-gated 设计红待人打）· 462/464（2 红 tag-gated 设计红）· 提交 d77b707 + c828e5e · 零发布本体越权 |
 | 2026-09-11 | [`task_2_2_closed_loop_w1_release_pins.md`](./task_2_2_closed_loop_w1_release_pins.md) | 2.2.0 W1 · A1 版本/身份钉自动化：`release-pins.yaml` 声明源 + `pins check/fix` + 门禁接线（D-PINS-EXIT exit 2 · S2 机械拒写）· 验收 ①–⑪ 自证 · 不 bump 版本号 |
 | 2026-09-11 | [`task_2_2_closed_loop_w2_security_closure.md`](./task_2_2_closed_loop_w2_security_closure.md) | 2.2.0 W2 · C1+C3 安全封堵：`resolveTaskPath` 单点收口拒 target 外路径（D-W2-ABS-PATH-UX exit 1 + 迁移指引）· `--target` git-root 归属校验（gate 面）· `目标:` 打印相对化 · 439/439 测试 · 不 bump 版本号 |
 | 2026-09-11 | [`task_2_2_closed_loop_w3_verify_json_fields.md`](./task_2_2_closed_loop_w3_verify_json_fields.md) | 2.2.0 W3 · C2 可观测字段：`verify --json` 只增不改补 `traceId`/`exitCode`/`source`/`injectedFiles`（inject-collect 收口 · exitCode 同源常量 · task/spec 双模）· 444/444 测试 · 不 bump 版本号 |

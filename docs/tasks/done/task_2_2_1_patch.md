@@ -1,6 +1,6 @@
 # Task：2.2.1 patch · 验收报告 PASS-with-issues 四项修复 + bump（2.2.0 → 2.2.1）
 
-> **状态**：`draft`（HG-TASK-DRAFT=approved · **HG-AUDIT-R1=approved**（人 · 2026-09-12 会话预授权 · 00 代签落表）· 30 可开工）  
+> **状态**：`done`（HG-TASK-DRAFT=approved · HG-AUDIT-R1=approved · 30+40 闭环完成 · 2026-09-12）  
 > **关联证据**：验收报告 [`.workbuddy/output/验收报告-SpecWave-2.2.0.md`](../../../.workbuddy/output/验收报告-SpecWave-2.2.0.md) §2 W1/W2 问题描述 · §4 建议列 #1/#2/#3/#6 · §5 风险说明（**判 PASS-with-issues · 建议 2.2.1 patch 修 4 项**）  
 > **基线**：spec-wave@2.2.0（已发布）· main HEAD=1fde23e · 459/459 绿 · pins 12/12  
 > **发版纪律**：[`RELEASING.md`](../../../RELEASING.md)（本波只做修复 + bump 段；tag/push/publish 仅人）  
