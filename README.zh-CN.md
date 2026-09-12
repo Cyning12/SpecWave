@@ -5,6 +5,8 @@
 **SpecWave**（`spec-wave@2.1.3`）是 **多宿主编码 CLI**（Cursor · Claude Code · 可选 DSH），带 **P0 闸 / Harness 过程命令** 与 IDE 物化。曾用名 **SpecGate** / **dsh-coding-kit**。纪律资产仍是 ICVO（Inform · Constrain · Verify · Orchestrate）。
 
 > **加载 ≠ 注入。** 安装或加载可选 DSH 插件 **不会** 自动改写 system prompt。`apply()` 只注册工具。必须由你或模型调用 `apply_coding_standards` 之后，后续回合的 runtime context 才会含 `# Coding Standards`。
+>
+> **初见？** 首小时必懂术语——`task.md` / Harness / 帽制 / `kit-*`——见 [GLOSSARY.md](GLOSSARY.md)（双语术语表）。
 
 ## 选哪条入口
 
@@ -96,7 +98,7 @@ Harness 过程围绕两个文件级对象运转。`verify --task <task.md>` / `g
 - **从哪来**：由你或你的 Agent 撰写（帽 10 流程）——CLI 不物化 spec 文件。
 - **放哪**：`docs/spec/`（本仓按主题分目录，如 `docs/spec/2_2-closed-loop-start/`）。
 
-同一条三步链由 `npx spec-wave init` 打印（quickstart）；术语（Harness / 帽制 / 门禁 / S2）汇总于 [GLOSSARY.md](GLOSSARY.md)（双语术语表 · 随 W5 落地——此处为先行链，由 W5 补回链）。
+同一条三步链由 `npx spec-wave init` 打印（quickstart）；术语（Harness / 帽制 / 门禁 / S2）汇总于 [GLOSSARY.md](GLOSSARY.md)（双语术语表 · 回链本节）。
 
 ---
 ## 入口 A · DSH 插件

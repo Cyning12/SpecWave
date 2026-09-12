@@ -5,6 +5,8 @@
 **SpecWave** (`spec-wave@2.1.3`) is a **multi-host coding CLI** (Cursor · Claude Code · optional DSH) with **P0 gate / Harness process commands** and IDE landing. Formerly **SpecGate** / **dsh-coding-kit**. Discipline assets remain ICVO (Inform · Constrain · Verify · Orchestrate).
 
 > **Loading ≠ injecting.** Installing or loading the optional DSH plugin does **not** automatically rewrite the system prompt. `apply()` only registers tools. Only after you or the model calls `apply_coding_standards` will later turns' runtime context contain `# Coding Standards`.
+>
+> **New here?** First-hour terms — `task.md` / Harness / hats / `kit-*` — are defined in [GLOSSARY.md](GLOSSARY.md) (bilingual).
 
 ## Which entry to choose
 
@@ -96,7 +98,7 @@ Minimal skeleton (full field list in the template):
 - **Where it comes from**: written by you or your agent (hat 10 flow) — the CLI does not materialize spec files.
 - **Where it lives**: `docs/spec/` (this repo keeps specs under `docs/spec/<topic>/`, e.g. `docs/spec/2_2-closed-loop-start/`).
 
-The same three-step chain is printed by `npx spec-wave init` (quickstart); terminology (Harness / hats / gates / S2) is collected in [GLOSSARY.md](GLOSSARY.md) (bilingual glossary · lands with wave W5 — forward link, backfilled by W5).
+The same three-step chain is printed by `npx spec-wave init` (quickstart); terminology (Harness / hats / gates / S2) is collected in [GLOSSARY.md](GLOSSARY.md) (bilingual glossary — links back to this section).
 
 ---
 ## Entry A · DSH plugin
