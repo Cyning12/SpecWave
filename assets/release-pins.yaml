@@ -90,3 +90,17 @@ pins:
     required: true
     fixable: false
     note: tag vX.Y.Z 存在性；git 操作仅人（F-A1-05），pins fix 永不动 git
+  - id: pin-11
+    path: assets/ide/host-adapt/README.md
+    extract: { kind: regex-all, pattern: 'spec-wave@(\d+\.\d+\.\d+)', flags: g }
+    expected: { kind: package-version }
+    required: true
+    fixable: true
+    note: 2.2 W6 新增宿主相关版本文案落点（host apply/update 示例命令 spec-wave@X.Y.Z · 2 处实测 @2026-09-11）；只动数据不改 pins 代码
+  - id: pin-12
+    path: assets/ide/host-adapt/README.md
+    extract: { kind: regex, pattern: '落点矩阵与 CLI（(\d+\.\d+\.\d+)）', flags: m }
+    expected: { kind: package-version }
+    required: true
+    fixable: true
+    note: 2.2 W6 新增宿主相关版本文案落点（host-adapt README 标题版本行 :1）；capture group 1 可修

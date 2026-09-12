@@ -150,7 +150,7 @@ describe('2.1.1 W1 host-tools sticky + --tools all', { concurrency: 1 }, () => {
     })
   })
 
-  it('--tools all = 适配表全部 host_id（dsh,cursor,claude,agents）', async () => {
+  it('--tools all = 适配表全部 host_id（2.2 W6 后含 copilot,codex,windsurf）', async () => {
     await withTemp(async (dir) => {
       const r = runCli([
         'host',
@@ -166,10 +166,18 @@ describe('2.1.1 W1 host-tools sticky + --tools all', { concurrency: 1 }, () => {
       ])
       assert.equal(r.status, 0, r.combined)
       const parsed = JSON.parse(r.stdout) as { hosts: string[] }
-      assert.deepEqual(parsed.hosts, ['dsh', 'cursor', 'claude', 'agents'])
+      assert.deepEqual(parsed.hosts, [
+        'dsh',
+        'cursor',
+        'claude',
+        'agents',
+        'copilot',
+        'codex',
+        'windsurf',
+      ])
       const raw = await readFile(path.join(dir, STICKY_REL), 'utf8')
       assertStickyShape(raw, {
-        host_ids: ['dsh', 'cursor', 'claude', 'agents'],
+        host_ids: ['dsh', 'cursor', 'claude', 'agents', 'copilot', 'codex', 'windsurf'],
         profile: 'core',
       })
     })

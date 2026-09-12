@@ -324,7 +324,16 @@ describe('2.1.1 W2 host update 缺省 = 方案 A', { concurrency: 1 }, () => {
       ])
       assert.equal(r.status, 0, r.combined)
       const parsed = JSON.parse(r.stdout) as UpdateJson
-      assert.deepEqual(parsed.hosts, ['dsh', 'cursor', 'claude', 'agents'])
+      // 2.2 W6：适配表全量含 copilot/codex/windsurf
+      assert.deepEqual(parsed.hosts, [
+        'dsh',
+        'cursor',
+        'claude',
+        'agents',
+        'copilot',
+        'codex',
+        'windsurf',
+      ])
     })
   })
 })

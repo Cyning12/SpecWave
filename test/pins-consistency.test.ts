@@ -312,7 +312,7 @@ describe('W1-A1 release pins · C组 声明源数据形态（SPEC 01 §5 · D-PI
   }
   const data = yamlLoad(readFileSync(PINS_YAML, 'utf8')) as { pins: PinRow[] }
 
-  it('钉面 10 行齐全：pin-01..pin-10 唯一 id · 全部 required', () => {
+  it('钉面 12 行齐全：pin-01..pin-12 唯一 id · 全部 required（2.2 W6 数据增 pin-11/12 · 只动数据不改 pins 代码）', () => {
     const ids = data.pins.map((p) => p.id)
     assert.deepEqual(ids, [
       'pin-01',
@@ -325,12 +325,14 @@ describe('W1-A1 release pins · C组 声明源数据形态（SPEC 01 §5 · D-PI
       'pin-08',
       'pin-09',
       'pin-10',
+      'pin-11',
+      'pin-12',
     ])
-    assert.equal(new Set(ids).size, 10)
+    assert.equal(new Set(ids).size, 12)
     for (const p of data.pins) assert.equal(p.required, true, p.id + ' 须 required')
   })
 
-  it('fixable 面与 SPEC 01 §5 一致：仅 pin-03/04/05/06/07 可修；真值源/bin/git/spec 索引不可修', () => {
+  it('fixable 面：pin-03/04/05/06/07 + W6 新增 pin-11/12 可修；真值源/bin/git/spec 索引不可修', () => {
     const fixable = Object.fromEntries(data.pins.map((p) => [p.id, p.fixable]))
     assert.deepEqual(fixable, {
       'pin-01': false,
@@ -343,7 +345,20 @@ describe('W1-A1 release pins · C组 声明源数据形态（SPEC 01 §5 · D-PI
       'pin-08': false,
       'pin-09': false,
       'pin-10': false,
+      'pin-11': true,
+      'pin-12': true,
     })
+  })
+
+  it('2.2 W6 新增 pin-11/12：host-adapt README 版本文案落点（新宿主相关 · 数据声明）', () => {
+    const p11 = data.pins.find((p) => p.id === 'pin-11')!
+    const p12 = data.pins.find((p) => p.id === 'pin-12')!
+    assert.equal(p11.path, 'assets/ide/host-adapt/README.md')
+    assert.equal(p11.extract.kind, 'regex-all')
+    assert.equal(p11.expected.kind, 'package-version')
+    assert.equal(p12.path, 'assets/ide/host-adapt/README.md')
+    assert.equal(p12.extract.kind, 'regex')
+    assert.equal(p12.expected.kind, 'package-version')
   })
 
   it('钉面 #8 提取语义入数据（D-PINS-SCOPE-8）：spec-index-row + 「当前 minor 对应行或标注行」', () => {

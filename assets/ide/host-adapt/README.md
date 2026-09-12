@@ -9,7 +9,7 @@
 
 ```bash
 npx spec-wave host validate [--file PATH] [--json]
-npx spec-wave host apply --tools cursor,claude[,dsh,agents|all] --profile core|expanded [--dry-run|--yes]
+npx spec-wave host apply --tools cursor,claude[,dsh,agents,copilot,codex,windsurf|all] --profile core|expanded [--dry-run|--yes]
 npx spec-wave host update [--tools LIST|all] [--profile core|expanded] [--yes] [--force]
 npx spec-wave init --preset harness-only [--tools all|none|LIST] [--profile core|expanded] [--host-adapt|--no-host-adapt] [--yes]
 ```
@@ -65,7 +65,7 @@ npx spec-wave@2.1.3 host update --yes
 
 | 环境 | 无 `--tools` |
 |------|----------------|
-| TTY | **默认询问**（多选 cursor / claude / dsh / agents / all / none） |
+| TTY | **默认询问**（多选 cursor / claude / dsh / agents / copilot / codex / windsurf / all / none） |
 | 非 TTY / CI | **exit 1** · 须显式 `--tools all\|none\|LIST` |
 
 ```bash
@@ -86,6 +86,11 @@ npx spec-wave init --preset harness-only --tools none --yes
 | `claude` | `CLAUDE.md`（marker merge） | `.claude/commands/kit/<verb>.md`（`/kit:verb`） | `.claude/skills` |
 | `dsh` | （可空） | **`[]`（禁止 `.dsh/commands`）** | `.dsh/skills`：帽子 `assets/skills/*` **+** 编排 `assets/ide/skills-orch/*`（`/kit-*`） |
 | `agents` | `AGENTS.md`（产品 marker + **local** 定制） | 可空 | `.agents/skills` |
+| `copilot`（2.2 W6） | `AGENTS.md`（复用 agents 片段） | `[]` | `.github/skills` |
+| `codex`（2.2 W6） | `AGENTS.md`（复用 agents 片段） | `[]` | `.agents/skills`（官方 repo 级扫描目录） |
+| `windsurf`（2.2 W6） | `AGENTS.md`（复用 agents 片段） | `[]` | `.windsurf/skills` |
+
+> 2.2 W6 三宿主（copilot / codex / windsurf）原生读 `AGENTS.md`，always_on 与 skills 资产**全量复用** `agents` 行（近零新资产）；无宿主专属 commands 资产故为 `[]`。多宿主同选时 `AGENTS.md` 走 marker merge（幂等）。
 
 Core 五命令：`kit-apply-standards` · `kit-verify` · `kit-gate-status` · `kit-init-guide` · `kit-hat-reanchor`（前缀 **`kit-`**；禁止冒充 `opsx-*`）。  
 Expanded（`--profile expanded`）：`kit-hat-00-delegate` · `kit-hat-10-spec` · `kit-hat-10-task` · `kit-hat-20-spec-audit` · `kit-hat-20-task-audit` · `kit-graph-check` · `kit-sync-prompts-guide`。
