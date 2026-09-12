@@ -9,6 +9,7 @@ import { describe, it } from 'node:test'
 import { fileURLToPath } from 'node:url'
 import { copyDirNoClobber } from '../src/index.ts'
 import {
+  INIT_QUICKSTART,
   isInteractiveInit,
   parseInitToolsArg,
   promptInitTools,
@@ -197,6 +198,50 @@ describe('2.1.1 W3 init --tools / TTY / host-adapt', { concurrency: 1 }, () => {
     assert.equal(isInteractiveInit({ isTTY: true }, { yes: false }), true)
     assert.equal(isInteractiveInit({ isTTY: true }, { yes: true }), false)
     assert.equal(isInteractiveInit({ isTTY: false }, { yes: true }), false)
+  })
+
+  it('2.2 W4 D1：--tools none --yes 输出含 3 步 quickstart 关键行', async () => {
+    await withTemp(async (dir) => {
+      const r = runCli([
+        'init',
+        '--preset',
+        'harness-only',
+        '--tools',
+        'none',
+        '--yes',
+        '--target',
+        dir,
+      ])
+      assert.equal(r.status, 0, r.combined)
+      assert.match(r.combined, /Next steps.*quickstart/)
+      assert.match(r.combined, /npx spec-wave sync prompts --yes/)
+      assert.match(r.combined, /docs\/harness\/templates\/TASK_TEMPLATE\.md/)
+      assert.match(r.combined, /docs\/tasks\/active\//)
+      assert.match(r.combined, /npx spec-wave verify --task/)
+    })
+  })
+
+  it('2.2 W4 D1：dry-run（非 --yes）路径同样打印 quickstart', async () => {
+    await withTemp(async (dir) => {
+      const r = runCli(['init', '--preset', 'harness-only', '--tools', 'none', '--target', dir])
+      assert.equal(r.status, 0, r.combined)
+      assert.match(r.combined, /init 完成。/)
+      assert.match(r.combined, /Next steps.*quickstart/)
+      assert.match(r.combined, /npx spec-wave sync prompts --yes/)
+      assert.match(r.combined, /npx spec-wave verify --task/)
+    })
+  })
+
+  it('2.2 W4 D1：quickstart 提到的命令在 CLI usage 中真实存在（F-W4-01）', () => {
+    const r = runCli(['--help'])
+    assert.equal(r.status, 0, r.combined)
+    const mentioned = [...INIT_QUICKSTART.matchAll(/npx spec-wave ([a-z][a-z-]*(?: [a-z][a-z-]*)?)/g)].map(
+      (m) => m[1],
+    )
+    assert.ok(mentioned.length >= 2, 'quickstart 至少提到 2 条 CLI 命令')
+    for (const cmd of mentioned) {
+      assert.ok(r.combined.includes(cmd), `usage 缺 quickstart 提到的命令: ${cmd}`)
+    }
   })
 
   it('promptInitTools：mock stdin 选 all / none / 列表', async () => {

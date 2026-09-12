@@ -57,6 +57,48 @@ npx spec-wave@2.1.3 init --preset harness-only --tools cursor,claude,dsh --yes
 
 `peerDependencies` 中的 `@deepseek-ai/cordis` 与 `@deepseek-ai/dsh-tools` 是 **DSH 宿主插件契约**（仅宿主加载本包为插件时需要；CLI-only 不需要），已在 `peerDependenciesMeta` 标为 **optional**。
 
+## 核心对象
+
+Harness 过程围绕两个文件级对象运转。`verify --task <task.md>` / `gate-check --task <task.md>` / `task close` 都作用于第一个——在你于命令清单里遇到它们之前，本节先给出定义。
+
+### task.md —— 一个可执行、可验收的工作单元
+
+- **是什么**：一个 Markdown 文件描述一个工作单元：背景与目标、范围、非范围、失败路径、验收标准、Harness 元信息（`test_strategy`、`wiki_delta` 等）与人工闸表。闸表中 `HG-AUDIT-R1` 必须为 `approved`，帽 30 才可改码；`npx spec-wave verify --task <task.md>` 以闸表为真值（聊天声称不算数）。
+- **从哪来**：复制 `docs/harness/templates/TASK_TEMPLATE.md`——由 `npx spec-wave sync prompts --yes` 物化。CLI 永不向你的 `docs/tasks/` 写入示例 task；是否落文件永远由你显式执行。
+- **放哪**：在途放 `docs/tasks/active/task_<slug>.md`；`npx spec-wave task close --file <task> --yes` 验收归档至 `docs/tasks/done/`。
+
+最小骨架（完整字段见模板）：
+
+```markdown
+# Task：加登录限流
+
+> **状态**：`draft`
+
+## Harness 元信息
+| 字段 | 值 |
+|------|-----|
+| **task_slug** | `login-rate-limit` |
+| **test_strategy** | `required` |
+| **wiki_delta** | `none` |
+
+### 人工闸
+| human_gate_id | status | blocks_hats |
+|---------------|--------|-------------|
+| HG-AUDIT-R1 | pending | 30 |
+
+## 范围 / ## 非范围 / ## 失败路径 / ## 验收标准
+（逐节照模板填写；验收须含可跑命令）
+```
+
+### spec.md —— task 回溯的需求规格
+
+- **是什么**：已签的需求规格（背景 / 范围 / 非范围 / 验收 / 失败路径），task 通过 `关联 SPEC` 引用它。`npx spec-wave verify --spec <SPEC.md>` 闸「实现前须已有书面审查」。
+- **从哪来**：由你或你的 Agent 撰写（帽 10 流程）——CLI 不物化 spec 文件。
+- **放哪**：`docs/spec/`（本仓按主题分目录，如 `docs/spec/2_2-closed-loop-start/`）。
+
+同一条三步链由 `npx spec-wave init` 打印（quickstart）；术语（Harness / 帽制 / 门禁 / S2）汇总于 [GLOSSARY.md](GLOSSARY.md)（双语术语表 · 随 W5 落地——此处为先行链，由 W5 补回链）。
+
+---
 ## 入口 A · DSH 插件
 
 优先 npm（预构建，无需 allowBuilds）：

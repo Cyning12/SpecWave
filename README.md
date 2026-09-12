@@ -57,6 +57,48 @@ After `--yes`, Cursor Command Palette should see `kit-verify` / `kit-gate-status
 
 The `@deepseek-ai/cordis` and `@deepseek-ai/dsh-tools` entries in `peerDependencies` are the **DSH host plugin contract** (needed only when the host loads this package as a plugin; not needed for CLI-only use), and are marked **optional** in `peerDependenciesMeta`.
 
+## Core objects
+
+The Harness process revolves around two file-level objects. `verify --task <task.md>` / `gate-check --task <task.md>` / `task close` all operate on the first one — this section defines both before you meet them in the command list.
+
+### task.md — one executable, verifiable unit of work
+
+- **What it is**: a single Markdown file for one unit of work: background/goal, scope, non-goals, failure paths, acceptance criteria, Harness metadata (`test_strategy`, `wiki_delta`, …) and the human-gate table. `HG-AUDIT-R1` must be `approved` in that table before hat 30 may change code; `npx spec-wave verify --task <task.md>` reads the table as truth (chat claims do not count).
+- **Where it comes from**: copy `docs/harness/templates/TASK_TEMPLATE.md`, materialized by `npx spec-wave sync prompts --yes`. The CLI never writes example tasks into your `docs/tasks/` — creating the file is always your explicit action.
+- **Where it lives**: `docs/tasks/active/task_<slug>.md` while in flight; `npx spec-wave task close --file <task> --yes` archives it to `docs/tasks/done/`.
+
+Minimal skeleton (full field list in the template):
+
+```markdown
+# Task: add login rate limiting
+
+> **状态**：`draft`
+
+## Harness 元信息
+| 字段 | 值 |
+|------|-----|
+| **task_slug** | `login-rate-limit` |
+| **test_strategy** | `required` |
+| **wiki_delta** | `none` |
+
+### 人工闸
+| human_gate_id | status | blocks_hats |
+|---------------|--------|-------------|
+| HG-AUDIT-R1 | pending | 30 |
+
+## 范围 / ## 非范围 / ## 失败路径 / ## 验收标准
+（逐节照模板填写；验收须含可跑命令）
+```
+
+### spec.md — the requirement a task traces back to
+
+- **What it is**: the signed-off requirement spec (background / scope / non-scope / acceptance / failure paths) that a task references via `关联 SPEC`. `npx spec-wave verify --spec <SPEC.md>` gates that a written review exists before implementation.
+- **Where it comes from**: written by you or your agent (hat 10 flow) — the CLI does not materialize spec files.
+- **Where it lives**: `docs/spec/` (this repo keeps specs under `docs/spec/<topic>/`, e.g. `docs/spec/2_2-closed-loop-start/`).
+
+The same three-step chain is printed by `npx spec-wave init` (quickstart); terminology (Harness / hats / gates / S2) is collected in [GLOSSARY.md](GLOSSARY.md) (bilingual glossary · lands with wave W5 — forward link, backfilled by W5).
+
+---
 ## Entry A · DSH plugin
 
 Prefer npm (prebuilt, no allowBuilds needed):

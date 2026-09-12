@@ -172,6 +172,20 @@ function compareVersion(a: string, b: string): number {
 const INIT_USAGE =
   'init [--preset NAME] [--tools all|none|LIST] [--profile core|expanded] [--host-adapt|--no-host-adapt] [--target PATH] [--yes]  （NAME 词表: harness-only）'
 
+// 2.2 W4 D1：init 成功完成后（含 --yes 非交互路径）打印 3 步 quickstart。
+// 纪律：① 只许提到真实存在的 CLI 命令（F-W4-01 · test/init.test.ts 对照 usage 断言）；
+// ② sync prompts --yes 是 TASK_TEMPLATE 的隐式前置，必须显式化为第 1 步；
+// ③ 不物化示例 task 进消费者 docs/tasks/（S2 红线 · F-W4-02），第 2 步仅指引文本；
+// ④ 语种英文先行（与 README 现状一致 · R2 口径），与 README「Core objects」节互链。
+export const INIT_QUICKSTART = `Next steps — 3-step quickstart:
+  1. npx spec-wave sync prompts --yes
+     (materialize prompt templates, including docs/harness/templates/TASK_TEMPLATE.md)
+  2. Create your first task: copy docs/harness/templates/TASK_TEMPLATE.md
+     to docs/tasks/active/task_<slug>.md — a task.md is one executable,
+     verifiable unit of work (see "Core objects" in README).
+  3. npx spec-wave verify --task docs/tasks/active/task_<slug>.md
+     (first gate run; hat 30 may change code only after HG-AUDIT-R1=approved)`
+
 /**
  * 是否允许 init 交互询问 `--tools`。
  * B-INIT-YES：`--yes` ⇒ 非交互（即使 `stdin.isTTY===true` 也禁止读 stdin）。
@@ -364,6 +378,8 @@ async function cmdInit(args: string[], pkgVersion: string): Promise<void> {
   }
 
   if (!yes) console.log('init 完成。')
+  // 2.2 W4 D1：--yes 与 dry-run 两路径一致打印（输出不一致 = F-W4 测试红）
+  console.log(INIT_QUICKSTART)
 }
 
 async function cmdUpgrade(args: string[], pkgVersion: string): Promise<void> {
