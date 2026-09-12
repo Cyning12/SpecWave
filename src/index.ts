@@ -3,7 +3,7 @@ import { copyFile, mkdir, readdir } from 'node:fs/promises'
 import path from 'node:path'
 import type { Context } from '@deepseek-ai/cordis'
 import { defineTool } from '@deepseek-ai/dsh-tools'
-import { isS2RelPath } from './cli-shared.ts'
+import { isS2RelPath, KIT_DEST_WHITELIST, KIT_LAYOUT_DIR } from './cli-shared.ts'
 import {
   evaluateHostContract,
   SUPPORTED_HOST_ADAPT_TABLE_VERSION,
@@ -168,7 +168,7 @@ export function apply(ctx: Context): void {
     parameters: {
       dest: {
         type: 'string',
-        enum: ['.coding-kit', '.dsh/coding-kit'],
+        enum: [...KIT_DEST_WHITELIST],
         description: 'Destination relative to process.cwd(). Default .coding-kit',
       },
     },
@@ -177,8 +177,8 @@ export function apply(ctx: Context): void {
       render: (_args, value) => [{ type: 'text', text: String(value) }],
     },
     async execute(args) {
-      const destRel = (args.dest as string | undefined) ?? '.coding-kit'
-      if (destRel !== '.coding-kit' && destRel !== '.dsh/coding-kit') {
+      const destRel = (args.dest as string | undefined) ?? KIT_LAYOUT_DIR
+      if (!(KIT_DEST_WHITELIST as readonly string[]).includes(destRel)) {
         return 'init_coding_kit: dest not allowed'
       }
       const contract = pluginHostContract()

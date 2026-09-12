@@ -4,6 +4,7 @@ import {
   extractTaskSlug,
   fail,
   findWikiDeltaOutsideMetaSection,
+  HARNESS_META_HEADING,
   normalizeSlug,
   parseHarnessMeta,
   resolveTarget,
@@ -111,7 +112,7 @@ export function lintWikiDeltaMissing(
       const meta = parseHarnessMeta(content)
       const raw = meta.wiki_delta
       if (raw == null || String(raw).trim() === '') {
-        // K1：字段写在 ## Harness 元信息 之外的节 → wiki_delta_wrong_section 替代 missing（不双报）；
+        // K1：字段写在 HARNESS_META_HEADING 之外的节 → wiki_delta_wrong_section 替代 missing（不双报）；
         // 完全无该行 → 仍 wiki_delta_missing。诊断非兼容：parseHarnessMeta 权威节名不变。
         const wrong = findWikiDeltaOutsideMetaSection(content)
         const row = wrong
@@ -119,7 +120,7 @@ export function lintWikiDeltaMissing(
               path: relPath,
               scope: dirScope,
               code: 'wiki_delta_wrong_section',
-              detail: `wiki_delta 行写在「${wrong.section}」节 L${wrong.line} · 须在 \`## Harness 元信息\` 表格内`,
+              detail: `wiki_delta 行写在「${wrong.section}」节 L${wrong.line} · 须在 \`${HARNESS_META_HEADING}\` 表格内`,
             }
           : {
               path: relPath,
@@ -348,7 +349,7 @@ export async function cmdTaskLintWikiDelta(args: string[]): Promise<void> {
       `用法: npx spec-wave task lint-wiki-delta [--target PATH] [--scope all|active|done] [--strict] [--json]`,
     )
     console.log(
-      '  默认档: 缺 wiki_delta 字段（wiki_delta_missing）；字段写在 ## Harness 元信息 之外的节' +
+      `  默认档: 缺 wiki_delta 字段（wiki_delta_missing）；字段写在 ${HARNESS_META_HEADING} 之外的节` +
         '（wiki_delta_wrong_section · 替代 missing 不双报）；--strict 追加值域校验（path|none|n/a）' +
         '与 path 存在性检查（wiki_delta_invalid / wiki_delta_path_missing）',
     )

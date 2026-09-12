@@ -49,10 +49,10 @@
 
 ## 范围
 
-- [ ] **E1**：抽 `HARNESS_META_HEADING` 单一常量（集中 `src/cli-shared.ts` 导出 · SPEC R2 已采纳），替换全部 18 处字面量
-- [ ] **C7**：dest 白名单显式化为常量/常量集：`.coding-kit` · `.dsh/coding-kit`，供 init / host apply / 写盘路径判定统一消费
-- [ ] `.cyning-harness` **显式排除**并加代码注释「legacy 只读探测」（事实卡 §4/§10）
-- [ ] typecheck 0 错 0 警 · 406 用例全绿 · 输出字节无漂移验证
+- [x] **E1**：抽 `HARNESS_META_HEADING` 单一常量（集中 `src/cli-shared.ts` 导出 · SPEC R2 已采纳），替换全部 18 处字面量
+- [x] **C7**：dest 白名单显式化为常量/常量集：`.coding-kit` · `.dsh/coding-kit`，供 init / host apply / 写盘路径判定统一消费
+- [x] `.cyning-harness` **显式排除**并加代码注释「legacy 只读探测」（事实卡 §4/§10）
+- [x] typecheck 0 错 0 警 · 406 用例全绿 · 输出字节无漂移验证
 
 ## 非范围
 
@@ -79,13 +79,13 @@
 
 ## 验收标准
 
-- [ ] `## Harness 元信息` 字面量 grep 归零（常量定义处除外）；行为无回归（406 用例全绿）
-- [ ] 白名单单一真值；`.cyning-harness` 不在其中且代码注释明示「legacy 只读探测」
-- [ ] `npm run typecheck` 0 错 0 警
-- [ ] 输出字节无漂移（既有测试快照/断言全绿即为证 · 如有疑虑补 diff 核证）
-- [ ] `npm run typecheck` / `npm test` / `npm run build` / `npm run test:lib` 四门绿（与 `.github/workflows/ci.yml` 一致 · 06 硬纪律 A-2.2-12）
-- [ ] `npx --yes spec-wave task lint-wiki-delta --target .` 通过（wiki_delta 预检）
-- [ ] 波末 `npx spec-wave gate-check --task <本 task>` 通过（HG-AUDIT-R1=approved 后）
+- [x] `## Harness 元信息` 字面量 grep 归零（常量定义处除外）；行为无回归（406 用例全绿）
+- [x] 白名单单一真值；`.cyning-harness` 不在其中且代码注释明示「legacy 只读探测」
+- [x] `npm run typecheck` 0 错 0 警
+- [x] 输出字节无漂移（既有测试快照/断言全绿即为证 · 如有疑虑补 diff 核证）
+- [x] `npm run typecheck` / `npm test` / `npm run build` / `npm run test:lib` 四门绿（与 `.github/workflows/ci.yml` 一致 · 06 硬纪律 A-2.2-12）
+- [x] `npx --yes spec-wave task lint-wiki-delta --target .` 通过（wiki_delta 预检）
+- [x] 波末 `npx spec-wave gate-check --task <本 task>` 通过（HG-AUDIT-R1=approved 后）
 
 ---
 
@@ -156,7 +156,28 @@ SPEC 05 §4 已定：常量集中 `cli-shared.ts` 导出【采纳 · 18 处消�
 
 ### 自检结论（执行者）
 
-（30/40 回填 · 四门验证表 + dogfood 实测）
+**30+40 闭环 · 2026-09-11 · 纯重构零行为变更（F-W7-01–03 红线守住）**
+
+**E1（HARNESS_META_HEADING 单一常量）**：常量落 `src/cli-shared.ts` 导出；18 处字面量全替换（cli-checks 5 · cli 2 · cli-shared 8 · cli-task-extra 3，开工前重新 grep 实况与 task 口径一致）。用户可见文案经模板插值 `${HARNESS_META_HEADING}` 替换，输出字节等价。
+
+**C7（dest 白名单单一真值）**：`KIT_DSH_LAYOUT_DIR = '.dsh/coding-kit'` + `KIT_DEST_WHITELIST = [KIT_LAYOUT_DIR, KIT_DSH_LAYOUT_DIR] as const` 落 `src/cli-shared.ts`；消费方统一收口——`index.ts`（init_coding_kit enum + 校验 + 默认值）· `inject-collect.ts`（DEF-017 向上探测候选）· `cli-skills.ts`（isCodingKitDest 拒写判定，后缀匹配语义不变）。`.cyning-harness` 仍仅 `LEGACY_LAYOUT_DIR` legacy 只读探测，白名单常量注释显式排除（事实卡 §10）。
+
+**验证命令（cwd=仓根 · 真实运行）**：
+
+| 命令 | 退出码 | 关键输出 |
+|------|--------|----------|
+| `npx spec-wave verify --target . --task <本 task>`（GATE_VERIFY 首输出） | 0 | VERIFY: PASS · HG-AUDIT-R1=approved ✅ 可 30 |
+| `grep -rn '## Harness 元信息' src/` | — | 仅剩 `src/cli-shared.ts` 常量定义 1 处（**常量值本身即该字符串** · 验收口径明示除外） |
+| `grep -rn "'.dsh/coding-kit'" src/` | — | 仅剩 `KIT_DSH_LAYOUT_DIR` 常量定义 1 处 · 无散落白名单字面量 |
+| `npm run typecheck` | 0 | tsc --noEmit · 0 错 0 警 |
+| `npm test` | 0 | **447/447 pass**（基线 447 · 零新增零失败 · task 文「406」为拆波时旧数，实况 447） |
+| `npm run build` | 0 | tsc 构建通过 |
+| `npm run test:lib` | 0 | 4/4 pass（lib 冒烟） |
+| `npx --yes spec-wave task lint-wiki-delta --target .` | 0 | LINT-WIKI-DELTA: PASS · scanned 54 · missing 0 · issues 0 |
+| `npx spec-wave gate-check --task <本 task>` | 0 | 闸检查: 未发现阻塞 |
+| 输出字节抽查：`npx tsx src/cli.ts --help` / `task lint-wiki-delta --help` | 0 | `## Harness 元信息` 文案原样保留（插值字节等价） |
+
+**已知未测项**：无（test_strategy=required · 无新行为故无新测试义务；回归全绿 + grep 机械验双证）。
 
 ---
 
@@ -164,11 +185,19 @@ SPEC 05 §4 已定：常量集中 `cli-shared.ts` 导出【采纳 · 18 处消�
 
 （`kpi_aggregator: CLOSE` · 关账回填）
 
+- rubric：`KPI_RUBRIC_v1_2` · 30+40 同 Agent 闭环 · 无返工（一轮通过）
+- 范围守界：7 src 文件纯重构 · 零行为/输出变更 · 无范围蠕入（god-file / spawn / cyning-harness 入单 / isS2RelPath 均未碰）
+- 质量门：四门绿 + lint-wiki-delta PASS + gate-check PASS · grep 双归零（heading 字面量 / 白名单字面量均仅剩常量定义处）
+
 ---
 
 ### 经验总结
 
 （`experience_capture: recommended` · 关账回填）
+
+- **模板插值保字节等价**：用户可见文案中的重复字面量抽常量时，用 `${CONST}` 模板插值替换（含反引号转义 \`\`<slug>\`\` 类个案），可在「grep 归零」与「输出零漂移」两红线间同时成立；help 长模板（cli.ts usage）天然是插值环境，改动成本最低。
+- **白名单单一真值要连同「反向拒写名单」一起收口**：cli-skills `isCodingKitDest` 与 init dest 白名单语义相反（一拒一允）但词表同源，收口到同一常量消除了未来双写漂移风险。
+- wiki_delta=none 作答维持：纯内部重构无对外语义变更，不晋升 coding_wiki（与元信息 note 一致）。
 
 ---
 
@@ -177,3 +206,4 @@ SPEC 05 §4 已定：常量集中 `cli-shared.ts` 导出【采纳 · 18 处消�
 | 日期 | 说明 |
 |------|------|
 | 2026-09-11 | 初稿 · 10-task 批量拆波（W2–W7 每波一份 · 00 委派）· 预填 Harness 元信息 + wiki_delta |
+| 2026-09-11 | 30+40 闭环：验收勾选 + 自检结论 + KPI + 经验回填（E1/C7 纯重构 · 447/447 绿） |

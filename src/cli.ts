@@ -9,7 +9,7 @@ import { cmdHost, listKnownHostIds } from './cli-host.ts'
 import { cmdRefreshIdeBlocks, countStaleIdeLiterals } from './cli-refresh-ide-blocks.ts'
 import { cmdDiscipline, cmdLifecycle } from './cli-lifecycle.ts'
 import { cmdSkills } from './cli-skills.ts'
-import { buildDoneSnapshot, CliError, evaluateMayStart30, extractSection, extractTaskSlug, fail, findGate, kitLayoutJoin, KIT_LAYOUT_DIR, LEGACY_LAYOUT_DIR, legacyLayoutHint, normalizeSlug, packageRoot, parseHarnessMeta, parseHumanGates, resolveLayoutFile, resolveTarget, resolveTaskPath, STATUS_RE, takeOption, toRel } from './cli-shared.ts'
+import { buildDoneSnapshot, CliError, evaluateMayStart30, extractSection, extractTaskSlug, fail, findGate, HARNESS_META_HEADING, kitLayoutJoin, KIT_LAYOUT_DIR, LEGACY_LAYOUT_DIR, legacyLayoutHint, normalizeSlug, packageRoot, parseHarnessMeta, parseHumanGates, resolveLayoutFile, resolveTarget, resolveTaskPath, STATUS_RE, takeOption, toRel } from './cli-shared.ts'
 import {
   checkPre30InvokeHats,
   evalCloseGuard,
@@ -117,7 +117,7 @@ function usage(version: string): void {
   npx spec-wave pins fix [--target PATH] [--yes]  （默认 dry-run · S2 机械拒写）
   npx spec-wave task lint-done [--target PATH]
   npx spec-wave task lint-wiki-delta [--target PATH] [--scope all|active|done] [--strict] [--json]
-    诊断码: wiki_delta_missing（缺字段）· wiki_delta_wrong_section（字段写在 ## Harness 元信息 之外的节 · 替代 missing 不双报）
+    诊断码: wiki_delta_missing（缺字段）· wiki_delta_wrong_section（字段写在 ${HARNESS_META_HEADING} 之外的节 · 替代 missing 不双报）
     --strict 追加: wiki_delta_invalid / wiki_delta_path_missing；task lint --file E8 同口径查 wiki_delta 存在性
   npx spec-wave task check --file PATH
 
@@ -992,7 +992,7 @@ async function cmdTaskClose(args: string[]): Promise<void> {
   mkdirSync(path.dirname(dest), { recursive: true })
   renameSync(abs, dest)
   // K5：真归档（renameSync 执行）后构建 done 片段快照 —— 摘录归档文件内
-  // '## Harness 元信息' 节原文（extractSection · 归档真值防模板漂移）；快照存在性
+  // HARNESS_META_HEADING 节原文（extractSection · 归档真值防模板漂移）；快照存在性
   // 唯绑归档事件，与豁免旗标无关（20 审 R2 口径裁决：豁免 + --yes → 快照照打）
   const snapshot = buildDoneSnapshot(dest)
   if (json) {

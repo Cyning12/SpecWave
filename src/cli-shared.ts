@@ -142,6 +142,16 @@ function escapeRegExp(s: string): string {
 export const KIT_LAYOUT_DIR = '.coding-kit' as const
 /** legacy 只读探测根（不再作为新写默认目标） */
 export const LEGACY_LAYOUT_DIR = '.cyning-harness' as const
+/** DSH 场景等价落盘根（与 KIT_LAYOUT_DIR 并列的合法 dest） */
+export const KIT_DSH_LAYOUT_DIR = '.dsh/coding-kit' as const
+/**
+ * dest 白名单单一真值（T-16 · 2.2-W7 C7）：init / host apply / 写盘路径判定统一消费。
+ * `.cyning-harness`（LEGACY_LAYOUT_DIR）仅 legacy 只读探测，**显式不入白名单**（事实卡 §10）。
+ */
+export const KIT_DEST_WHITELIST = [KIT_LAYOUT_DIR, KIT_DSH_LAYOUT_DIR] as const
+
+/** Harness 元信息节标题（task 文档权威节名 · 单一真值 · 2.2-W7 E1） */
+export const HARNESS_META_HEADING = '## Harness 元信息' as const
 
 export function kitLayoutJoin(target: string, ...parts: string[]): string {
   return path.join(target, KIT_LAYOUT_DIR, ...parts)
@@ -201,7 +211,7 @@ export function normalizeCell(raw: string): string {
 
 export function parseHarnessMeta(content: string): Record<string, string> {
   const meta: Record<string, string> = {}
-  const section = extractSection(content, '## Harness 元信息', '###')
+  const section = extractSection(content, HARNESS_META_HEADING, '###')
   if (!section) return meta
   for (const line of section.split('\n')) {
     const tick = line.match(META_TICK_RE)
@@ -221,7 +231,7 @@ export function parseHarnessMeta(content: string): Record<string, string> {
 }
 
 // K1（task wiki-delta-section-diagnostics）：错节诊断 helper —— 诊断非兼容。
-// parseHarnessMeta 权威节名仍只认 '## Harness 元信息'（不改）；本 helper 仅在解析落空时
+// parseHarnessMeta 权威节名仍只认 HARNESS_META_HEADING（不改）；本 helper 仅在解析落空时
 // 全文查找「写在其他节的 wiki_delta 字段行」，供 lint-wiki-delta（wiki_delta_wrong_section）
 // 与 task lint（E8）输出指向正确节的诊断。key 单元格须恰为 wiki_delta（不误伤 wiki_delta_note）；
 // 启发式可能命中正文代码块示例（residual_risk 已登记）——诊断 detail 带行号便于人判。
@@ -244,7 +254,7 @@ export function findWikiDeltaOutsideMetaSection(
         inMeta = true
         continue
       }
-      // 与 extractSection(content, '## Harness 元信息', '###') 同口径：节域止于下一个
+      // 与 extractSection(content, HARNESS_META_HEADING, '###') 同口径：节域止于下一个
       // ### 及以上标题（level >= 3）；后继 ## 节仍在解析节域内（与解析器行为一致，避免误报）
       if (inMeta && level >= 3) inMeta = false
       if (!inMeta) section = `${heading[1]} ${title}`
@@ -356,7 +366,7 @@ export function extractHatsFromInvokeFilename(name: string): string[] {
 }
 
 // K5（task close-done-snapshot · 拟 1.8.0）：done 片段快照 —— 摘录归档文件内
-// '## Harness 元信息' 节原文（与 parseHarnessMeta 同一 extractSection 口径 · 思考轮 R2：
+// HARNESS_META_HEADING 节原文（与 parseHarnessMeta 同一 extractSection 口径 · 思考轮 R2：
 // 归档真值摘录 > 静态模板，防模板漂移）；取不到（异常态）回落 canonical 模板占位 + warn。
 // 调用方仅在真归档（renameSync 执行 · CLOSE: PASS）后消费；READY（dry-run · 含豁免）不消费
 // —— 快照存在性唯绑归档事件，与豁免旗标无关（20 审 R2 口径裁决）。
@@ -367,8 +377,7 @@ export type DoneSnapshot = {
 }
 
 // 异常态兜底：canonical 模板（assets/harness/templates/TASK_TEMPLATE.md）亦不可读时的最小节。
-const CANONICAL_META_FALLBACK =
-  '## Harness 元信息\n\n| 字段 | 值 |\n|------|-----|\n| **task_slug** | `<slug>` |'
+const CANONICAL_META_FALLBACK = `${HARNESS_META_HEADING}\n\n| 字段 | 值 |\n|------|-----|\n| **task_slug** | \`<slug>\` |`
 
 export function canonicalHarnessMetaSection(): string {
   try {
@@ -376,7 +385,7 @@ export function canonicalHarnessMetaSection(): string {
       path.join(packageRoot(), 'assets', 'harness', 'templates', 'TASK_TEMPLATE.md'),
       'utf8',
     )
-    const section = extractSection(tpl, '## Harness 元信息', '###')
+    const section = extractSection(tpl, HARNESS_META_HEADING, '###')
     if (section) return section.trimEnd()
   } catch {
     // 落兜底常量
@@ -386,11 +395,11 @@ export function canonicalHarnessMetaSection(): string {
 
 export function buildDoneSnapshot(dest: string): DoneSnapshot {
   const content = readFileSync(dest, 'utf8')
-  const excerpt = extractSection(content, '## Harness 元信息', '###')
+  const excerpt = extractSection(content, HARNESS_META_HEADING, '###')
   if (excerpt) return { path: dest, harness_meta_section: excerpt.trimEnd(), warn: null }
   return {
     path: dest,
     harness_meta_section: canonicalHarnessMetaSection(),
-    warn: '归档文件缺 ## Harness 元信息 节 · done_snapshot 打印 canonical 模板占位（assets/harness/templates/TASK_TEMPLATE.md）',
+    warn: `归档文件缺 ${HARNESS_META_HEADING} 节 · done_snapshot 打印 canonical 模板占位（assets/harness/templates/TASK_TEMPLATE.md）`,
   }
 }

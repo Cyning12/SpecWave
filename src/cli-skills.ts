@@ -10,7 +10,7 @@ import {
 } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
-import { fail, isS2AbsPath, packageRoot, resolveTarget, takeOption } from './cli-shared.ts'
+import { fail, isS2AbsPath, KIT_DEST_WHITELIST, packageRoot, resolveTarget, takeOption } from './cli-shared.ts'
 import { yamlDump, yamlLoad } from './yaml.ts'
 
 export const EXECUTE_TRACK = 'starter-experimental'
@@ -261,12 +261,8 @@ function posixNorm(absPath: string): string {
 
 function isCodingKitDest(absDest: string): boolean {
   const n = posixNorm(absDest)
-  return (
-    n.endsWith('/.coding-kit') ||
-    n.includes('/.coding-kit/') ||
-    n.endsWith('/.dsh/coding-kit') ||
-    n.includes('/.dsh/coding-kit/')
-  )
+  // 拒写名单与 dest 白名单同一真值（KIT_DEST_WHITELIST · 2.2-W7 C7）：规范覆盖目录 ≠ skills 落点
+  return KIT_DEST_WHITELIST.some((rel) => n.endsWith(`/${rel}`) || n.includes(`/${rel}/`))
 }
 
 export function isExecuteHatSkipped(

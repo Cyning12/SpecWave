@@ -1,7 +1,7 @@
 import { spawnSync } from 'node:child_process'
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs'
 import path from 'node:path'
-import { extractSection, extractTaskSlug, fail, findWikiDeltaOutsideMetaSection, normalizeSlug, parseHarnessMeta, resolveTaskPath, STATUS_RE, resolveLayoutFile } from './cli-shared.ts'
+import { extractSection, extractTaskSlug, fail, findWikiDeltaOutsideMetaSection, HARNESS_META_HEADING, normalizeSlug, parseHarnessMeta, resolveTaskPath, STATUS_RE, resolveLayoutFile } from './cli-shared.ts'
 import { WIKI_DELTA_LITERALS, WIKI_DELTA_PATHISH_RE } from './cli-task-extra.ts'
 
 // DEF-003 阶段二 T5/T6：invoke hats 检查单一实现源（verify pre-30 硬闸与 task close 帽集合覆盖共用）。
@@ -761,8 +761,8 @@ export function lintTaskFile(filePath: string, cwd: string): {
   const errors: LintIssue[] = []
   const warnings: LintIssue[] = []
   const meta = parseHarnessMeta(content)
-  if (!content.includes('## Harness 元信息')) {
-    errors.push({ rule: 'E1', message: '缺 ## Harness 元信息 节' })
+  if (!content.includes(HARNESS_META_HEADING)) {
+    errors.push({ rule: 'E1', message: `缺 ${HARNESS_META_HEADING} 节` })
   } else if (!meta.task_slug) {
     errors.push({ rule: 'E1', message: 'Harness 元信息表缺 task_slug' })
   }
@@ -815,13 +815,13 @@ export function lintTaskFile(filePath: string, cwd: string): {
   // E8（K2 · 与 close_wiki_delta 对齐 · 20 审裁定直接 error 不灰度 · 无 draft 豁免）：
   // 仅查存在性——词表（path|none|n/a）与路径存在性仍归 close 闸与 lint-wiki-delta --strict；
   // 错节场景（字段写在其他节）文案指向正确节名并带行号（与 wiki_delta_wrong_section 同源 helper）。
-  if (content.includes('## Harness 元信息') && !(meta.wiki_delta ?? '').trim()) {
+  if (content.includes(HARNESS_META_HEADING) && !(meta.wiki_delta ?? '').trim()) {
     const wrong = findWikiDeltaOutsideMetaSection(content)
     errors.push({
       rule: 'E8',
       message: wrong
-        ? `缺 wiki_delta 行：字段写在「${wrong.section}」节 L${wrong.line} · 须在 ## Harness 元信息 表格内（path|none|n/a）`
-        : '缺 wiki_delta 行（## Harness 元信息 表格内须含 wiki_delta: path|none|n/a · 与 close_wiki_delta 对齐）',
+        ? `缺 wiki_delta 行：字段写在「${wrong.section}」节 L${wrong.line} · 须在 ${HARNESS_META_HEADING} 表格内（path|none|n/a）`
+        : `缺 wiki_delta 行（${HARNESS_META_HEADING} 表格内须含 wiki_delta: path|none|n/a · 与 close_wiki_delta 对齐）`,
       ...(wrong ? { line: wrong.line } : {}),
     })
   }

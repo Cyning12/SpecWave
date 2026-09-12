@@ -1,7 +1,7 @@
 import { existsSync } from 'node:fs'
 import { readdir, readFile } from 'node:fs/promises'
 import path from 'node:path'
-import { findGitRoot, packageRoot } from './cli-shared.ts'
+import { findGitRoot, KIT_DEST_WHITELIST, packageRoot } from './cli-shared.ts'
 
 // 2.2-W3 C2：M1 规范注入收集逻辑从 index.ts 收口本模块（cordis-free），
 // 供插件面（index.ts loadMarkdownBundle 再导出 · 插件面契约不变）与 CLI 面
@@ -14,7 +14,7 @@ export function defaultAssetsRoot(): string {
   return path.join(packageRoot(), 'assets')
 }
 
-// DEF-017: 从 cwd 逐级向上探测 .coding-kit / .dsh/coding-kit，
+// DEF-017: 从 cwd 逐级向上探测 dest 白名单（KIT_DEST_WHITELIST）各落盘根，
 // 在最近的含 .git 的祖先目录处截止（git root 内向上查找；无 .git 时查到文件系统根）。
 // 2.2-W2 C1-b：git-root 探测复用 cli-shared.findGitRoot（T-02 唯一实现源 · 不新造）；
 // 截止语义不变——git root 层自身仍先探候选再就地截止，不越过 git root 向上。
@@ -22,10 +22,7 @@ function userOverrideRoot(): string | undefined {
   let dir = process.cwd()
   const gitRoot = findGitRoot(dir)
   for (;;) {
-    const candidates = [
-      path.join(dir, '.coding-kit'),
-      path.join(dir, '.dsh', 'coding-kit'),
-    ]
+    const candidates = KIT_DEST_WHITELIST.map((rel) => path.join(dir, ...rel.split('/')))
     const hit = candidates.find((candidate) => existsSync(candidate))
     if (hit) return hit
     if (gitRoot !== null && dir === gitRoot) return undefined
