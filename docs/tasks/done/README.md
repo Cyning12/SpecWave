@@ -11,6 +11,7 @@
 |--------|------|------|
 | 2026-09-11 | [`task_2_2_closed_loop_w1_release_pins.md`](./task_2_2_closed_loop_w1_release_pins.md) | 2.2.0 W1 · A1 版本/身份钉自动化：`release-pins.yaml` 声明源 + `pins check/fix` + 门禁接线（D-PINS-EXIT exit 2 · S2 机械拒写）· 验收 ①–⑪ 自证 · 不 bump 版本号 |
 | 2026-09-11 | [`task_2_2_closed_loop_w2_security_closure.md`](./task_2_2_closed_loop_w2_security_closure.md) | 2.2.0 W2 · C1+C3 安全封堵：`resolveTaskPath` 单点收口拒 target 外路径（D-W2-ABS-PATH-UX exit 1 + 迁移指引）· `--target` git-root 归属校验（gate 面）· `目标:` 打印相对化 · 439/439 测试 · 不 bump 版本号 |
+| 2026-09-11 | [`task_2_2_closed_loop_w3_verify_json_fields.md`](./task_2_2_closed_loop_w3_verify_json_fields.md) | 2.2.0 W3 · C2 可观测字段：`verify --json` 只增不改补 `traceId`/`exitCode`/`source`/`injectedFiles`（inject-collect 收口 · exitCode 同源常量 · task/spec 双模）· 444/444 测试 · 不 bump 版本号 |
 | 2026-08-28 | [`task_self_tech_graph_w4_closeout.md`](./task_self_tech_graph_w4_closeout.md) | self-tech-graph W4 dogfood 互链 + Docs · **已发 1.9.1** |
 | 2026-08-28 | [`task_self_tech_graph_w3_ci_migrate.md`](./task_self_tech_graph_w3_ci_migrate.md) | self-tech-graph W3 CI + 02_version + inventory 迁回 · 随 1.9.1 发布 |
 | 2026-08-28 | [`task_self_tech_graph_w2_yaml.md`](./task_self_tech_graph_w2_yaml.md) | self-tech-graph W2 yaml L0+L2 dogfood · 随 1.9.1 发布 |
@@ -39,3 +40,4 @@
 | 2026-08-28 | 1.9.1 已发布（npm latest · tag v1.9.1） |
 | 2026-09-11 | 增 2.2.0 W1 release-pins 关账行 |
 | 2026-09-11 | 增 2.2.0 W2 security-closure 关账行 |
+| 2026-09-11 | 增 2.2.0 W3 verify-json-fields 关账行 |
