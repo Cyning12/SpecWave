@@ -1,6 +1,6 @@
 # Task：2.2 W3 · `verify --json` 补可观测字段（C2）
 
-> **状态**：`draft` · **wave**：W3  
+> **状态**：`done`（HG-TASK-DRAFT=approved · HG-AUDIT-R1=approved · 30+40 闭环完成 · 2026-09-11） · **wave**：W3  
 > **关联 SPEC**：[`docs/spec/2_2-closed-loop-start/02_security_closure_v1.md`](../../spec/2_2-closed-loop-start/02_security_closure_v1.md) §W3（C2）· [`06_waves_and_acceptance_v1.md`](../../spec/2_2-closed-loop-start/06_waves_and_acceptance_v1.md) §W3  
 > **依赖**：无硬依赖（建议 W2 先落，避免 `--json` 与拒止路径输出改动相互打架）  
 > **Open Folder**：仓根
@@ -49,11 +49,11 @@
 
 ## 范围
 
-- [ ] `verify --json` 补 `traceId`（单次运行标识）
-- [ ] 补 `exitCode`（与进程退出码一致）
-- [ ] 补 `source`（判定来源）
-- [ ] 补 `injectedFiles`（注入文件清单）
-- [ ] 测试断言四字段存在与语义 + 既有字段回归不变
+- [x] `verify --json` 补 `traceId`（单次运行标识）
+- [x] 补 `exitCode`（与进程退出码一致）
+- [x] 补 `source`（判定来源）
+- [x] 补 `injectedFiles`（注入文件清单）
+- [x] 测试断言四字段存在与语义 + 既有字段回归不变
 
 ## 非范围
 
@@ -77,13 +77,13 @@
 
 ## 验收标准
 
-- [ ] `verify --json` 输出含 `traceId` / `exitCode` / `source` / `injectedFiles` 四字段且有测试断言
-- [ ] `exitCode` 字段值与进程退出码一致（测试断言）
-- [ ] 既有字段回归不变（测试断言 · 契约只增不改）
-- [ ] 对外文案零违禁宣称（grep 自查 · 事实卡 §11）
-- [ ] `npm run typecheck` / `npm test` / `npm run build` / `npm run test:lib` 四门绿（与 `.github/workflows/ci.yml` 一致 · 06 硬纪律 A-2.2-12）
-- [ ] `npx --yes spec-wave task lint-wiki-delta --target .` 通过（wiki_delta 预检）
-- [ ] 波末 `npx spec-wave gate-check --task <本 task>` 通过（HG-AUDIT-R1=approved 后）
+- [x] `verify --json` 输出含 `traceId` / `exitCode` / `source` / `injectedFiles` 四字段且有测试断言
+- [x] `exitCode` 字段值与进程退出码一致（测试断言）
+- [x] 既有字段回归不变（测试断言 · 契约只增不改）
+- [x] 对外文案零违禁宣称（grep 自查 · 事实卡 §11）
+- [x] `npm run typecheck` / `npm test` / `npm run build` / `npm run test:lib` 四门绿（与 `.github/workflows/ci.yml` 一致 · 06 硬纪律 A-2.2-12）
+- [x] `npx --yes spec-wave task lint-wiki-delta --target .` 通过（wiki_delta 预检）
+- [x] 波末 `npx spec-wave gate-check --task <本 task>` 通过（HG-AUDIT-R1=approved 后）
 
 ---
 
@@ -154,19 +154,44 @@ SPEC 02 §W3：缺四字段属实（PROMPT §3 W3 行 + 事实卡 §11 双源）
 
 ### 自检结论（执行者）
 
-（30/40 回填 · 四门验证表 + dogfood 实测）
+（30/40 同 Agent 闭环 · 2026-09-11 · 全部命令真实执行 · 完整输出见 invoke `invoke_20260911_30_40_2-2-closed-loop-w3-verify-json-fields.md` 与交付汇报）
+
+**实现摘要**：新模块 `src/inject-collect.ts`（cordis-free）收口 M1 注入收集逻辑（自 `index.ts` 逐字节搬迁：resolveReadRoot / listMarkdownFiles / includeForProfile / DEF-017 24k 截断 · cordis/dsh-tools 系 devDependencies，CLI 不得经 index.ts 传递依赖）；`src/index.ts` 改 import + 再导出 `loadMarkdownBundle`（插件面契约不变 · assets.test.ts 原路径导入仍绿）；`src/cli.ts` `VERIFY_BLOCKED_EXIT_CODE=2` 唯一常量（exitCode 同源纪律 R3 · JSON 字段与 fail() 共用 · verify 内 9 处 `fail('',2)` 全改引常量 · gate-check/audit/close 等其他命令不动）；`collectVerifyObservability()`（traceId=`verify-<ts36>-<4B hex>` 进程内生成 · 零依赖零云 · 不接外部遥测；source/injectedFiles 复用 `loadMarkdownBundle('l1+l2')` 注入默认档 · 安全设计 §7.2 T-03 取证基线口径）；task/spec 两模式 emitJson 同口径只增不改补四字段（位置：既有字段之后 · waived/wiki_lint/skipped 条件字段之前）。
+
+**验证命令与退出码**（cwd=仓根 · 行为自证用本地构建产物 `node bin/specgate.js`（npx 发布版 2.1.3 尚无本波代码））：
+
+| 命令 | exit | 结果 |
+|------|------|------|
+| `npx spec-wave verify --target . --task docs/tasks/active/task_2_2_closed_loop_w3_verify_json_fields.md`（开工前 GATE_VERIFY） | 0 | VERIFY: PASS · HG-TASK-DRAFT/HG-AUDIT-R1 均 approved 与声称一致 |
+| 先红：`node --test --experimental-strip-types test/cli-verify-observability.test.ts`（实现前） | 非 0 | 四字段断言全红（traceId 两次运行均 undefined · PASS/BLOCKED 态缺四字段） |
+| `node bin/specgate.js verify --target . --task <本 task> --json`（PASS 态自证 · node 断言） | 0 | 含四字段 · traceId=`verify-mtxt8gzf-7e0d98c7` · exitCode=**0**=进程退出码（PASS_PROC_EXIT=0）· source=`package` · injectedFiles=13（全相对路径）· command/verdict/blocked/target/task 回归不变 |
+| BLOCKED 态自证（临时消费者仓 fixture seed .git · 缺 R<n> 审查文 → verify --json） | **2** | BLOCKED_PROC_EXIT=**2** · JSON exitCode=**2**=进程退出码 · verdict=BLOCKED · 四字段仍在 |
+| `npm run typecheck` | 0 | 0 错 |
+| `npm test` | 0 | **444/444 pass**（439 基线 + 新增 cli-verify-observability 5 测：双态四字段 + exitCode 一致性 + 键集 diff 级钉死 + 旧字段回归 + traceId 运行级 + --spec 模式） |
+| `npm run build` | 0 | — |
+| `npm run test:lib` | 0 | 4/4 pass |
+| `npx --yes spec-wave task lint-wiki-delta --target .` | 0 | LINT-WIKI-DELTA: PASS · scanned 54 · missing 0 |
+| 事实卡 §11 违禁宣称自查：`git diff` grep「可观测性完整 / observability complete」 | 0 命中 | 零违禁 · 事实卡本体不动（解除归发布后维护者 · F-X-04） |
+| `npx spec-wave gate-check --task docs/tasks/active/task_2_2_closed_loop_w3_verify_json_fields.md`（波末） | 0 | 闸检查：未发现阻塞 |
+
+**验收 7 条全部 pass**（四字段存在+断言 · exitCode 双态与进程退出码一致 · 旧字段回归+键集 diff 级钉死 · 零违禁宣称 · 四门绿 · lint-wiki-delta · 波末 gate-check）。
+
+**已知未测项**：CI workflow 实跑（本地四门与 CI 同源已绿）；`--json` `target` 字段维持现状（W2 留痕 · 契约只增不改仅允许新增）；下游字段全集严格校验感知新增字段（task residual_risks 已登记 · CHANGELOG Unreleased 已明示新增四字段）。
 
 ---
 
 ### KPI（00）
 
-（`kpi_aggregator: CLOSE` · 关账回填）
+Task_KPI%: 100（验收 7/7 自证通过 · 四门绿 · PASS/BLOCKED 双态 exitCode=进程退出码实测 · 444/444 测试含 5 新增全绿 · 契约只增不改由键集 diff 级断言钉死 · 事实卡 §11 零违禁）
 
 ---
 
 ### 经验总结
 
-（`experience_capture: recommended` · 关账回填）
+1. **CLI 复用插件面逻辑须先切断运行时依赖**：`index.ts` 顶部 import cordis/dsh-tools（devDependencies · 消费者仓不存在），CLI 直接 import `loadMarkdownBundle` 会让发布包在消费者侧崩；将注入收集逻辑收口到 cordis-free 的 `inject-collect.ts` 后两侧共用同一实现源（R3「禁止两处各算」），index.ts 仅以再导出保持插件面契约。
+2. **「字段与退出码同源」用常量收口而非约定**：`VERIFY_BLOCKED_EXIT_CODE` 单常量同时喂 emitJson 的 `exitCode` 字段与 `fail()`，9 处调用点逐处改引；测试再以「JSON 字段 === 进程真实退出码」双态断言外证，同源纪律既有内证（单常量）又有外证（进程级断言）。
+3. **契约只增不改的可测形**：键集 diff 级断言（无旗标时 keys === 既有五键 + 新增四键）比逐字段存在断言更能钉死「不删不改既有字段」；新增字段一律置于既有字段之后、条件字段（waived/wiki_lint/skipped）之前，下游字段序感知面最小。
+4. **wiki_delta 作答**：`none` —— JSON 契约增量落 CHANGELOG（Unreleased · 随发版棒）；以上为仓内工程经验，无可晋升 coding_wiki 的通用编码规范增量（stable 判定由 CLOSE 棒复核 · 与元信息 `wiki_delta_note` 一致）。
 
 ---
 
@@ -175,3 +200,4 @@ SPEC 02 §W3：缺四字段属实（PROMPT §3 W3 行 + 事实卡 §11 双源）
 | 日期 | 说明 |
 |------|------|
 | 2026-09-11 | 初稿 · 10-task 批量拆波（W2–W7 每波一份 · 00 委派）· 预填 Harness 元信息 + wiki_delta |
+| 2026-09-11 | W3 实现落地 · 30+40 闭环：verify --json 只增不改补 traceId/exitCode/source/injectedFiles（inject-collect 收口 · VERIFY_BLOCKED_EXIT_CODE 同源常量 · task/spec 双模同口径）· cli-verify-observability 5 测新增 · 验收 7/7 自证全过（提交 da66325） |
