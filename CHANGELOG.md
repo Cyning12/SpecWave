@@ -4,7 +4,23 @@
 
 ## [Unreleased]
 
-（空 · 2.2.0 已归拢；下一波见 docs/roadmap 2.3 规划）
+（空 · 下一波见 docs/roadmap 2.3 规划）
+
+## [2.2.1] - 2026-09-12
+
+> 主题：**patch** —— 2.2.0 验收报告 **PASS-with-issues** 四项修复（§4 #1/#2/#3/#6 · task `2-2-1-patch`）。  
+> **发布状态**：**待发版**（bump 已落 · tag/push/publish 仅人 · 当前 registry `latest` 仍为 `2.2.0`）。
+
+### Fixed
+
+- **P0 · C1 symlink 穿透封堵**：`resolveTaskPath`（`src/cli-shared.ts` · 单点收口覆盖 verify / gate-check / audit / `--spec` 四调用点）在词法归卡之上叠加 **realpath 归卡**——`--task`/`--spec` 经仓内符号链接指向 target 之外文件一律拒止（exit 1 · 含迁移指引 · 不留读痕）；**双侧 realpath**（target 自身也归一）避免 macOS `/tmp`→`/private/tmp` 靶场误拒仓内合法路径；悬空 symlink 保持「未找到」语义（existsSync 跟随兜底）；仓内 symlink 指仓内文件、target 内绝对路径存量 CI 用法放行不破。
+- **P1 · `pins fix` 静默部分修复**：`src/cli-pins.ts` 写盘前**按文件聚合 plan**——同文件多钉面（pin-11/12 场景）基于累计内容依序替换、一次写盘、只备份一次；单次 `pins fix --yes` 即收敛，杜绝「exit 0 自称全修却留坏值」；S2 硬拒写 / dry-run / `.bak` 备份 / unfixable 语义全部保持。
+- **P2 · `.gitignore` 加 `.workbuddy/`**：公开仓防 `git add -A` 误推未跟踪内部资料（验收报告 §5）。
+- **P2 · `package.json#files` 加 `GLOSSARY.md`**：修安装后 README 双语 4 处相对链接死链（验收报告 §2 W5）。
+
+### Tests
+
+- 新增 symlink 负向（四调用点穿透拒止 + 悬空「未找到」+ 仓内放行回归）与同文件双钉面一次收敛（`test/cli-security-closure.test.ts` · `test/pins-consistency.test.ts` B11）；测试基线 459 → 464（tag-gated 设计红留痕口径同 W8：pin-10 `v2.2.1` 待人打 tag 后复跑须全绿）。
 
 ## [2.2.0] - 2026-09-11
 

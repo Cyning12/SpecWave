@@ -2,7 +2,7 @@
 
 简体中文 | [English](README.md)
 
-**SpecWave**（`spec-wave@2.2.0`）是 **多宿主编码 CLI**（Cursor · Claude Code · 可选 DSH），带 **P0 闸 / Harness 过程命令** 与 IDE 物化。曾用名 **SpecGate** / **dsh-coding-kit**。纪律资产仍是 ICVO（Inform · Constrain · Verify · Orchestrate）。
+**SpecWave**（`spec-wave@2.2.1`）是 **多宿主编码 CLI**（Cursor · Claude Code · 可选 DSH），带 **P0 闸 / Harness 过程命令** 与 IDE 物化。曾用名 **SpecGate** / **dsh-coding-kit**。纪律资产仍是 ICVO（Inform · Constrain · Verify · Orchestrate）。
 
 > **加载 ≠ 注入。** 安装或加载可选 DSH 插件 **不会** 自动改写 system prompt。`apply()` 只注册工具。必须由你或模型调用 `apply_coding_standards` 之后，后续回合的 runtime context 才会含 `# Coding Standards`。
 >
@@ -15,7 +15,7 @@
 | Cursor / Claude Code / CI · 存量仓 | `npx spec-wave`（可选 `host apply`） | 不要把插件 `init_coding_kit` 与 CLI `init` 当成同一入口 |
 | DSH 会话 / 模型调工具（可选） | `dsh plugin add spec-wave`（旧包 `dsh-coding-kit` **已 deprecate**，勿再 add 旧名） | 不要只 `npm install`（缺 bundle 层则工具不出现） |
 
-主入口是 npm 包 **`spec-wave@2.2.0`** 的 **`npx spec-wave`**。过渡 bin `specgate` / `dsh-coding-kit` 仍可用。插件面与 CLI 面互不替代。
+主入口是 npm 包 **`spec-wave@2.2.1`** 的 **`npx spec-wave`**。过渡 bin `specgate` / `dsh-coding-kit` 仍可用。插件面与 CLI 面互不替代。
 
 ### 一包多宿主（F6 · 2.0 + 技能/编排 · 2.1 · tools UX · 2.1.1）
 
@@ -42,17 +42,17 @@
 最短路径（先 dry-run，再写盘）：
 
 ```bash
-npx spec-wave@2.2.0 host validate
-npx spec-wave@2.2.0 host apply --tools cursor,claude,dsh --profile core
-npx spec-wave@2.2.0 host apply --tools cursor,claude,dsh --profile core --yes
+npx spec-wave@2.2.1 host validate
+npx spec-wave@2.2.1 host apply --tools cursor,claude,dsh --profile core
+npx spec-wave@2.2.1 host apply --tools cursor,claude,dsh --profile core --yes
 # 可选：--profile expanded   # kit-hat-* 薄壳
 # 可选：--tools all
 
 # 升包后：刷粘性已选宿主（不必再抄 --tools）
-npx spec-wave@2.2.0 host update --yes
+npx spec-wave@2.2.1 host update --yes
 
 # 首次 / CI：init 选型（仅过程根：--tools none）
-npx spec-wave@2.2.0 init --preset harness-only --tools cursor,claude,dsh --yes
+npx spec-wave@2.2.1 init --preset harness-only --tools cursor,claude,dsh --yes
 ```
 
 `--yes` 后：Cursor 命令面板应可见 `kit-verify` / `kit-gate-status` 等；Claude Code 应对应出现 `/kit:verify` 等；DSH 应列出 `.dsh/skills/kit-*`。完整矩阵见 [`assets/ide/host-adapt/README.md`](assets/ide/host-adapt/README.md)；录屏清单见 [`docs/guides/DOGFOOD_host_adapt_cursor_claude_录屏清单_v1_zh.md`](docs/guides/DOGFOOD_host_adapt_cursor_claude_录屏清单_v1_zh.md)；规划见 [`docs/roadmap/PLAN_2_1_1_host_tools_ux_v1_zh.md`](docs/roadmap/PLAN_2_1_1_host_tools_ux_v1_zh.md)。
@@ -272,15 +272,15 @@ kit **源码仓**以 `docs/_tech_graph/` 做 `graph yaml compile|check|export` �
 
 完整清单、F4 方案 B 布局与 **已公布** EOS / deprecate 日历：见 [`MIGRATION.md`](./MIGRATION.md)。
 
-钉 **spec-wave@2.2.0** 后可去掉 `@cyning/harness`。最小路径三步（必须，按序）：
+钉 **spec-wave@2.2.1** 后可去掉 `@cyning/harness`。最小路径三步（必须，按序）：
 
-1. 把 `devDependency` `@cyning/harness` 换成 `spec-wave`（钉 `2.2.0`；曾用名 `dsh-coding-kit`）。
-2. 在仓根执行 `npx spec-wave upgrade --yes`（读优先 `.coding-kit/manifest.json`，否则 legacy `.cyning-harness/manifest.json`；**写入** `.coding-kit/manifest.json`，`version` 钉 2.2.0，`from_version` 记旧号；**不删除** `.cyning-harness/`）。
+1. 把 `devDependency` `@cyning/harness` 换成 `spec-wave`（钉 `2.2.1`；曾用名 `dsh-coding-kit`）。
+2. 在仓根执行 `npx spec-wave upgrade --yes`（读优先 `.coding-kit/manifest.json`，否则 legacy `.cyning-harness/manifest.json`；**写入** `.coding-kit/manifest.json`，`version` 钉 2.2.1，`from_version` 记旧号；**不删除** `.cyning-harness/`）。
 3. CI / 脚本里把 `npx @cyning/harness` / `npx dsh-coding-kit` 换成 `npx spec-wave`。
 
 **布局**：过程落盘现行根为 **`.coding-kit/`**；`.cyning-harness/` 为 **legacy 只读**。勿再把 `.cyning-harness` 当新标准目录。
 
-Skill 安装为 **推荐、非必须**（最小路径不依赖 DSH 扫 skill）。命令一律 `npx spec-wave`。旧包 **`@cyning/harness` 已在 npm deprecate**（2026-09-10 · 仅维护者可操作）；请钉 **`spec-wave@2.2.0`** 并按 `MIGRATION.md` 迁移。
+Skill 安装为 **推荐、非必须**（最小路径不依赖 DSH 扫 skill）。命令一律 `npx spec-wave`。旧包 **`@cyning/harness` 已在 npm deprecate**（2026-09-10 · 仅维护者可操作）；请钉 **`spec-wave@2.2.1`** 并按 `MIGRATION.md` 迁移。
 
 ### FAQ · pnpm peer
 
@@ -291,12 +291,12 @@ Skill 安装为 **推荐、非必须**（最小路径不依赖 DSH 扫 skill）�
 整段粘贴：
 
 ````text
-你 = 本仓库维护 Agent。把本仓从 @cyning/harness 迁到 spec-wave@2.2.0。
+你 = 本仓库维护 Agent。把本仓从 @cyning/harness 迁到 spec-wave@2.2.1。
 
 最小路径（必须，按序）：
-1. package.json 的 devDependency：删除 @cyning/harness，改为 spec-wave（钉 2.2.0；曾用名 dsh-coding-kit）。
+1. package.json 的 devDependency：删除 @cyning/harness，改为 spec-wave（钉 2.2.1；曾用名 dsh-coding-kit）。
 2. 在仓根执行：npx spec-wave upgrade --yes
-   （读 .coding-kit/manifest.json 或 legacy .cyning-harness/manifest.json；写入 .coding-kit/manifest.json；version 钉 2.2.0，from_version 记旧号；不删除 .cyning-harness/；不覆盖 docs/tasks、reviews、invokes/by-task。）
+   （读 .coding-kit/manifest.json 或 legacy .cyning-harness/manifest.json；写入 .coding-kit/manifest.json；version 钉 2.2.1，from_version 记旧号；不删除 .cyning-harness/；不覆盖 docs/tasks、reviews、invokes/by-task。）
 3. CI 与脚本里所有 npx @cyning/harness 与 npx dsh-coding-kit 换成 npx spec-wave。
 命令一律 npx spec-wave。禁止再写 npx @cyning/harness skills build。
 布局与 EOS 日历见 MIGRATION.md（人闸未批前不得宣称已 deprecate）。
@@ -360,7 +360,7 @@ Skills **不能**覆盖全部过程能力。Host 要嵌套 Harness 过程，须�
 
 ## 发版（维护者）
 
-**现行包**：**`spec-wave@2.2.0`** — **已 published**（`latest` · tag `v2.2.0`）。前一已发：**`2.1.3`**（溯源自动化 patch）· **`2.1.2`**（改名收口）。
+**现行包**：**`spec-wave@2.2.1`** — bump 已落 · **待发版**；registry `latest` = **`2.2.0`**（已 published · tag `v2.2.0`）。前一已发：**`2.1.3`**（溯源自动化 patch）· **`2.1.2`**（改名收口）。
 
 发布流程见 [RELEASING.md](RELEASING.md) —— publish 前硬步骤 checklist（先 commit 后 publish · 四门全绿 · 版本钉同步 · **Agent 可 bump/tag** · **`npm publish` 仅人**；DEF-001 教训制度化）。
 

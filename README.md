@@ -2,7 +2,7 @@
 
 [简体中文](README.zh-CN.md) | English
 
-**SpecWave** (`spec-wave@2.2.0`) is a **multi-host coding CLI** (Cursor · Claude Code · optional DSH) with **P0 gate / Harness process commands** and IDE landing. Formerly **SpecGate** / **dsh-coding-kit**. Discipline assets remain ICVO (Inform · Constrain · Verify · Orchestrate).
+**SpecWave** (`spec-wave@2.2.1`) is a **multi-host coding CLI** (Cursor · Claude Code · optional DSH) with **P0 gate / Harness process commands** and IDE landing. Formerly **SpecGate** / **dsh-coding-kit**. Discipline assets remain ICVO (Inform · Constrain · Verify · Orchestrate).
 
 > **Loading ≠ injecting.** Installing or loading the optional DSH plugin does **not** automatically rewrite the system prompt. `apply()` only registers tools. Only after you or the model calls `apply_coding_standards` will later turns' runtime context contain `# Coding Standards`.
 >
@@ -15,7 +15,7 @@
 | Cursor / Claude Code / CI on existing repos | `npx spec-wave` (+ optional `host apply`) | Don't treat the plugin `init_coding_kit` and the CLI `init` as the same entry |
 | DSH session / model calling tools (optional) | `dsh plugin add spec-wave` (`dsh-coding-kit` **deprecated** — do not add the old name) | Don't just `npm install` (without the bundle layer the tools won't appear) |
 
-Primary entry is **`npx spec-wave`** from npm package **`spec-wave@2.2.0`**. Transition bins `specgate` and `dsh-coding-kit` still work. The plugin surface and the CLI surface do not replace each other.
+Primary entry is **`npx spec-wave`** from npm package **`spec-wave@2.2.1`**. Transition bins `specgate` and `dsh-coding-kit` still work. The plugin surface and the CLI surface do not replace each other.
 
 ### Multi-host in one package (F6 · 2.0 + skills/orch · 2.1 · tools UX · 2.1.1)
 
@@ -42,17 +42,17 @@ One declarative table → native landing on several hosts (always_on + skills + 
 Shortest path (dry-run first, then write):
 
 ```bash
-npx spec-wave@2.2.0 host validate
-npx spec-wave@2.2.0 host apply --tools cursor,claude,dsh --profile core
-npx spec-wave@2.2.0 host apply --tools cursor,claude,dsh --profile core --yes
+npx spec-wave@2.2.1 host validate
+npx spec-wave@2.2.1 host apply --tools cursor,claude,dsh --profile core
+npx spec-wave@2.2.1 host apply --tools cursor,claude,dsh --profile core --yes
 # optional: --profile expanded   # kit-hat-* thin shells
 # optional: --tools all
 
 # After upgrading the package: refresh sticky hosts (no need to re-list --tools)
-npx spec-wave@2.2.0 host update --yes
+npx spec-wave@2.2.1 host update --yes
 
 # First-time / CI: init + host selection (process-root only: --tools none)
-npx spec-wave@2.2.0 init --preset harness-only --tools cursor,claude,dsh --yes
+npx spec-wave@2.2.1 init --preset harness-only --tools cursor,claude,dsh --yes
 ```
 
 After `--yes`, Cursor Command Palette should see `kit-verify` / `kit-gate-status` / …; Claude Code should see `/kit:verify` etc.; DSH should list matching `.dsh/skills/kit-*`. Full matrix: [`assets/ide/host-adapt/README.md`](assets/ide/host-adapt/README.md) · dogfood/recording: [`docs/guides/DOGFOOD_host_adapt_cursor_claude_录屏清单_v1_zh.md`](docs/guides/DOGFOOD_host_adapt_cursor_claude_录屏清单_v1_zh.md) · plan: [`docs/roadmap/PLAN_2_1_1_host_tools_ux_v1_zh.md`](docs/roadmap/PLAN_2_1_1_host_tools_ux_v1_zh.md).
@@ -272,15 +272,15 @@ When a task declares `test_strategy=required`, `audit` / `verify` run the D5 har
 
 Full checklist, layout rules (F4 scheme B), and **published** EOS / deprecate calendar: see [`MIGRATION.md`](./MIGRATION.md).
 
-After pinning **spec-wave@2.2.0** you can drop `@cyning/harness`. Minimal path, three steps (required, in order):
+After pinning **spec-wave@2.2.1** you can drop `@cyning/harness`. Minimal path, three steps (required, in order):
 
-1. Replace the `devDependency` `@cyning/harness` with `spec-wave` (pin `2.2.0`; formerly `dsh-coding-kit`).
-2. Run `npx spec-wave upgrade --yes` at the repo root (reads `.coding-kit/manifest.json` if present, else legacy `.cyning-harness/manifest.json`; **writes** `.coding-kit/manifest.json` with `version` pinned at 2.2.0 and `from_version` recording the old number; **does not delete** `.cyning-harness/`).
+1. Replace the `devDependency` `@cyning/harness` with `spec-wave` (pin `2.2.1`; formerly `dsh-coding-kit`).
+2. Run `npx spec-wave upgrade --yes` at the repo root (reads `.coding-kit/manifest.json` if present, else legacy `.cyning-harness/manifest.json`; **writes** `.coding-kit/manifest.json` with `version` pinned at 2.2.1 and `from_version` recording the old number; **does not delete** `.cyning-harness/`).
 3. In CI / scripts, replace `npx @cyning/harness` / `npx dsh-coding-kit` with `npx spec-wave`.
 
 **Layout**: new kit process files land under **`.coding-kit/`**. `.cyning-harness/` remains **legacy read-only**. Do not treat `.cyning-harness` as the new standard root.
 
-Skill installation is **recommended, not required** (the minimal path does not depend on DSH scanning skills). Commands are always `npx spec-wave`. **`@cyning/harness` is deprecated** on npm (2026-09-10 · maintainer-only); pin **`spec-wave@2.2.0`** and migrate via `MIGRATION.md`.
+Skill installation is **recommended, not required** (the minimal path does not depend on DSH scanning skills). Commands are always `npx spec-wave`. **`@cyning/harness` is deprecated** on npm (2026-09-10 · maintainer-only); pin **`spec-wave@2.2.1`** and migrate via `MIGRATION.md`.
 
 ### FAQ · pnpm peer
 
@@ -291,12 +291,12 @@ If pnpm install still fails on the peer chain (e.g. resolving to an unpublished 
 Paste the whole block:
 
 ````text
-You = the maintenance agent of this repository. Migrate this repo from @cyning/harness to spec-wave@2.2.0.
+You = the maintenance agent of this repository. Migrate this repo from @cyning/harness to spec-wave@2.2.1.
 
 Minimal path (required, in order):
-1. package.json devDependency: delete @cyning/harness, replace with spec-wave (pinned at 2.2.0; formerly dsh-coding-kit).
+1. package.json devDependency: delete @cyning/harness, replace with spec-wave (pinned at 2.2.1; formerly dsh-coding-kit).
 2. Run at the repo root: npx spec-wave upgrade --yes
-   (reads .coding-kit/manifest.json or legacy .cyning-harness/manifest.json; writes .coding-kit/manifest.json; version pinned at 2.2.0, from_version records the old number; never deletes .cyning-harness/; never overwrites docs/tasks, reviews, invokes/by-task.)
+   (reads .coding-kit/manifest.json or legacy .cyning-harness/manifest.json; writes .coding-kit/manifest.json; version pinned at 2.2.1, from_version records the old number; never deletes .cyning-harness/; never overwrites docs/tasks, reviews, invokes/by-task.)
 3. Replace every npx @cyning/harness and npx dsh-coding-kit in CI and scripts with npx spec-wave.
 Commands are always npx spec-wave. Never write npx @cyning/harness skills build again.
 See MIGRATION.md for layout (.coding-kit vs legacy) and EOS calendar (pending human gates).
@@ -360,7 +360,7 @@ Three surfaces, not interchangeable: **System/Re-anchor** = short identity; **fu
 
 ## Releasing (maintainers)
 
-**Current package**: **`spec-wave@2.2.0`** — **published** (`latest` · tag `v2.2.0`). Prior: **`2.1.3`** (release-traceability patch) · **`2.1.2`** (rename closeout).
+**Current package**: **`spec-wave@2.2.1`** — bump landed · **pending release**; registry `latest` = **`2.2.0`** (published · tag `v2.2.0`). Prior: **`2.1.3`** (release-traceability patch) · **`2.1.2`** (rename closeout).
 
 Release process: see [RELEASING.md](RELEASING.md) — hard pre-publish checklist (commit-before-publish · four green gates · version pins · Agent may bump/tag · **human-only `npm publish`**; institutionalizes the DEF-001 lesson).
 
