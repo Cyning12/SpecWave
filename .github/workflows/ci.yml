@@ -8,6 +8,7 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    timeout-minutes: 15  # F-A1-07：防空跑卡死（原缺失 · 2.2.0 W1 补）
     strategy:
       fail-fast: false
       matrix:
@@ -26,3 +27,4 @@ jobs:
       - run: npm test
       - run: npm run build
       - run: npm run test:lib
+      - run: node bin/specgate.js pins check  # 2.2.0 W1 · A1：版本/身份钉门禁（偏差 exit 2 · D-PINS-EXIT）

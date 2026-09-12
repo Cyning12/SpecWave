@@ -1,0 +1,92 @@
+# Release pins · 版本/身份钉单一声明源（2.2.0 W1 · A1 · 蓝本 SPEC 01 §5/§6.1 · 2_2-closed-loop-start 夹）
+#
+# 真值源：package.json#version（pin-01）；其余钉面向它对齐。
+# 数据驱动：新增/调整落点只改本文件，不改 TypeScript（PROMPT §4.a · SPEC 01 §4 非范围首条）。
+# extract 表达式本身也是数据；expected 关系：self（真值源自身）/ package-version（=package.json#version）/ const / const-map。
+# fixable = pins fix 是否可写该落点；S2（docs/tasks · docs/harness/reviews · docs/harness/invokes/by-task）机械拒写 · 无豁免参数。
+# 门禁：prepublishOnly 链尾 + CI workflow test job（D-PINS-EXIT：偏差 exit 2）。
+
+version: "1"
+truth_source: package.json#version
+
+pins:
+  - id: pin-01
+    path: package.json
+    extract: { kind: json-field, field: version }
+    expected: { kind: self }
+    required: true
+    fixable: false
+    note: 唯一真值源（SPEC 01 §5 #1）；其余钉面向它对齐，pins fix 永不反向改
+  - id: pin-02
+    path: package.json
+    extract: { kind: json-field, field: name }
+    expected: { kind: const, value: spec-wave }
+    required: true
+    fixable: false
+    note: 包名钉（改名史 SpecGate → SpecWave）；只校验不修复
+  - id: pin-03
+    path: assets/ontology.yaml
+    extract: { kind: regex, pattern: '^product_semver:\s*"([^"]+)"', flags: m }
+    expected: { kind: package-version }
+    required: true
+    fixable: true
+  - id: pin-04
+    path: assets/harness/discipline-coverage.yaml
+    extract: { kind: regex, pattern: '^as_of_package_version:\s*"([^"]+)"', flags: m }
+    expected: { kind: package-version }
+    required: true
+    fixable: true
+  - id: pin-05
+    path: README.md
+    extract: { kind: regex-all, pattern: 'spec-wave@(\d+\.\d+\.\d+)', flags: g }
+    expected: { kind: package-version }
+    required: true
+    fixable: true
+    note: 全部出现处均须等于包版本（11 处实测 @2026-09-11）
+  - id: pin-06
+    path: README.zh-CN.md
+    extract: { kind: regex-all, pattern: 'spec-wave@(\d+\.\d+\.\d+)', flags: g }
+    expected: { kind: package-version }
+    required: true
+    fixable: true
+    note: 全部出现处均须等于包版本（11 处实测 @2026-09-11）
+  - id: pin-07
+    path: RELEASING.md
+    extract: { kind: regex, pattern: 'registry `latest`\*\* \| \*\*`spec-wave@(\d+\.\d+\.\d+)`', flags: m }
+    expected: { kind: package-version }
+    required: true
+    fixable: true
+    note: 仅「工作树 / registry latest」现行包行（:13）；历史行（前一 latest 等）不钉
+  - id: pin-08
+    path: docs/spec/README.md
+    extract:
+      kind: spec-index-row
+      # D-PINS-SCOPE-8：提取语义作为数据声明（非硬编码）。
+      semantics: >-
+        索引表存在当前 minor 对应行或标注行。机械化口径：当前版本 X.Y.Z →
+        索引表须存在含点式 X.Y.Z 或下划线式 X_Y_Z 的表格行（| 开头）；
+        X.Y.0 时 minor 主题夹行描述含 X.Y.0 即满足，patch 时须 X_Y_Z-* 夹行或 patch 标注行
+        （D-SPEC-213-ROW：2.1.3 以 patch 收尾标注行落地，不建 2_1_3-* 夹）
+    expected: { kind: package-version }
+    required: true
+    fixable: false
+    note: 半可写（SPEC 01 §5 #8）：仅可按 D-SPEC-213-ROW 模板人工补行；pins fix 不代写文档叙事行
+  - id: pin-09
+    path: package.json
+    extract: { kind: json-bin }
+    expected:
+      kind: const-map
+      value:
+        spec-wave: bin/specgate.js
+        specgate: bin/specgate.js
+        dsh-coding-kit: bin/dsh-coding-kit.js
+    required: true
+    fixable: false
+    note: bin 三入口钉（沿袭 2.1.2 B-BIN-FILE=拒绝改 bin 文件名）；只校验不修复
+  - id: pin-10
+    path: git
+    extract: { kind: git-tag, pattern: 'v{version}' }
+    expected: { kind: package-version }
+    required: true
+    fixable: false
+    note: tag vX.Y.Z 存在性；git 操作仅人（F-A1-05），pins fix 永不动 git

@@ -23,6 +23,7 @@ import {
 import { cmdStatus, cmdTimeline } from './cli-status.ts'
 import { cmdSync } from './cli-sync.ts'
 import { cmdTaskCheck, cmdTaskLintDone, cmdTaskLintWikiDelta, lintWikiDeltaMissing } from './cli-task-extra.ts'
+import { cmdPins } from './cli-pins.ts'
 import { cmdWiki } from './cli-wiki.ts'
 
 type Manifest = {
@@ -91,6 +92,8 @@ function usage(version: string): void {
   npx spec-wave host apply --tools LIST [--profile core] [--target PATH] [--file PATH] [--json] [--dry-run|--yes]
   npx spec-wave host update [--tools LIST] [--profile core] [--target PATH] [--file PATH] [--json] [--dry-run|--yes] [--force]
   npx spec-wave wiki export --json [--target PATH]
+  npx spec-wave pins check [--target PATH] [--json]
+  npx spec-wave pins fix [--target PATH] [--yes]  （默认 dry-run · S2 机械拒写）
   npx spec-wave task lint-done [--target PATH]
   npx spec-wave task lint-wiki-delta [--target PATH] [--scope all|active|done] [--strict] [--json]
     诊断码: wiki_delta_missing（缺字段）· wiki_delta_wrong_section（字段写在 ## Harness 元信息 之外的节 · 替代 missing 不双报）
@@ -1078,6 +1081,10 @@ export async function runCli(argv: string[]): Promise<void> {
   }
   if (cmd === 'wiki') {
     await cmdWiki(rest)
+    return
+  }
+  if (cmd === 'pins') {
+    await cmdPins(rest)
     return
   }
   fail(`未知命令: ${cmd}\n`)
