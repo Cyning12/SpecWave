@@ -112,7 +112,7 @@ function taskMd(opts: {
 }
 
 describe('C* CLI P0 runtime', { concurrency: 1 }, () => {
-  it('C-bin / version: package.json 为 2.1.3 且三 bin（spec-wave + specgate + dsh-coding-kit）', async () => {
+  it('C-bin / version: package.json 为 2.2.0 且三 bin（spec-wave + specgate + dsh-coding-kit）', async () => {
     const pkgRaw = await readFile(path.join(KIT, 'package.json'), 'utf8')
     const pkg = JSON.parse(pkgRaw) as {
       name?: string
@@ -120,7 +120,7 @@ describe('C* CLI P0 runtime', { concurrency: 1 }, () => {
       bin?: Record<string, string>
     }
     assert.equal(pkg.name, 'spec-wave')
-    assert.equal(pkg.version, '2.1.3')
+    assert.equal(pkg.version, '2.2.0')
     assert.notEqual(pkg.version, '1.0.0')
     assert.notEqual(pkg.version, '0.1.0')
     assert.ok(pkg.bin && pkg.bin['spec-wave'], 'missing bin.spec-wave')
@@ -165,9 +165,9 @@ describe('C* CLI P0 runtime', { concurrency: 1 }, () => {
     assert.equal(/未交付/.test(help), false)
   })
 
-  it('R-HELP README: 完成态 2.1.3；双入口；加载≠注入；钉版后可去旧包', async () => {
+  it('R-HELP README: 完成态 2.2.0；双入口；加载≠注入；钉版后可去旧包', async () => {
     const readme = await readFile(path.join(KIT, 'README.md'), 'utf8')
-    assert.match(readme, /spec-wave@2\.1\.3/)
+    assert.match(readme, /spec-wave@2\.2\.0/)
     assert.match(readme, /Loading\s*≠\s*injecting/)
     assert.match(readme, /apply_coding_standards/)
     assert.match(readme, /dsh plugin add/)
@@ -194,7 +194,7 @@ describe('C* CLI P0 runtime', { concurrency: 1 }, () => {
       files?: string[]
     }
     assert.equal(pkg.name, 'spec-wave')
-    assert.equal(pkg.version, '2.1.3')
+    assert.equal(pkg.version, '2.2.0')
     assert.ok(pkg.bin)
     assert.deepEqual(Object.keys(pkg.bin), ['spec-wave', 'specgate', 'dsh-coding-kit'])
     assert.equal(Object.prototype.hasOwnProperty.call(pkg.bin, 'cyning-harness'), false)
@@ -223,8 +223,8 @@ describe('C* CLI P0 runtime', { concurrency: 1 }, () => {
     }>
     assert.ok(Array.isArray(parsed) && parsed[0])
     const info = parsed[0]
-    assert.equal(info.version, '2.1.3')
-    assert.match(String(info.filename ?? info.id ?? ''), /spec-wave-2\.1\.3/)
+    assert.equal(info.version, '2.2.0')
+    assert.match(String(info.filename ?? info.id ?? ''), /spec-wave-2\.2\.0/)
     const paths = (info.files ?? []).map((f) => f.path.replace(/\\/g, '/'))
     const joined = paths.join('\n')
     assert.equal(paths.includes('SPEC.md'), false, 'pack must not contain SPEC.md')
@@ -249,7 +249,7 @@ describe('C* CLI P0 runtime', { concurrency: 1 }, () => {
     })
   })
 
-  it('C1: init --preset harness-only --yes 写出 version=2.1.3 且不写 S2', async () => {
+  it('C1: init --preset harness-only --yes 写出 version=2.2.0 且不写 S2', async () => {
     await withTemp(async (dir) => {
       const r = runCli([
         'init',
@@ -265,7 +265,7 @@ describe('C* CLI P0 runtime', { concurrency: 1 }, () => {
       const mfPath = path.join(dir, '.coding-kit', 'manifest.json')
       assert.equal(existsSync(mfPath), true)
       const mf = JSON.parse(await readFile(mfPath, 'utf8')) as { version: string }
-      assert.equal(mf.version, '2.1.3')
+      assert.equal(mf.version, '2.2.0')
       for (const rel of S2_RELS) {
         assert.equal(existsSync(path.join(dir, rel)), false, `S2 leaked: ${rel}`)
       }

@@ -10,7 +10,7 @@
 
 | 项 | 值 |
 |----|-----|
-| **工作树 / registry `latest`** | **`spec-wave@2.1.3`**（**已 published** · 2026-09-11 · 人 · tag **`v2.1.3`** ↔ 同 commit） |
+| **工作树 / registry `latest`** | **`spec-wave@2.2.0`**（**bump 已落 · 待发版** · 2026-09-11 · tag `v2.2.0` 待人打 · publish 归维护者；registry `latest` 仍为 **2.1.3**，publish 后回填本行） |
 | **前一 latest** | **`spec-wave@2.1.2`**（改名收口） |
 | **旧包名** | **`dsh-coding-kit`** · **已 deprecate**（文案 → `spec-wave`） |
 | **git（史实 · 2.1.1）** | tag **`v2.1.1`** · 改名前身份；**`v2.1.2` / `v2.1.3`** 为 SpecWave 身份可溯源点（**禁止** `git tag -f`） |

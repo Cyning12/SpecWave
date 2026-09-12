@@ -4,9 +4,35 @@
 
 ## [Unreleased]
 
+（空 · 2.2.0 已归拢；下一波见 docs/roadmap 2.3 规划）
+
+## [2.2.0] - 2026-09-11
+
+> 主题：**minor** —— **闭环起步（closed-loop start）**：W1 版本/身份钉自动化（核心）+ W2–W7 安全封堵 / 可观测字段 / 上手断档 / 术语表 / 三宿主 / 小清理；**不动 schema、不动架构、不加 hooks**。  
+> 规划：[`docs/roadmap/PLAN_2_2_closed_loop_start_v1_zh.md`](docs/roadmap/PLAN_2_2_closed_loop_start_v1_zh.md) · SPEC：[`docs/spec/2_2-closed-loop-start/`](docs/spec/2_2-closed-loop-start/)  
+>
+> **发布状态**：**待发版**（bump 已落 main · tag `v2.2.0` 待人打 · `npm publish` 归维护者 · 发布三步核对单见 `RELEASING.md`）。
+
 ### Added
 
+- **2.2-W1（A1 · 本次核心）版本/身份钉自动化**：单一声明源 `assets/release-pins.yaml`（12 钉面 · `extract` 表达式本身也是数据 · `fixable` 矩阵 · S2 目录机械拒写无豁免参数）；新子命令 `spec-wave pins check [--json]`（干净 exit 0 · 任一偏差 **exit 2**（D-PINS-EXIT）· `--json` 输出每落点 path/expected/actual/status）与 `spec-wave pins fix [--yes]`（默认 dry-run · 写前备份 `.bak` · 只修 `fixable` 落点 · 真值源 pin-01 与 git pin-10 永不反向改 · 幂等）；门禁接线 `prepublishOnly` 链尾 + CI test job（D-PINS-EXIT）。测试：`test/pins-consistency.test.ts`（钉面失配**真失败** · S2 拒写反向验证）。
 - **2.2-W3（C2）**：`verify --json` 输出**只增不改**补四字段（安全设计 §7.2 · SPEC 02 §W3）：`traceId`（单次运行标识 · 进程内生成 · 不接外部遥测）、`exitCode`（与进程退出码同源）、`source`（注入判定来源 package/override）、`injectedFiles`（注入文件清单 · 复用 M1 注入收集单一实现，新模块 `src/inject-collect.ts` 收口，插件面 `loadMarkdownBundle` 契约不变）。既有字段名与语义不变；task/spec 两模式同口径。测试：`test/cli-verify-observability.test.ts`（四字段存在 + exitCode 一致性 + 旧字段回归 + 键集 diff 级钉死）。
+- **2.2-W4（D1+D3）上手断档消除**：`init` 成功完成（含 `--yes` 非交互）打印 **3 步 quickstart**（① `sync prompts --yes` ② 按模板建首个 task ③ `verify --task` 首验）；README 双语新增「核心对象」节（`task.md` / `spec.md`：是什么 / 从哪来 / 放哪 / 最小示例）；quickstart ↔ 核心对象 ↔ GLOSSARY 三处互链。
+- **2.2-W5（D2）**：仓根新增双语 `GLOSSARY.md`（`task.md`/`spec.md` · `Harness` · `hat` · `kit-*` 四组概念 + 门禁 / 过程轨 / 帽制 / 人闸 / 真值源 等既定中文术语）；README 双语首屏链接。
+- **2.2-W6（B1）三宿主扩展**：适配表新增 `copilot` / `codex` / `windsurf`（落点复用 AGENTS.md 片段 + 各宿主原生 skills/commands 目录）；`host validate` 通过 · `host apply`/`host update` 粘性可用；新宿主版本文案落点纳入钉面（`release-pins.yaml` pin-11/12 **数据**新增，不改 pins 代码）。
+
+### Fixed
+
+- **2.2-W2（C1+C3）安全封堵**：`resolveTaskPath` 层**一处收口**——拒 target 外绝对路径 + 相对路径解析后归卡 target 内（含 `..` 逃逸拒止）+ `resolveTarget` git-root 归属校验；拒止报错含迁移指引（相对路径写法）· exit 1（D-W2-ABS-PATH-UX）；stdout/stderr 目标路径打印改**相对输出**（复用 `toRel`）。负向测试：/etc/hosts 类绝对路径 · `..` 逃逸 · 非 git 仓 target · stdout 无绝对目标路径断言。
+
+### Changed
+
+- **2.2-W7（E1+C7）工程健康小清理（零行为变更）**：`HARNESS_META_HEADING` 单一常量替换 4 文件 18 处字面量（模板插值保输出字节等价）；dest 白名单（`.coding-kit` · `.dsh/coding-kit`）显式化为常量集统一消费（init / host apply / 写盘拒判同源），`.cyning-harness` 显式排除并注释「legacy 只读探测」。
+
+### Docs
+
+- W1–W7 七 task 全 CLOSE（`docs/tasks/done/` · 459/459 测试绿）；`docs/spec/README.md` `2_2-closed-loop-start` 行转 IMPLEMENTED（待发版）。
+- pins 首次实战（本 bump）：7 钉面偏差一键 `pins fix --yes` 对齐；发现同文件双钉面（pin-11/12）单次运行串行写互相覆盖缺陷，二跑幂等收敛（候选债项 · 留痕 `task_2_2_closed_loop_w8_release_prep`）。
 
 ## [2.1.3] - 2026-09-10
 
