@@ -9,6 +9,7 @@
 
 | 关账日 | task | 摘要 |
 |--------|------|------|
+| 2026-09-12 | [`task_2_3_wiring_w1_pins_hardening.md`](./task_2_3_wiring_w1_pins_hardening.md) | 2.3.0 W1 · pins 机制补强（核心波）：pin-08 弱钉改严（D-23-PIN08-STRICT 双判 · 别行 prose 兜底反例杀伤）+ 三面入钉 pin-13/14/15（CHANGELOG 发布头 / MIGRATION / AGENTS · 纯数据）+ 失配 fixture 补 pin-04/06/07/10/11/12 + `extractSpecSlug` 目录型 slug 修复（D-23-SPEC-SLUG）+ unfixable 误报评估（结论不修）· 484/484 · pins 15/15 · 不 bump 版本号 |
 | 2026-09-12 | [`task_2_2_1_patch.md`](./task_2_2_1_patch.md) | 2.2.1 patch · 验收报告 PASS-with-issues 四项修复：`resolveTaskPath` 双侧 realpath 归卡（C1 symlink 穿透封堵 · 四调用点单点收口）+ `pins fix` 按文件聚合（同文件多钉面一次写盘收敛）+ `.gitignore` 加 `.workbuddy/` + `files` 加 GLOSSARY.md · bump 2.2.1（pins 11/12 · pin-10 tag-gated 设计红待人打）· 462/464（2 红 tag-gated 设计红）· 提交 d77b707 + c828e5e · 零发布本体越权 |
 | 2026-09-11 | [`task_2_2_closed_loop_w1_release_pins.md`](./task_2_2_closed_loop_w1_release_pins.md) | 2.2.0 W1 · A1 版本/身份钉自动化：`release-pins.yaml` 声明源 + `pins check/fix` + 门禁接线（D-PINS-EXIT exit 2 · S2 机械拒写）· 验收 ①–⑪ 自证 · 不 bump 版本号 |
 | 2026-09-11 | [`task_2_2_closed_loop_w2_security_closure.md`](./task_2_2_closed_loop_w2_security_closure.md) | 2.2.0 W2 · C1+C3 安全封堵：`resolveTaskPath` 单点收口拒 target 外路径（D-W2-ABS-PATH-UX exit 1 + 迁移指引）· `--target` git-root 归属校验（gate 面）· `目标:` 打印相对化 · 439/439 测试 · 不 bump 版本号 |
@@ -49,3 +50,4 @@
 | 2026-09-11 | 增 2.2.0 W3 verify-json-fields 关账行 |
 | 2026-09-11 | 增 2.2.0 W6 host-expansion 关账行 |
 | 2026-09-11 | 增 2.2.0 W7 hygiene 关账行 |
+| 2026-09-12 | 增 2.3.0 W1 pins-hardening 关账行 |

@@ -1,5 +1,5 @@
 import { randomBytes } from 'node:crypto'
-import { existsSync, mkdirSync, readFileSync, renameSync } from 'node:fs'
+import { existsSync, mkdirSync, readFileSync, renameSync, statSync } from 'node:fs'
 import { readFile, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import readline from 'node:readline'
@@ -668,6 +668,12 @@ async function verifySpecMode(
     )
   }
   if (!existsSync(abs)) fail(`错误: 未找到 --spec 文件 ${abs}`)
+  // F-W1-05（2.3-W1）：--spec 传目录路径本身 → 干净「用法错」exit 1
+  //（止血裸 EISDIR 崩溃 · 不新增目录直读能力 · 目录型夹须传夹内 SPEC 文件）。
+  if (statSync(abs).isDirectory()) {
+    fail(`错误: --spec 须为 SPEC 文件（收到目录）: ${abs} · 目录型夹请传 ` +
+      `docs/spec/<slug>/README.md 或 SPEC_<slug>_v1.md`)
+  }
   const content = await readFile(abs, 'utf8')
   // K3：--with-wiki-lint 在 --spec 模式同生效（20 审 R1 已定 · 复用 lintWikiDeltaMissing 导出 · 默认档 scope=all）
   const wikiLint = opts.withWikiLint ? lintWikiDeltaMissing(target, { scope: 'all' }) : null

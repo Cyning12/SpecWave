@@ -107,6 +107,72 @@ const DUAL_PINS_YAML = FIXTURE_PINS_YAML + [
 
 const DUAL_GOOD = '# 落点矩阵与 CLI（' + FIXTURE_VERSION + '）\n\nsync: spec-wave@' + FIXTURE_VERSION + ' · update: spec-wave@' + FIXTURE_VERSION + '\n'
 const DUAL_BROKEN = DUAL_GOOD.split(FIXTURE_VERSION).join('9.9.9')
+
+// ==== 2.3-W1 pins hardening 扩展 fixture（[A]#8 三面入钉 + [A]#14 失配覆盖补全 · D-23-PIN-3FACES） ====
+const EXT_PINS_YAML = FIXTURE_PINS_YAML + [
+  '  - id: pin-04',
+  '    path: assets/harness/discipline-coverage.yaml',
+  '    extract: { kind: regex, pattern: \'^as_of_package_version:\\s*"([^"]+)"\', flags: m }',
+  '    expected: { kind: package-version }',
+  '    required: true',
+  '    fixable: true',
+  '  - id: pin-06',
+  '    path: README.zh-CN.md',
+  "    extract: { kind: regex-all, pattern: 'spec-wave@(\\d+\\.\\d+\\.\\d+)', flags: g }",
+  '    expected: { kind: package-version }',
+  '    required: true',
+  '    fixable: true',
+  '  - id: pin-07',
+  '    path: RELEASING.md',
+  "    extract: { kind: regex, pattern: 'registry `latest`\\*\\* \\| \\*\\*`spec-wave@(\\d+\\.\\d+\\.\\d+)`', flags: m }",
+  '    expected: { kind: package-version }',
+  '    required: true',
+  '    fixable: true',
+  '  - id: pin-13',
+  '    path: CHANGELOG.md',
+  "    extract: { kind: regex, pattern: '^## \\[(\\d+\\.\\d+\\.\\d+)\\]', flags: m }",
+  '    expected: { kind: package-version }',
+  '    required: true',
+  '    fixable: true',
+  '  - id: pin-14',
+  '    path: MIGRATION.md',
+  "    extract: { kind: regex-all, pattern: 'spec-wave@(\\d+\\.\\d+\\.\\d+)', flags: g }",
+  '    expected: { kind: package-version }',
+  '    required: true',
+  '    fixable: true',
+  '  - id: pin-15',
+  '    path: AGENTS.md',
+  "    extract: { kind: regex-all, pattern: 'npx spec-wave@(\\d+\\.\\d+\\.\\d+)', flags: g }",
+  '    expected: { kind: package-version }',
+  '    required: true',
+  '    fixable: true',
+  '',
+].join('\n')
+
+const GOOD_DISCIPLINE = 'as_of_package_version: "' + FIXTURE_VERSION + '"' + '\n'
+const GOOD_README_ZH = '中文钉 spec-wave@' + FIXTURE_VERSION + ' 处' + '\n'
+const GOOD_RELEASING =
+  '| **工作树 / registry `latest`** | **`spec-wave@' + FIXTURE_VERSION + '`**（已 published） |' + '\n'
+const GOOD_CHANGELOG =
+  '# Changelog\n\n## [Unreleased]\n\n（空）\n\n## [' + FIXTURE_VERSION + '] - 2026-09-12\n\n- x\n'
+const GOOD_MIGRATION = '> 请钉 spec-wave@' + FIXTURE_VERSION + '\n'
+const GOOD_AGENTS =
+  '<!-- cyning-harness:begin -->\n产品块（host apply 维护 · 勿改 begin/end 内文）\n<!-- cyning-harness:end -->\n\n' +
+  '<!-- cyning-harness-local:begin -->\n刷新（钉版本）：`npx spec-wave@' + FIXTURE_VERSION +
+  ' host update --yes`\n<!-- cyning-harness-local:end -->\n'
+
+/** 扩展 fixture 仓：pin-01..09 基线 + pin-04/06/07/13/14/15 落点文件（全对齐 FIXTURE_VERSION）。 */
+async function makeExtFixture(dir: string): Promise<void> {
+  await makeFixture(dir)
+  await writeRel(dir, 'assets/release-pins.yaml', EXT_PINS_YAML)
+  await writeRel(dir, 'assets/harness/discipline-coverage.yaml', GOOD_DISCIPLINE)
+  await writeRel(dir, 'README.zh-CN.md', GOOD_README_ZH)
+  await writeRel(dir, 'RELEASING.md', GOOD_RELEASING)
+  await writeRel(dir, 'CHANGELOG.md', GOOD_CHANGELOG)
+  await writeRel(dir, 'MIGRATION.md', GOOD_MIGRATION)
+  await writeRel(dir, 'AGENTS.md', GOOD_AGENTS)
+}
+
 async function writeRel(dir: string, rel: string, body: string): Promise<void> {
   const abs = path.join(dir, rel)
   await mkdir(path.dirname(abs), { recursive: true })
@@ -132,7 +198,8 @@ async function makeFixture(dir: string): Promise<void> {
     'docs/spec/README.md',
     '| slug | 路径 | 状态 | 一句话 |' + '\n' +
       '| --- | --- | --- | --- |' + '\n' +
-      '| x-y | — | **' + FIXTURE_VERSION + ' published** | z |' + '\n',
+      // 2.3-W1 D-23-PIN08-STRICT：patch 收尾行形态（slug 列含版本串 · 双判 (A)+(B) 均满足）
+      '| `' + FIXTURE_VERSION + '`（patch 收尾行） | — | **`' + FIXTURE_VERSION + '` published** | z |' + '\n',
   )
 }
 
@@ -346,6 +413,198 @@ describe('W1-A1 release pins · B组 fixture 仓行为', { concurrency: 1 }, () 
   })
 })
 
+describe('2.3-W1 pins hardening · 失配 fixture 补全（[A]#14）+ 三面入钉（[A]#8 · D-23-PIN-3FACES）+ pin-08 严化（D-23-PIN08-STRICT）', { concurrency: 1 }, () => {
+  it('W1-B1 扩展 fixture 基线全绿（pin-04/06/07/13/14/15 入钉后 check exit 0 · PINS: PASS）', async () => {
+    await withTemp(async (dir) => {
+      await makeExtFixture(dir)
+      const r = runCli(['pins', 'check'], dir)
+      assert.equal(r.status, 0, r.combined)
+      assert.match(r.combined, /PINS: PASS · 12\/12 落点一致/)
+    })
+  })
+
+  it('W1-B2 pin-04 失配：discipline-coverage 版本漂移 → exit 2 指出 assets/harness/discipline-coverage.yaml:1', async () => {
+    await withTemp(async (dir) => {
+      await makeExtFixture(dir)
+      await writeRel(dir, 'assets/harness/discipline-coverage.yaml', 'as_of_package_version: "9.9.9"' + '\n')
+      const r = runCli(['pins', 'check'], dir)
+      assert.equal(r.status, 2, r.combined)
+      assert.match(r.combined, /\[mismatch\] pin-04 assets\/harness\/discipline-coverage\.yaml:1/)
+      assert.match(r.combined, /9\.9\.9/)
+    })
+  })
+
+  it('W1-B3 pin-06 失配：README.zh-CN 版本漂移 → exit 2 指出 README.zh-CN.md:1', async () => {
+    await withTemp(async (dir) => {
+      await makeExtFixture(dir)
+      await writeRel(dir, 'README.zh-CN.md', '中文钉 spec-wave@9.9.9 处' + '\n')
+      const r = runCli(['pins', 'check'], dir)
+      assert.equal(r.status, 2, r.combined)
+      assert.match(r.combined, /\[mismatch\] pin-06 README\.zh-CN\.md:1/)
+    })
+  })
+
+  it('W1-B4 pin-07 失配：RELEASING 现行包行漂移 → exit 2 指出 RELEASING.md:1', async () => {
+    await withTemp(async (dir) => {
+      await makeExtFixture(dir)
+      await writeRel(
+        dir,
+        'RELEASING.md',
+        '| **工作树 / registry `latest`** | **`spec-wave@9.9.9`**（已 published） |' + '\n',
+      )
+      const r = runCli(['pins', 'check'], dir)
+      assert.equal(r.status, 2, r.combined)
+      assert.match(r.combined, /\[mismatch\] pin-07 RELEASING\.md:1/)
+    })
+  })
+
+  it('W1-B5 pin-10 失配：git 仓无该 tag → status=missing exit 2（测试内 git init 隔离 · 不真打 tag · F-A1-05）', async () => {
+    await withTemp(async (dir) => {
+      await makeExtFixture(dir)
+      const gitPin = [
+        '  - id: pin-10',
+        '    path: git',
+        "    extract: { kind: git-tag, pattern: 'v{version}' }",
+        '    expected: { kind: package-version }',
+        '    required: true',
+        '    fixable: false',
+        '',
+      ].join('\n')
+      await writeRel(dir, 'assets/release-pins.yaml', EXT_PINS_YAML + gitPin)
+      const init = spawnSync('git', ['init', '-q'], { cwd: dir, encoding: 'utf8' })
+      assert.equal(init.status, 0, (init.stderr ?? '') + '（测试环境须可用 git）')
+      const j = runCli(['pins', 'check', '--json'], dir)
+      assert.equal(j.status, 2, j.combined)
+      const doc = JSON.parse(j.stdout) as { pins: Array<{ id: string; status: string; detail?: string }> }
+      const p10 = doc.pins.find((p) => p.id === 'pin-10')
+      assert.ok(p10)
+      assert.equal(p10!.status, 'missing')
+      assert.match(p10!.detail ?? '', /git 操作仅人/)
+      const r = runCli(['pins', 'check'], dir)
+      assert.equal(r.status, 2, r.combined)
+      assert.match(r.combined, /\[missing\] pin-10 git/)
+      assert.match(r.combined, /v3\.1\.4/)
+    })
+  })
+
+  it('W1-B6 pin-11 单钉失配（regex-all 面独坏）：exit 2 报 pin-11 · pin-12 仍 ok', async () => {
+    await withTemp(async (dir) => {
+      await makeFixture(dir)
+      await writeRel(dir, 'assets/release-pins.yaml', DUAL_PINS_YAML)
+      await writeRel(dir, 'assets/ide/host-adapt/README.md', DUAL_GOOD)
+      await writeRel(
+        dir,
+        'assets/ide/host-adapt/README.md',
+        DUAL_GOOD.split('spec-wave@' + FIXTURE_VERSION).join('spec-wave@9.9.9'),
+      )
+      const r = runCli(['pins', 'check'], dir)
+      assert.equal(r.status, 2, r.combined)
+      assert.match(r.combined, /\[mismatch\] pin-11 assets\/ide\/host-adapt\/README\.md:3/)
+      assert.match(r.combined, /\[ok\] pin-12 /)
+    })
+  })
+
+  it('W1-B7 pin-12 单钉失配（regex 标题行独坏）：exit 2 报 pin-12 指 :1 · pin-11 仍 ok', async () => {
+    await withTemp(async (dir) => {
+      await makeFixture(dir)
+      await writeRel(dir, 'assets/release-pins.yaml', DUAL_PINS_YAML)
+      await writeRel(
+        dir,
+        'assets/ide/host-adapt/README.md',
+        DUAL_GOOD.split('（' + FIXTURE_VERSION + '）').join('（9.9.9）'),
+      )
+      const r = runCli(['pins', 'check'], dir)
+      assert.equal(r.status, 2, r.combined)
+      assert.match(r.combined, /\[mismatch\] pin-12 assets\/ide\/host-adapt\/README\.md:1/)
+      assert.match(r.combined, /\[ok\] pin-11 /)
+    })
+  })
+
+  it('W1-B8 pin-08 严化反例：当前版本行改坏 + 别行 prose 兜底 → exit 2 mismatch 且指出兜底嫌疑行（[A]#7 验收反例）', async () => {
+    await withTemp(async (dir) => {
+      await makeFixture(dir)
+      await writeRel(
+        dir,
+        'docs/spec/README.md',
+        '| slug | 路径 | 状态 | 一句话 |' + '\n' +
+          '| --- | --- | --- | --- |' + '\n' +
+          '| `9.9.9`（patch 收尾行） | — | **`9.9.9` published** | z |' + '\n' +
+          '| x-y | — | signed | 叙事顺带提及 spec-wave@' + FIXTURE_VERSION + ' |' + '\n',
+      )
+      const r = runCli(['pins', 'check'], dir)
+      assert.equal(r.status, 2, r.combined)
+      assert.match(r.combined, /\[mismatch\] pin-08 docs\/spec\/README\.md/)
+      assert.match(r.combined, /兜底嫌疑行/)
+      assert.match(r.combined, /L4/)
+    })
+  })
+
+  it('W1-B9 pin-13 三面破坏-修复（CHANGELOG 最新发布头）：漂移 exit 2 指行 → fix --yes 收敛且日期行不动', async () => {
+    await withTemp(async (dir) => {
+      await makeExtFixture(dir)
+      const broken = GOOD_CHANGELOG.replace('## [' + FIXTURE_VERSION + ']', '## [9.9.9]')
+      await writeRel(dir, 'CHANGELOG.md', broken)
+      const r = runCli(['pins', 'check'], dir)
+      assert.equal(r.status, 2, r.combined)
+      assert.match(r.combined, /\[mismatch\] pin-13 CHANGELOG\.md:7/)
+      const fix = runCli(['pins', 'fix', '--yes'], dir)
+      assert.equal(fix.status, 0, fix.combined)
+      const after = await readFile(path.join(dir, 'CHANGELOG.md'), 'utf8')
+      assert.equal(after, GOOD_CHANGELOG, 'fix 只回写版本号 · 日期行与其余不动')
+      const check = runCli(['pins', 'check'], dir)
+      assert.equal(check.status, 0, check.combined)
+    })
+  })
+
+  it('W1-B10 pin-13 F-W1-02：CHANGELOG 仅 Unreleased 空节 → 零命中 extract_error exit 2（不静默跳过）', async () => {
+    await withTemp(async (dir) => {
+      await makeExtFixture(dir)
+      await writeRel(dir, 'CHANGELOG.md', '# Changelog\n\n## [Unreleased]\n\n（空 · 无发布头）\n')
+      const j = runCli(['pins', 'check', '--json'], dir)
+      assert.equal(j.status, 2, j.combined)
+      const doc = JSON.parse(j.stdout) as { pins: Array<{ id: string; status: string }> }
+      assert.equal(doc.pins.find((p) => p.id === 'pin-13')!.status, 'extract_error')
+    })
+  })
+
+  it('W1-B11 pin-14 三面破坏-修复（MIGRATION spec-wave@X）：漂移 exit 2 指行 → fix --yes 收敛', async () => {
+    await withTemp(async (dir) => {
+      await makeExtFixture(dir)
+      await writeRel(dir, 'MIGRATION.md', '> 请钉 spec-wave@9.9.9\n')
+      const r = runCli(['pins', 'check'], dir)
+      assert.equal(r.status, 2, r.combined)
+      assert.match(r.combined, /\[mismatch\] pin-14 MIGRATION\.md:1/)
+      const fix = runCli(['pins', 'fix', '--yes'], dir)
+      assert.equal(fix.status, 0, fix.combined)
+      assert.equal(await readFile(path.join(dir, 'MIGRATION.md'), 'utf8'), GOOD_MIGRATION)
+    })
+  })
+
+  it('W1-B12 pin-15 三面破坏-修复（AGENTS npx spec-wave@X）：漂移 exit 2 指行 → fix 收敛且 cyning-harness marker 块完整（F-W1-04）', async () => {
+    await withTemp(async (dir) => {
+      await makeExtFixture(dir)
+      await writeRel(dir, 'AGENTS.md', GOOD_AGENTS.split('spec-wave@' + FIXTURE_VERSION).join('spec-wave@9.9.9'))
+      const r = runCli(['pins', 'check'], dir)
+      assert.equal(r.status, 2, r.combined)
+      assert.match(r.combined, /\[mismatch\] pin-15 AGENTS\.md:6/)
+      const fix = runCli(['pins', 'fix', '--yes'], dir)
+      assert.equal(fix.status, 0, fix.combined)
+      const after = await readFile(path.join(dir, 'AGENTS.md'), 'utf8')
+      assert.equal(after, GOOD_AGENTS, 'fix 只替换版本串 capture group')
+      for (const marker of [
+        '<!-- cyning-harness:begin -->',
+        '<!-- cyning-harness:end -->',
+        '<!-- cyning-harness-local:begin -->',
+        '<!-- cyning-harness-local:end -->',
+      ]) {
+        assert.ok(after.includes(marker), '产品块标记须完整: ' + marker)
+      }
+      const check = runCli(['pins', 'check'], dir)
+      assert.equal(check.status, 0, check.combined)
+    })
+  })
+})
+
 describe('W1-A1 release pins · C组 声明源数据形态（SPEC 01 §5 · D-PINS-SCOPE-8）', { concurrency: 1 }, () => {
   type PinRow = {
     id: string
@@ -357,7 +616,7 @@ describe('W1-A1 release pins · C组 声明源数据形态（SPEC 01 §5 · D-PI
   }
   const data = yamlLoad(readFileSync(PINS_YAML, 'utf8')) as { pins: PinRow[] }
 
-  it('钉面 12 行齐全：pin-01..pin-12 唯一 id · 全部 required（2.2 W6 数据增 pin-11/12 · 只动数据不改 pins 代码）', () => {
+  it('钉面 15 行齐全：pin-01..pin-15 唯一 id · 全部 required（2.2 W6 增 pin-11/12 · 2.3 W1 增 pin-13/14/15 · 只动数据不改 pins 代码）', () => {
     const ids = data.pins.map((p) => p.id)
     assert.deepEqual(ids, [
       'pin-01',
@@ -372,12 +631,15 @@ describe('W1-A1 release pins · C组 声明源数据形态（SPEC 01 §5 · D-PI
       'pin-10',
       'pin-11',
       'pin-12',
+      'pin-13',
+      'pin-14',
+      'pin-15',
     ])
-    assert.equal(new Set(ids).size, 12)
+    assert.equal(new Set(ids).size, 15)
     for (const p of data.pins) assert.equal(p.required, true, p.id + ' 须 required')
   })
 
-  it('fixable 面：pin-03/04/05/06/07 + W6 新增 pin-11/12 可修；真值源/bin/git/spec 索引不可修', () => {
+  it('fixable 面：pin-03/04/05/06/07 + W6 新增 pin-11/12 + 2.3 W1 新增 pin-13/14/15 可修；真值源/bin/git/spec 索引不可修', () => {
     const fixable = Object.fromEntries(data.pins.map((p) => [p.id, p.fixable]))
     assert.deepEqual(fixable, {
       'pin-01': false,
@@ -392,6 +654,9 @@ describe('W1-A1 release pins · C组 声明源数据形态（SPEC 01 §5 · D-PI
       'pin-10': false,
       'pin-11': true,
       'pin-12': true,
+      'pin-13': true,
+      'pin-14': true,
+      'pin-15': true,
     })
   })
 
@@ -406,12 +671,26 @@ describe('W1-A1 release pins · C组 声明源数据形态（SPEC 01 §5 · D-PI
     assert.equal(p12.expected.kind, 'package-version')
   })
 
-  it('钉面 #8 提取语义入数据（D-PINS-SCOPE-8）：spec-index-row + 「当前 minor 对应行或标注行」', () => {
+  it('钉面 #8 提取语义入数据（D-PINS-SCOPE-8 + 2.3-W1 D-23-PIN08-STRICT 严化）：spec-index-row + 双判严化口径', () => {
     const p8 = data.pins.find((p) => p.id === 'pin-08')!
     assert.equal(p8.path, 'docs/spec/README.md')
     assert.equal(p8.extract.kind, 'spec-index-row')
-    assert.match(p8.extract.semantics ?? '', /当前 minor/)
-    assert.match(p8.extract.semantics ?? '', /对应行或标注行/)
+    assert.match(p8.extract.semantics ?? '', /严化口径/)
+    assert.match(p8.extract.semantics ?? '', /状态列或描述列/)
+    assert.match(p8.extract.semantics ?? '', /兜底嫌疑行/)
+  })
+
+  it('2.3 W1 新增 pin-13/14/15：CHANGELOG 发布头 / MIGRATION spec-wave@X / AGENTS npx spec-wave@X 三面入钉（纯数据 · [A]#8）', () => {
+    const p13 = data.pins.find((p) => p.id === 'pin-13')!
+    const p14 = data.pins.find((p) => p.id === 'pin-14')!
+    const p15 = data.pins.find((p) => p.id === 'pin-15')!
+    assert.equal(p13.path, 'CHANGELOG.md')
+    assert.equal(p13.extract.kind, 'regex')
+    assert.equal(p14.path, 'MIGRATION.md')
+    assert.equal(p14.extract.kind, 'regex-all')
+    assert.equal(p15.path, 'AGENTS.md')
+    assert.equal(p15.extract.kind, 'regex-all')
+    for (const p of [p13, p14, p15]) assert.equal(p.expected.kind, 'package-version')
   })
 
   it('无 S2 落点（docs/tasks · docs/harness/reviews · docs/harness/invokes/by-task）', () => {

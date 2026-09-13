@@ -210,21 +210,46 @@ function evaluatePin(root: string, pin: Pin, truth: string): PinResult {
     }
   }
 
+  // D-23-PIN08-STRICT（2.3-W1 · [A]#7 弱钉改严 · 语义数据声明见 release-pins.yaml pin-08）：
+  // 双判 —— (A) 状态列或描述列（cells[2+]）含版本串（点式/下划线式）且
+  // (B) slug 列含版本串或以 X_Y- 前缀开头（minor 主题夹行）。
+  // 别行 prose 顺带提到版本号（满足 A 不满足 B）判兜底嫌疑，不再放行（验收反例杀伤）。
   if (kind === 'spec-index-row') {
     const dotted = truth
     const under = truth.replace(/\./g, '_')
+    const minorUnder = truth.split('.').slice(0, 2).join('_')
     const lines = content.split('\n')
+    const suspects: number[] = []
     for (let i = 0; i < lines.length; i++) {
       const t = lines[i]
-      if (t.startsWith('|') && (t.includes(dotted) || t.includes(under))) {
-        return { ...base, actual: 'L' + (i + 1) + ' 索引行存在', line: i + 1, status: 'ok' }
+      if (!t.startsWith('|')) continue
+      const cells = t.split('|').slice(1, -1).map((c) => c.trim())
+      if (cells.length < 3) continue
+      const slugCell = (cells[0] ?? '').replace(/`/g, '')
+      const tail = cells.slice(2).join(' | ')
+      const hitA = tail.includes(dotted) || tail.includes(under)
+      if (!hitA) continue
+      const hitB =
+        slugCell.includes(dotted) || slugCell.includes(under) || slugCell.startsWith(minorUnder + '-')
+      if (hitB) {
+        return {
+          ...base,
+          actual: 'L' + (i + 1) + ' 索引行存在（严化口径 D-23-PIN08-STRICT）',
+          line: i + 1,
+          status: 'ok',
+        }
       }
+      suspects.push(i + 1)
     }
     return {
       ...base,
-      actual: '(索引表无当前版本行)',
+      actual: '(索引表无当前版本合格行)',
       status: 'mismatch',
-      detail: pin.extract.semantics ?? '索引表存在当前 minor 对应行或标注行',
+      detail:
+        (pin.extract.semantics ?? '索引表存在当前 minor 对应行或标注行') +
+        (suspects.length
+          ? ' · 兜底嫌疑行（状态/描述列含版本串但行身份不符 · [A]#7）: L' + suspects.join(', L')
+          : ''),
     }
   }
 

@@ -551,12 +551,19 @@ export const PLACEHOLDER_RE = /^（[^）]*(回填|待填)[^）]*）$/
 //   ② 旧包 --workspace-root 第二仓根旗标本包不支持（DEF-011 fail-fast 清单既有钉死）。
 
 // SPEC slug 推导：Harness 元信息表 spec_slug 优先；回退文件名去 SPEC[-_] 前缀与 _v<n> 版本后缀。
+// D-23-SPEC-SLUG（2.3-W1 · 机制债 [D]）：目录型 SPEC 夹（doc-health 公约 `docs/spec/<slug>/README.md`）
+// 下 basename 回退误推 `readme` → 审查文存在性闸（findSpecReview）按错 slug 查找误判。
+// basename 去前缀/后缀后 ∈ {readme, index}（大小写不敏感）→ 取父目录名为 slug
+//（normalize 归一在消费侧 normalizeSlug 既有生效 · F-W1-06 failClosed 语义保持）。
 export function extractSpecSlug(specFile: string, content: string): string {
   const meta = content ? parseHarnessMeta(content) : {}
   if (meta.spec_slug) return meta.spec_slug
   let base = path.basename(specFile, '.md')
   base = base.replace(/^SPEC[-_]/i, '')
   base = base.replace(/_v\d+$/, '')
+  if (base.toLowerCase() === 'readme' || base.toLowerCase() === 'index') {
+    base = path.basename(path.dirname(specFile))
+  }
   return base
 }
 

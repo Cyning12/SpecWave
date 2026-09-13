@@ -61,12 +61,13 @@ pins:
     path: docs/spec/README.md
     extract:
       kind: spec-index-row
-      # D-PINS-SCOPE-8：提取语义作为数据声明（非硬编码）。
+      # D-PINS-SCOPE-8 + D-23-PIN08-STRICT（2.3-W1 严化 · [A]#7）：提取语义作为数据声明（非硬编码）。
       semantics: >-
-        索引表存在当前 minor 对应行或标注行。机械化口径：当前版本 X.Y.Z →
-        索引表须存在含点式 X.Y.Z 或下划线式 X_Y_Z 的表格行（| 开头）；
-        X.Y.0 时 minor 主题夹行描述含 X.Y.0 即满足，patch 时须 X_Y_Z-* 夹行或 patch 标注行
-        （D-SPEC-213-ROW：2.1.3 以 patch 收尾标注行落地，不建 2_1_3-* 夹）
+        索引表存在当前版本合格行（严化口径 · 双判）：(A) 状态列或描述列含版本串
+        （点式 X.Y.Z 或下划线式 X_Y_Z）且 (B) slug 列含版本串或以 X_Y- 前缀开头
+        （minor 主题夹行）；别行 prose 顺带提到版本号（满足 A 不满足 B）判兜底嫌疑行
+        不再放行。X.Y.0 时 minor 主题夹行状态/描述含 X.Y.0 即满足，patch 时须 X.Y.Z
+        patch 收尾标注行（D-SPEC-213-ROW：2.1.3/2.2.1 先例 · 不建 X_Y_Z-* 夹）
     expected: { kind: package-version }
     required: true
     fixable: false
@@ -104,3 +105,32 @@ pins:
     required: true
     fixable: true
     note: 2.2 W6 新增宿主相关版本文案落点（host-adapt README 标题版本行 :1）；capture group 1 可修
+  - id: pin-13
+    path: CHANGELOG.md
+    extract: { kind: regex, pattern: '^## \[(\d+\.\d+\.\d+)\]', flags: m }
+    expected: { kind: package-version }
+    required: true
+    fixable: true
+    note: >-
+      最新发布头（首个非 Unreleased 节 · D-23-PIN-3FACES · 2.3-W1 [A]#8）；
+      Unreleased 无数字天然跳过，仅 Unreleased 空节 → 零命中 extract_error failClosed（F-W1-02）；
+      capture group 1 回写版本号 · 不动日期行其余
+  - id: pin-14
+    path: MIGRATION.md
+    extract: { kind: regex-all, pattern: 'spec-wave@(\d+\.\d+\.\d+)', flags: g }
+    expected: { kind: package-version }
+    required: true
+    fixable: true
+    note: >-
+      现行出现处全为现行指引（:3/:4/:7/:85 逐行核对 @2026-09-12）；历史叙事行均为
+      dsh-coding-kit@… / @cyning/harness 形态，不被本模式命中（F-W1-03）；
+      未来若引入 spec-wave@X.Y.Z 历史叙事形态须先返修本数据口径
+  - id: pin-15
+    path: AGENTS.md
+    extract: { kind: regex-all, pattern: 'npx spec-wave@(\d+\.\d+\.\d+)', flags: g }
+    expected: { kind: package-version }
+    required: true
+    fixable: true
+    note: >-
+      刷新指引命令钉（现行唯一出现处 :61 · cyning-harness local 块内 · D-23-PIN-3FACES）；
+      fix 只替换版本串 capture group，不动产品块/marker 结构（F-W1-04 · 测试断言块标记完整）
