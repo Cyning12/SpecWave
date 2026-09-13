@@ -460,7 +460,7 @@ export async function cmdTaskCheck(rest: string[]): Promise<void> {
   const registryDirs: string[] = []
   const filtered: string[] = []
   for (let i = 0; i < rest.length; i += 1) {
-    const arg = rest[i]
+    const arg = rest[i]! // i < rest.length 循环界内（E5 收窄）
     if (arg === '--no-circular') continue
     if (arg === '--file') {
       filePath = rest[i + 1]
@@ -468,7 +468,7 @@ export async function cmdTaskCheck(rest: string[]): Promise<void> {
       continue
     }
     if (arg === '--registry') {
-      registryDirs.push(rest[i + 1])
+      registryDirs.push(rest[i + 1]!) // 与 --file 同口径：旗标缺值沿用既有行为（E5 收窄 · 不改运行时语义）
       i += 1
       continue
     }

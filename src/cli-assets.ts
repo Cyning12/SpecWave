@@ -85,13 +85,13 @@ function loadManifest(root: string): AssetEntry[] {
   const entries: AssetEntry[] = []
   const seen = new Set<string>()
   for (let i = 0; i < lines.length; i++) {
-    const line = lines[i]
+    const line = lines[i]! // i < lines.length 循环界内（E5 noUncheckedIndexedAccess 收窄）
     if (line === '' && i === lines.length - 1) continue // 尾部换行
     const m = MANIFEST_LINE_RE.exec(line)
     if (!m) {
       fail('ASSETS: BLOCKED · manifest 语法错误: ' + MANIFEST_REL + ' 第 ' + (i + 1) + ' 行（F-W5-01 failClosed · 期望 sha256+两空格+path 行格式）', 2)
     }
-    const rel = normalizeSlashPath(m[2])
+    const rel = normalizeSlashPath(m[2]!) // MANIFEST_LINE_RE 双捕获组必参与（E5 收窄）
     if (path.isAbsolute(rel) || rel === '..' || rel.startsWith('../') || rel.split('/').includes('..')) {
       fail('ASSETS: BLOCKED · manifest 路径越界: ' + MANIFEST_REL + ' 第 ' + (i + 1) + ' 行 ' + rel + '（拒绝读取 assets/ 之外 · failClosed）', 2)
     }
@@ -99,7 +99,7 @@ function loadManifest(root: string): AssetEntry[] {
       fail('ASSETS: BLOCKED · manifest 路径重复: ' + MANIFEST_REL + ' 第 ' + (i + 1) + ' 行 ' + rel + '（F-W5-01 failClosed）', 2)
     }
     seen.add(rel)
-    entries.push({ path: rel, hash: m[1] })
+    entries.push({ path: rel, hash: m[1]! })
   }
   return entries
 }
@@ -178,7 +178,7 @@ function cmdAssetsManifestRebuild(root: string, yes: boolean): void {
   if (old !== null) {
     for (const line of old.split('\n')) {
       const m = MANIFEST_LINE_RE.exec(line)
-      if (m) oldSet.set(normalizeSlashPath(m[2]), m[1])
+      if (m) oldSet.set(normalizeSlashPath(m[2]!), m[1]!)
     }
   }
   const newSet = new Map(entries.map((e) => [e.path, e.hash]))

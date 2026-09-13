@@ -42,7 +42,7 @@ export function parseSkillPrompt(content: string): {
   const m = FRONTMATTER_RE.exec(content)
   if (!m) return { frontmatter: null, body: content }
   try {
-    return { frontmatter: yamlLoad(m[1]) as Frontmatter, body: m[2] }
+    return { frontmatter: yamlLoad(m[1]!) as Frontmatter, body: m[2]! } // FRONTMATTER_RE 双捕获组必参与（E5 收窄）
   } catch (e) {
     return { frontmatter: null, body: content, parseError: (e as Error).message }
   }

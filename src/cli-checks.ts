@@ -17,10 +17,10 @@ export function extractHatsFromInvokeName(name: string): string[] {
   const base = path.basename(name, '.md')
   const parts = base.split('_')
   if (parts.length < 4 || parts[0] !== 'invoke') return []
-  if (!/^\d{8}$/.test(parts[1])) return []
+  if (!/^\d{8}$/.test(parts[1]!)) return [] // parts.length >= 4 已判（E5 收窄）
   const hats: string[] = []
   for (let i = 2; i < parts.length; i += 1) {
-    const tok = parts[i].toLowerCase()
+    const tok = parts[i]!.toLowerCase() // i < parts.length 循环界内（E5 收窄）
     if (!INVOKE_HAT_TOKENS.has(tok)) break
     hats.push(tok)
   }
@@ -609,7 +609,7 @@ export function findSpecReview(target: string, specFile: string, content: string
       for (const RE of PATTERNS) {
         const m = name.match(RE)
         if (!m) continue
-        if (normalizeSlug(stripVer(m[1])) === slugNorm) return true
+        if (normalizeSlug(stripVer(m[1]!)) === slugNorm) return true // 捕获组必参与（E5 收窄）
         break
       }
     }
@@ -655,8 +655,8 @@ export function findLatestReview(
     for (const name of readdirSync(reviewsDir)) {
       const m = name.match(RE)
       if (!m) continue
-      if (stripVer(m[1]) !== base) continue
-      const round = parseInt(m[2], 10)
+      if (stripVer(m[1]!) !== base) continue // 捕获组必参与（E5 收窄）
+      const round = parseInt(m[2]!, 10)
       if (!best || round > best.round || (round === best.round && name > best.name)) {
         best = { path: path.join(reviewsDir, name), name, round }
       }
@@ -883,7 +883,7 @@ export function lintTaskFile(filePath: string, cwd: string): {
   if (statusIdx === -1) {
     errors.push({ rule: 'E2', message: '缺 > **状态** 行' })
   } else {
-    const token = lines[statusIdx].match(STATUS_RE)?.[1]?.toLowerCase()
+    const token = lines[statusIdx]!.match(STATUS_RE)?.[1]?.toLowerCase() // statusIdx !== -1 已判（E5 收窄）
     if (token && !KNOWN_STATUS_TOKENS.has(token)) {
       warnings.push({ rule: 'W1', message: `状态 token 不在已知词表: ${token}`, line: statusIdx + 1 })
     }

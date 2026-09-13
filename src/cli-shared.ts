@@ -217,13 +217,13 @@ export function parseHarnessMeta(content: string): Record<string, string> {
   for (const line of section.split('\n')) {
     const tick = line.match(META_TICK_RE)
     if (tick) {
-      meta[tick[1].trim()] = tick[2].trim()
+      meta[tick[1]!.trim()] = tick[2]!.trim() // META_TICK_RE 双捕获组必参与（E5 收窄）
       continue
     }
     const plain = line.match(META_PLAIN_RE)
     if (!plain) continue
-    const key = plain[1].trim()
-    const val = plain[2].trim()
+    const key = plain[1]!.trim() // META_PLAIN_RE 双捕获组必参与（E5 收窄）
+    const val = plain[2]!.trim()
     if (!key || key === '字段') continue
     if (/^[-:\s]+$/.test(val)) continue
     if (!(key in meta)) meta[key] = val
@@ -246,10 +246,10 @@ export function findWikiDeltaOutsideMetaSection(
   let inMeta = false
   let section = '（文首 · 无节）'
   for (let i = 0; i < lines.length; i += 1) {
-    const line = lines[i]
+    const line = lines[i]! // i < lines.length 循环界内（E5 收窄）
     const heading = line.match(HEADING_RE)
     if (heading) {
-      const level = heading[1].length
+      const level = heading[1]!.length // HEADING_RE 捕获组 1 必参与（E5 收窄）
       const title = heading[2]
       if (level === 2 && title === 'Harness 元信息') {
         inMeta = true
@@ -274,12 +274,12 @@ export function parseHumanGates(content: string): HumanGate[] {
   for (const line of section.split('\n')) {
     const match = line.match(GATE_ROW_RE)
     if (!match) continue
-    const id = match[1].trim()
+    const id = match[1]!.trim() // GATE_ROW_RE 捕获组必参与（E5 收窄）
     if (!id.startsWith('HG-') || id.includes('human_gate')) continue
     gates.push({
       id,
-      status: normalizeCell(match[2]),
-      blocksHats: normalizeCell(match[3]),
+      status: normalizeCell(match[2]!), // GATE_ROW_RE 捕获组必参与（E5 收窄）
+      blocksHats: normalizeCell(match[3]!),
     })
   }
   return gates
@@ -379,7 +379,7 @@ export function extractHatsFromInvokeFilename(name: string): string[] {
   const base = path.basename(name, '.md')
   const parts = base.split('_')
   if (parts.length >= 3 && parts[0] === 'invoke') {
-    return [parts[2]]
+    return [parts[2]!] // parts.length >= 3 已判（E5 收窄）
   }
   return []
 }

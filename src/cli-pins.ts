@@ -191,7 +191,7 @@ function evaluatePin(root: string, pin: Pin, truth: string): PinResult {
     const matches: Array<{ value: string; index: number }> = []
     let m: RegExpExecArray | null
     while ((m = re.exec(content))) {
-      matches.push({ value: m[1], index: m.index })
+      matches.push({ value: m[1]!, index: m.index }) // pin 正则必带捕获组 1（E5 收窄）
       if (kind === 'regex') break
       if (m.index === re.lastIndex) re.lastIndex++
     }
@@ -204,7 +204,7 @@ function evaluatePin(root: string, pin: Pin, truth: string): PinResult {
     }
     const bad = matches.filter((x) => x.value !== expected)
     const actual = Array.from(new Set(matches.map((x) => x.value))).join(', ')
-    const line = lineOf(content, (bad[0] ?? matches[0]).index)
+    const line = lineOf(content, (bad[0] ?? matches[0])!.index) // matches.length === 0 已提前 return（E5 收窄）
     return {
       ...base,
       actual,
@@ -225,7 +225,7 @@ function evaluatePin(root: string, pin: Pin, truth: string): PinResult {
     const lines = content.split('\n')
     const suspects: number[] = []
     for (let i = 0; i < lines.length; i++) {
-      const t = lines[i]
+      const t = lines[i]! // i < lines.length 循环界内（E5 收窄）
       if (!t.startsWith('|')) continue
       const cells = t.split('|').slice(1, -1).map((c) => c.trim())
       if (cells.length < 3) continue
@@ -301,7 +301,7 @@ function evaluatePin(root: string, pin: Pin, truth: string): PinResult {
       const re = new RegExp(linkRe.source, 'g')
       let m: RegExpExecArray | null
       while ((m = re.exec(srcContent))) {
-        const target = m[2].split('#')[0]
+        const target = m[2]!.split('#')[0] // linkRe 捕获组 2 必参与（E5 收窄）
         if (!target || /^[a-z][a-z0-9+.-]*:/i.test(target)) continue // scheme / 纯锚点跳过
         if (!target.toLowerCase().endsWith('.md')) continue
         const rel = normalizeSlashPath(path.relative(root, path.resolve(dir, target)))
@@ -385,7 +385,7 @@ function evaluatePin(root: string, pin: Pin, truth: string): PinResult {
         return { ...base, status: 'extract_error', detail: 'host_hits 正则非法（failClosed）: ' + id }
       }
       readmes.forEach((r, i) => {
-        if (!res.some((re) => re.test(readmeBodies[i]))) {
+        if (!res.some((re) => re.test(readmeBodies[i]!))) { // readmeBodies 与 readmes 等长（E5 收窄）
           misses.push(id + ' · 缺 ' + r + '（' + sideOf(r) + ' 侧）')
         }
       })
@@ -401,7 +401,7 @@ function evaluatePin(root: string, pin: Pin, truth: string): PinResult {
         stale.push(g.host_id + '（双语已双双命中 · W7① 落地 · 豁免失陈债 F-W2-05 · 须移除豁免条目）')
       }
     }
-    const effMisses = misses.filter((m) => !gapSet.has(m.split(' · ')[0]))
+    const effMisses = misses.filter((m) => !gapSet.has(m.split(' · ')[0]!)) // split 恒 ≥1 元（E5 收窄）
     const problems = [...dataDebts, ...stale, ...effMisses]
     if (problems.length === 0) {
       const exempt = knownGaps.length > 0
@@ -466,14 +466,14 @@ function planFix(
   const spans: Array<[number, number]> = []
   let m: RegExpExecArray | null
   while ((m = re.exec(oldContent))) {
-    spans.push(matchIndices(m)[1])
+    spans.push(matchIndices(m)[1]!) // fixable pin 正则必带捕获组 1（E5 收窄）
     if (kind === 'regex') break
     if (m.index === re.lastIndex) re.lastIndex++
   }
   if (spans.length === 0) return null
   let newContent = oldContent
   for (let i = spans.length - 1; i >= 0; i--) {
-    const [s, e] = spans[i]
+    const [s, e] = spans[i]! // i 在 spans 界内（E5 收窄）
     newContent = newContent.slice(0, s) + truth + newContent.slice(e)
   }
   if (newContent === oldContent) return null

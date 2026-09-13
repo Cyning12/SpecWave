@@ -2,7 +2,7 @@
 
 [简体中文](README.zh-CN.md) | English
 
-**SpecWave** (`spec-wave@2.2.1`) is a **multi-host coding CLI** (Cursor · Claude Code · optional DSH) with **P0 gate / Harness process commands** and IDE landing. Formerly **SpecGate** / **dsh-coding-kit**. Discipline assets remain ICVO (Inform · Constrain · Verify · Orchestrate).
+**SpecWave** (`spec-wave@2.2.1`) is a **multi-host coding CLI** — one declarative adapt table lands natively on 13 hosts (Cursor · Claude Code · optional DSH · agents · Copilot · Codex · Windsurf · Gemini CLI · opencode · Roo Code · Zed · Cline · aider) — with **P0 gate / Harness process commands** and IDE landing. Formerly **SpecGate** / **dsh-coding-kit**. Discipline assets remain ICVO (Inform · Constrain · Verify · Orchestrate).
 
 > **Loading ≠ injecting.** Installing or loading the optional DSH plugin does **not** automatically rewrite the system prompt. `apply()` only registers tools. Only after you or the model calls `apply_coding_standards` will later turns' runtime context contain `# Coding Standards`.
 >
@@ -17,7 +17,7 @@
 
 Primary entry is **`npx spec-wave`** from npm package **`spec-wave@2.2.1`**. Transition bins `specgate` and `dsh-coding-kit` still work. The plugin surface and the CLI surface do not replace each other.
 
-### Multi-host in one package (F6 · 2.0 + skills/orch · 2.1 · tools UX · 2.1.1)
+### Multi-host in one package (F6 · 2.0 + skills/orch · 2.1 · tools UX · 2.1.1 · hosts ×13 · 2.2/2.3)
 
 One declarative table → native landing on several hosts (always_on + skills + **commands**). Verify truth stays in the CLI (`failClosed` exit **2**); IDE slash/commands only orchestrate. **Installing the npm package does not materialize IDE files** (no postinstall); run `init --tools` / `host apply` explicitly.
 
@@ -27,6 +27,17 @@ One declarative table → native landing on several hosts (always_on + skills + 
 | **Claude Code** | `CLAUDE.md` product marker block · `.claude/commands/kit/<verb>.md` → **`/kit:verb`** · `.claude/skills/` |
 | **DSH** | `.dsh/skills/` — hat skills **+** orchestration `kit-*` (discoverable via `/`; **no** `.dsh/commands/`) |
 | **agents** (optional) | `AGENTS.md` fragment · `.agents/skills/` |
+| **Copilot** | `AGENTS.md` fragment (shared marker block) · `.github/skills/` |
+| **Codex** | `AGENTS.md` fragment (shared marker block) · `.agents/skills/` |
+| **Windsurf** | `AGENTS.md` fragment (shared marker block) · `.windsurf/skills/` |
+| **Gemini CLI** | `GEMINI.md` (same host-neutral fragment) · `.gemini/skills/` |
+| **opencode** | `AGENTS.md` fragment (shared marker block) · `.agents/skills/` |
+| **Roo Code** | `AGENTS.md` fragment (shared marker block; loaded per official-repo merged PR) · no skills dir (no official convention) |
+| **Zed** | `AGENTS.md` fragment (shared marker block) · `.agents/skills/` |
+| **Cline** | `AGENTS.md` fragment (shared marker block) · `.cline/skills/` |
+| **aider** (injection layer) | `AGENTS.md` fragment (injection-layer support: aider does **not** auto-load AGENTS.md — use `aider --read AGENTS.md` or `.aider.conf.yml`) · no skills dir (no official convention) |
+
+**2.2 W6 / 2.3 W6 host additions** (same package): the nine hosts above reuse the **agents** asset face (zero new assets); each landing follows the host's official docs, and hosts without an official skills convention get no skills directory (never fabricated). aider is a documented downgrade — injection layer only.
 
 **2.1 additions** (same package): Claude `/kit:` namespace UX · DSH `.dsh/skills/kit-*` orchestration · optional `--profile expanded` for `kit-hat-*` thin shells (default remains `core`).
 

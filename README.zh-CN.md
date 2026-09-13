@@ -2,7 +2,7 @@
 
 简体中文 | [English](README.md)
 
-**SpecWave**（`spec-wave@2.2.1`）是 **多宿主编码 CLI**（Cursor · Claude Code · 可选 DSH），带 **P0 闸 / Harness 过程命令** 与 IDE 物化。曾用名 **SpecGate** / **dsh-coding-kit**。纪律资产仍是 ICVO（Inform · Constrain · Verify · Orchestrate）。
+**SpecWave**（`spec-wave@2.2.1`）是 **多宿主编码 CLI**——单一声明式适配表原生落点 13 个宿主（Cursor · Claude Code · 可选 DSH · agents · Copilot · Codex · Windsurf · Gemini CLI · opencode · Roo Code · Zed · Cline · aider）——带 **P0 闸 / Harness 过程命令** 与 IDE 物化。曾用名 **SpecGate** / **dsh-coding-kit**。纪律资产仍是 ICVO（Inform · Constrain · Verify · Orchestrate）。
 
 > **加载 ≠ 注入。** 安装或加载可选 DSH 插件 **不会** 自动改写 system prompt。`apply()` 只注册工具。必须由你或模型调用 `apply_coding_standards` 之后，后续回合的 runtime context 才会含 `# Coding Standards`。
 >
@@ -17,7 +17,7 @@
 
 主入口是 npm 包 **`spec-wave@2.2.1`** 的 **`npx spec-wave`**。过渡 bin `specgate` / `dsh-coding-kit` 仍可用。插件面与 CLI 面互不替代。
 
-### 一包多宿主（F6 · 2.0 + 技能/编排 · 2.1 · tools UX · 2.1.1）
+### 一包多宿主（F6 · 2.0 + 技能/编排 · 2.1 · tools UX · 2.1.1 · 宿主 ×13 · 2.2/2.3）
 
 单一声明式适配表 → 多个宿主原生落点（always_on + skills + **commands**）。Verify 真值仍在 CLI（`failClosed` exit **2**）；IDE slash/command 只编排。**装 npm 包不会自动物化 IDE 文件**（无 postinstall）；须显式跑 `init --tools` / `host apply`。
 
@@ -27,6 +27,17 @@
 | **Claude Code** | `CLAUDE.md` 产品 marker 块 · `.claude/commands/kit/<verb>.md` → **`/kit:verb`** · `.claude/skills/` |
 | **DSH** | `.dsh/skills/` — 帽子技能 **+** 编排 `kit-*`（`/` 可发现；**不**建 `.dsh/commands/`） |
 | **agents**（可选） | `AGENTS.md` 片段 · `.agents/skills/` |
+| **Copilot** | `AGENTS.md` 片段（共享 marker 块）· `.github/skills/` |
+| **Codex** | `AGENTS.md` 片段（共享 marker 块）· `.agents/skills/` |
+| **Windsurf** | `AGENTS.md` 片段（共享 marker 块）· `.windsurf/skills/` |
+| **Gemini CLI** | `GEMINI.md`（同一份宿主中立片段）· `.gemini/skills/` |
+| **opencode** | `AGENTS.md` 片段（共享 marker 块）· `.agents/skills/` |
+| **Roo Code** | `AGENTS.md` 片段（共享 marker 块 · 官方仓 merged PR 加载）· 不物化 skills（无官方目录约定） |
+| **Zed** | `AGENTS.md` 片段（共享 marker 块）· `.agents/skills/` |
+| **Cline** | `AGENTS.md` 片段（共享 marker 块）· `.cline/skills/` |
+| **aider**（注入层） | `AGENTS.md` 片段（注入层支持：aider **不会**自动加载 AGENTS.md——须 `aider --read AGENTS.md` 或 `.aider.conf.yml` 配置）· 不物化 skills（无官方约定） |
+
+**2.2 W6 / 2.3 W6 宿主增量**（同一包）：上述九宿主复用 **agents** 资产面（零新资产）；落点逐宿主官方文档取证，无官方 skills 目录约定的宿主不物化 skills（永不强造目录）。aider 为如实标注的降级——仅注入层。
 
 **2.1 增量**（同一包）：Claude `/kit:` 命名空间 · DSH `.dsh/skills/kit-*` 编排 · 可选 `--profile expanded` 物化 `kit-hat-*` 薄壳（默认仍 `core`）。
 

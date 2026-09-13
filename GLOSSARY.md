@@ -26,7 +26,7 @@ The name of this repository's process framework and discipline assets: `task.md`
 
 ### hat (hat system)
 
-A **hat** is the phase role an agent wears (e.g. drafting a task vs. executing code vs. self-check). Each hat is defined by a prompt file, materialized by `npx spec-wave sync prompts --yes` into `docs/harness/prompts/`. The hat model has **8 hats in two groups**:
+A **hat** is the phase role an agent wears (e.g. drafting a task vs. executing code vs. self-check). `npx spec-wave sync prompts --yes` materializes the prompt files of the **7 named hats that have one** (all except `50-independent-reinspect`, which currently has no materialized prompt file), plus shared fragments/templates, into `docs/harness/prompts/`. The hat model has **8 hats in two groups**:
 
 | Group | Hats |
 |-------|------|
@@ -42,7 +42,7 @@ The prefix of the **orchestration commands/skills** materialized onto hosts (e.g
 ### Gates & process terms
 
 - **gate (门禁)** — the P0 mechanical checks enforced **in-process by the CLI**; a blocking verdict exits **2** (`failClosed`) and stops the pipeline. Gates do **not** depend on the host executing any hook.
-- **human gate (人闸)** — a human sign-off recorded as a row in the task file's gate table. The four gates: `HG-TASK-DRAFT` · `HG-SPEC-SIGNOFF` · `HG-AUDIT-R1` · `HG-RELEASE`. The table is the truth — chat claims do not count.
+- **human gate (人闸)** — a human sign-off recorded as a row in the task file's gate table. Four gates exist across three levels: **task-file level** (`HG-TASK-DRAFT` · `HG-AUDIT-R1` — the only two rows in the current task template's gate table, by design), **SPEC level** (`HG-SPEC-SIGNOFF`), and **release level** (`HG-RELEASE`, in the release checklist). The table is the truth — chat claims do not count.
 - **process track (过程轨)** — the written process records (task files, review documents, invoke snapshots) that make the workflow auditable after the fact.
 - **source of truth (真值源)** — for each question there is exactly one authoritative file or command (e.g. gate status truth = the task gate table, read by `verify --task`).
 - **S2** — the never-overwrite process domains: `docs/tasks/` · `docs/harness/reviews/` · `docs/harness/invokes/by-task/`. Materialization (`sync prompts` / `host apply`) never writes into them; creating files there is always your explicit action.
@@ -63,7 +63,7 @@ The prefix of the **orchestration commands/skills** materialized onto hosts (e.g
 
 ### hat（帽制）
 
-**hat（帽子）** 是 Agent 在某阶段戴上的角色（如起草 task ≠ 执行改码 ≠ 自检）。每顶帽由一份 prompt 文件定义，经 `npx spec-wave sync prompts --yes` 物化到 `docs/harness/prompts/`。帽制模型共 **8 帽、分两组**：
+**hat（帽子）** 是 Agent 在某阶段戴上的角色（如起草 task ≠ 执行改码 ≠ 自检）。`npx spec-wave sync prompts --yes` 物化 **7 顶有具名 prompt 文件的帽**（`50-independent-reinspect` 暂无物化 prompt 文件）的 prompt 及共享片段/模板到 `docs/harness/prompts/`。帽制模型共 **8 帽、分两组**：
 
 | 组 | 帽子 |
 |----|------|
@@ -79,7 +79,7 @@ The prefix of the **orchestration commands/skills** materialized onto hosts (e.g
 ### 门禁与过程术语
 
 - **门禁（gate）** —— P0 机械检查，由 **CLI 进程内**判定；阻断性结论以 exit **2**（`failClosed`）拦停管道。门禁**不**依赖宿主是否执行了任何 hook。
-- **人闸（human gate）** —— 记录在 task 文件人工闸表里的人工签收，共 4 个：`HG-TASK-DRAFT` · `HG-SPEC-SIGNOFF` · `HG-AUDIT-R1` · `HG-RELEASE`。闸表即真值——聊天声称不算数。
+- **人闸（human gate）** —— 记录在 task 文件人工闸表里的人工签收，共 4 个、分三层：**task 文件级**（`HG-TASK-DRAFT` · `HG-AUDIT-R1`——现行 task 模板闸表恰有且仅有这两行，是设计而非缺漏）· **SPEC 级**（`HG-SPEC-SIGNOFF`）· **发版级**（`HG-RELEASE`，在发版 checklist）。闸表即真值——聊天声称不算数。
 - **过程轨（process track）** —— 让过程事后可审计的书面留档（task 文件、审查文、invoke 快照）。
 - **帽制（hat system）** —— 见上方 [hat（帽制）](#hat帽制) 条目。
 - **真值源（source of truth）** —— 每个问题有且仅有一个权威文件或命令（如闸态真值 = task 人工闸表，由 `verify --task` 读取）。
@@ -92,3 +92,4 @@ The prefix of the **orchestration commands/skills** materialized onto hosts (e.g
 | 日期 Date | 说明 Note |
 |------|------|
 | 2026-09-11 | 初版 · 2.2 W5（D2）· 4 组首小时概念 + 事实卡 §12 保留词 · 与 README「核心对象」节互链闭合 |
+| 2026-09-14 | 2.3 W7 · 「four gates」按 task/SPEC/发版三层表述 + 「每帽一 prompt 文件」修正为「sync prompts 物化 7 具名帽 · `50-independent-reinspect` 暂无物化 prompt 文件」· 双语同步（[A]#10/#11） |

@@ -24,7 +24,7 @@ const CLOSE_STATUSES = new Set(['done', 'completed'])
 
 function extractTaskStatus(content: string): string | null {
   const m = content.match(STATUS_RE)
-  return m ? m[1].toLowerCase() : null
+  return m ? m[1]!.toLowerCase() : null // STATUS_RE 捕获组必参与（E5 收窄）
 }
 
 function listActiveTasks(target: string): string[] {
@@ -238,7 +238,7 @@ export async function cmdTimeline(args: string[]): Promise<void> {
   if (taskFile != null && taskFile.startsWith('-')) {
     fail(`timeline --task 须紧跟文件路径（收到了旗标 ${taskFile}）`)
   }
-  if (!taskFile && rest.length === 1 && !rest[0].startsWith('-')) {
+  if (!taskFile && rest.length === 1 && !rest[0]!.startsWith('-')) { // rest.length === 1 已判（E5 收窄）
     taskFile = rest[0]
     rest = []
   }

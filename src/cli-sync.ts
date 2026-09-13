@@ -6,7 +6,7 @@ import { fail, kitLayoutJoin, parseHarnessMeta, resolveTarget, takeOption } from
 function extractHatId(filename: string): string {
   const base = path.basename(filename, '.md')
   const parts = base.split('_')
-  if (parts.length >= 3 && parts[0] === 'invoke') return parts[2]
+  if (parts.length >= 3 && parts[0] === 'invoke') return parts[2]! // 长度已判（E5 收窄）
   return 'unknown'
 }
 

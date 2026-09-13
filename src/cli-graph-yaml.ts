@@ -409,8 +409,9 @@ function generateMermaid(data: YamlGraph): string {
   lines.push('    classDef infra fill:#e8f5e9,stroke:#2e7d32,stroke-width:1px')
   // DEF-033（R6）：class 段以 nodes[].kind 为真值源（kind→class 映射，同 generateNodeTable 的 kind 读取）；
   // 无 kind（或未知 kind）时保留 id 推断作兜底（历史行为，仅供未标注 kind 的旧 yaml）。
-  const KIND_TO_CLASS: Record<string, string> = { flow: 'phase', struct: 'doc', external: 'infra' }
-  const classGroups: Record<string, string[]> = { phase: [], doc: [], infra: [] }
+  const KIND_TO_CLASS: Record<string, 'phase' | 'doc' | 'infra'> = { flow: 'phase', struct: 'doc', external: 'infra' }
+  // E5（noUncheckedIndexedAccess）：键集合钉死为三类，classGroups.X 访问免收窄（纯类型收紧 · 零运行时变化）
+  const classGroups: Record<'phase' | 'doc' | 'infra', string[]> = { phase: [], doc: [], infra: [] }
   for (const [nid, node] of nodes) {
     let cls = node.kind ? KIND_TO_CLASS[node.kind] : undefined
     if (!cls) {

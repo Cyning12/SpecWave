@@ -63,7 +63,7 @@ export function exportWikiGraph(
       warnings.push(`未解析 wikilink [[${name}]] @ ${rel}`)
     }
     for (const href of extractMdRelLinks(content)) {
-      const targetAbs = path.resolve(dir, href.split('#')[0])
+      const targetAbs = path.resolve(dir, href.split('#')[0]!) // split 恒 ≥1 元（E5 收窄）
       if (!targetAbs.startsWith(absRoot)) continue
       if (!existsSync(targetAbs)) {
         warnings.push(`md 链目标不存在: ${href} @ ${rel}`)
@@ -92,14 +92,14 @@ function listMarkdownFiles(dir: string): string[] {
 
 function extractTitle(content: string): string | null {
   const m = content.match(/^#\s+(.+)$/m)
-  return m ? m[1].trim() : null
+  return m ? m[1]!.trim() : null // 捕获组必参与（E5 收窄）
 }
 
 function extractWikilinks(content: string): string[] {
   const names: string[] = []
   const re = /\[\[([^\]|#]+)(?:\|[^\]]+)?\]\]/g
   let m: RegExpExecArray | null
-  while ((m = re.exec(content)) !== null) names.push(m[1].trim())
+  while ((m = re.exec(content)) !== null) names.push(m[1]!.trim()) // 捕获组必参与（E5 收窄）
   return names
 }
 
@@ -107,7 +107,7 @@ function extractMdRelLinks(content: string): string[] {
   const hrefs: string[] = []
   const re = /\[[^\]]*\]\((\.\/[^)\s]+\.md(?:#[^)\s]*)?|\.\.\/[^)\s]+\.md(?:#[^)\s]*)?)\)/gi
   let m: RegExpExecArray | null
-  while ((m = re.exec(content)) !== null) hrefs.push(m[1].trim())
+  while ((m = re.exec(content)) !== null) hrefs.push(m[1]!.trim()) // 捕获组必参与（E5 收窄）
   return hrefs
 }
 

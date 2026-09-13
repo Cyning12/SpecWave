@@ -112,11 +112,11 @@ export function parseTaskMarkdown(content: string, fileName: string): {
   const slugMatch =
     content.match(/\*\*task_slug\*\*\s*[:：]\s*`?([a-zA-Z0-9_-]+)`?/) ||
     fileName.match(/task_([a-zA-Z0-9_-]+)_v\d+/)
-  const taskSlug = slugMatch ? slugMatch[1] : path.basename(fileName, '.md')
+  const taskSlug = slugMatch?.[1] ?? path.basename(fileName, '.md') // E5 收窄（捕获组缺省回落同名）
   const titleMatch = content.match(/^#\s+Task\s*[·•]\s*(.+)$/m) || content.match(/^#\s+(.+)$/m)
-  const title = titleMatch ? titleMatch[1].trim() : taskSlug
+  const title = titleMatch?.[1]?.trim() ?? taskSlug // E5 收窄
   const statusMatch = content.match(/\*\*状态\*\*\s*[:：]\s*`?([a-zA-Z0-9_-]+)`?/)
-  const status = statusMatch ? statusMatch[1] : 'pending'
+  const status = statusMatch?.[1] ?? 'pending' // E5 收窄
   // DEF-015 D3：闸解析唯一实现为 cli-shared.parseHumanGates（宽松口径）；
   // 本函数仅做结构适配（blocks_hats 拆数组），不再保留私有表头解析。
   const gates = parseHumanGates(content).map((g) => ({
@@ -304,7 +304,7 @@ function checkRejectedToDraft(events: HgmEvent[] | null): { axiom: string; sever
       String(a.event_id).localeCompare(String(b.event_id)),
   )
   for (let i = 0; i < sorted.length; i += 1) {
-    const rej = sorted[i]
+    const rej = sorted[i]! // i < sorted.length 循环界内（E5 收窄）
     if (
       rej.type !== 'HumanGateRejected' &&
       !(rej.type === 'GateStatusChanged' && rej.data?.new_status === 'rejected')
@@ -432,8 +432,8 @@ export function eventMatchesTaskSlug(event: HgmEvent, slug: string): boolean {
   // 删除 includes 子串兜底；无 data.task_slug 且非结构化 subject 的事件一律不匹配（宁缺勿滥）。
   const parts = String(event?.subject || '').split(':')
   let subjectSlug = ''
-  if (parts[0] === 'task' && parts.length === 2) subjectSlug = parts[1]
-  else if (parts[0] === 'gate' && parts.length === 3) subjectSlug = parts[1]
+  if (parts[0] === 'task' && parts.length === 2) subjectSlug = parts[1]! // 长度已判（E5 收窄）
+  else if (parts[0] === 'gate' && parts.length === 3) subjectSlug = parts[1]!
   if (!subjectSlug) return false
   return subjectSlug.replace(/_/g, '-') === norm
 }
@@ -450,7 +450,7 @@ export function summarizeTaskHgm(target: string, slug: string): { event_count: n
     const events = loadEvents(target)
     const related = filterEventsForTask(events, slug)
     if (!slug || related.length === 0) return { event_count: 0, last_at: null }
-    const last = related[related.length - 1]
+    const last = related[related.length - 1]! // related.length > 0 已判（E5 收窄）
     return { event_count: related.length, last_at: last.occurred_at || null }
   } catch {
     return { event_count: null, last_at: null }

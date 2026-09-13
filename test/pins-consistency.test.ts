@@ -1003,25 +1003,11 @@ describe('W1-A1 release pins · C组 声明源数据形态（SPEC 01 §5 · D-PI
     assert.deepEqual(p17.extract.host_hits?.zed, ['Zed'])
     assert.deepEqual(p17.extract.host_hits?.cline, ['Cline'])
     assert.deepEqual(p17.extract.host_hits?.aider, ['aider'])
-    // known_gaps 九条 = 三旧（2.3-W2）+ 六新（2.3-W6 · SPEC 06 §5.3 过渡口径 · D-23-W6-EXEMPT 四字段）· until_wave 全 W7（W7① 统一关账）
+    // known_gaps 清零（2.3-W7① 关账：根 README 双语 13 行落地 · 三旧+六新九条过渡豁免全摘 ·
+    // 失陈债机检自执行强制 —— 中间态 exit 2 实证见 task_2_3_wiring_w7_dx_health 自检结论）；
+    // 机制保留：未来新宿主过渡仍可挂 until_wave 条目
     const gaps = p17.extract.known_gaps ?? []
-    assert.deepEqual(gaps.map((g) => g.host_id).sort(), [
-      'codex',
-      'copilot',
-      'windsurf',
-      'gemini',
-      'opencode',
-      'roo',
-      'zed',
-      'cline',
-      'aider',
-    ].sort())
-    for (const g of gaps) assert.equal(g.until_wave, 'W7')
-    for (const id of ['gemini', 'opencode', 'roo', 'zed', 'cline', 'aider']) {
-      const g = gaps.find((x) => x.host_id === id)!
-      assert.equal(g.since_wave, 'W6', id + ' 豁免条目须带 since_wave: W6（四字段格式）')
-      assert.ok(g.note && g.note.length > 0, id + ' 豁免条目须带 note')
-    }
+    assert.deepEqual(gaps, [], 'W7① 已关账：pin-17 known_gaps 必须为空（13 宿主双语全命中 · 零豁免）')
   })
 
   it('无 S2 落点（docs/tasks · docs/harness/reviews · docs/harness/invokes/by-task）', () => {
