@@ -75,6 +75,13 @@ describe('lib 冒烟（DEF-018 · 发布产物最小路径）', { concurrency: 1
     assert.match((payload.error as { message: string }).message, /互斥/)
   })
 
+  // 2.3-W5 A2（SPEC 05）：assets verify bin 面钉面（W3 教训 · src 绿 ≠ bin 面正确）
+  it('S5: assets verify 本仓 dogfood → exit 0 ASSETS: PASS（发布产物 bin 面）', () => {
+    const r = runBin(['assets', 'verify'])
+    assert.equal(r.status, 0, r.combined)
+    assert.match(r.combined, /ASSETS: PASS · \d+\/\d+ 文件一致/)
+  })
+
   it('S3: skills install --target <tmp> PASS 且落 harness-10-spec/SKILL.md', async () => {
     const dir = await mkdtemp(path.join(os.tmpdir(), 'dsh-ck-lib-smoke-'))
     try {

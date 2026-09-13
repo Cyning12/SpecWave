@@ -18,6 +18,7 @@
 
 ### Added
 
+- **2.3-W5（A2 · SPEC 05）assets 资产完整性校验**：新增 `assets/sha256.manifest`（构建声明：assets/ 全量文件 sha256 · posix 路径确定性排序 · sha256sum 行格式）+ 新子命令 `spec-wave assets verify [--target PATH] [--json]`（逐文件比对：ok/mismatch/missing/extra 四态 · 任一偏差 failClosed **exit 2** · 与 pins 同门禁语义）与 `spec-wave assets manifest rebuild [--target PATH] [--yes]`（默认 dry-run · `--yes` 重生成 manifest · 幂等 · **修复对象=manifest 声明，资产为真值永不反向改**）；CI test job 与 `prepublishOnly` 链尾与 pins 同点位接线（改 assets 未重生成即红）。注：根 README 等对外文档口径更新归维护者（事实卡 §11 解禁不属本波）。
 - **2.3-W3（[A]W3-P2）exit 1 JSON 信封**：用法错误档（exit 1）且传 `--json` 时，stdout 输出结构化信封 `{ command, exitCode: 1, error: { message } }`（message 已相对化）；不传 `--json` 时人类错误输出不变；exit 码语义不变。
 - **2.3-W3（[A]#9）quickstart git 前提**：`init` 的 3 步 quickstart 第 3 步前补前提提示（项目须为 git 仓 · `git init`）；README 双语「核心对象」quickstart 引用句同步。
 - **2.3-W3（C4）CI 安全基线**：`ci.yml` / `tech-graph.yml` 顶层 `permissions: contents: read` 最小权限；新增 `audit` job（`npm audit --audit-level=high` fail-closed）与 `secrets-scan` job（gitleaks 官方二进制钉版 + `--no-git` 工作树档）。

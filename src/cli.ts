@@ -28,6 +28,7 @@ import {
 import { cmdStatus, cmdTimeline } from './cli-status.ts'
 import { cmdSync } from './cli-sync.ts'
 import { cmdTaskCheck, cmdTaskLintDone, cmdTaskLintWikiDelta, collectTaskFilesByScope, lintWikiDeltaMissing } from './cli-task-extra.ts'
+import { cmdAssets } from './cli-assets.ts'
 import { cmdPins } from './cli-pins.ts'
 import { cmdWiki } from './cli-wiki.ts'
 import { loadMarkdownBundle, type AssetSource } from './inject-collect.ts'
@@ -119,6 +120,8 @@ function usage(version: string): void {
   npx spec-wave wiki export --json [--target PATH]
   npx spec-wave pins check [--target PATH] [--json]
   npx spec-wave pins fix [--target PATH] [--yes]  （默认 dry-run · S2 机械拒写）
+  npx spec-wave assets verify [--target PATH] [--json]  （assets sha256 完整性 · 偏差 exit 2）
+  npx spec-wave assets manifest rebuild [--target PATH] [--yes]  （默认 dry-run · 修复对象=manifest · 资产永不反向改）
   npx spec-wave task lint-done [--target PATH]
   npx spec-wave task lint-wiki-delta [--target PATH] [--scope all|active|done] [--strict] [--json]
     诊断码: wiki_delta_missing（缺字段）· wiki_delta_wrong_section（字段写在 ${HARNESS_META_HEADING} 之外的节 · 替代 missing 不双报）
@@ -1287,6 +1290,10 @@ export async function runCli(argv: string[]): Promise<void> {
   }
   if (cmd === 'pins') {
     await cmdPins(rest)
+    return
+  }
+  if (cmd === 'assets') {
+    await cmdAssets(rest)
     return
   }
   fail(`未知命令: ${cmd}\n`)

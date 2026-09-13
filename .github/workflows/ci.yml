@@ -32,6 +32,7 @@ jobs:
       - run: npm run build
       - run: npm run test:lib
       - run: node bin/specgate.js pins check  # 2.2.0 W1 · A1：版本/身份钉门禁（偏差 exit 2 · D-PINS-EXIT）
+      - run: node bin/specgate.js assets verify  # 2.3.0 W5 · A2：assets sha256 完整性门禁（偏差 exit 2 failClosed · 与 pins 同点位同语义 · 改 assets 未重生成即红 D-23-W5-GEN-CMD）
 
   # 2.3-W3 ④（C4）：依赖扫描（fail-closed · D-23-W3-AUDIT-GATE —— 现状 js-yaml high 已于本波 npm audit fix 修平）
   audit:
