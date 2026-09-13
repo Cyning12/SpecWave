@@ -214,11 +214,40 @@ describe('verify --spec · SPEC 审查文存在性真闸（spec_reviews_retentio
     })
   })
 
-  it('回归：不带 --task/--spec 的 verify → exit 1 提示须指定（行为不回退）', () => {
-    const r = runCli(['verify'])
-    assert.equal(r.status, 1, r.combined)
-    assert.match(r.combined, /须指定 --task FILE 或 --spec FILE/)
+  it('2.3-W4 FULL-reviews：裸 verify = 仓级 reviews 扫描（原「须指定」用法错语义由本模式取代 · 行为变更）', async () => {
+    await withTemp(async (dir) => {
+      // 空仓（无 task）→ PASS exit 0
+      const empty = runCli(['verify', '--target', dir])
+      assert.equal(empty.status, 0, empty.combined)
+      assert.match(empty.combined, /VERIFY: PASS（裸 verify · 仓级 reviews 扫描）/)
+      // done task 缺审查文 → BLOCKED exit 2 点名缺口与豁免指引
+      await writeRel(dir, 'docs/tasks/done/task_bare_gap_v1.md', '# Task bare_gap\n\n> **状态**：`done`\n')
+      const blocked = runCli(['verify', '--target', dir])
+      assert.equal(blocked.status, 2, blocked.combined)
+      assert.match(blocked.combined, /VERIFY: BLOCKED · 仓级 reviews 缺口 1/)
+      assert.match(blocked.combined, /missing R<n> review/)
+      assert.match(blocked.combined, /legacy-gate-exempt\.yaml/)
+      // 数据豁免（四字段齐）→ PASS + 命中留痕回显
+      await writeRel(
+        dir,
+        'docs/harness/legacy-gate-exempt.yaml',
+        [
+          'version: "1"',
+          'reviews:',
+          '  - slug: bare_gap',
+          '    reason: 2.3.0 前历史关账（fixture）',
+          "    date: '2026-09-13'",
+          '    authorized_by: 00（fixture）',
+          '',
+        ].join('\n'),
+      )
+      const waived = runCli(['verify', '--target', dir])
+      assert.equal(waived.status, 0, waived.combined)
+      assert.match(waived.combined, /豁免命中留痕: bare_gap/)
+      assert.match(waived.combined, /VERIFY: PASS/)
+    })
   })
+
 
   it('lifecycle dry-run to_00：spec_reviews_retention 真求值（--task 携带 SPEC 路径）· 缺审查文 fail 挡 · --allow-no-spec-review 转 warn 留痕', async () => {
     await withTemp(async (dir) => {

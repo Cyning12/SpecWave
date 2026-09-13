@@ -166,8 +166,9 @@ npx spec-wave init [--preset NAME] [--tools all|none|LIST] [--profile core|expan
 npx spec-wave upgrade --yes
 npx spec-wave refresh-ide-blocks [--target PATH] [--dry-run] [--yes] [--json]
 npx spec-wave check
-npx spec-wave verify --task <task.md> [--with-wiki-lint]
+npx spec-wave verify --task <task.md> [--with-wiki-lint]   # 30 前闸；2.3 起审查文还须含可机读通过结论（G2 结论级）
 npx spec-wave verify --spec <SPEC.md>   # SPEC→00 前审查文存在性闸（与 --task 互斥 · --with-wiki-lint 同生效）
+npx spec-wave verify   # 裸模式（2.3 起）：仓级 reviews 双路径全量扫描 —— done failClosed · active 仅信息报告；存量豁免走 docs/harness/legacy-gate-exempt.yaml
 npx spec-wave gate-check --task <task.md>
 npx spec-wave audit --task <task.md>
 npx spec-wave task lint --file <task.md>

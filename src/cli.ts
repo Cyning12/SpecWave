@@ -13,17 +13,21 @@ import { buildDoneSnapshot, CliError, evaluateMayStart30, extractSection, extrac
 import {
   checkPre30InvokeHats,
   evalCloseGuard,
+  evalReviewConclusion,
+  findLatestReview,
   findReview,
   findSpecReview,
   listBareSpecFiles,
   lintTaskFile,
+  loadLegacyGateExempt,
   PLACEHOLDER_RE,
   runTestCheck,
   shouldSkipSpecAudit,
+  type LegacyGateExemptEntry,
 } from './cli-checks.ts'
 import { cmdStatus, cmdTimeline } from './cli-status.ts'
 import { cmdSync } from './cli-sync.ts'
-import { cmdTaskCheck, cmdTaskLintDone, cmdTaskLintWikiDelta, lintWikiDeltaMissing } from './cli-task-extra.ts'
+import { cmdTaskCheck, cmdTaskLintDone, cmdTaskLintWikiDelta, collectTaskFilesByScope, lintWikiDeltaMissing } from './cli-task-extra.ts'
 import { cmdPins } from './cli-pins.ts'
 import { cmdWiki } from './cli-wiki.ts'
 import { loadMarkdownBundle, type AssetSource } from './inject-collect.ts'
@@ -734,10 +738,111 @@ async function verifySpecMode(
   }
 }
 
+// 2.3-W4 FULL-reviews：裸 verify（无 --task/--spec）= 仓级 reviews 全量扫描（评审文 §2.3 定稿）。
+// done 面 failClosed（审查文存在 + 最高 R 轮结论可机读通过 · 与 G2 同一实现源）；active 面信息报告
+//（draft 期无审查文合法 · 不闸）；存量过渡走数据豁免 docs/harness/legacy-gate-exempt.yaml
+//（D-23-W4-EXEMPT-FORMAT · F-W4-04 四字段留痕回显）。
+async function verifyBareReviewsMode(
+  target: string,
+  opts: { json: boolean; withWikiLint: boolean },
+  obs: VerifyObservability | null,
+): Promise<void> {
+  const exempt = loadLegacyGateExempt(target)
+  const files = collectTaskFilesByScope(target)
+  const doneFiles = files.filter((f) => f.scope === 'done')
+  const activeFiles = files.filter((f) => f.scope === 'active')
+  const gaps: { slug: string; rel: string; reason: string }[] = []
+  const exempted: { slug: string; reason: string; entry: LegacyGateExemptEntry }[] = []
+  const metaOf = (abs: string): Record<string, string> => {
+    try {
+      return parseHarnessMeta(readFileSync(abs, 'utf8'))
+    } catch {
+      return {} // 读失败 → 空元信息回退（failClosed 方向）
+    }
+  }
+  for (const f of doneFiles) {
+    const slug = metaOf(f.abs).task_slug ?? extractTaskSlug(f.abs)
+    const latest = findLatestReview(target, f.abs)
+    let reason: string | null = null
+    if (!latest) {
+      reason = 'missing R<n> review'
+    } else {
+      const verdict = evalReviewConclusion(readFileSync(latest.path, 'utf8'))
+      if (!verdict.pass) reason = `审查文结论不可机读通过（${latest.name} · ${verdict.detail}）`
+    }
+    if (!reason) continue
+    const ent = exempt.reviews.get(normalizeSlug(slug))
+    if (ent) exempted.push({ slug, reason, entry: ent })
+    else gaps.push({ slug, rel: f.rel, reason })
+  }
+  const activeMissing: string[] = []
+  for (const f of activeFiles) {
+    if (findLatestReview(target, f.abs)) continue
+    activeMissing.push(metaOf(f.abs).task_slug ?? extractTaskSlug(f.abs))
+  }
+  // K3 同口径：--with-wiki-lint 在裸模式同生效（正交加闸 · 复用 lintWikiDeltaMissing 导出）
+  const wikiLint = opts.withWikiLint ? lintWikiDeltaMissing(target, { scope: 'all' }) : null
+  const blocked = gaps.length > 0
+  const wikiBlocked = wikiLint ? !wikiLint.ok : false
+  if (opts.json) {
+    // obs 恒非空：本分支在 opts.json 守卫内（obs 仅 --json 时计算）
+    const o = obs as VerifyObservability
+    console.log(
+      JSON.stringify(
+        {
+          command: 'verify',
+          target: toRel(process.cwd(), target),
+          blocked: blocked || wikiBlocked,
+          verdict: blocked || wikiBlocked ? 'BLOCKED' : 'PASS',
+          traceId: o.traceId,
+          exitCode: blocked || wikiBlocked ? VERIFY_BLOCKED_EXIT_CODE : 0,
+          source: o.source,
+          injectedFiles: o.injectedFiles,
+          reviews_scan: {
+            done: doneFiles.length,
+            active: activeFiles.length,
+            active_missing_reviews: activeMissing,
+            gaps,
+            exempted: exempted.map((e) => ({ slug: e.slug, gap: e.reason, exempt: e.entry })),
+            exempt_invalid: exempt.invalid,
+          },
+          ...(wikiLint ? { wiki_lint: wikiLintJson(wikiLint) } : {}),
+        },
+        null,
+        2,
+      ),
+    )
+  } else {
+    console.log(`目标: ${toRel(process.cwd(), target)}`)
+    console.log('verify: 仓级 reviews 全量扫描（双路径 docs/harness/reviews + reviews/ · 2.3-W4 FULL-reviews）')
+    console.log(`done tasks: ${doneFiles.length} · active tasks: ${activeFiles.length}`)
+    for (const slug of activeMissing) {
+      console.log(`warn: active 缺 R<n> 审查文（draft 期合法 · 不闸）: ${slug}`)
+    }
+    for (const e of exempted) {
+      console.log(`豁免命中留痕: ${e.slug}（${e.entry.reason} · ${e.entry.date} · ${e.entry.authorized_by}）`)
+    }
+    for (const inv of exempt.invalid) console.log(`warn: 豁免条目无效（不豁免）: ${inv}`)
+    if (wikiLint && !wikiLint.ok) printWikiLintIssues(wikiLint)
+    else if (wikiLint) console.log(`verify: wiki-lint PASS · scanned: ${wikiLint.scanned} · scope: all`)
+    if (blocked) {
+      console.log(
+        'reviews 缺口（failClosed · 存量过渡豁免走 docs/harness/legacy-gate-exempt.yaml · 四字段 slug/reason/date/authorized_by）:',
+      )
+      for (const g of gaps) console.log(`  - ${g.rel} · ${g.reason}`)
+    }
+    console.log(
+      blocked || wikiBlocked
+        ? `VERIFY: BLOCKED · 仓级 reviews 缺口 ${gaps.length}`
+        : 'VERIFY: PASS（裸 verify · 仓级 reviews 扫描）',
+    )
+  }
+  if (blocked || wikiBlocked) fail('', VERIFY_BLOCKED_EXIT_CODE)
+}
 async function cmdVerify(args: string[]): Promise<void> {
   if (args.includes('--help') || args.includes('-h')) {
     console.log(
-      '用法: npx spec-wave verify [--target PATH] [--task FILE | --spec FILE] [--json] [--with-wiki-lint] [--allow-no-review] [--allow-invoke-gap] [--allow-no-spec-review]',
+      '用法: npx spec-wave verify [--target PATH] [--task FILE | --spec FILE] [--json] [--with-wiki-lint] [--allow-no-review] [--allow-invoke-gap] [--allow-no-spec-review]（不带 --task/--spec = 仓级 reviews 全量扫描 · 2.3-W4 FULL-reviews）',
     )
     return
   }
@@ -772,7 +877,11 @@ async function cmdVerify(args: string[]): Promise<void> {
     await verifySpecMode(target, specFile, { json, allowNoSpecReview, allowNoReview, withWikiLint }, obs)
     return
   }
-  if (!taskFile) fail('verify 须指定 --task FILE 或 --spec FILE')
+  if (!taskFile) {
+    // 2.3-W4 FULL-reviews：裸 verify = 仓级 reviews 全量扫描（原用法错 exit 1 语义由本模式取代）
+    await verifyBareReviewsMode(target, { json, withWikiLint }, obs)
+    return
+  }
   const abs = resolveTaskPath(target, taskFile)
   const label = path.basename(abs)
   const emitJson = (blocked: boolean, waived?: string[], wikiLint?: WikiLintGateResult | null): void => {
@@ -836,6 +945,29 @@ async function cmdVerify(args: string[]): Promise<void> {
     waived.push('missing R<n> review（--allow-no-review 豁免）')
     if (!json) {
       console.log('verify: 留痕 · 缺 R<n> 审查文 · --allow-no-review 豁免生效（仍须补审并由维护者签 HG-AUDIT-R1）')
+    }
+  }
+  // 2.3-W4 G2 结论级（评审文 §2.1）：最高 R 轮审查文结论可机读通过 ——
+  // active failClosed · done 目录 warn 降级（D-23-W4-TRANSITION 不追溯存量）· --allow-no-review 同豁结论级
+  const latestReview = findLatestReview(target, abs)
+  if (latestReview) {
+    const verdict = evalReviewConclusion(await readFile(latestReview.path, 'utf8'))
+    if (!verdict.pass) {
+      if (allowNoReview) {
+        waived.push(`审查文结论不可机读通过（${latestReview.name} · --allow-no-review 豁免）`)
+        if (!json) {
+          console.log(`verify: 留痕 · ${latestReview.name} 结论不可机读通过（${verdict.detail}）· --allow-no-review 豁免生效`)
+        }
+      } else if (abs.split(path.sep).includes('done')) {
+        waived.push(`审查文结论不可机读通过（${latestReview.name} · done 目录审计降级 warn）`)
+        if (!json) {
+          console.log(`verify: warn · ${latestReview.name} 结论不可机读通过（${verdict.detail} · done 目录降级 · 不挡）`)
+        }
+      } else {
+        if (json) emitJson(true)
+        else console.log(`VERIFY: BLOCKED · 审查文结论不可机读通过 · ${latestReview.name}（${verdict.detail}）· ${label}`)
+        fail('', VERIFY_BLOCKED_EXIT_CODE)
+      }
     }
   }
   // DEF-003 阶段二 T5：pre-30 invoke hats 硬闸（required ∩ {10,20,00} · cli-checks 单一实现源，

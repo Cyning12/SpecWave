@@ -3,6 +3,7 @@ import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs'
 import path from 'node:path'
 import { extractSection, extractTaskSlug, fail, findWikiDeltaOutsideMetaSection, HARNESS_META_HEADING, normalizeSlug, parseHarnessMeta, resolveTaskPath, STATUS_RE, resolveLayoutFile } from './cli-shared.ts'
 import { WIKI_DELTA_LITERALS, WIKI_DELTA_PATHISH_RE } from './cli-task-extra.ts'
+import { yamlLoad } from './yaml.ts'
 
 // DEF-003 阶段二 T5/T6：invoke hats 检查单一实现源（verify pre-30 硬闸与 task close 帽集合覆盖共用）。
 const INVOKE_DIR_CANDIDATES = ['docs/harness/invokes/by-task', 'invokes/by-task']
@@ -181,14 +182,24 @@ export function evalCloseInvokeHats(absTask: string, content: string): CloseGuar
   return { status: 'pass', detail: `invoke hats 齐（${source}）` }
 }
 
-// close_review：R<n> 审查文存在性（findReview 与 verify / status / dry-run 同口径）
+// close_review（2.3-W4 G2 结论级升级 · 评审文 §2.1）：R<n> 审查文存在 + 最高 R 轮结论可机读通过
+// （findLatestReview / evalReviewConclusion 单一实现源 · close 天然只闸新关账不追溯存量 · D-23-W4-TRANSITION）。
 export function evalCloseReview(absTask: string): CloseGuardOutcome {
-  return findReview(taskTargetRoot(absTask), absTask)
-    ? { status: 'pass', detail: 'R<n> 审查文存在' }
-    : {
-        status: 'fail',
-        detail: 'missing R<n> review（docs/harness/reviews 与 reviews/ 均无 · 或 --allow-no-review 豁免）',
-      }
+  const latest = findLatestReview(taskTargetRoot(absTask), absTask)
+  if (!latest) {
+    return {
+      status: 'fail',
+      detail: 'missing R<n> review（docs/harness/reviews 与 reviews/ 均无 · 或 --allow-no-review 豁免）',
+    }
+  }
+  const verdict = evalReviewConclusion(readFileSync(latest.path, 'utf8'))
+  if (!verdict.pass) {
+    return {
+      status: 'fail',
+      detail: '审查文结论不可机读通过（' + latest.name + ' · ' + verdict.detail + ' · 或 --allow-no-review 豁免）',
+    }
+  }
+  return { status: 'pass', detail: 'R' + latest.round + ' 审查文存在且结论可机读通过（' + latest.name + '）' }
 }
 
 const GRAPH_DELTA_LITERALS = new Set(['none'])
@@ -627,22 +638,117 @@ export function evalSpecReviewsRetention(
       }
 }
 
-// R<n> 审查文存在性（DEF-003 T4 真值源）：扫描 docs/harness/reviews 与 reviews/ 双路径，
-// 文件名口径 task_<slug>_audit_R<n>_*.md（slug 去 _v<n> 版本后缀）。
-export function findReview(target: string, taskFile: string): boolean {
+// R<n> 审查文扫描（DEF-003 T4 真值源 · 2.3-W4 升级为最新轮返回）：扫描 docs/harness/reviews 与
+// reviews/ 双路径，文件名口径 task_<slug>_audit_R<n>_*.md（slug 去 _v<n> 版本后缀）；
+// 返回最高 R 轮文件（终轮结论为真值 · R2 通过覆盖 R1 退回）；无命中 → null。
+export function findLatestReview(
+  target: string,
+  taskFile: string,
+): { path: string; name: string; round: number } | null {
   const dirs = [path.join(target, 'docs/harness/reviews'), path.join(target, 'reviews')]
   const stripVer = (s: string) => s.replace(/_v\d+$/, '')
   const base = stripVer(path.basename(taskFile, '.md'))
-  const RE = /^(task_.+?)_audit_R\d+_.*\.md$/i
+  const RE = /^(task_.+?)_audit_R(\d+)_.*\.md$/i
+  let best: { path: string; name: string; round: number } | null = null
   for (const reviewsDir of dirs) {
     if (!existsSync(reviewsDir)) continue
     for (const name of readdirSync(reviewsDir)) {
       const m = name.match(RE)
       if (!m) continue
-      if (stripVer(m[1]) === base) return true
+      if (stripVer(m[1]) !== base) continue
+      const round = parseInt(m[2], 10)
+      if (!best || round > best.round || (round === best.round && name > best.name)) {
+        best = { path: path.join(reviewsDir, name), name, round }
+      }
     }
   }
-  return false
+  return best
+}
+
+// R<n> 审查文存在性（布尔投影 · findLatestReview 单一实现源 · status / dry-run 消费）
+export function findReview(target: string, taskFile: string): boolean {
+  return findLatestReview(target, taskFile) !== null
+}
+
+// ==== 2.3-W4 G2 结论级：审查文「R1 通过判定」机读口径（评审文 w4_gate_wiring_plan_review_20260913 §2.1 定稿 v2） ====
+// 抽取：节标题以「结论/签收」起首（允许中文序号前缀）的节合并；无匹配节 → 回退全文（宁可误红 · failClosed）。
+// 通过词：PASS / ACCEPT / 签收 / 通过 / 零内容阻塞 / 零阻塞（大小写不敏感）。
+// 否定守卫：退回（前置 无需/不/未 除外）· 未通过 · 不通过 · 内容阻塞（前置 零 除外）——命中即不通过。
+// 判定：通过词命中且无否定命中 → pass；否则 fail（不可解析 = 不通过 · 不误绿）。
+const REVIEW_SECTION_HEAD_RE = /^#{2,3}\s*(?:[一二三四五六七八九十]+[、.]\s*)?(结论|签收)/
+const REVIEW_PASS_RE = /(\bPASS\b|ACCEPT|签收|零内容阻塞|零阻塞|通过)/i
+const REVIEW_NEG_RE = /((?<!无需)(?<!不)(?<!未)退回|未通过|不通过|(?<!零)内容阻塞)/
+
+export function evalReviewConclusion(content: string): { pass: boolean; detail: string } {
+  const lines = content.split('\n')
+  const chunks: string[] = []
+  let cur: string[] | null = null
+  for (const l of lines) {
+    if (REVIEW_SECTION_HEAD_RE.test(l)) {
+      if (cur) chunks.push(cur.join('\n'))
+      cur = [l]
+      continue
+    }
+    if (cur && /^#{2,3}\s+/.test(l)) {
+      chunks.push(cur.join('\n'))
+      cur = null
+      continue
+    }
+    if (cur) cur.push(l)
+  }
+  if (cur) chunks.push(cur.join('\n'))
+  const text = chunks.length > 0 ? chunks.join('\n') : content
+  const scope = chunks.length > 0 ? '结论/签收节' : '全文（无结论节回退）'
+  if (REVIEW_NEG_RE.test(text)) return { pass: false, detail: scope + '含否定结论词（退回/未通过/内容阻塞）' }
+  if (!REVIEW_PASS_RE.test(text)) return { pass: false, detail: scope + '无可机读通过词（PASS/ACCEPT/签收/通过/零阻塞）' }
+  return { pass: true, detail: scope + '结论可机读通过' }
+}
+
+// ==== 2.3-W4 过渡豁免数据（D-23-W4-EXEMPT-FORMAT · F-W4-04 留痕四字段强制） ====
+// 落点 docs/harness/legacy-gate-exempt.yaml（非 S2 · 手写数据 · 非 host 物化 target）；
+// 条目缺 slug/reason/date/authorized_by 任一字段 → 无效（不豁免）并入 invalid 留痕 warn。
+export const LEGACY_GATE_EXEMPT_REL = 'docs/harness/legacy-gate-exempt.yaml'
+
+export type LegacyGateExemptEntry = { slug: string; reason: string; date: string; authorized_by: string }
+export type LegacyGateExempt = {
+  reviews: Map<string, LegacyGateExemptEntry>
+  invoke_hats: Map<string, LegacyGateExemptEntry>
+  invalid: string[]
+}
+
+export function loadLegacyGateExempt(target: string): LegacyGateExempt {
+  const out: LegacyGateExempt = { reviews: new Map(), invoke_hats: new Map(), invalid: [] }
+  const abs = path.join(target, LEGACY_GATE_EXEMPT_REL)
+  if (!existsSync(abs)) return out
+  let data: unknown
+  try {
+    data = yamlLoad(readFileSync(abs, 'utf8'))
+  } catch (e) {
+    out.invalid.push('YAML 解析失败: ' + (e as Error).message)
+    return out
+  }
+  for (const section of ['reviews', 'invoke_hats'] as const) {
+    const list = (data as Record<string, unknown> | null)?.[section]
+    if (list === undefined || list === null) continue
+    if (!Array.isArray(list)) {
+      out.invalid.push(section + ' 节非列表')
+      continue
+    }
+    for (const ent of list) {
+      const e = ent as Partial<LegacyGateExemptEntry> | null
+      if (!e || !e.slug || !e.reason || !e.date || !e.authorized_by) {
+        out.invalid.push(section + ' 条目缺四字段（slug/reason/date/authorized_by）: ' + JSON.stringify(ent))
+        continue
+      }
+      out[section].set(normalizeSlug(String(e.slug)), {
+        slug: String(e.slug),
+        reason: String(e.reason),
+        date: String(e.date),
+        authorized_by: String(e.authorized_by),
+      })
+    }
+  }
+  return out
 }
 
 function walkFiles(dir: string, depth: number, acc: string[]): void {
@@ -835,11 +941,36 @@ export function lintTaskFile(filePath: string, cwd: string): {
   if (!content.includes('### 人工闸')) {
     warnings.push({ rule: 'W2', message: '缺 ### 人工闸 节（轻量 task 可忽略本提醒）' })
   }
-  if (!/^###\s+R0(\b|[^\d]|$)/m.test(content) && !/^#{2,3}\s+.*思考轮/m.test(content)) {
+  const hasThinkSection = /^###\s+R0(\b|[^\d]|$)/m.test(content) || /^#{2,3}\s+.*思考轮/m.test(content)
+  if (!hasThinkSection) {
     warnings.push({
       rule: 'W4',
       message: '无思考轮节（SPEC 承载 / bugfix 轨合法豁免 · 有节则查 R0–R5 与控制表）',
     })
+  } else {
+    // 2.3-W4 G4 思考轮结构接线（warn-only 过渡 · D-23-W4-G4-EXIT：升 failClosed 唯一路径=后续 SPEC 明文裁决）：
+    // W5 槽位 / W6 控制表 / W7 early_stop=yes 须 reason——均不挡 LINT: PASS（exit 码不变）。
+    const missingSlots = ['R0', 'R1', 'R2', 'R3', 'R4', 'R5'].filter(
+      (r) => !new RegExp('^###\\s+' + r + '(\\b|[^\\d]|$)', 'm').test(content),
+    )
+    if (missingSlots.length > 0) {
+      warnings.push({
+        rule: 'W5',
+        message: '思考轮槽位不全（缺 ' + missingSlots.join('/') + ' · warn-only 过渡 · D-23-W4-G4-EXIT）',
+      })
+    }
+    if (!/^\|\s*轮\s*\|\s*结论\s*\|\s*early_stop\s*\|/m.test(content)) {
+      warnings.push({
+        rule: 'W6',
+        message: '缺思考轮控制表（| 轮 | 结论 | early_stop | 表头 · warn-only 过渡 · D-23-W4-G4-EXIT）',
+      })
+    }
+    if (/\|\s*\*{0,2}yes/i.test(content) && !/reason（early_stop）/.test(content)) {
+      warnings.push({
+        rule: 'W7',
+        message: '控制表含 early_stop=yes 但缺 reason（early_stop）回填（warn-only 过渡 · D-23-W4-G4-EXIT）',
+      })
+    }
   }
   return {
     ok: errors.length === 0,

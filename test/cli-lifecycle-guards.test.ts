@@ -101,7 +101,7 @@ describe('DEF-003 T3 · lifecycle dry-run 守卫真接线（to_30）', { concurr
   it('reviews_retention：补 R<n> 审查文 → pass；to_30 全守卫 evaluated（unevaluated_count: 0）', async () => {
     await withTemp(async (dir) => {
       await seedOk(dir)
-      await writeRel(dir, REVIEW_REL, '# R1 fixture\n')
+      await writeRel(dir, REVIEW_REL, '# R1 fixture\n\n## 结论\n\nPASS · 零内容阻塞（fixture）\n')
       const r = dryRun(dir)
       assert.equal(r.status, 0, r.combined)
       assert.match(r.combined, /reviews_retention: pass/)
@@ -123,7 +123,7 @@ describe('DEF-003 T3 · lifecycle dry-run 守卫真接线（to_30）', { concurr
   it('audit_D5：test_strategy=required 且无测试制品 → fail（exit 2）；补测试文件 → pass', async () => {
     await withTemp(async (dir) => {
       await writeRel(dir, OK_REL, taskMd({ slug: 'lc_ok', testStrategy: 'required' }))
-      await writeRel(dir, REVIEW_REL, '# R1 fixture\n')
+      await writeRel(dir, REVIEW_REL, '# R1 fixture\n\n## 结论\n\nPASS · 零内容阻塞（fixture）\n')
       const bad = dryRun(dir)
       assert.equal(bad.status, 2, bad.combined)
       assert.match(bad.combined, /audit_D5: fail/)
@@ -138,7 +138,7 @@ describe('DEF-003 T3 · lifecycle dry-run 守卫真接线（to_30）', { concurr
   it('task_lint：lint FAIL（severity=warn）不挡 blocked；--allow-lint-fail 转 warn 留痕', async () => {
     await withTemp(async (dir) => {
       await writeRel(dir, OK_REL, taskMd({ slug: 'lc_ok', includeAcceptance: false }))
-      await writeRel(dir, REVIEW_REL, '# R1 fixture\n')
+      await writeRel(dir, REVIEW_REL, '# R1 fixture\n\n## 结论\n\nPASS · 零内容阻塞（fixture）\n')
       const r = dryRun(dir)
       assert.equal(r.status, 0, r.combined)
       assert.match(r.combined, /task_lint: fail/)

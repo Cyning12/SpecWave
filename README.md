@@ -166,8 +166,9 @@ npx spec-wave init [--preset NAME] [--tools all|none|LIST] [--profile core|expan
 npx spec-wave upgrade --yes
 npx spec-wave refresh-ide-blocks [--target PATH] [--dry-run] [--yes] [--json]
 npx spec-wave check
-npx spec-wave verify --task <task.md> [--with-wiki-lint]
+npx spec-wave verify --task <task.md> [--with-wiki-lint]   # pre-30 gate; since 2.3: review file must also carry a machine-readable passing conclusion (G2)
 npx spec-wave verify --spec <SPEC.md>   # SPEC-to-00 review-existence gate (mutually exclusive with --task; --with-wiki-lint applies here too)
+npx spec-wave verify   # bare mode (2.3+): repo-wide reviews scan over both review dirs — done tasks fail-closed, active tasks info-only; legacy exemptions via docs/harness/legacy-gate-exempt.yaml
 npx spec-wave gate-check --task <task.md>
 npx spec-wave audit --task <task.md>
 npx spec-wave task lint --file <task.md>

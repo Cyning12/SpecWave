@@ -57,19 +57,22 @@ describe('lib 冒烟（DEF-018 · 发布产物最小路径）', { concurrency: 1
     assert.match(r.combined, /skills install/)
   })
 
-  it('S2: verify 缺 --task 非 0 且提示参数解析错误', () => {
+  // 2.3-W4 FULL-reviews：裸 verify 语义由用法错改为仓级 reviews 扫描（bin 面钉面）
+  it('S2: 裸 verify（2.3-W4 FULL-reviews）仓级扫描本仓 → exit 0 PASS（dogfood 真值 · 豁免清单生效）', () => {
     const r = runBin(['verify'])
-    assert.notEqual(r.status, 0, r.combined)
-    assert.match(r.combined, /verify 须指定 --task/)
+    assert.equal(r.status, 0, r.combined)
+    assert.match(r.combined, /VERIFY: PASS（裸 verify · 仓级 reviews 扫描）/)
+    assert.match(r.combined, /豁免命中留痕/)
   })
 
   it('S4: 2.3-W3 ② bin 面 exit 1 用法错 + --json → stdout JSON 信封（D-23-W3-ENVELOPE · bin 接线钉面）', () => {
-    const r = runBin(['verify', '--json'])
+    // 2.3-W4：裸 verify 已是合法模式 → 用法错信封改由 --task/--spec 互斥触发
+    const r = runBin(['verify', '--task', 'a.md', '--spec', 'b.md', '--json'])
     assert.equal(r.status, 1, r.combined)
     const payload = JSON.parse(r.stdout) as Record<string, unknown> // stdout 纯信封无人类文本污染
     assert.equal(payload.command, 'verify')
     assert.equal(payload.exitCode, 1)
-    assert.match((payload.error as { message: string }).message, /verify 须指定 --task/)
+    assert.match((payload.error as { message: string }).message, /互斥/)
   })
 
   it('S3: skills install --target <tmp> PASS 且落 harness-10-spec/SKILL.md', async () => {

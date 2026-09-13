@@ -11,6 +11,12 @@ import {
   takeOption,
   toRel,
 } from './cli-shared.ts'
+import {
+  loadLegacyGateExempt,
+  missingInvokeHats,
+  resolveRequiredInvokeHats,
+  type LegacyGateExemptEntry,
+} from './cli-checks.ts'
 
 const DONE_DIR_CANDIDATES = ['docs/tasks/done', 'docs/harness/tasks/done']
 const INVOKE_DIR_CANDIDATES = ['docs/harness/invokes/by-task', 'invokes/by-task']
@@ -36,12 +42,28 @@ function collectMarkdown(dir: string): string[] {
   return out
 }
 
+// 2.3-W4 FULL-reviews/INVOKE-HATS 共用：按 scope 收集仓内 task 文件（active/done · 双布局）。
+export function collectTaskFilesByScope(target: string): { scope: 'active' | 'done'; abs: string; rel: string }[] {
+  const out: { scope: 'active' | 'done'; abs: string; rel: string }[] = []
+  for (const { rel, scope } of TASK_DIR_CANDIDATES) {
+    const dir = path.join(target, rel)
+    if (!existsSync(dir)) continue
+    for (const file of collectMarkdown(dir)) {
+      out.push({ scope, abs: file, rel: path.relative(target, file).replace(/\\/g, '/') })
+    }
+  }
+  return out
+}
+
 export function lintDoneInvokes(target: string): {
   ok: boolean
   missing: string[]
   extra: string[]
   doneCount: number
   invokeCount: number
+  hatGaps: { slug: string; rel: string; missing: string[]; required: string[] }[]
+  exempted: { slug: string; entry: LegacyGateExemptEntry }[]
+  invalidExempt: string[]
 } {
   const doneSlugs = new Map<string, string>()
   for (const rel of DONE_DIR_CANDIDATES) {
@@ -62,14 +84,45 @@ export function lintDoneInvokes(target: string): {
       if (ent.isDirectory()) invokeSlugs.add(normalizeSlug(ent.name))
     }
   }
-  const missing = [...doneSlugs.keys()].filter((s) => !invokeSlugs.has(s)).sort()
+  const missingRaw = [...doneSlugs.keys()].filter((s) => !invokeSlugs.has(s)).sort()
   const extra = [...invokeSlugs].filter((s) => !doneSlugs.has(s)).sort()
+  // 2.3-W4 INVOKE-HATS 帽级升级（评审文 §2.4）：done task 按元信息解析 required 帽集合判缺，
+  // failClosed；存量过渡走数据豁免（loadLegacyGateExempt · D-23-W4-EXEMPT-FORMAT · F-W4-04 四字段留痕）。
+  const exempt = loadLegacyGateExempt(target)
+  // slug 级存在性缺口同属「接线前合法」存量类（本仓基线实测 2 项 w0 无 invoke 目录）→ 同一豁免清单消费
+  const missing: string[] = []
+  const slugExempted: { slug: string; entry: LegacyGateExemptEntry }[] = []
+  for (const slug of missingRaw) {
+    const ent = exempt.invoke_hats.get(slug)
+    if (ent) slugExempted.push({ slug, entry: ent })
+    else missing.push(slug)
+  }
+  const hatGaps: { slug: string; rel: string; missing: string[]; required: string[] }[] = []
+  const exempted: { slug: string; entry: LegacyGateExemptEntry }[] = slugExempted
+  for (const [slug, rel] of [...doneSlugs.entries()].sort()) {
+    let meta: Record<string, string> = {}
+    try {
+      meta = parseHarnessMeta(readFileSync(path.join(target, rel), 'utf8'))
+    } catch {
+      // 读失败 → 按空元信息（default 集合）判定 · failClosed 方向
+    }
+    const { required } = resolveRequiredInvokeHats(meta)
+    const taskSlug = meta.task_slug ?? slug
+    const miss = missingInvokeHats(target, taskSlug, required)
+    if (miss.length === 0) continue
+    const ent = exempt.invoke_hats.get(normalizeSlug(taskSlug)) ?? exempt.invoke_hats.get(slug)
+    if (ent) exempted.push({ slug: taskSlug, entry: ent })
+    else hatGaps.push({ slug: taskSlug, rel, missing: miss, required })
+  }
   return {
-    ok: missing.length === 0,
+    ok: missing.length === 0 && hatGaps.length === 0,
     missing,
     extra,
     doneCount: doneSlugs.size,
     invokeCount: invokeSlugs.size,
+    hatGaps,
+    exempted,
+    invalidExempt: exempt.invalid,
   }
 }
 
@@ -322,7 +375,7 @@ export function checkTaskFile(
 
 export async function cmdTaskLintDone(args: string[]): Promise<void> {
   if (args.includes('--help') || args.includes('-h')) {
-    console.log(`用法: npx spec-wave task lint-done [--target PATH]`)
+    console.log(`用法: npx spec-wave task lint-done [--target PATH]（slug 级存在性 + 2.3-W4 帽集合校验 · 存量豁免 docs/harness/legacy-gate-exempt.yaml）`)
     return
   }
   let rest = args
@@ -334,10 +387,23 @@ export async function cmdTaskLintDone(args: string[]): Promise<void> {
   console.log(`目标: ${toRel(process.cwd(), target)}`) // C3（2.2-W2）：目标打印相对化
   console.log(`done slugs: ${result.doneCount} · invoke dirs: ${result.invokeCount}`)
   for (const slug of result.extra) console.log(`warn: invokes 有而 done 无（进行中？）: ${slug}`)
+  // 2.3-W4：帽级豁免命中留痕回显（F-W4-04 谁/何时/理由）+ 无效豁免条目 warn
+  for (const e of result.exempted) {
+    console.log(`豁免命中留痕: ${e.slug}（${e.entry.reason} · ${e.entry.date} · ${e.entry.authorized_by}）`)
+  }
+  for (const inv of result.invalidExempt) console.log(`warn: 豁免条目无效（不豁免）: ${inv}`)
   if (!result.ok) {
-    console.log('缺失 invoke 的 done 任务:')
-    for (const slug of result.missing) console.log(`  - ${slug}`)
-    console.log(`LINT-DONE: FAIL · missing ${result.missing.length}`)
+    if (result.missing.length > 0) {
+      console.log('缺失 invoke 的 done 任务:')
+      for (const slug of result.missing) console.log(`  - ${slug}`)
+    }
+    if (result.hatGaps.length > 0) {
+      console.log('invoke 帽集合缺失的 done 任务（2.3-W4 帽级 · 豁免走 docs/harness/legacy-gate-exempt.yaml · 四字段 slug/reason/date/authorized_by）:')
+      for (const g of result.hatGaps) {
+        console.log(`  - ${g.slug} · missing invoke hats: ${g.missing.join(",")}（required=${g.required.join(",")}）`)
+      }
+    }
+    console.log(`LINT-DONE: FAIL · missing ${result.missing.length} · hat-gaps ${result.hatGaps.length}`)
     fail('', 2)
   }
   console.log('LINT-DONE: PASS')

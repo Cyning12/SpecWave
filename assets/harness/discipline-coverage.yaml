@@ -28,9 +28,9 @@ gaps:
     note: "task lint E1–E7 本包已接线（src/cli.ts#430-511）· 旧包史实（@cyning/harness 2.3.0）"
   - id: G2
     title: reviews 留档闸
-    status: not_wired
-    closed_in: null
-    note: "findReview 仅 status 使用（src/cli-status.ts#70）；verify/close 无 reviews 闸 · 旧包史实（@cyning/harness 2.5.0 · N4 全量 2.9.0）· 接线计划见 PRD_DEF-003 阶段二"
+    status: closed
+    closed_in: "2.3.0"
+    note: "存在级 2026-08-24 已接线（verify src/cli.ts · close evalCloseReview src/cli-checks.ts · T4/T6 · 旧 note 过期 2.3-W4 回写）；2.3-W4 升结论级 R1 通过判定（findLatestReview src/cli-checks.ts#644 + evalReviewConclusion #682 · v2 节标题起首口径 · 接入 close #188 与 verify --task src/cli.ts#952 · active failClosed / done warn 降级 · D-23-W4-TRANSITION 不追溯存量 · 评审文 w4_gate_wiring_plan_review_20260913）· 旧包史实（@cyning/harness 2.5.0 · N4 全量 2.9.0）"
   - id: G3
     title: 文本纪律（绝对路径）
     status: closed
@@ -38,9 +38,9 @@ gaps:
     note: "task lint E6 本包已接线（src/cli.ts#481-485）· 旧包史实（@cyning/harness 2.3.0）；invoke 预写 approved grep 仍缓做"
   - id: G4
     title: 思考轮结构
-    status: not_wired
-    closed_in: null
-    note: "本包仅 W4 warn-only（src/cli.ts#498-503）；旧包 E8–E10 / W5 未随包 · 旧包史实（@cyning/harness 2.6.0）· 接线计划见 PRD_DEF-003 阶段二"
+    status: closed
+    closed_in: "2.3.0"
+    note: "2.3-W4 接线为 warn-only 结构断言 W5–W7（src/cli-checks.ts#958-972 lintTaskFile · 槽位/控制表/early_stop reason · 存量合规率实测 44% 故不升 failClosed · 升级唯一路径=后续 SPEC 明文裁决 D-23-W4-G4-EXIT）· 旧包史实（@cyning/harness 2.6.0 · E8–E10 未随包）"
   - id: G6
     title: git 行为层
     status: deferred
@@ -63,9 +63,9 @@ gaps:
     note: "verify --spec 本包已接线（src/cli.ts verifySpecMode · findSpecReview src/cli-checks.ts 单一实现源 · 缺失 exit 2 BLOCKED · --allow-no-spec-review 豁免留痕 · PRD_DEF-003 后续棒）· 旧包史实（@cyning/harness 2.8.0）"
   - id: FULL-reviews
     title: 裸 verify 全量 reviews + 双路径
-    status: not_wired
-    closed_in: null
-    note: "verify 须 --task 且不查 reviews（src/cli.ts#402）· 旧包史实（@cyning/harness N4 2.9.0）· 接线计划见 PRD_DEF-003 阶段二"
+    status: closed
+    closed_in: "2.3.0"
+    note: "2.3-W4 裸 verify 仓级 reviews 扫描接线（src/cli.ts#745 verifyBareReviewsMode · 双路径复用 findLatestReview src/cli-checks.ts#644 · done 面 failClosed 存在+结论级 · active 面信息报告不闸 · 存量过渡豁免 docs/harness/legacy-gate-exempt.yaml · --task 面存在级此前已接线不重复）· 旧包史实（@cyning/harness N4 2.9.0）"
   - id: LIFECYCLE-ENGINE
     title: lifecycle dry-run 最小引擎
     status: closed
@@ -73,9 +73,9 @@ gaps:
     note: "lifecycle dry-run 本包已接线（src/cli-lifecycle.ts）· 旧包史实（@cyning/harness 2.10.0 · Epic T2 旁路报告）"
   - id: INVOKE-HATS
     title: 多帽 invoke 留档集合闸
-    status: not_wired
-    closed_in: null
-    note: "close 无 invoke 集合闸（src/cli.ts#535-607 仅 slug/自检/验收/状态四项）；task lint-done 仅 slug 级（src/cli-task-extra.ts#282）· 旧包史实（@cyning/harness 2.12.0 · default 10,30,40）· 接线计划见 PRD_DEF-003 阶段二"
+    status: closed
+    closed_in: "2.3.0"
+    note: "close_invoke 帽集合闸 2026-08-24 T6 已接线（evalCloseInvokeHats src/cli-checks.ts#170 · 旧 note 过期 2.3-W4 回写）；2.3-W4 lint-done 帽级升级（src/cli-task-extra.ts#100-116 · resolveRequiredInvokeHats/missingInvokeHats 复用 · slug 级与帽级缺口同消费 docs/harness/legacy-gate-exempt.yaml 豁免）· 旧包史实（@cyning/harness 2.12.0 · default 10,30,40）"
 
 statements:
   - id: A1
@@ -121,18 +121,18 @@ statements:
   - id: A6
     source: 30-execute-code.md
     summary: invoke 快照落盘 by-task/<slug>/（按 required_invoke_hats 集合）
-    status: partial
-    mechanism: "task lint-done（src/cli-task-extra.ts#282 · slug 级存在性）；帽集合覆盖闸未接线"
+    status: mechanical
+    mechanism: "task lint-done 帽集合校验（src/cli-task-extra.ts#100-116 · 2.3-W4 帽级）+ close_invoke 帽集合闸（src/cli-checks.ts evalCloseInvokeHats）"
     gap: null
-    notes: "旧包史实（@cyning/harness · close 集合闸 evaluateInvokeHatsRetention · v2.12.0 默认 10,30,40 · profile minimal/full · v2.12.1 前缀 hat run）· 本包未接线 · 接线计划见 PRD_DEF-003 阶段二"
+    notes: "旧包史实（@cyning/harness · close 集合闸 evaluateInvokeHatsRetention · v2.12.0 默认 10,30,40 · profile minimal/full · v2.12.1 前缀 hat run）"
     mechanism_quality: null
   - id: A7
     source: 30-execute-code.md
     summary: 归档只能 task close PASS 后进行
     status: mechanical
-    mechanism: "task close（src/cli.ts#535-607）"
+    mechanism: "task close（src/cli.ts · CLOSE_GUARD_ORDER 13 守卫 · 2.3-W4 起 close_review 含结论级判定）"
     gap: null
-    notes: "手动 mv 旁路由 task lint-done 兜底（src/cli-task-extra.ts#282）"
+    notes: "手动 mv 旁路由 task lint-done 兜底（src/cli-task-extra.ts · 2.3-W4 起帽级）；status reviews.CLOSE 已升结论级口径（src/cli-status.ts · 2.3-W4 · 归档 ∧ 最高 R 轮审查结论可机读通过）"
     mechanism_quality: null
   - id: A8
     source: 30-execute-code.md

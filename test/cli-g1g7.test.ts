@@ -220,7 +220,7 @@ describe('D1–D7 G1–G7 runtime', { concurrency: 1 }, () => {
       const rel = 'docs/tasks/active/task_lc_target_v1.md'
       await writeRel(dir, rel, taskMd({ slug: 'lc_target' }))
       // DEF-003 T3：reviews_retention 已真接线（缺 R<n> 审查文即 fail/blocked）· 补审查文保持本用例聚焦 --target 解析
-      await writeRel(dir, 'docs/harness/reviews/task_lc_target_audit_R1_2026-08-20.md', '# R1 fixture')
+      await writeRel(dir, 'docs/harness/reviews/task_lc_target_audit_R1_2026-08-20.md', '# R1 fixture\n\n## 结论\n\nPASS · 零内容阻塞（fixture）\n')
       // 带 --target：--task 相对 target 解析成功（cwd=KIT 下该相对路径不存在）
       const withTarget = runCli([
         'lifecycle', 'dry-run', '--transition', 'to_30', '--from', 'draft',
@@ -457,6 +457,9 @@ describe('D1–D7 G1–G7 runtime', { concurrency: 1 }, () => {
         'docs/harness/invokes/by-task/missing-invoke/invoke_20260816_30_x.md',
         '# invoke\n',
       )
+      // 2.3-W4 帽级：default required=10,30,40 → 补 10/40 两帽才达 PASS
+      await writeRel(dir, 'docs/harness/invokes/by-task/missing-invoke/invoke_20260815_10_x.md', '# invoke 10\n')
+      await writeRel(dir, 'docs/harness/invokes/by-task/missing-invoke/invoke_20260817_40_x.md', '# invoke 40\n')
       const lintPass = runCli(['task', 'lint-done', '--target', dir])
       assert.equal(lintPass.status, 0, lintPass.combined)
       assert.match(lintPass.combined, /LINT-DONE: PASS/)

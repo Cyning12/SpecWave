@@ -66,7 +66,7 @@ function taskMd(opts: { slug: string; status?: string }): string {
 }
 
 type StatusPayload = {
-  reviews: { R1: boolean; CLOSE: boolean }
+  reviews: { R1: boolean; CLOSE: boolean; close_evidence: string }
   hgm: { event_count: number | null; last_at: string | null }
 }
 
@@ -109,21 +109,41 @@ describe('DEF-016 reviews.CLOSE 接线 + event_count 0/null 语义统一（先�
     })
   })
 
-  it('reviews.CLOSE：status=done → true；draft → false；done/ 目录（归档）→ true', async () => {
+  // 2.3-W4 A6：reviews.CLOSE 强证据口径（归档 ∧ 最高 R 轮审查文结论可机读通过 · 代理口径废）
+  it('reviews.CLOSE：done+审查通过 → true；draft/归档无审查文/结论不可机读 → false + close_evidence 如实', async () => {
     await withTemp(async (dir) => {
       const relDone = 'docs/tasks/active/task_close_done_v1.md'
       await writeRel(dir, relDone, taskMd({ slug: 'close_done', status: 'done' }))
+      await writeRel(
+        dir,
+        'docs/harness/reviews/task_close_done_audit_R1_20260913.md',
+        '# R1\n\n## 结论\n\nPASS · 零内容阻塞（fixture）\n',
+      )
       const donePayload = statusJson(dir, relDone)
-      assert.equal(donePayload.reviews.CLOSE, true, 'status=done 应 CLOSE=true')
+      assert.equal(donePayload.reviews.CLOSE, true, 'status=done 且审查结论通过 应 CLOSE=true')
+      assert.match(donePayload.reviews.close_evidence, /R1 审查文结论通过/)
       const relDraft = 'docs/tasks/active/task_close_draft_v1.md'
       await writeRel(dir, relDraft, taskMd({ slug: 'close_draft', status: 'draft' }))
       const draftPayload = statusJson(dir, relDraft)
       assert.equal(draftPayload.reviews.CLOSE, false, 'status=draft 应 CLOSE=false')
-      // 归档到 done/ 目录但状态字段未更新 → 目录位置亦是关账信号
+      assert.match(draftPayload.reviews.close_evidence, /未归档/)
+      // 归档到 done/ 目录但无审查文 → 代理口径已废：CLOSE=false 如实披露（观测面不打红流程）
       const relArchived = 'docs/tasks/done/task_close_archived_v1.md'
       await writeRel(dir, relArchived, taskMd({ slug: 'close_archived', status: 'in_progress' }))
       const archivedPayload = statusJson(dir, relArchived)
-      assert.equal(archivedPayload.reviews.CLOSE, true, 'done/ 目录应 CLOSE=true')
+      assert.equal(archivedPayload.reviews.CLOSE, false, '归档但无审查文应 CLOSE=false（强证据口径）')
+      assert.match(archivedPayload.reviews.close_evidence, /已归档但无 R<n> 审查文/)
+      // 归档 + 审查文结论不可机读（纯表格无通过词）→ false + evidence 点名文件
+      const relNoParse = 'docs/tasks/done/task_close_noparse_v1.md'
+      await writeRel(dir, relNoParse, taskMd({ slug: 'close_noparse', status: 'done' }))
+      await writeRel(
+        dir,
+        'docs/harness/reviews/task_close_noparse_audit_R1_20260913.md',
+        '# R1\n\n## 结论\n\n| 项 | 判定 |\n|----|------|\n| 仅文档 | 是 |\n',
+      )
+      const noParsePayload = statusJson(dir, relNoParse)
+      assert.equal(noParsePayload.reviews.CLOSE, false, '结论不可机读应 CLOSE=false')
+      assert.match(noParsePayload.reviews.close_evidence, /不可机读通过/)
     })
   })
 })

@@ -9,6 +9,7 @@
 
 | 关账日 | task | 摘要 |
 |--------|------|------|
+| 2026-09-13 | [`task_2_3_wiring_w4_gate_wiring.md`](./task_2_3_wiring_w4_gate_wiring.md) | 2.3.0 W4 · A5+A6 闸语义接线：评审文先行（D-23-W4-REVIEW-FIRST · 前提证伪→00 裁决 A→SPEC 04 修订重签 fa24638）+ G2 存在级→结论级 R1 通过判定（findLatestReview/evalReviewConclusion v2 口径 · close/verify 接入 · done 降级 warn）+ G4 W5–W7 warn-only（退出条件写死 D-23-W4-G4-EXIT）+ 裸 verify 仓级 reviews 扫描（FULL-reviews · done failClosed/active 信息报告）+ lint-done 帽级（INVOKE-HATS）+ reviews.CLOSE 强证据口径（A6 · close_evidence 新键）+ 过渡豁免数据 legacy-gate-exempt.yaml（26 项四字段留痕 · D-23-W4-TRANSITION 不追溯存量）+ discipline-coverage 四闸 closed 回写 · 513/513 · pins 17/17 · 不 bump 版本号 |
 | 2026-09-12 | [`task_2_3_wiring_w3_security_observability.md`](./task_2_3_wiring_w3_security_observability.md) | 2.3.0 W3 · 安全与可观测性补全：C3 补漏 toRel 相对化（三处 --json target + 六面错误文案 · D-23-JSON-TARGET-REL 契约值变更 CHANGELOG 明示）+ exit 1 JSON 信封（exitWithCliError 单一实现源 · bin 接线擒获修复 + lib-smoke S4 钉面 · D-23-W3-ENVELOPE）+ quickstart 第 0 步 git 前提（双语 README 同步）+ C4 CI 顶层 permissions ×2 + audit job fail-closed（js-yaml 4.2.0→4.3.2 修平 · D-23-W3-AUDIT-GATE）+ secrets-scan job（gitleaks 8.28.0 --no-git · D-23-W3-GITLEAKS-FORM）+ C5 provenance/OIDC 指引（未启用 · 配置仅人 · RELEASING 零改动）· 505/505 · pins 17/17 · 不 bump 版本号 |
 | 2026-09-12 | [`task_2_3_wiring_w2_pin_dimensions.md`](./task_2_3_wiring_w2_pin_dimensions.md) | 2.3.0 W2 · 钉面维度扩展（关联面一致性两维入钉）：前置修复 MIGRATION.md 入 files（R0 证伪 SPEC 前提 · 安装后真死链 [A]#3 同型）+ pin-16 files-whitelist-link（仓根级 + npm 自动入包并集白名单 · D-23-W2-CHECK-FORM）+ pin-17 readme-host-row（7 宿主双语分侧 · known_gaps 三宿主 until_wave: W7 + 失陈债机检自执行 · D-23-W2-W7-EXEMPTION）+ 测试 W2-B1..B10 · 495/495 · pins 17/17 · 不 bump 版本号 |
 | 2026-09-12 | [`task_2_3_wiring_w1_pins_hardening.md`](./task_2_3_wiring_w1_pins_hardening.md) | 2.3.0 W1 · pins 机制补强（核心波）：pin-08 弱钉改严（D-23-PIN08-STRICT 双判 · 别行 prose 兜底反例杀伤）+ 三面入钉 pin-13/14/15（CHANGELOG 发布头 / MIGRATION / AGENTS · 纯数据）+ 失配 fixture 补 pin-04/06/07/10/11/12 + `extractSpecSlug` 目录型 slug 修复（D-23-SPEC-SLUG）+ unfixable 误报评估（结论不修）· 484/484 · pins 15/15 · 不 bump 版本号 |
@@ -54,3 +55,5 @@
 | 2026-09-11 | 增 2.2.0 W7 hygiene 关账行 |
 | 2026-09-12 | 增 2.3.0 W1 pins-hardening 关账行 |
 | 2026-09-12 | 增 2.3.0 W2 pin-dimensions 关账行 |
+| 2026-09-13 | 增 2.3.0 W3 security-observability 关账行 |
+| 2026-09-13 | 增 2.3.0 W4 gate-wiring 关账行 |

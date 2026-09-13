@@ -94,7 +94,7 @@ const TASK_REL = 'docs/tasks/active/task_w2sec_ok_v1.md'
 
 async function seedPassingTask(dir: string): Promise<void> {
   await writeRel(dir, TASK_REL, taskMd('w2sec_ok'))
-  await writeRel(dir, 'docs/harness/reviews/task_w2sec_ok_audit_R1_20260911.md', '# R1 fixture')
+  await writeRel(dir, 'docs/harness/reviews/task_w2sec_ok_audit_R1_20260911.md', '# R1 fixture\n\n## 结论\n\nPASS · 零内容阻塞（fixture）\n')
   await writeRel(dir, 'docs/harness/invokes/by-task/w2sec_ok/invoke_20260911_10_w2sec_ok.md', '# invoke 10 fixture')
 }
 

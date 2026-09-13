@@ -14,7 +14,7 @@ import {
   toRel,
 } from './cli-shared.ts'
 // DEF-003 T3/T4：findReview 单一实现源迁至 cli-checks.ts（verify / dry-run / status 共用）
-import { findReview } from './cli-checks.ts'
+import { evalReviewConclusion, findLatestReview, findReview } from './cli-checks.ts'
 import { summarizeTaskHgm } from './cli-graph-hgm.ts'
 
 const OBS_STATUS_SCHEMA = 'obs_status.v1'
@@ -91,10 +91,20 @@ function buildTaskStatus(target: string, taskFile: string, options: { check?: bo
   const lastInvoke = findLastInvoke(target, slug)
   const hgm = summarizeTaskHgm(target, slug)
   const taskStatus = extractTaskStatus(content)
-  // DEF-016 D1（接线）：CLOSE = 关账完成信号（代理口径，非「close 审查通过」强证据）——
-  // task 状态 ∈ CLOSE_STATUSES（与 task close 归档行为对齐）或文件位于 done/ 目录。
+  // 2.3-W4 A6（reviews.CLOSE 语义补强 · 评审文 §2.5）：CLOSE = 「close 审查通过」强证据口径 =
+  // 归档态（CLOSE_STATUSES 或 done/ 目录 · DEF-016 D1 既有）∧ 最高 R 轮审查文结论可机读通过
+  //（findLatestReview + evalReviewConclusion · G2 同一实现源）；不再以「已归档」代理关账审查。
   const inDoneDir = absTask.split(path.sep).includes('done')
   const closeDone = (taskStatus !== null && CLOSE_STATUSES.has(taskStatus)) || inDoneDir
+  const latestReview = findLatestReview(target, absTask)
+  const reviewVerdict = latestReview ? evalReviewConclusion(readFileSync(latestReview.path, 'utf8')) : null
+  const closeEvidence = !closeDone
+    ? '未归档（关账未完成）'
+    : !latestReview
+      ? '已归档但无 R<n> 审查文'
+      : reviewVerdict && reviewVerdict.pass
+        ? `R${latestReview.round} 审查文结论通过 · ${latestReview.name}`
+        : `已归档但审查结论不可机读通过（${latestReview.name}）`
   const payload = {
     schema_version: OBS_STATUS_SCHEMA,
     task_slug: slug,
@@ -104,7 +114,7 @@ function buildTaskStatus(target: string, taskFile: string, options: { check?: bo
     may_start_30: gateEval.ok,
     blockers,
     last_invoke: lastInvoke,
-    reviews: { R1: reviewFound, CLOSE: closeDone },
+    reviews: { R1: reviewFound, CLOSE: closeDone && reviewVerdict?.pass === true, close_evidence: closeEvidence },
     verify_preview: {
       ok: gateEval.ok,
       reason: gateEval.ok ? '闸投影 PASS（非正式 verify）' : gateEval.reason,

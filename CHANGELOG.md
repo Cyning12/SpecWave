@@ -9,6 +9,12 @@
 ### Changed（行为变更 · 明示）
 
 - **2.3-W3（[A]#5 · C3 补漏 · D-23-JSON-TARGET-REL）契约值变更**：`verify --json` / `verify --spec --json` / `gate-check --json` 的 `target` 字段由**绝对路径**改为**相对路径**（`toRel` 口径 · 与 2.2.0 人类输出 `目标:` 行一致）。2.2.0 `--json` 契约「键集只增不改」保持（键名/类型/顺序不变），本条为**值**变更，按安全泄漏修复定性；既有 JSON 消费者若依赖 `target` 为绝对路径须适配。
+- **2.3-W4（A5+A6 闸语义接线 · SPEC 04）行为变更明示**：
+  - **裸 `verify` 不再是用法错**：不带 `--task/--spec` 时由「须指定参数 exit 1」改为**仓级 reviews 全量扫描**（双路径 `docs/harness/reviews` + `reviews/`）：done task 审查文存在 + 最高 R 轮结论可机读通过（failClosed exit 2），active task 仅信息报告；存量过渡豁免走数据文件 `docs/harness/legacy-gate-exempt.yaml`（四字段 slug/reason/date/authorized_by 留痕）。
+  - **`verify --task` / `task close` 的 reviews 闸升级为结论级**：R<n> 审查文除存在外，其结论/签收节须含可机读通过词（PASS/ACCEPT/签收/通过/零阻塞 且无未否定「退回/未通过/内容阻塞」）；`--task` 对 done 目录文件降级为 warn（不追溯存量）；`--allow-no-review` 沿用同豁（无新旗标）。
+  - **`task lint-done` 升级为帽集合校验**：done task 按其元信息 required 帽集合（`required_invoke_hats` / profile · 缺省 default=10,30,40）判缺 → exit 2；存量豁免同数据文件；slug 级存在性闸保留。
+  - **`status` 的 `reviews.CLOSE` 由「已归档」代理口径升级为强证据口径**（归档 ∧ 最高 R 轮审查结论可机读通过）；JSON `reviews` 增 `close_evidence` 字段（键集只增不改）。
+  - **`task lint` 新增思考轮结构 warn（W5 槽位 / W6 控制表 / W7 early_stop reason）**：warn-only 过渡（不挡 LINT: PASS · exit 码不变），升 failClosed 须后续 SPEC 明文裁决。
 
 ### Added
 

@@ -97,7 +97,7 @@ async function seedFixtures(dir: string): Promise<void> {
   await writeRel(dir, APPROVED_REL, taskMd({ slug: 'flags_ok' }))
   await writeRel(dir, PENDING_REL, taskMd({ slug: 'flags_pending', audit: 'pending', draft: 'pending' }))
   // DEF-003 T4：verify 查 R<n> 审查文存在性（approved task 须配审查文才 PASS）
-  await writeRel(dir, 'docs/harness/reviews/task_flags_ok_audit_R1_2026-08-20.md', '# R1 fixture')
+  await writeRel(dir, 'docs/harness/reviews/task_flags_ok_audit_R1_2026-08-20.md', '# R1 fixture\n\n## 结论\n\nPASS · 零内容阻塞（fixture）\n')
   // DEF-003 T5：verify 查 pre-30 invoke hats（default required=10,30,40 · ∩{10,20,00}={10} 须落盘才 PASS）
   await writeRel(dir, 'docs/harness/invokes/by-task/flags_ok/invoke_20260801_10_flags_ok.md', '# invoke 10 fixture')
 }

@@ -1,0 +1,113 @@
+# 2.3-W4 过渡豁免清单（D-23-W4-EXEMPT-FORMAT · F-W4-04）
+# 消费面：裸 verify（FULL-reviews done 面）· task lint-done（INVOKE-HATS 帽级）· verify --task done 复验
+# 纪律：新增条目必须 slug/reason/date/authorized_by 四字段齐（谁/何时/理由）；缺字段条目视为无效并 warn（不豁免）。
+# 本清单为「闸新行为不追溯存量」（SPEC 04 §5.4 · D-23-W4-TRANSITION）的数据载体：全部条目为 2.3.0 接线前历史关账。
+version: "1"
+
+reviews:
+  - slug: 2_1_1-host-tools-ux-w0-planning
+    reason: 2.3.0 前历史关账 · w0 规划类 task 无 R<n> 审查文（reviews 闸 2026-08-24 T4/T6 接线前合法）
+    date: '2026-09-13'
+    authorized_by: 00（2026-09-12 维护者会话授权）
+  - slug: 2_1_2-rename-closeout-w0-planning
+    reason: 2.3.0 前历史关账 · w0 规划类 task 无 R<n> 审查文（reviews 闸 2026-08-24 T4/T6 接线前合法）
+    date: '2026-09-13'
+    authorized_by: 00（2026-09-12 维护者会话授权）
+  - slug: 2_1-skills-orch-w0-planning
+    reason: 2.3.0 前历史关账 · w0 规划类 task 无 R<n> 审查文（reviews 闸 2026-08-24 T4/T6 接线前合法）
+    date: '2026-09-13'
+    authorized_by: 00（2026-09-12 维护者会话授权）
+  - slug: 2x-host-adapt-w0-signoff
+    reason: 2.3.0 前历史关账 · w0 规划类 task 无 R<n> 审查文（reviews 闸 2026-08-24 T4/T6 接线前合法）
+    date: '2026-09-13'
+    authorized_by: 00（2026-09-12 维护者会话授权）
+  - slug: rename-specgate-w0-planning
+    reason: 2.3.0 前历史关账 · w0 规划类 task 无 R<n> 审查文（reviews 闸 2026-08-24 T4/T6 接线前合法）
+    date: '2026-09-13'
+    authorized_by: 00（2026-09-12 维护者会话授权）
+  - slug: 1x-closeout-w1-ci-dogfood
+    reason: 2.3.0 前历史关账 · 审查文结论节为纯表格无可机读通过词（结论级 v2 口径 2026-09-13 接线前合法）
+    date: '2026-09-13'
+    authorized_by: 00（2026-09-12 维护者会话授权）
+  - slug: 1x-closeout-w2-eos-calendar
+    reason: 2.3.0 前历史关账 · 审查文结论节为纯表格无可机读通过词（结论级 v2 口径 2026-09-13 接线前合法）
+    date: '2026-09-13'
+    authorized_by: 00（2026-09-12 维护者会话授权）
+  - slug: 1x-closeout-w3-ontology-shallow
+    reason: 2.3.0 前历史关账 · 审查文结论节为纯表格无可机读通过词（结论级 v2 口径 2026-09-13 接线前合法）
+    date: '2026-09-13'
+    authorized_by: 00（2026-09-12 维护者会话授权）
+  - slug: 1x-closeout-w4-p6-prep-docs
+    reason: 2.3.0 前历史关账 · 审查文结论节为纯表格无可机读通过词（结论级 v2 口径 2026-09-13 接线前合法）
+    date: '2026-09-13'
+    authorized_by: 00（2026-09-12 维护者会话授权）
+  - slug: 1x-mvp-w4-spec-version-pin
+    reason: 2.3.0 前历史关账 · 审查文结论节为纯表格无可机读通过词（结论级 v2 口径 2026-09-13 接线前合法）
+    date: '2026-09-13'
+    authorized_by: 00（2026-09-12 维护者会话授权）
+
+invoke_hats:
+  - slug: 2_1_1-host-tools-ux-w0-planning
+    reason: 2.3.0 前历史关账 · 该波缺 00 invoke 快照（close_invoke 帽集合闸 2026-08-24 T6 / lint-done 帽级 2026-09-13 接线前合法）
+    date: '2026-09-13'
+    authorized_by: 00（2026-09-12 维护者会话授权）
+  - slug: 2_1_1-host-tools-ux-w1-sticky
+    reason: 2.3.0 前历史关账 · 该波缺 30,40 invoke 快照（close_invoke 帽集合闸 2026-08-24 T6 / lint-done 帽级 2026-09-13 接线前合法）
+    date: '2026-09-13'
+    authorized_by: 00（2026-09-12 维护者会话授权）
+  - slug: 2_1_1-host-tools-ux-w2-update-default
+    reason: 2.3.0 前历史关账 · 该波缺 30,40 invoke 快照（close_invoke 帽集合闸 2026-08-24 T6 / lint-done 帽级 2026-09-13 接线前合法）
+    date: '2026-09-13'
+    authorized_by: 00（2026-09-12 维护者会话授权）
+  - slug: 2_1_1-host-tools-ux-w3-init-tools
+    reason: 2.3.0 前历史关账 · 该波缺 30,40 invoke 快照（close_invoke 帽集合闸 2026-08-24 T6 / lint-done 帽级 2026-09-13 接线前合法）
+    date: '2026-09-13'
+    authorized_by: 00（2026-09-12 维护者会话授权）
+  - slug: 2_1_1-host-tools-ux-w4-docs-release
+    reason: 2.3.0 前历史关账 · 该波缺 30,40 invoke 快照（close_invoke 帽集合闸 2026-08-24 T6 / lint-done 帽级 2026-09-13 接线前合法）
+    date: '2026-09-13'
+    authorized_by: 00（2026-09-12 维护者会话授权）
+  - slug: 2_1_2-rename-closeout-w0-planning
+    reason: 2.3.0 前历史关账 · 该波缺 00 invoke 快照（close_invoke 帽集合闸 2026-08-24 T6 / lint-done 帽级 2026-09-13 接线前合法）
+    date: '2026-09-13'
+    authorized_by: 00（2026-09-12 维护者会话授权）
+  - slug: 2_1_2-rename-closeout-w1-identity-docs
+    reason: 2.3.0 前历史关账 · 该波缺 30,40 invoke 快照（close_invoke 帽集合闸 2026-08-24 T6 / lint-done 帽级 2026-09-13 接线前合法）
+    date: '2026-09-13'
+    authorized_by: 00（2026-09-12 维护者会话授权）
+  - slug: 2_1_2-rename-closeout-w2-assets-copy
+    reason: 2.3.0 前历史关账 · 该波缺 30,40 invoke 快照（close_invoke 帽集合闸 2026-08-24 T6 / lint-done 帽级 2026-09-13 接线前合法）
+    date: '2026-09-13'
+    authorized_by: 00（2026-09-12 维护者会话授权）
+  - slug: 2_1_2-rename-closeout-w3-init-yes
+    reason: 2.3.0 前历史关账 · 该波缺 30,40 invoke 快照（close_invoke 帽集合闸 2026-08-24 T6 / lint-done 帽级 2026-09-13 接线前合法）
+    date: '2026-09-13'
+    authorized_by: 00（2026-09-12 维护者会话授权）
+  - slug: 2_1-skills-orch-w0-planning
+    reason: 2.3.0 前历史关账 · 该波缺 00 invoke 快照（close_invoke 帽集合闸 2026-08-24 T6 / lint-done 帽级 2026-09-13 接线前合法）
+    date: '2026-09-13'
+    authorized_by: 00（2026-09-12 维护者会话授权）
+  - slug: 2x-host-adapt-w0-signoff
+    reason: 2.3.0 前历史关账 · 该波缺 00,10 invoke 快照（close_invoke 帽集合闸 2026-08-24 T6 / lint-done 帽级 2026-09-13 接线前合法）
+    date: '2026-09-13'
+    authorized_by: 00（2026-09-12 维护者会话授权）
+  - slug: rename-specgate-w0-planning
+    reason: 2.3.0 前历史关账 · 该波缺 00 invoke 快照（close_invoke 帽集合闸 2026-08-24 T6 / lint-done 帽级 2026-09-13 接线前合法）
+    date: '2026-09-13'
+    authorized_by: 00（2026-09-12 维护者会话授权）
+  - slug: rename-specgate-w1-package-identity
+    reason: 2.3.0 前历史关账 · 该波缺 30,40 invoke 快照（close_invoke 帽集合闸 2026-08-24 T6 / lint-done 帽级 2026-09-13 接线前合法）
+    date: '2026-09-13'
+    authorized_by: 00（2026-09-12 维护者会话授权）
+  - slug: rename-specgate-w2-docs-assets
+    reason: 2.3.0 前历史关账 · 该波缺 30,40 invoke 快照（close_invoke 帽集合闸 2026-08-24 T6 / lint-done 帽级 2026-09-13 接线前合法）
+    date: '2026-09-13'
+    authorized_by: 00（2026-09-12 维护者会话授权）
+  - slug: rename-specgate-w3-github-rename
+    reason: 2.3.0 前历史关账 · 该波缺 30,40 invoke 快照（close_invoke 帽集合闸 2026-08-24 T6 / lint-done 帽级 2026-09-13 接线前合法）
+    date: '2026-09-13'
+    authorized_by: 00（2026-09-12 维护者会话授权）
+  - slug: rename-specgate-w4-publish-deprecate
+    reason: 2.3.0 前历史关账 · 该波缺 30,40 invoke 快照（close_invoke 帽集合闸 2026-08-24 T6 / lint-done 帽级 2026-09-13 接线前合法）
+    date: '2026-09-13'
+    authorized_by: 00（2026-09-12 维护者会话授权）
