@@ -4,7 +4,23 @@
 
 ## [Unreleased]
 
-（空 · 下一波见 docs/roadmap 2.3 规划）
+> 2.3.0 接线补全（wiring completion）波次累积中 · 规划见 `docs/roadmap/` 2.3 规划 · SPEC：`docs/spec/2_3-wiring-completion/`
+
+### Changed（行为变更 · 明示）
+
+- **2.3-W3（[A]#5 · C3 补漏 · D-23-JSON-TARGET-REL）契约值变更**：`verify --json` / `verify --spec --json` / `gate-check --json` 的 `target` 字段由**绝对路径**改为**相对路径**（`toRel` 口径 · 与 2.2.0 人类输出 `目标:` 行一致）。2.2.0 `--json` 契约「键集只增不改」保持（键名/类型/顺序不变），本条为**值**变更，按安全泄漏修复定性；既有 JSON 消费者若依赖 `target` 为绝对路径须适配。
+
+### Added
+
+- **2.3-W3（[A]W3-P2）exit 1 JSON 信封**：用法错误档（exit 1）且传 `--json` 时，stdout 输出结构化信封 `{ command, exitCode: 1, error: { message } }`（message 已相对化）；不传 `--json` 时人类错误输出不变；exit 码语义不变。
+- **2.3-W3（[A]#9）quickstart git 前提**：`init` 的 3 步 quickstart 第 3 步前补前提提示（项目须为 git 仓 · `git init`）；README 双语「核心对象」quickstart 引用句同步。
+- **2.3-W3（C4）CI 安全基线**：`ci.yml` / `tech-graph.yml` 顶层 `permissions: contents: read` 最小权限；新增 `audit` job（`npm audit --audit-level=high` fail-closed）与 `secrets-scan` job（gitleaks 官方二进制钉版 + `--no-git` 工作树档）。
+- **2.3-W3（C5）发布 provenance/OIDC 配置指引**：`docs/guides/provenance_oidc_trusted_publishing_guide_v1_zh.md`（**未启用 · 配置仅人 · 规划中**口径 · 含 `--provenance` 前提 / trusted publishing 步骤 / 回退路径 / GitHub 原生 secret scanning 开启指引）。
+
+### Fixed
+
+- **2.3-W3（C3 补漏）错误文案绝对路径泄漏**：`--target 不在任何 git 仓内` · `未找到 --task/--spec 文件` · `--spec 收到目录` · `拒绝 target 之外的路径` 等错误消息统一 `toRel` 相对化（cwd 外路径维持 `../` 相对形既定口径）。
+- **依赖漏洞**：`npm audit fix` 修平 js-yaml 4.2.0 → 4.3.2（high ×1 · GHSA-52cp-r559-cp3m 等 · lockfile-only bump）· 修复后 `npm audit` 0 漏洞。
 
 ## [2.2.1] - 2026-09-12
 

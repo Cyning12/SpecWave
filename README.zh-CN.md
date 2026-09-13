@@ -98,7 +98,7 @@ Harness 过程围绕两个文件级对象运转。`verify --task <task.md>` / `g
 - **从哪来**：由你或你的 Agent 撰写（帽 10 流程）——CLI 不物化 spec 文件。
 - **放哪**：`docs/spec/`（本仓按主题分目录，如 `docs/spec/2_2-closed-loop-start/`）。
 
-同一条三步链由 `npx spec-wave init` 打印（quickstart）；术语（Harness / 帽制 / 门禁 / S2）汇总于 [GLOSSARY.md](GLOSSARY.md)（双语术语表 · 回链本节）。
+同一条三步链由 `npx spec-wave init` 打印（quickstart）——第 3 步前提：项目须为 git 仓（先 `git init`；`verify` 有 git-root 归属校验）。术语（Harness / 帽制 / 门禁 / S2）汇总于 [GLOSSARY.md](GLOSSARY.md)（双语术语表 · 回链本节）。
 
 ---
 ## 入口 A · DSH 插件

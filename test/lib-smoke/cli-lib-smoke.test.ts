@@ -18,6 +18,7 @@ const SRC_CLI = path.join(KIT, 'src', 'cli.ts')
 
 type RunResult = {
   status: number | null
+  stdout: string
   combined: string
 }
 
@@ -29,6 +30,7 @@ function runBin(args: string[]): RunResult {
   })
   return {
     status: result.status,
+    stdout: result.stdout ?? '',
     combined: `${result.stdout ?? ''}\n${result.stderr ?? ''}`,
   }
 }
@@ -59,6 +61,15 @@ describe('lib 冒烟（DEF-018 · 发布产物最小路径）', { concurrency: 1
     const r = runBin(['verify'])
     assert.notEqual(r.status, 0, r.combined)
     assert.match(r.combined, /verify 须指定 --task/)
+  })
+
+  it('S4: 2.3-W3 ② bin 面 exit 1 用法错 + --json → stdout JSON 信封（D-23-W3-ENVELOPE · bin 接线钉面）', () => {
+    const r = runBin(['verify', '--json'])
+    assert.equal(r.status, 1, r.combined)
+    const payload = JSON.parse(r.stdout) as Record<string, unknown> // stdout 纯信封无人类文本污染
+    assert.equal(payload.command, 'verify')
+    assert.equal(payload.exitCode, 1)
+    assert.match((payload.error as { message: string }).message, /verify 须指定 --task/)
   })
 
   it('S3: skills install --target <tmp> PASS 且落 harness-10-spec/SKILL.md', async () => {

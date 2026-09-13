@@ -5,6 +5,7 @@ import os from 'node:os'
 import path from 'node:path'
 import { describe, it } from 'node:test'
 import { fileURLToPath } from 'node:url'
+import { toRel } from '../src/cli-shared.ts'
 
 const KIT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const CLI_TS = path.join(KIT, 'src', 'cli.ts')
@@ -146,7 +147,10 @@ describe('2.2-W3 C2 · verify --json 可观测四字段', { concurrency: 1 }, ()
       assert.equal(r.status, 0, r.combined)
       const payload = JSON.parse(r.stdout) as Record<string, unknown>
       assert.equal(payload.command, 'verify')
-      assert.equal(payload.target, dir)
+      // 2.3-W3 ①（D-23-JSON-TARGET-REL · 契约值变更）：target 字段绝对 → 相对（toRel · 与人类面同口径）
+      assert.equal(payload.target, toRel(KIT, dir))
+      assert.equal(path.isAbsolute(payload.target as string), false, 'target 字段不得为绝对路径')
+      assert.equal(absTokenHit(r.stdout, dir), false, 'stdout 不得含 target 绝对路径 token: ' + r.stdout)
       assert.equal(payload.task, TASK_REL)
       assert.equal(payload.blocked, false)
       assert.equal(payload.verdict, 'PASS')
@@ -192,3 +196,113 @@ describe('2.2-W3 C2 · verify --json 可观测四字段', { concurrency: 1 }, ()
     })
   })
 })
+
+// ===== 2.3-W3 · C3 补漏（绝对路径零泄漏）+ exit 1 JSON 信封（D-23-JSON-TARGET-REL / D-23-W3-ENVELOPE） =====
+
+// 绝对路径 token 检测：相对化后 abs 仅可能作为 ../ 相对形尾部子串出现（F-W3-01 合法），
+// 故断言「token 边界（行首/空白/冒号/引号后）处不出现 abs 原样」。
+function absTokenHit(text: string, abs: string): boolean {
+  const esc = abs.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+  return new RegExp('(^|[\\s"\':])' + esc).test(text)
+}
+
+/** 非 git 仓靶场（不 seed .git · C1-b 拒止面） */
+async function withTempNoGit(fn: (dir: string) => Promise<void>): Promise<void> {
+  const dir = await mkdtemp(path.join(os.tmpdir(), 'dsh-ck-vobs-nogit-'))
+  try {
+    await fn(dir)
+  } finally {
+    await rm(dir, { recursive: true, force: true })
+  }
+}
+
+describe('2.3-W3-B · --json target 相对化 + 错误面零泄漏 + exit 1 信封', { concurrency: 1 }, () => {
+  it('① PASS/BLOCKED 两档：payload.target 相对化 · stdout 无绝对 token', async () => {
+    await withTemp(async (dir) => {
+      await seedTask(dir)
+      await writeRel(dir, REVIEW_REL, '# R1 fixture')
+      const pass = runCli(['verify', '--task', TASK_REL, '--target', dir, '--json'])
+      assert.equal(pass.status, 0, pass.combined)
+      const p1 = JSON.parse(pass.stdout) as Record<string, unknown>
+      assert.equal(p1.target, toRel(KIT, dir))
+      assert.equal(absTokenHit(pass.stdout, dir), false, 'PASS 档 stdout 不得含 target 绝对 token')
+    })
+    await withTemp(async (dir) => {
+      await seedTask(dir)
+      const blocked = runCli(['verify', '--task', TASK_REL, '--target', dir, '--json'])
+      assert.equal(blocked.status, 2, blocked.combined)
+      const p2 = JSON.parse(blocked.stdout) as Record<string, unknown>
+      assert.equal(p2.target, toRel(KIT, dir))
+      assert.equal(absTokenHit(blocked.stdout, dir), false, 'BLOCKED 档 stdout 不得含 target 绝对 token')
+    })
+  })
+
+  it('① 错误面零泄漏：target 非 git 仓 · task 未找到 · 路径越界 均无绝对 token', async () => {
+    // 面 1：target 非 git 仓（resolveTarget 拒止 · exit 1）
+    await withTempNoGit(async (dir) => {
+      const r = runCli(['verify', '--task', TASK_REL, '--target', dir])
+      assert.equal(r.status, 1, r.combined)
+      assert.match(r.combined, /git/)
+      assert.equal(absTokenHit(r.combined, dir), false, '非 git 仓报错不得含 target 绝对 token: ' + r.combined)
+    })
+    await withTemp(async (dir) => {
+      await seedTask(dir)
+      // 面 2：task 未找到（gate-check · exit 1 · 未找到 --task 文件）
+      const missing = 'docs/tasks/active/task_vobs_missing.md'
+      const r2 = runCli(['gate-check', '--task', missing, '--target', dir])
+      assert.equal(r2.status, 1, r2.combined)
+      assert.match(r2.combined, /未找到 --task 文件/)
+      assert.equal(absTokenHit(r2.combined, dir), false, 'task 未找到报错不得含 target 绝对 token: ' + r2.combined)
+      // 面 3：路径越界（resolveTaskPath 拒止 · exit 1 · 用户输入绝对路径相对化为 ../ 形 · F-W3-01）
+      const r3 = runCli(['verify', '--task', '/etc/hosts', '--target', dir])
+      assert.equal(r3.status, 1, r3.combined)
+      assert.match(r3.combined, /拒绝 target 之外/)
+      assert.equal(absTokenHit(r3.combined, '/etc/hosts'), false, '越界报错不得含绝对输入 token: ' + r3.combined)
+    })
+  })
+
+  it('② exit 1 用法错 + --json → stdout JSON 信封（command/exitCode/error.message）· stderr 人类文案保持', async () => {
+    await withTemp(async (dir) => {
+      await seedTask(dir)
+      // 互斥用法错
+      const r = runCli(['verify', '--task', TASK_REL, '--spec', 'docs/spec/x.md', '--target', dir, '--json'])
+      assert.equal(r.status, 1, r.combined)
+      const payload = JSON.parse(r.stdout) as Record<string, unknown>
+      assert.equal(payload.command, 'verify')
+      assert.equal(payload.exitCode, 1)
+      const err = payload.error as { message?: string }
+      assert.equal(typeof err.message, 'string')
+      assert.match(err.message as string, /互斥/)
+      assert.equal(absTokenHit(r.stdout, dir), false, '信封不得含 target 绝对 token')
+      assert.match(r.stderr, /互斥/, 'stderr 人类文案保持')
+      assert.equal(r.stdout.trimStart().startsWith('{'), true, 'stdout 纯 JSON 无人类文本污染')
+      // 未知参数用法错
+      const r2 = runCli(['verify', '--task', TASK_REL, '--target', dir, '--json', '--bogus'])
+      assert.equal(r2.status, 1, r2.combined)
+      const p2 = JSON.parse(r2.stdout) as Record<string, unknown>
+      assert.equal(p2.command, 'verify')
+      assert.equal(p2.exitCode, 1)
+      assert.match((p2.error as { message: string }).message, /未知参数/)
+    })
+  })
+
+  it('② 未知命令 + --json → 信封兜底（F-W3-02 · 参数解析前错误同覆盖）', () => {
+    const r = runCli(['nosuchcmd', '--json'])
+    assert.equal(r.status, 1, r.combined)
+    const payload = JSON.parse(r.stdout) as Record<string, unknown>
+    assert.equal(payload.command, 'nosuchcmd')
+    assert.equal(payload.exitCode, 1)
+    assert.match((payload.error as { message: string }).message, /未知命令/)
+  })
+
+  it('② 不传 --json 时人类错误输出不变（无信封回归）', async () => {
+    await withTemp(async (dir) => {
+      await seedTask(dir)
+      const r = runCli(['verify', '--task', TASK_REL, '--spec', 'docs/spec/x.md', '--target', dir])
+      assert.equal(r.status, 1, r.combined)
+      assert.equal(r.stdout.trim(), '', '不传 --json 时 stdout 无信封')
+      assert.match(r.stderr, /互斥/)
+    })
+  })
+})
+

@@ -232,6 +232,20 @@ describe('2.1.1 W3 init --tools / TTY / host-adapt', { concurrency: 1 }, () => {
     })
   })
 
+  it('2.3-W3 ③（[A]#9）：quickstart 含 git 前提提示 · 三步骤结构保持（F-W3-06）', () => {
+    assert.match(INIT_QUICKSTART, /git init/, 'quickstart 须含 git init 前提提示')
+    assert.match(INIT_QUICKSTART, /git repository/, '须明示 git 仓前提')
+    // 三步骤结构不变：1/2/3 步关键行保持（第 0 步提示行不计步骤）
+    assert.match(INIT_QUICKSTART, /1\. npx spec-wave sync prompts --yes/)
+    assert.match(INIT_QUICKSTART, /2\. Create your first task/)
+    assert.match(INIT_QUICKSTART, /3\. npx spec-wave verify --task/)
+    // F-W4-01 联防：前提行不得引入新的 npx spec-wave 命令字面（命令集合不膨胀）
+    const mentioned = [...INIT_QUICKSTART.matchAll(/npx spec-wave ([a-z][a-z-]*(?: [a-z][a-z-]*)?)/g)].map(
+      (m) => m[1],
+    )
+    assert.deepEqual([...new Set(mentioned)].sort(), ['sync prompts', 'verify'])
+  })
+
   it('2.2 W4 D1：quickstart 提到的命令在 CLI usage 中真实存在（F-W4-01）', () => {
     const r = runCli(['--help'])
     assert.equal(r.status, 0, r.combined)

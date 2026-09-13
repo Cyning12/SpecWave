@@ -5,6 +5,7 @@ import os from 'node:os'
 import path from 'node:path'
 import { describe, it } from 'node:test'
 import { fileURLToPath } from 'node:url'
+import { toRel } from '../src/cli-shared.ts'
 
 const KIT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const CLI_TS = path.join(KIT, 'src', 'cli.ts')
@@ -144,7 +145,9 @@ describe('DEF-011 verify/gate-check 旗标不再静默吞（D1 fail-fast · D2 -
       assert.equal(r.status, 0, r.combined)
       const payload = JSON.parse(r.stdout) as Record<string, unknown>
       assert.equal(payload.command, 'verify')
-      assert.equal(payload.target, dir)
+      // 2.3-W3 ①（D-23-JSON-TARGET-REL）：target 字段绝对 → 相对（toRel · 与人类面同口径）
+      assert.equal(payload.target, toRel(KIT, dir))
+      assert.equal(path.isAbsolute(payload.target as string), false, 'target 字段不得为绝对路径')
       assert.equal(payload.task, APPROVED_REL)
       assert.equal(payload.blocked, false)
       assert.equal(payload.verdict, 'PASS')
@@ -174,7 +177,9 @@ describe('DEF-011 verify/gate-check 旗标不再静默吞（D1 fail-fast · D2 -
       assert.equal(r.status, 0, r.combined)
       const payload = JSON.parse(r.stdout) as Record<string, unknown>
       assert.equal(payload.command, 'gate-check')
-      assert.equal(payload.target, dir)
+      // 2.3-W3 ①（D-23-JSON-TARGET-REL）：target 字段绝对 → 相对（toRel · 与人类面同口径）
+      assert.equal(payload.target, toRel(KIT, dir))
+      assert.equal(path.isAbsolute(payload.target as string), false, 'target 字段不得为绝对路径')
       assert.equal(payload.task, APPROVED_REL)
       assert.equal(payload.blocked, false)
       assert.equal(payload.verdict, 'PASS')

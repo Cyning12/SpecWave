@@ -178,6 +178,8 @@ const INIT_USAGE =
 // ③ 不物化示例 task 进消费者 docs/tasks/（S2 红线 · F-W4-02），第 2 步仅指引文本；
 // ④ 语种英文先行（与 README 现状一致 · R2 口径），与 README「Core objects」节互链。
 export const INIT_QUICKSTART = `Next steps — 3-step quickstart:
+  0. Prerequisite: your project must be a git repository (run 'git init'
+     first if needed) — step 3's verify requires a git root.
   1. npx spec-wave sync prompts --yes
      (materialize prompt templates, including docs/harness/templates/TASK_TEMPLATE.md)
   2. Create your first task: copy docs/harness/templates/TASK_TEMPLATE.md
@@ -549,14 +551,16 @@ async function cmdGateCheck(args: string[]): Promise<void> {
   }
   if (!taskFile) fail('gate-check 须指定 --task FILE（1.1.0 P0 子集）')
   const abs = resolveTaskPath(target, taskFile)
-  if (!existsSync(abs)) fail(`错误: 未找到 --task 文件 ${abs}`)
+  // C3 补漏（2.3-W3 · D-23-W3-REL-BASE）：错误文案相对化（target 归卡基）
+  if (!existsSync(abs)) fail(`错误: 未找到 --task 文件 ${toRel(target, abs)}`)
   const formatted = formatGateCheck(abs, await readFile(abs, 'utf8'))
   if (json) {
     console.log(
       JSON.stringify(
         {
           command: 'gate-check',
-          target,
+          // C3 补漏（2.3-W3 · D-23-JSON-TARGET-REL）：--json target 字段绝对 → 相对（与人类面同口径）
+          target: toRel(process.cwd(), target),
           task: taskFile,
           blocked: formatted.blocked,
           verdict: formatted.blocked ? 'BLOCKED' : 'PASS',
@@ -594,7 +598,8 @@ async function cmdAudit(args: string[]): Promise<void> {
   let gateText = ''
   if (taskFile) {
     const abs = resolveTaskPath(target, taskFile)
-    if (!existsSync(abs)) fail(`错误: 未找到 --task 文件 ${abs}`)
+    // C3 补漏（2.3-W3 · D-23-W3-REL-BASE）：错误文案相对化（target 归卡基）
+    if (!existsSync(abs)) fail(`错误: 未找到 --task 文件 ${toRel(target, abs)}`)
     const formatted = formatGateCheck(abs, await readFile(abs, 'utf8'))
     gateText = formatted.text
     gateOk = !formatted.blocked
@@ -650,7 +655,8 @@ async function verifySpecMode(
       JSON.stringify(
         {
           command: 'verify',
-          target,
+          // C3 补漏（2.3-W3 · D-23-JSON-TARGET-REL）：--json target 字段绝对 → 相对（与人类面同口径）
+          target: toRel(process.cwd(), target),
           spec: specFile,
           blocked,
           verdict: blocked ? 'BLOCKED' : 'PASS',
@@ -667,11 +673,13 @@ async function verifySpecMode(
       ),
     )
   }
-  if (!existsSync(abs)) fail(`错误: 未找到 --spec 文件 ${abs}`)
+  // C3 补漏（2.3-W3 · D-23-W3-REL-BASE）：错误文案相对化（target 归卡基）
+  if (!existsSync(abs)) fail(`错误: 未找到 --spec 文件 ${toRel(target, abs)}`)
   // F-W1-05（2.3-W1）：--spec 传目录路径本身 → 干净「用法错」exit 1
   //（止血裸 EISDIR 崩溃 · 不新增目录直读能力 · 目录型夹须传夹内 SPEC 文件）。
   if (statSync(abs).isDirectory()) {
-    fail(`错误: --spec 须为 SPEC 文件（收到目录）: ${abs} · 目录型夹请传 ` +
+    // C3 补漏（2.3-W3 · D-23-W3-REL-BASE）：错误文案相对化（target 归卡基）
+    fail(`错误: --spec 须为 SPEC 文件（收到目录）: ${toRel(target, abs)} · 目录型夹请传 ` +
       `docs/spec/<slug>/README.md 或 SPEC_<slug>_v1.md`)
   }
   const content = await readFile(abs, 'utf8')
@@ -774,7 +782,8 @@ async function cmdVerify(args: string[]): Promise<void> {
       JSON.stringify(
         {
           command: 'verify',
-          target,
+          // C3 补漏（2.3-W3 · D-23-JSON-TARGET-REL）：--json target 字段绝对 → 相对（与人类面同口径）
+          target: toRel(process.cwd(), target),
           task: taskFile,
           blocked,
           verdict: blocked ? 'BLOCKED' : 'PASS',
@@ -1164,10 +1173,28 @@ function isMain(): boolean {
   }
 }
 
+/**
+ * 统一 CLI 错误出口（src 直跑 isMain 与 bin/\*.js 发布入口共用 · 单一实现源）。
+ * 2.3-W3 ②（D-23-W3-ENVELOPE · [A]W3-P2）：exit 1 用法错 + --json → stdout 补 JSON 信封
+ * （command / exitCode / error.message · message 为相对化后全文）。单点收口覆盖全部
+ * 命令与参数解析前错误（F-W3-02）；stderr 人类文案保持；exit 码不变；
+ * 成功档/BLOCKED 档既有 payload 键集一字不动（只增不改作用于新增档）。
+ */
+export function exitWithCliError(err: unknown, argv: string[]): never {
+  const e = err as { message?: string; exitCode?: number }
+  const exitCode = typeof e.exitCode === 'number' ? e.exitCode : 1
+  if (exitCode === 1 && argv.includes('--json')) {
+    const command = argv.find((a) => !a.startsWith('-')) ?? 'unknown' // F-W3-07 兜底
+    console.log(
+      JSON.stringify({ command, exitCode: 1, error: { message: e.message ?? '' } }, null, 2),
+    )
+  }
+  if (e.message) console.error(e.message)
+  process.exit(exitCode)
+}
+
 if (isMain()) {
   runCli(process.argv.slice(2)).catch((err: unknown) => {
-    const e = err as { message?: string; exitCode?: number }
-    if (e.message) console.error(e.message)
-    process.exit(typeof e.exitCode === 'number' ? e.exitCode : 1)
+    exitWithCliError(err, process.argv.slice(2))
   })
 }

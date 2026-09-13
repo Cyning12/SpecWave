@@ -59,7 +59,8 @@ export function resolveTarget(
   const target = path.resolve(targetArg || cwd)
   if (opts?.requireGitRoot && !findGitRoot(target)) {
     fail(
-      `错误: --target 不在任何 git 仓内（向上未找到 .git）: ${target}\n` +
+      // C3 补漏（2.3-W3 · D-23-W3-REL-BASE）：错误文案相对化（cwd 基 · cwd 外维持 ../ 相对形 F-W3-01）
+      `错误: --target 不在任何 git 仓内（向上未找到 .git）: ${toRel(cwd, target)}\n` +
         '迁移: 先在该目录执行 git init，或将 --target 指向既有 git 仓内的路径。',
       1,
     )
@@ -344,8 +345,11 @@ export function resolveTaskPath(target: string, taskFile: string): string {
   }
   const rel = path.relative(real(target), real(abs))
   if (rel === '..' || rel.startsWith(`..${path.sep}`) || path.isAbsolute(rel)) {
+    // C3 补漏（2.3-W3 · D-23-W3-REL-BASE）：用户输入为绝对路径时相对化展示（target 归卡基 ·
+    // 无 cwd 可取）；相对输入原样。../../etc 形态为既定口径（F-W3-01 · 与人类面一致）。
+    const display = path.isAbsolute(taskFile) ? toRel(target, taskFile) : taskFile
     fail(
-      `错误: --task/--spec 拒绝 target 之外的路径: ${taskFile}\n` +
+      `错误: --task/--spec 拒绝 target 之外的路径: ${display}\n` +
         '迁移: 将文件放入 target 仓内，改用仓内相对路径（如 docs/tasks/active/task_*.md）。\n' +
         '示例: npx spec-wave verify --target <repo> --task docs/tasks/active/<file>.md',
       1,

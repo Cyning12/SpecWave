@@ -10,6 +10,10 @@ on:
     branches:
       - main
 
+# 2.3-W3 ④（C4 · SPEC 03 §5.4）：顶层最小权限（GITHUB_TOKEN 只读）
+permissions:
+  contents: read
+
 jobs:
   compile:
     runs-on: ubuntu-latest
