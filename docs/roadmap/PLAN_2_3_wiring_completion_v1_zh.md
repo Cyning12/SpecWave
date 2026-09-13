@@ -34,7 +34,7 @@
 | 10 | [A]#9 quickstart 未提 git 前提 | `init` quickstart 文案 3 步无 `git init` 提示（2.2.0 验收 §2 W4 实测结论沿用） | ✅ 有效（W3③） |
 | 11 | [A]#10/#11 GLOSSARY 两处措辞 | `GLOSSARY.md`「four gates」未分层 ·「每帽对应一个 prompt 文件」对 `50-independent-reinspect` 不成立（sync prompts 物化 7 帽无 50） | ✅ 有效（W7②） |
 | 12 | [A]#4 根 README 未更新 7 宿主 | `README.md` / `README.zh-CN.md` grep `copilot\|codex\|windsurf` 口径沿用验收 §2 W6（P2-4 未随 2.2.1 修复） | ✅ 有效（W7①） |
-| 13 | A5 4 项 not_wired 闸 | `assets/harness/discipline-coverage.yaml`：G2(:31) / G4(:41) / FULL-reviews(:66) / INVOKE-HATS(:76) 均 `status: not_wired`（实测确认）；`reviews.CLOSE` 代理口径注释 `src/cli-status.ts:94` 沿用 | ✅ 有效（W4） |
+| 13 | A5 4 项 not_wired 闸 | `assets/harness/discipline-coverage.yaml`：G2(:31) / G4(:41) / FULL-reviews(:66) / INVOKE-HATS(:76) 均 `status: not_wired`（status 字段属实）；`reviews.CLOSE` 代理口径注释 `src/cli-status.ts:94-97` 沿用 | ⚠️ **部分证伪**（W4 棒证据级复核 · HEAD=661f6e2）：status 字段属实但 **note 过期**（as_of 停在 2026-08-24 T4/T5/T6 接线前未回写）——G2/INVOKE-HATS **存在级已接线**（verify `cli.ts:827-833` · close_review `cli-checks.ts:184-192` · close_invoke `cli-checks.ts:170-182`），真正缺口为结论级（R1 通过判定）/帽级（lint-done）；详见 SPEC 04 §1 更正版 |
 | 14 | HEAD=`6bdf3ad`（00 实测值） | 本棒实测 HEAD=`4030242`（`docs(release): mark 2.2.1 published` 发布簿记提交 · 工作树干净） | ⚠️ 微偏差：00 取值时点早于发布簿记提交，不影响任何规划前提，如实留痕 |
 
 **范围边界确认**：PROMPT §3 七波与 00 委派范围逐条对齐，无增无减；`test/cli-verify-observability.test.ts:149`、`cli-checks.ts:553-557`、`discipline-coverage.yaml` 四处 not_wired 均经本棒只读复核，证据未失效。
@@ -48,7 +48,7 @@
 | **W1** | **pins 机制补强（本次核心）** | ① pin-08 弱钉改严（提取须含版本且落状态单元格 [A]#7）② CHANGELOG 最新发布头 / MIGRATION `spec-wave@X` / AGENTS `npx spec-wave@X` 三面入钉（纯数据 [A]#8）③ pin-04/06/07/10/11/12 失配 fixture 补全（[A]#14）④ `verify --spec` 目录型 slug 推导修复（[D]）⑤ 同文件钉面模式重叠 unfixable 误报候选债评估（[D] · 可只留评估结论） | 验收 §2/§4 · 债留痕 | 待 HG-NEXT-PLAN |
 | W2 | 钉面维度扩展 | 「新增文档须在 `package.json#files` 白名单内」+「新增宿主须在根 README 多宿主表内」两条机械校验数据化（release-pins.yaml 或独立 check） | 验收 §7 对称现象 | 待 HG-NEXT-PLAN |
 | W3 | 安全与可观测性补全 | ① C3 补漏：`--json` target 字段与错误文案统一 toRel 相对化（test:149 期望同步 [A]#5）② exit 1 用法错时 `--json` 补 JSON 信封（[A]W3-P2）③ quickstart 第 3 步补 git init 前提（[A]#9）④ C4：CI `permissions:` 最小权限 + 依赖/密钥扫描（[R]）；附：C5 provenance/OIDC 仅出配置指引文档（账号配置仅人） | 验收 §4 · 路线 §5 | 待 HG-NEXT-PLAN |
-| W4 | A5+A6 闸语义接线 | 4 项 not_wired 闸接线（G2 / G4 / FULL-reviews / INVOKE-HATS）+ `reviews.CLOSE` 语义补强。**门禁语义变更须先出接线方案评审再动手** | 路线 §5 主线一 | 待 HG-NEXT-PLAN |
+| W4 | A5+A6 闸语义接线 | 4 项 not_wired 闸接线/升级（G2 存在级→**结论级 R1 判定** · G4 warn-only 过渡 · FULL-reviews 裸 verify · INVOKE-HATS **lint-done 帽级升级**）+ `reviews.CLOSE` 语义补强 + 覆盖表 **note 回写**。**门禁语义变更须先出接线方案评审再动手 · 新行为不追溯存量**（00 裁决 2026-09-12） | 路线 §5 主线一 | 待 HG-NEXT-PLAN |
 | W5 | A2 资产完整性校验 | `assets/sha256.manifest` + `spec-wave assets verify` + CI 接线（failClosed exit 2 · 修复命令配套防持续报红） | 路线 §5 主线一 | 待 HG-NEXT-PLAN |
 | W6 | B4 宿主补齐 | gemini / opencode / roo / zed / cline / aider 六宿主（复用 agents 资产面先例 · 落点按官方文档逐宿主取证 · 新宿主同步触发 W2 README 表校验） | 路线 §5 主线二 | 待 HG-NEXT-PLAN |
 | W7 | DX 与工程健康 | ① 根 README 双语更新宿主表（[A]#4）② GLOSSARY「four gates」分层 +「每帽一 prompt 文件」措辞修正（[A]#10/#11）③ E2 离线 fixture + E5 tsconfig 加严（[R]） | 验收 §4 · 路线 §5 | 待 HG-NEXT-PLAN |
@@ -88,11 +88,11 @@
 
 > 详规：[`04_w4_gate_wiring_v1.md`](../spec/2_3-wiring-completion/04_w4_gate_wiring_v1.md)
 
-- **范围**：G2（reviews 留档闸）/ G4（思考轮结构 · 现仅 W4 warn-only）/ FULL-reviews（裸 verify 查 reviews）/ INVOKE-HATS（多帽 invoke 集合闸）四项 not_wired 接线 + `reviews.CLOSE` 从代理口径升级为「close 审查通过」强证据。
+- **范围**（2026-09-12 修订 · W4 前提部分证伪后口径）：G2 reviews 闸**存在级→结论级升级**（R1 通过判定 · 存在性闸已接线 `cli.ts:827-833` / `cli-checks.ts:184-192`）· G4 思考轮结构（维持 warn-only 过渡）· FULL-reviews 裸 verify 接线（--task 面已查，不重复）· INVOKE-HATS **lint-done 帽级升级**（close_invoke 已接线 `cli-checks.ts:170-182`）+ `reviews.CLOSE` 从代理口径升级为「close 审查通过」强证据 + 覆盖表 **note 回写**（根因留痕：note 过期致本次证伪）。
 - **硬前置**：**先出接线方案评审文（落盘 docs/harness/reviews/）再动手**——门禁语义变更影响所有消费者的 failClosed 行为，评审通过前 30 拒改码。
 - **非范围**：不动 deferred 三项（G6 / G7 / N2-C）；不加 hooks；不改闸豁免旗标既有语义。
-- **验收要点**：接线后 `discipline-coverage.yaml` 四项状态从 not_wired 变更（pin-04 联动）；每项新闸有负向靶场真失败；`reviews.CLOSE` 新语义有测；事实卡 §11「关账必经审查通过」禁称口径同步评审。
-- **风险**：G4 思考轮结构严化可能大面积误伤存量 task → 评审决定 warn-only 过渡窗或默认档；这是本波最大不确定点。
+- **验收要点**：接线后 `discipline-coverage.yaml` 四项状态从 not_wired 变更且 **note 回写含正确行号证据**（pin-04 联动）；每项新闸有负向靶场真失败（**存量 59 done task 不追溯打红** · 00 裁决）；`reviews.CLOSE` 新语义有测；事实卡 §11「关账必经审查通过」禁称口径同步评审。
+- **风险**：存量合规率实测 G2 91.5% / INVOKE-HATS 72.9% / G4 44%——追溯即大面积红 → **已定案不追溯存量 + G4 warn-only**（SPEC 04 §5.4）；评审文定稿「新 task」判定口径。
 
 ## W5 · A2 资产完整性校验
 
@@ -170,3 +170,4 @@
 | 2026-09-12 | draft · 10-spec 起草；PROMPT-2.3.0 §3/§4/§5 全吸收；前提校核 14 条实测复核（13 ✅ · 1 ⚠️ HEAD 簿记偏差留痕） |
 | 2026-09-12 | signed · HG-SPEC-SIGNOFF / HG-NEXT-PLAN approved（00 代签 · 2026-09-12 维护者会话授权） |
 | 2026-09-12 | W2 验收口径对齐 SPEC 02 修订（前提证伪：MIGRATION.md 同型死链残留 · 00 裁决 Q1A/Q2仓根/Q3预留 · 前置修复项入列） |
+| 2026-09-12 | W4 口径对齐 SPEC 04 修订 #2（前提部分证伪：yaml note 过期 · G2/INVOKE-HATS 存在级已接线 · 真正缺口结论级/帽级 · 00 裁决=A · 不追溯存量 + G4 warn-only + note 回写入列） |
