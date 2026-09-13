@@ -18,6 +18,7 @@
 
 ### Added
 
+- **2.3-W6（B4 · SPEC 06）host-adapt 六宿主补齐**：适配表新增 `gemini` / `opencode` / `roo` / `zed` / `cline` / `aider`（7 → 13）· 落点逐宿主官方文档取证（2026-09-13）：gemini=GEMINI.md+`.gemini/skills` · opencode/zed=AGENTS.md+`.agents/skills` · cline=AGENTS.md+`.cline/skills` · roo=AGENTS.md（官方仓 merged PR #10446 · skills 无官方约定不物化）· aider=**降级** AGENTS.md 注入层（官方约定为 CONVENTIONS.md 显式 `--read`，无自动加载 · 如实标注）；全量复用 agents 资产面（**零新资产 · 零 src 改动**）· `commands: []` 不暗示 P0 门禁在新宿主内生效；pin-17 host_hits/known_gaps 数据面同步（六新豁免 until_wave: W7 · W7① 统一关账）。注：根 README 双语宿主表更新归 W7①，对外宣称口径归维护者（事实卡 §11）。
 - **2.3-W5（A2 · SPEC 05）assets 资产完整性校验**：新增 `assets/sha256.manifest`（构建声明：assets/ 全量文件 sha256 · posix 路径确定性排序 · sha256sum 行格式）+ 新子命令 `spec-wave assets verify [--target PATH] [--json]`（逐文件比对：ok/mismatch/missing/extra 四态 · 任一偏差 failClosed **exit 2** · 与 pins 同门禁语义）与 `spec-wave assets manifest rebuild [--target PATH] [--yes]`（默认 dry-run · `--yes` 重生成 manifest · 幂等 · **修复对象=manifest 声明，资产为真值永不反向改**）；CI test job 与 `prepublishOnly` 链尾与 pins 同点位接线（改 assets 未重生成即红）。注：根 README 等对外文档口径更新归维护者（事实卡 §11 解禁不属本波）。
 - **2.3-W3（[A]W3-P2）exit 1 JSON 信封**：用法错误档（exit 1）且传 `--json` 时，stdout 输出结构化信封 `{ command, exitCode: 1, error: { message } }`（message 已相对化）；不传 `--json` 时人类错误输出不变；exit 码语义不变。
 - **2.3-W3（[A]#9）quickstart git 前提**：`init` 的 3 步 quickstart 第 3 步前补前提提示（项目须为 git 仓 · `git init`）；README 双语「核心对象」quickstart 引用句同步。

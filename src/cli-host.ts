@@ -625,7 +625,10 @@ function asHostRows(data: unknown): HostRow[] {
 
 function isMarkdownMergeTarget(destRel: string): boolean {
   const base = path.basename(destRel)
-  return base === 'CLAUDE.md' || base === 'AGENTS.md'
+  // 2.3-W6：GEMINI.md 入 marker-merge 白名单（gemini 官方上下文文件 · 取证卡 D-23-W6-REUSE）——
+  // 与 AGENTS.md/CLAUDE.md 同语义：产品块 marker 包裹 + local 块保留；否则 gemini 行always_on 退化为
+  // 裸拷贝（升级整文件覆写 · 用户定制丢失）。非 schema 变更（host-adapt.schema.json 零改动）。
+  return base === 'CLAUDE.md' || base === 'AGENTS.md' || base === 'GEMINI.md'
 }
 
 function isKitManagedContent(content: string): boolean {

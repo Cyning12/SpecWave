@@ -324,7 +324,7 @@ describe('2.1.1 W2 host update 缺省 = 方案 A', { concurrency: 1 }, () => {
       ])
       assert.equal(r.status, 0, r.combined)
       const parsed = JSON.parse(r.stdout) as UpdateJson
-      // 2.2 W6：适配表全量含 copilot/codex/windsurf
+      // 2.2 W6 + 2.3 W6：适配表全量含 copilot/codex/windsurf + gemini/opencode/roo/zed/cline/aider（13）
       assert.deepEqual(parsed.hosts, [
         'dsh',
         'cursor',
@@ -333,6 +333,12 @@ describe('2.1.1 W2 host update 缺省 = 方案 A', { concurrency: 1 }, () => {
         'copilot',
         'codex',
         'windsurf',
+        'gemini',
+        'opencode',
+        'roo',
+        'zed',
+        'cline',
+        'aider',
       ])
     })
   })

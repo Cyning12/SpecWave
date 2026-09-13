@@ -9,7 +9,7 @@
 
 ```bash
 npx spec-wave host validate [--file PATH] [--json]
-npx spec-wave host apply --tools cursor,claude[,dsh,agents,copilot,codex,windsurf|all] --profile core|expanded [--dry-run|--yes]
+npx spec-wave host apply --tools cursor,claude[,dsh,agents,copilot,codex,windsurf,gemini,opencode,roo,zed,cline,aider|all] --profile core|expanded [--dry-run|--yes]
 npx spec-wave host update [--tools LIST|all] [--profile core|expanded] [--yes] [--force]
 npx spec-wave init --preset harness-only [--tools all|none|LIST] [--profile core|expanded] [--host-adapt|--no-host-adapt] [--yes]
 ```
@@ -65,7 +65,7 @@ npx spec-wave@2.2.1 host update --yes
 
 | 环境 | 无 `--tools` |
 |------|----------------|
-| TTY | **默认询问**（多选 cursor / claude / dsh / agents / copilot / codex / windsurf / all / none） |
+| TTY | **默认询问**（多选 cursor / claude / dsh / agents / copilot / codex / windsurf / gemini / opencode / roo / zed / cline / aider / all / none） |
 | 非 TTY / CI | **exit 1** · 须显式 `--tools all\|none\|LIST` |
 
 ```bash
@@ -89,8 +89,22 @@ npx spec-wave init --preset harness-only --tools none --yes
 | `copilot`（2.2 W6） | `AGENTS.md`（复用 agents 片段） | `[]` | `.github/skills` |
 | `codex`（2.2 W6） | `AGENTS.md`（复用 agents 片段） | `[]` | `.agents/skills`（官方 repo 级扫描目录） |
 | `windsurf`（2.2 W6） | `AGENTS.md`（复用 agents 片段） | `[]` | `.windsurf/skills` |
+| `gemini`（2.3 W6） | **`GEMINI.md`**（复用同一 Harness Starter 片段 · 内容宿主中立） | `[]` | `.gemini/skills`（官方自动发现目录） |
+| `opencode`（2.3 W6） | `AGENTS.md`（复用 agents 片段） | `[]` | `.agents/skills`（官方 agent-compatible 路径） |
+| `roo`（2.3 W6） | `AGENTS.md`（复用 agents 片段） | `[]` | 不物化（无官方 skills 目录约定） |
+| `zed`（2.3 W6） | `AGENTS.md`（复用 agents 片段） | `[]` | `.agents/skills`（官方 project-local 目录） |
+| `cline`（2.3 W6） | `AGENTS.md`（复用 agents 片段） | `[]` | `.cline/skills`（官方推荐 workspace 目录） |
+| `aider`（2.3 W6 · **降级**） | `AGENTS.md`（复用 agents 片段 · 注入层支持） | `[]` | 不物化（无官方 skills 约定） |
 
 > 2.2 W6 三宿主（copilot / codex / windsurf）原生读 `AGENTS.md`，always_on 与 skills 资产**全量复用** `agents` 行（近零新资产）；无宿主专属 commands 资产故为 `[]`。多宿主同选时 `AGENTS.md` 走 marker merge（幂等）。
+>
+> 2.3 W6 六宿主（gemini / opencode / roo / zed / cline / aider）同制复用（**零新资产**），落点逐宿主官方文档取证（2026-09-13 · 取证卡见 W6 task）：
+> - **gemini**：官方上下文文件为 **`GEMINI.md`**（AGENTS.md 不在默认 `context.fileName` 列表）→ always_on 落 GEMINI.md；skills 官方目录 `.gemini/skills`；commands 官方为 `.gemini/commands/*.toml` 专属格式，本波 `[]`。
+> - **opencode / zed**：官方支持项目根 `AGENTS.md`；skills 官方目录 `.agents/skills`（与 agents/codex 行同构同源）。
+> - **roo**：官方仓已合并 AGENTS.md 加载（PR #10446）；原生约定 `.roo/rules/` 目录需专属资产，本波不建；无官方 skills 目录约定 → 不物化。
+> - **cline**：官方支持 `AGENTS.md`（跨工具标准格式）；skills 官方推荐 `.cline/skills`；原生 `.clinerules/` 为替代约定（不建）。
+> - **aider（降级 · 如实标注）**：官方约定为 `CONVENTIONS.md` 显式 `--read` 或 `.aider.conf.yml` 配置 `read:`，**无 AGENTS.md 自动加载**；落 AGENTS.md 为跨工具注入层价值（同仓 AGENTS.md 系宿主共享），aider 侧须用户自行 `aider --read AGENTS.md` 或配置。
+> - skills 目录无官方约定者（roo / aider）**不强造目录**；`commands: []` 不暗示 P0 门禁在新宿主内生效（verify 真值在 CLI）。
 
 Core 五命令：`kit-apply-standards` · `kit-verify` · `kit-gate-status` · `kit-init-guide` · `kit-hat-reanchor`（前缀 **`kit-`**；禁止冒充 `opsx-*`）。  
 Expanded（`--profile expanded`）：`kit-hat-00-delegate` · `kit-hat-10-spec` · `kit-hat-10-task` · `kit-hat-20-spec-audit` · `kit-hat-20-task-audit` · `kit-graph-check` · `kit-sync-prompts-guide`。

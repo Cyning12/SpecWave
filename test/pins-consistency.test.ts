@@ -878,7 +878,7 @@ describe('W1-A1 release pins · C组 声明源数据形态（SPEC 01 §5 · D-PI
       semantics?: string
       readmes?: string[]
       host_hits?: Record<string, string[]>
-      known_gaps?: Array<{ host_id: string; until_wave?: string }>
+      known_gaps?: Array<{ host_id: string; since_wave?: string; until_wave?: string; note?: string }>
     }
     expected: { kind: string }
     required: boolean
@@ -979,7 +979,7 @@ describe('W1-A1 release pins · C组 声明源数据形态（SPEC 01 §5 · D-PI
     assert.equal(p17.extract.kind, 'readme-host-row')
     assert.equal(p17.expected.kind, 'const')
     assert.deepEqual(p17.extract.readmes, ['README.md', 'README.zh-CN.md'])
-    // host_hits 覆盖适配表 7 宿主（F-W2-04 逐宿主核对入数据 · 正则逐字断言防 YAML 转义静默）
+    // host_hits 覆盖适配表 13 宿主（F-W2-04 逐宿主核对入数据 · 2.3 W6 +6 词锚 D-23-W6-ANCHOR · 正则逐字断言防 YAML 转义静默）
     assert.deepEqual(Object.keys(p17.extract.host_hits ?? {}).sort(), [
       'agents',
       'claude',
@@ -988,12 +988,40 @@ describe('W1-A1 release pins · C组 声明源数据形态（SPEC 01 §5 · D-PI
       'codex',
       'dsh',
       'windsurf',
+      'gemini',
+      'opencode',
+      'roo',
+      'zed',
+      'cline',
+      'aider',
     ].sort())
     assert.equal(p17.extract.host_hits?.cursor?.[0], '\\|\\s*\\*\\*Cursor\\*\\*')
-    // known_gaps 封闭三条 · until_wave=W7（D-23-W2-W7-EXEMPTION · 无豁免新债）
+    // 2.3 W6 词锚逐字断言（D-23-W6-ANCHOR：roo 须带 Code 防 projectRoot 误伤 · zed 大写防 materialized 误伤）
+    assert.deepEqual(p17.extract.host_hits?.gemini, ['Gemini'])
+    assert.deepEqual(p17.extract.host_hits?.opencode, ['opencode'])
+    assert.deepEqual(p17.extract.host_hits?.roo, ['Roo Code'])
+    assert.deepEqual(p17.extract.host_hits?.zed, ['Zed'])
+    assert.deepEqual(p17.extract.host_hits?.cline, ['Cline'])
+    assert.deepEqual(p17.extract.host_hits?.aider, ['aider'])
+    // known_gaps 九条 = 三旧（2.3-W2）+ 六新（2.3-W6 · SPEC 06 §5.3 过渡口径 · D-23-W6-EXEMPT 四字段）· until_wave 全 W7（W7① 统一关账）
     const gaps = p17.extract.known_gaps ?? []
-    assert.deepEqual(gaps.map((g) => g.host_id).sort(), ['codex', 'copilot', 'windsurf'])
+    assert.deepEqual(gaps.map((g) => g.host_id).sort(), [
+      'codex',
+      'copilot',
+      'windsurf',
+      'gemini',
+      'opencode',
+      'roo',
+      'zed',
+      'cline',
+      'aider',
+    ].sort())
     for (const g of gaps) assert.equal(g.until_wave, 'W7')
+    for (const id of ['gemini', 'opencode', 'roo', 'zed', 'cline', 'aider']) {
+      const g = gaps.find((x) => x.host_id === id)!
+      assert.equal(g.since_wave, 'W6', id + ' 豁免条目须带 since_wave: W6（四字段格式）')
+      assert.ok(g.note && g.note.length > 0, id + ' 豁免条目须带 note')
+    }
   })
 
   it('无 S2 落点（docs/tasks · docs/harness/reviews · docs/harness/invokes/by-task）', () => {

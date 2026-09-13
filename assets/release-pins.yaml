@@ -168,6 +168,8 @@ pins:
       readmes: [README.md, README.zh-CN.md]
       # F-W2-04 逐宿主核对 @2026-09-12：四存量宿主取双语表行锚（README.md:26-29 /
       # README.zh-CN.md:26-29 实测命中 · 普通单词误伤免疫）；三新宿主取官方名词锚。
+      # 2.3-W6 六宿主词锚逐核对 @2026-09-13（D-23-W6-ANCHOR · 大小写敏感 · 双语 0 命中实测）：
+      # roo 用 'Roo Code'（裸 Roo 误伤 projectRoot）· zed 用大写（小写误伤 materialized）。
       host_hits:
         dsh: ['\|\s*\*\*DSH\*\*']
         cursor: ['\|\s*\*\*Cursor\*\*']
@@ -176,12 +178,26 @@ pins:
         copilot: ['Copilot']
         codex: ['Codex']
         windsurf: ['Windsurf']
-      # D-23-W2-W7-EXEMPTION：过渡豁免封闭于三条（无豁免新债 · W6 新宿主落地即受约束）；
-      # 截止条件 until_wave: W7 + 失陈债机检自执行（双语命中即 exit 2 报债）。
+        gemini: ['Gemini']
+        opencode: ['opencode']
+        roo: ['Roo Code']
+        zed: ['Zed']
+        cline: ['Cline']
+        aider: ['aider']
+      # D-23-W2-W7-EXEMPTION：过渡豁免 = 三旧（2.3-W2 · copilot/codex/windsurf）+ 六新（2.3-W6 ·
+      # SPEC 06 §5.3/F-W6-05 明文按 W2 §5.2 过渡口径处理 · 维护者会话授权 PROMPT「W7 统一关账」）；
+      # 截止条件 until_wave: W7 + 失陈债机检自执行（双语命中即 exit 2 报债 · W7① 关账摘除全部九条）。
+      # 六新条目四字段（host_id/since_wave/until_wave/note · since_wave 为纯数据注记）。
       known_gaps:
         - { host_id: copilot, until_wave: W7, note: '[A]#4 · 2.2 W6 落地但根 README 双语未更新 · W7① 修文档面后移除本豁免' }
         - { host_id: codex, until_wave: W7, note: '[A]#4 · 同 copilot 行' }
         - { host_id: windsurf, until_wave: W7, note: '[A]#4 · 同 copilot 行' }
+        - { host_id: gemini, since_wave: W6, until_wave: W7, note: '2.3-W6 落地（SPEC 06 §5.3 过渡口径）· 根 README 双语未更新 · W7① 修文档面后移除本豁免' }
+        - { host_id: opencode, since_wave: W6, until_wave: W7, note: '2.3-W6 · 同 gemini 行' }
+        - { host_id: roo, since_wave: W6, until_wave: W7, note: '2.3-W6 · 同 gemini 行' }
+        - { host_id: zed, since_wave: W6, until_wave: W7, note: '2.3-W6 · 同 gemini 行' }
+        - { host_id: cline, since_wave: W6, until_wave: W7, note: '2.3-W6 · 同 gemini 行' }
+        - { host_id: aider, since_wave: W6, until_wave: W7, note: '2.3-W6 · 同 gemini 行' }
     expected: { kind: const, value: 0-miss（宿主双语命中 · 豁免除外且无失陈） }
     required: true
     fixable: false
