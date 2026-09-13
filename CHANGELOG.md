@@ -9,7 +9,7 @@
 ## [2.2.1] - 2026-09-12
 
 > 主题：**patch** —— 2.2.0 验收报告 **PASS-with-issues** 四项修复（§4 #1/#2/#3/#6 · task `2-2-1-patch`）。  
-> **发布状态**：**待发版**（bump 已落 · tag/push/publish 仅人 · 当前 registry `latest` 仍为 `2.2.0`）。
+> **发布状态**：**已 published** · tag **`v2.2.1`** ↔ `spec-wave@2.2.1`（人 · 2026-09-12 核验 `latest=2.2.1`）。
 
 ### Fixed
 
@@ -20,7 +20,7 @@
 
 ### Tests
 
-- 新增 symlink 负向（四调用点穿透拒止 + 悬空「未找到」+ 仓内放行回归）与同文件双钉面一次收敛（`test/cli-security-closure.test.ts` · `test/pins-consistency.test.ts` B11）；测试基线 459 → 464（tag-gated 设计红留痕口径同 W8：pin-10 `v2.2.1` 待人打 tag 后复跑须全绿）。
+- 新增 symlink 负向（四调用点穿透拒止 + 悬空「未找到」+ 仓内放行回归）与同文件双钉面一次收敛（`test/cli-security-closure.test.ts` · `test/pins-consistency.test.ts` B11）；测试基线 459 → 464（tag-gated 设计红随 tag `v2.2.1` 落位转绿 · 复跑 464/464 全绿）。
 
 ## [2.2.0] - 2026-09-11
 

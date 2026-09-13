@@ -360,7 +360,7 @@ Three surfaces, not interchangeable: **System/Re-anchor** = short identity; **fu
 
 ## Releasing (maintainers)
 
-**Current package**: **`spec-wave@2.2.1`** — bump landed · **pending release**; registry `latest` = **`2.2.0`** (published · tag `v2.2.0`). Prior: **`2.1.3`** (release-traceability patch) · **`2.1.2`** (rename closeout).
+**Current package**: **`spec-wave@2.2.1`** — **published** (`latest` · tag `v2.2.1`). Prior: **`2.2.0`** (closed-loop start) · **`2.1.3`** (release-traceability patch) · **`2.1.2`** (rename closeout).
 
 Release process: see [RELEASING.md](RELEASING.md) — hard pre-publish checklist (commit-before-publish · four green gates · version pins · Agent may bump/tag · **human-only `npm publish`**; institutionalizes the DEF-001 lesson).
 
