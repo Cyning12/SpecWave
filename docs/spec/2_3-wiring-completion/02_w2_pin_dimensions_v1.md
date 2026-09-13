@@ -44,9 +44,11 @@
 ### 5.1 校验①：文档↔files
 
 - 输入：`package.json#files` 数组 + files 内全部 markdown 文件的相对链接目标集合（仅仓内相对路径 · 不含 http/锚点）。
-- 判定：链接目标存在于仓根（非目录内相对）且为 `.md` → 须在 files 白名单（含 glob/目录前缀匹配，如 `assets` 覆盖 `assets/**`）。
+- **范围（00 裁决 Q2=仓根级 · 2026-09-12）**：判定对象仅限**仓根级 `.md`** 被引用目标；`docs/` 下任意深度链接出本波范围（归后续评估）。
+- 判定：链接目标存在于仓根且为 `.md` → 须在白名单内。**白名单 = `files[]`（含 glob/目录前缀匹配，如 `assets` 覆盖 `assets/**`）∪ npm 自动入包规则**（00 裁决 Q1=A）：`README*` / `LICEN(S)E*` 等 npm 强制/自动入包变体**视同白名单**——`README.zh-CN.md` 即属此类，naive 口径（只看 files 数组）会误报。
 - 失配输出：指出 `引用文件:行号` + 被引用文件 + 建议（`files` 加白 or 移除链接）。
-- 2.2.1 现状应 PASS（GLOSSARY.md 已入 files）——以现状为正向回归基线。
+- **前提证伪留痕（2026-09-12 · W2 10-task R0 实测）**：原稿假设「2.2.1 现状应 PASS」**实测为假**——`README.md:273` 链接 `MIGRATION.md`，未入 `files[]` 且 npm 不自动入包（安装后真死链，与 [A]#3 GLOSSARY 同型残留）。
+- **前置修复项**：`MIGRATION.md` 入 `package.json#files`（W2 task 内先行落地 · 一行改动 · 与 2.2.1 GLOSSARY 修复同型），修复后现状方可达 PASS 基线。
 
 ### 5.2 校验②：宿主↔根 README
 
@@ -73,7 +75,7 @@
 
 1. **校验①负向**：构造「仓根新增 `FOO.md` + README 加相对链接 + 不入 files」→ 校验 exit 2 指出 `README.md:行号` 与 `FOO.md`；入 files 后转绿。
 2. **校验②负向**：构造「适配表加 dummy host + 根 README 无对应行」→ exit 2 指出 host_id 与缺失侧（EN/ZH 分别）。
-3. **正向回归**：现状（7 宿主 · GLOSSARY 已入 files）下校验① PASS；校验②按 §5.2 协同口径（豁免过渡或 W7 后）PASS。
+3. **前置修复后 PASS**（00 裁决）：`MIGRATION.md` 入 `files[]` 前置修复落地后，现状（7 宿主 · GLOSSARY/MIGRATION 均已覆盖）下校验① PASS；npm 自动入包口径下 `README.zh-CN.md`（npm `README*` 规则）**不误报**（须有用例钉死该反误报）；校验②按 §5.2 协同口径（豁免过渡或 W7 后）PASS。
 4. CI / prepublishOnly 接线点位实测命中（改动触发即红）。
 5. `npm run typecheck` 0 错 · `npm test` 全绿。
 
@@ -83,7 +85,7 @@
 |----|------|------|
 | F-W2-01 | README 链接写法变体（锚点 `](X.md#sec)` · 尖括号 · 图片） | 锚点剥除后判定；图片链接同口径；解析失败 → 报 `extract_error` failClosed 不静默 |
 | F-W2-02 | files 用目录前缀（`assets`）而非逐文件 | 前缀匹配算入白名单（`assets/x.md` ∈ `assets`） |
-| F-W2-03 | 链接指向 S2 目录文档 | S2 非打包面 → 判失配并提示「S2 文档不得被已打包文档链接」 |
+| F-W2-03 | （**预留 · 全深度口径**）链接指向 S2 目录文档 | 仓根级口径（00 裁决 Q2）下**永不触发**——仓根无 S2 目录；**全深度口径预留注记**：若未来扩展至 `docs/` 任意深度，则 S2 非打包面 → 判失配并提示「S2 文档不得被已打包文档链接」 |
 | F-W2-04 | 宿主命中形态误命中（如 `agents` 命中普通单词） | 命中形态映射入数据并带上下文锚（如表格行 / 落点目录名），task 定稿逐宿主核对 |
 | F-W2-05 | 过渡豁免超期（W7 完成仍挂豁免） | 豁免数据含 `until_wave` 字段；超期存在 → 校验自身报债（或 task 关账时移除） |
 
@@ -104,7 +106,7 @@
 
 | human_gate_id | status | blocks |
 |---------------|--------|--------|
-| **HG-SPEC-SIGNOFF** | **approved**（2026-09-12 维护者会话授权 00 代签 · 与 2.2.0/2.2.1 同模式） | ~~本 SPEC 定稿 · 冻结 D-23-W2-CHECK-FORM~~（已冻结） |
+| **HG-SPEC-SIGNOFF** | **approved**（2026-09-12 维护者会话授权 00 代签 · **修订重签**：W2 前提证伪 · 00 裁决 Q1A/Q2仓根/Q3预留 · 与 2.2.0/2.2.1 同模式） | ~~本 SPEC 定稿 · 冻结 D-23-W2-CHECK-FORM~~（已冻结 · 修订后维持） |
 | HG-AUDIT-R1（W2 task） | pending | W2 30 改码前（task 阶段 00 代签） |
 
 ## 11. 修订
@@ -113,3 +115,4 @@
 |------|------|
 | 2026-09-12 | draft · 10-spec · 验收 §7 机制化建议数据化 |
 | 2026-09-12 | signed · HG-SPEC-SIGNOFF approved（00 代签） |
+| 2026-09-12 | **修订** · W2 10-task R0 实测证伪（校验①「2.2.1 现状应 PASS」前提为假：`README.md:273`→`MIGRATION.md` 未入 files 且非 npm 自动入包 · 安装后真死链）· 00 裁决 **Q1A**（npm 自动入包视同白名单）/ **Q2 仓根级**（docs/ 深度出范围）/ **Q3 预留**（F-W2-03 改写为全深度口径预留注记）· 验收③改「前置修复后 PASS」· HG-SPEC-SIGNOFF 重签 |

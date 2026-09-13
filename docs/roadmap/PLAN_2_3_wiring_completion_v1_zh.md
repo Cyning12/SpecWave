@@ -70,9 +70,9 @@
 
 > 详规：[`02_w2_pin_dimensions_v1.md`](../spec/2_3-wiring-completion/02_w2_pin_dimensions_v1.md)
 
-- **范围**：两条新机械校验——「新增文档须在 `package.json#files` 白名单内」（GLOSSARY 死链类 [A]#3 同型）·「新增宿主须在根 README 多宿主表内」（7 宿主低估类 [A]#4 同型）；数据化入 release-pins.yaml 或独立 check（方案对比见 SPEC）。
-- **非范围**：不做通用「文档-实现一致性」框架；不改 pins 引擎架构（若选独立 check 则复用 pins 门禁语义 exit 2）。
-- **验收要点**：构造「文档进 README 链接但未进 files」与「适配表有宿主而根 README 表无」两个负向靶场 → 校验 exit 2 且指出落点；正向全绿。
+- **范围**：两条新机械校验——「新增文档须在 `package.json#files` 白名单内」（GLOSSARY 死链类 [A]#3 同型 · **W2 R0 实测 `MIGRATION.md` 同型残留**：`README.md:273` 链向它但未入 files 且非 npm 自动入包 · 2026-09-12 证伪原「现状应 PASS」前提）·「新增宿主须在根 README 多宿主表内」（7 宿主低估类 [A]#4 同型）；数据化入 release-pins.yaml 或独立 check（方案对比见 SPEC）。
+- **非范围**：不做通用「文档-实现一致性」框架；不改 pins 引擎架构（若选独立 check 则复用 pins 门禁语义 exit 2）；**docs/ 下任意深度链接出本波范围**（00 裁决 Q2=仓根级）。
+- **验收要点**：构造「文档进 README 链接但未进 files」与「适配表有宿主而根 README 表无」两个负向靶场 → 校验 exit 2 且指出落点；校验①口径含 **npm 自动入包规则视同白名单**（00 裁决 Q1A · 防 README.zh-CN.md 误报）；**`MIGRATION.md` 入 `files[]` 为前置修复项**，修复后正向全绿。
 - **风险**：README 表格式的解析脆性 → 校验口径以「宿主持久 id 出现于根 README 双语」机械化表述。
 
 ## W3 · 安全与可观测性补全
@@ -169,3 +169,4 @@
 |------|------|
 | 2026-09-12 | draft · 10-spec 起草；PROMPT-2.3.0 §3/§4/§5 全吸收；前提校核 14 条实测复核（13 ✅ · 1 ⚠️ HEAD 簿记偏差留痕） |
 | 2026-09-12 | signed · HG-SPEC-SIGNOFF / HG-NEXT-PLAN approved（00 代签 · 2026-09-12 维护者会话授权） |
+| 2026-09-12 | W2 验收口径对齐 SPEC 02 修订（前提证伪：MIGRATION.md 同型死链残留 · 00 裁决 Q1A/Q2仓根/Q3预留 · 前置修复项入列） |
