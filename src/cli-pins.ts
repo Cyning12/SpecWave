@@ -6,7 +6,7 @@
  * 硬纪律：D-PINS-EXIT 偏差 exit 2 · S2 机械拒写无豁免（00 §3 S2）· 无 --force/--allow-*（P0-GATE）。
  */
 import { execFileSync } from 'node:child_process'
-import { copyFileSync, existsSync, readFileSync, writeFileSync } from 'node:fs'
+import { copyFileSync, existsSync, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
 import { fail, isS2RelPath, normalizeSlashPath, takeOption } from './cli-shared.ts'
 import { yamlLoad } from './yaml.ts'
@@ -22,6 +22,10 @@ type PinExtract = {
   pattern?: string
   flags?: string
   semantics?: string
+  // 2.3-W2 · D-23-W2-CHECK-FORM：readme-host-row 数据面（语义/映射/豁免全入 yaml）
+  readmes?: string[]
+  host_hits?: Record<string, string[]>
+  known_gaps?: Array<{ host_id: string; until_wave?: string; note?: string }>
 }
 type PinExpected = { kind: string; value?: unknown }
 type Pin = {
@@ -250,6 +254,171 @@ function evaluatePin(root: string, pin: Pin, truth: string): PinResult {
         (suspects.length
           ? ' · 兜底嫌疑行（状态/描述列含版本串但行身份不符 · [A]#7）: L' + suspects.join(', L')
           : ''),
+    }
+  }
+
+  // D-23-W2-CHECK-FORM（2.3-W2 · [A]#3 GLOSSARY 死链类）：文档↔files 白名单。
+  // 语义数据声明见 release-pins.yaml pin-16 · 本求值器零口径硬编码以外的最小逻辑：
+  // 扫 files[] 内 markdown 相对链接 → 仓根级且存在的 .md 目标 ∈ 白名单
+  // （files[] 精确/目录前缀 ∪ npm 自动入包 README*/LICEN(S)E* · D-23-W2-NPM-AUTOINCLUDE）；
+  // 仓根级以外（docs/ 任意深度）出范围（D-23-W2-ROOTSCOPE）；不存在的目标不判（F-W2-07）。
+  if (kind === 'files-whitelist-link') {
+    let pkg: { files?: unknown }
+    try {
+      pkg = JSON.parse(content) as { files?: unknown }
+    } catch (e) {
+      return { ...base, status: 'extract_error', detail: 'JSON 解析失败: ' + (e as Error).message }
+    }
+    const files = Array.isArray(pkg.files) ? pkg.files.filter((f): f is string => typeof f === 'string') : []
+    if (files.length === 0) {
+      return { ...base, status: 'extract_error', detail: 'package.json 缺 files 数组（failClosed）' }
+    }
+    const prefixes = files.map((f) => normalizeSlashPath(f).replace(/\/+$/, ''))
+    const inFiles = (rel: string): boolean =>
+      prefixes.some((p) => rel === p || rel.startsWith(p + '/'))
+    const isNpmAuto = (baseName: string): boolean =>
+      /^readme(\..+)?$/i.test(baseName) || /^licen[cs]e(\..+)?$/i.test(baseName)
+    const sources: string[] = []
+    const walk = (abs: string): void => {
+      for (const e of readdirSync(abs, { withFileTypes: true })) {
+        const p = path.join(abs, e.name)
+        if (e.isDirectory()) walk(p)
+        else if (e.name.toLowerCase().endsWith('.md')) sources.push(p)
+      }
+    }
+    for (const f of prefixes) {
+      const abs = path.resolve(root, f)
+      if (!existsSync(abs)) continue // 缺失的 files 条目跳过不判（如未构建的 lib）
+      if (statSync(abs).isDirectory()) walk(abs)
+      else if (f.toLowerCase().endsWith('.md')) sources.push(abs)
+    }
+    const linkRe = /!?\[[^\]]*\]\(\s*(<)?([^)\s>]+)(>)?\s*\)/g
+    const misses: string[] = []
+    for (const abs of sources) {
+      const relSrc = normalizeSlashPath(path.relative(root, abs))
+      const srcContent = readFileSync(abs, 'utf8')
+      const dir = path.dirname(abs)
+      const re = new RegExp(linkRe.source, 'g')
+      let m: RegExpExecArray | null
+      while ((m = re.exec(srcContent))) {
+        const target = m[2].split('#')[0]
+        if (!target || /^[a-z][a-z0-9+.-]*:/i.test(target)) continue // scheme / 纯锚点跳过
+        if (!target.toLowerCase().endsWith('.md')) continue
+        const rel = normalizeSlashPath(path.relative(root, path.resolve(dir, target)))
+        if (rel.startsWith('..')) continue
+        if (rel.includes('/')) continue // D-23-W2-ROOTSCOPE：仅仓根级目标
+        if (!existsSync(path.resolve(root, rel))) continue // F-W2-07：不存在的目标本钉不判
+        if (!inFiles(rel) && !isNpmAuto(rel)) {
+          misses.push(relSrc + ':' + lineOf(srcContent, m.index) + ' -> ' + rel)
+        }
+      }
+    }
+    if (misses.length === 0) {
+      return { ...base, actual: '扫描 ' + sources.length + ' 个 markdown · 0 失配', status: 'ok' }
+    }
+    return {
+      ...base,
+      actual: misses.length + ' 处仓根级文档未入白名单',
+      status: 'mismatch',
+      detail:
+        misses.join(' · ') +
+        ' · 建议: package.json#files 加白 or 移除链接（语义见 yaml pin-16 semantics）',
+    }
+  }
+
+  // D-23-W2-CHECK-FORM（2.3-W2 · [A]#4 宿主低估类）：宿主↔根 README 表。
+  // 语义/映射/豁免全入 yaml 数据（pin-17 host_hits / known_gaps / readmes）。
+  // known_gaps 过渡豁免（D-23-W2-W7-EXEMPTION · until_wave 截止）：
+  // 豁免宿主双双命中（W7① 落地）或已不在适配表 → 豁免失陈债 exit 2（F-W2-05 机检自执行）。
+  if (kind === 'readme-host-row') {
+    let table: { hosts?: unknown }
+    try {
+      table = yamlLoad(content) as { hosts?: unknown }
+    } catch (e) {
+      return { ...base, status: 'extract_error', detail: '适配表 YAML 解析失败: ' + (e as Error).message }
+    }
+    const hostIds = (Array.isArray(table.hosts) ? table.hosts : [])
+      .map((h) => (h && typeof (h as { host_id?: unknown }).host_id === 'string'
+        ? (h as { host_id: string }).host_id : null))
+      .filter((x): x is string => x !== null)
+    if (hostIds.length === 0) {
+      return { ...base, status: 'extract_error', detail: '适配表缺 hosts[].host_id（failClosed）' }
+    }
+    const readmes = pin.extract.readmes ?? ['README.md', 'README.zh-CN.md']
+    const hostHits = pin.extract.host_hits ?? {}
+    const knownGaps = pin.extract.known_gaps ?? []
+    const readmeBodies: string[] = []
+    for (const r of readmes) {
+      const abs = path.resolve(root, normalizeSlashPath(r))
+      if (!existsSync(abs)) {
+        return { ...base, status: 'extract_error', detail: 'README 缺失（failClosed）: ' + r }
+      }
+      readmeBodies.push(readFileSync(abs, 'utf8'))
+    }
+    const sideOf = (r: string): string => (/zh[-_]cn/i.test(r) ? 'ZH' : 'EN')
+    const compileAll = (patterns: string[]): RegExp[] | null => {
+      const out: RegExp[] = []
+      for (const p of patterns) {
+        try {
+          out.push(new RegExp(p))
+        } catch {
+          return null
+        }
+      }
+      return out
+    }
+    const hitsAll = (id: string): boolean | null => {
+      const res = compileAll(hostHits[id] ?? [])
+      if (res === null || res.length === 0) return null
+      return readmeBodies.every((b) => res.some((re) => re.test(b)))
+    }
+    const dataDebts: string[] = []
+    const misses: string[] = []
+    for (const id of hostIds) {
+      const patterns = hostHits[id]
+      if (!Array.isArray(patterns) || patterns.length === 0) {
+        dataDebts.push('host ' + id + ' 无 host_hits 映射数据（F-W2-06 failClosed · 新宿主落地即受约束）')
+        continue
+      }
+      const res = compileAll(patterns)
+      if (res === null) {
+        return { ...base, status: 'extract_error', detail: 'host_hits 正则非法（failClosed）: ' + id }
+      }
+      readmes.forEach((r, i) => {
+        if (!res.some((re) => re.test(readmeBodies[i]))) {
+          misses.push(id + ' · 缺 ' + r + '（' + sideOf(r) + ' 侧）')
+        }
+      })
+    }
+    const gapSet = new Set(knownGaps.map((g) => g.host_id))
+    const stale: string[] = []
+    for (const g of knownGaps) {
+      if (!hostIds.includes(g.host_id)) {
+        stale.push(g.host_id + '（已不在适配表 · 须移除豁免条目）')
+        continue
+      }
+      if (hitsAll(g.host_id) === true) {
+        stale.push(g.host_id + '（双语已双双命中 · W7① 落地 · 豁免失陈债 F-W2-05 · 须移除豁免条目）')
+      }
+    }
+    const effMisses = misses.filter((m) => !gapSet.has(m.split(' · ')[0]))
+    const problems = [...dataDebts, ...stale, ...effMisses]
+    if (problems.length === 0) {
+      const exempt = knownGaps.length > 0
+        ? ' · 过渡豁免 ' + knownGaps.map((g) => g.host_id + '@' + (g.until_wave ?? '?')).join(',')
+        : ''
+      return {
+        ...base,
+        actual:
+          hostIds.length + ' 宿主校验 · ' + (hostIds.length - gapSet.size) + ' 双语命中' + exempt,
+        status: 'ok',
+      }
+    }
+    return {
+      ...base,
+      actual: problems.length + ' 项偏差（失配/数据债/豁免失陈）',
+      status: 'mismatch',
+      detail: problems.join(' · '),
     }
   }
 

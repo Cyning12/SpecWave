@@ -30,6 +30,7 @@
     "README.md",
     "RELEASING.md",
     "GLOSSARY.md",
+    "MIGRATION.md",
     "LICENSE"
   ],
   "scripts": {

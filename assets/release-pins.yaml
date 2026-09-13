@@ -134,3 +134,57 @@ pins:
     note: >-
       刷新指引命令钉（现行唯一出现处 :61 · cyning-harness local 块内 · D-23-PIN-3FACES）；
       fix 只替换版本串 capture group，不动产品块/marker 结构（F-W1-04 · 测试断言块标记完整）
+  - id: pin-16
+    path: package.json
+    extract:
+      kind: files-whitelist-link
+      # D-23-W2-CHECK-FORM（2.3-W2 · [A]#3 GLOSSARY 死链类 · 验收 §7 机制化①）：提取语义作为数据声明。
+      semantics: >-
+        文档↔files 白名单：扫 files[] 内全部 markdown 的相对链接（剥 #锚点 与尖括号 ·
+        scheme/纯锚点跳过 · 图片链接同口径 · F-W2-01），解析后仓根级（相对路径不含 /）且
+        存在的 .md 目标须在白名单内；白名单 = files[]（精确/目录前缀匹配）∪ npm 自动入包
+        规则（/^readme(\..+)?$/i · /^licen[cs]e(\..+)?$/i 按 basename ·
+        D-23-W2-NPM-AUTOINCLUDE · 00 裁决 Q1A）；docs/ 任意深度出范围
+        （D-23-W2-ROOTSCOPE · 00 裁决 Q2 · F-W2-03 全深度预留）；不存在的目标本钉不判
+        （F-W2-07 · 死链属另一维度）；缺失的 files 条目跳过不判（如未构建的 lib）
+    expected: { kind: const, value: 0-miss（白名单全覆盖） }
+    required: true
+    fixable: false
+    note: >-
+      失配 detail 逐条列 引用文件:行号 -> 被引用文件 + 建议（files 加白 or 移除链接）；
+      文档/打包面人工修（与 pin-08 半可写同型 · 机制不代写文档）
+  - id: pin-17
+    path: assets/ide/host-adapt/examples/mvp-hosts.yaml
+    extract:
+      kind: readme-host-row
+      # D-23-W2-CHECK-FORM（2.3-W2 · [A]#4 宿主低估类 · 验收 §7 机制化②）：语义/映射/豁免全入数据。
+      semantics: >-
+        宿主↔根 README 表：适配表每个 host_id 的命中形态（host_hits · 任一 pattern 命中即
+        该侧命中）须在 readmes 双语双双命中；命中形态带表格行/词锚防误命中（F-W2-04）；
+        适配表 host 无映射数据 → failClosed 数据债（F-W2-06 · W6 新宿主落地即受约束）；
+        known_gaps 过渡豁免（D-23-W2-W7-EXEMPTION · until_wave 截止）——豁免宿主双语
+        双双命中（W7① 落地）或已不在适配表 → 豁免失陈债 exit 2（F-W2-05 机检自执行 ·
+        豁免移除由 W7 task 关账强制）
+      readmes: [README.md, README.zh-CN.md]
+      # F-W2-04 逐宿主核对 @2026-09-12：四存量宿主取双语表行锚（README.md:26-29 /
+      # README.zh-CN.md:26-29 实测命中 · 普通单词误伤免疫）；三新宿主取官方名词锚。
+      host_hits:
+        dsh: ['\|\s*\*\*DSH\*\*']
+        cursor: ['\|\s*\*\*Cursor\*\*']
+        claude: ['\|\s*\*\*Claude Code\*\*']
+        agents: ['\|\s*\*\*agents\*\*']
+        copilot: ['Copilot']
+        codex: ['Codex']
+        windsurf: ['Windsurf']
+      # D-23-W2-W7-EXEMPTION：过渡豁免封闭于三条（无豁免新债 · W6 新宿主落地即受约束）；
+      # 截止条件 until_wave: W7 + 失陈债机检自执行（双语命中即 exit 2 报债）。
+      known_gaps:
+        - { host_id: copilot, until_wave: W7, note: '[A]#4 · 2.2 W6 落地但根 README 双语未更新 · W7① 修文档面后移除本豁免' }
+        - { host_id: codex, until_wave: W7, note: '[A]#4 · 同 copilot 行' }
+        - { host_id: windsurf, until_wave: W7, note: '[A]#4 · 同 copilot 行' }
+    expected: { kind: const, value: 0-miss（宿主双语命中 · 豁免除外且无失陈） }
+    required: true
+    fixable: false
+    note: >-
+      失配按 EN/ZH 分侧报告（host_id · 缺 README.md(EN)/README.zh-CN.md(ZH)）；
+      文档面（根 README 宿主表行）人工修 · W7① 职责，本波只建机制
