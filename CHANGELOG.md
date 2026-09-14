@@ -4,6 +4,21 @@
 
 ## [Unreleased]
 
+## [2.3.1] - 2026-09-14
+
+> 主题：**patch** —— 2.3.0 验收报告 **PASS-with-issues** 三项修复（§6「建议 2.3.1」：N1/N11/N13 · task `2-3-1-patch`）。
+> **发布状态**：**待发版**（registry `latest` 仍为 `2.3.0` · tag `v2.3.1` 待人打 · pin-10 设计红留痕）。
+
+### Fixed
+
+- **N1 [P1] · `.bak` 发布卫生**（验收报告 §3.B · 已发布 2.3.0 tarball 含 5 个 `.bak`）：① `.gitignore` 加 `*.bak`；② `package.json#files` 加否定项 `"!assets/**/*.bak"`；③ `prepublishOnly` 链尾接机械断言 `scripts/check-pack-hygiene.mjs`（`npm pack --dry-run` 清单不得含 `*.bak` / `*~` / `.DS_Store` · failClosed exit 2 · 覆盖 npm readme 自动入包规则这一 files 否定项管不到的面）；④ `pins fix` 写前备份改为**写盘成功后自动清理**（只清本次自写 `.bak` · 聚合写盘/S2 拒写/dry-run/unfixable 语义不变）——根因教训：「未入库 ≠ 不发布」，npm publish 读工作树而非 git 索引。
+- **N11 [P1] · 结论级闸强制结论节**（验收报告 §3.L · A2 形态「审查文只写通过二字无结论节 → PASS exit 0」绕过封堵）：`evalReviewConclusion` 无结论/签收节 → **直接判未通过**（exit 2 · 禁止回退全文）；通过词须落结论节内；否定守卫不变。**存量波及处置**：裸 verify 实测 8 份 2.3.0 前历史关账审查文（无结论节 · 旧回退全文口径下合法）受影响，循 W4 先例入 `docs/harness/legacy-gate-exempt.yaml` 豁免（四字段齐 · 留痕点名 · 非静默放过）。
+- **N13 [P2] · 豁免四字段 falsy 陷阱**（验收报告 §3.N）：`loadLegacyGateExempt` 改显式类型判（`typeof x === 'string' && x.length > 0`）——未加引号的 `authorized_by: 00`（YAML 整型 0）判无效并留痕（不再静默漂移），`"00"`（加引号）正常命中；同时拒收非字符串标量（旧 falsy 判会把 `123`/`true` 静默收编为有效授权人）；`legacy-gate-exempt.yaml` 头注释补 YAML 引号规范。
+
+### Tests
+
+- 新增/联改：N11 A2 负向 fixture ×2（verify --task / task close · 修复前真红复现验收报告 A2 组）· N13 fixture ×3（`00` 无引号 / `"00"` / `123` 真红锁）· `test/pack-hygiene.test.ts`（正/负向 · trap=README.trap.bak readme 自动入包面）· pins B4/B11 联改为「备份成功后自动清理」语义；测试基线 534 → 540（tag-gated 设计红随 tag `v2.3.1` 落位转绿 · 复跑须全绿）。
+
 ## [2.3.0] - 2026-09-14
 
 > 主题：**minor** —— **接线补全（wiring completion）**：W1 pins 机制补强（核心）+ W2 钉面维度扩展 + W3 安全可观测 + W4 闸语义接线 + W5 资产完整性 + W6 六宿主补齐（7→13）+ W7 DX/工程健康；**不动 schema、不扩大范围、S2 永不覆写**。  

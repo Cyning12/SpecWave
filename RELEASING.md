@@ -10,7 +10,7 @@
 
 | 项 | 值 |
 |----|-----|
-| **工作树 / registry `latest`** | **`spec-wave@2.3.0`**（**已 published** · 2026-09-14 · 人 · tag **`v2.3.0`** ↔ bump commit `87dfa6f` · ⑨ 00 代核探针全过 · 明细见下「人 checklist · 2.3.0」） |
+| **工作树 / registry `latest`** | **`spec-wave@2.3.1`**（工作树 · **待发版** · bump 已落 · tag/push/publish 仅人）；registry `latest` 仍 **`2.3.0`**（**已 published** · 2026-09-14 · 人 · tag **`v2.3.0`** ↔ bump commit `87dfa6f` · ⑨ 00 代核探针全过 · 明细见下「人 checklist · 2.3.0」） |
 | **前一 latest** | **`spec-wave@2.2.1`**（2.2.0 验收四项修复 patch · 2026-09-12 · tag **`v2.2.1`** ↔ `c828e5e`） |
 | **旧包名** | **`dsh-coding-kit`** · **已 deprecate**（文案 → `spec-wave`） |
 | **git（史实 · 2.1.1）** | tag **`v2.1.1`** · 改名前身份；**`v2.1.2` / `v2.1.3` / `v2.2.0` / `v2.2.1` / `v2.3.0`** 为 SpecWave 身份可溯源点（**禁止** `git tag -f`） |
@@ -53,6 +53,17 @@
 - [ ] **⑦ npm pack --dry-run 检查**：`npm pack --dry-run` 逐行核对 tarball 清单 —— 无 `test/` 泄漏、无工作区/私仓文件；仅 `package.json#files` 白名单（`bin` / `lib` / `assets` / `cordis.patch.yml` / `README.md` / `LICENSE`）内的内容入包。（Agent 可做）
 - [ ] **⑧ npm publish（仅人）**：`npm publish`（`prepublishOnly` 会自动重跑②四门；⑦已核对清单）。**Agent 不得执行本步。**
 - [ ] **⑨ publish 后核验 + 过程档状态更新**：`npm view spec-wave version`（及 `dist-tags`）确认新版本已生效；抽样验证；更新过程档状态为已发布。（人 publish 后 · Agent 可代核）
+
+### 人 checklist · `2.3.1` 发版（**待发版** · Agent 侧已备齐 · 2026-09-14）
+
+> 内容：2.3.0 验收报告 PASS-with-issues §6「建议 2.3.1」三项修复 —— N1 [P1] .bak 发布卫生（.gitignore `*.bak` · files `"!assets/**/*.bak"` · prepublishOnly 包内容机械断言 `scripts/check-pack-hygiene.mjs` failClosed · pins fix 备份成功后自动清理）· N11 [P1] 结论级闸强制结论节（禁回退全文 · 存量 8 份循 W4 先例豁免留痕）· N13 [P2] 豁免四字段显式类型判。task `2-3-1-patch`。
+
+1. [ ] 确认工作树已 commit（含 bump `2.3.1` · CHANGELOG `## [2.3.1] - 2026-09-14` · 钉点 16/17（pin-10 tag-gated 设计红 · 打 tag 后须 17/17）· 四门绿）
+2. [ ] `git tag v2.3.1`（annotated · 人执行）+ `git push origin main && git push origin v2.3.1`
+3. [ ] `npm publish`（包名 `spec-wave` · 版本 `2.3.1` · 人执行；`prepublishOnly` 末段含包内容卫生断言 —— 若红即停止：包内含 `*.bak`/`*~`/`.DS_Store`）
+4. [ ] 探针：`npm view spec-wave version` → `2.3.1`；`git show v2.3.1:package.json` → `version=2.3.1`；`npm pack spec-wave@2.3.1 --dry-run` 清单无 `.bak`（对照 2.3.0 的 5 个）
+5. [ ] 打 tag 后复跑：`pins check` 17/17 · `npm test` 全绿（tag-gated 设计红转绿）
+6. [ ] 回填 ACCEPTANCE / 过程档为已 published（含本表勾选 · RELEASING「最近一次发版」表 · README 双语现行包行 · spec 索引行状态）
 
 ### 人 checklist · `2.3.0` 发版（**已完成** · 2026-09-14 · 人执行 tag/push/publish · 00 代跑 push · ⑨ 00 代核）
 
