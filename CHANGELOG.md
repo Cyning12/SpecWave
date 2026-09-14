@@ -4,7 +4,12 @@
 
 ## [Unreleased]
 
-> 2.3.0 接线补全（wiring completion）波次累积中 · 规划见 `docs/roadmap/` 2.3 规划 · SPEC：`docs/spec/2_3-wiring-completion/`
+## [2.3.0] - 2026-09-14
+
+> 主题：**minor** —— **接线补全（wiring completion）**：W1 pins 机制补强（核心）+ W2 钉面维度扩展 + W3 安全可观测 + W4 闸语义接线 + W5 资产完整性 + W6 六宿主补齐（7→13）+ W7 DX/工程健康；**不动 schema、不扩大范围、S2 永不覆写**。  
+> 规划：[`docs/roadmap/PLAN_2_3_wiring_completion_v1_zh.md`](docs/roadmap/PLAN_2_3_wiring_completion_v1_zh.md) · SPEC：[`docs/spec/2_3-wiring-completion/`](docs/spec/2_3-wiring-completion/)  
+>
+> **发布状态**：**待发版**（bump 已落 · tag/push/publish 仅人 · 现行 registry `latest` 仍为 `2.2.1`）。
 
 ### Changed（行为变更 · 明示）
 

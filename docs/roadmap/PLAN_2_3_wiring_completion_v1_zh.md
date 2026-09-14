@@ -45,13 +45,14 @@
 
 | Wave | 主题 | 内容 | 出处 | 状态 |
 |------|------|------|------|------|
-| **W1** | **pins 机制补强（本次核心）** | ① pin-08 弱钉改严（提取须含版本且落状态单元格 [A]#7）② CHANGELOG 最新发布头 / MIGRATION `spec-wave@X` / AGENTS `npx spec-wave@X` 三面入钉（纯数据 [A]#8）③ pin-04/06/07/10/11/12 失配 fixture 补全（[A]#14）④ `verify --spec` 目录型 slug 推导修复（[D]）⑤ 同文件钉面模式重叠 unfixable 误报候选债评估（[D] · 可只留评估结论） | 验收 §2/§4 · 债留痕 | 待 HG-NEXT-PLAN |
-| W2 | 钉面维度扩展 | 「新增文档须在 `package.json#files` 白名单内」+「新增宿主须在根 README 多宿主表内」两条机械校验数据化（release-pins.yaml 或独立 check） | 验收 §7 对称现象 | 待 HG-NEXT-PLAN |
-| W3 | 安全与可观测性补全 | ① C3 补漏：`--json` target 字段与错误文案统一 toRel 相对化（test:149 期望同步 [A]#5）② exit 1 用法错时 `--json` 补 JSON 信封（[A]W3-P2）③ quickstart 第 3 步补 git init 前提（[A]#9）④ C4：CI `permissions:` 最小权限 + 依赖/密钥扫描（[R]）；附：C5 provenance/OIDC 仅出配置指引文档（账号配置仅人） | 验收 §4 · 路线 §5 | 待 HG-NEXT-PLAN |
-| W4 | A5+A6 闸语义接线 | 4 项 not_wired 闸接线/升级（G2 存在级→**结论级 R1 判定** · G4 warn-only 过渡 · FULL-reviews 裸 verify · INVOKE-HATS **lint-done 帽级升级**）+ `reviews.CLOSE` 语义补强 + 覆盖表 **note 回写**。**门禁语义变更须先出接线方案评审再动手 · 新行为不追溯存量**（00 裁决 2026-09-12） | 路线 §5 主线一 | 待 HG-NEXT-PLAN |
-| W5 | A2 资产完整性校验 | `assets/sha256.manifest` + `spec-wave assets verify` + CI 接线（failClosed exit 2 · 修复命令配套防持续报红） | 路线 §5 主线一 | 待 HG-NEXT-PLAN |
-| W6 | B4 宿主补齐 | gemini / opencode / roo / zed / cline / aider 六宿主（复用 agents 资产面先例 · 落点按官方文档逐宿主取证 · 新宿主同步触发 W2 README 表校验） | 路线 §5 主线二 | 待 HG-NEXT-PLAN |
-| W7 | DX 与工程健康 | ① 根 README 双语更新宿主表（[A]#4）② GLOSSARY「four gates」分层 +「每帽一 prompt 文件」措辞修正（[A]#10/#11）③ E2 离线 fixture + E5 tsconfig 加严（[R]） | 验收 §4 · 路线 §5 | 待 HG-NEXT-PLAN |
+| **W1** | **pins 机制补强（本次核心）** | ① pin-08 弱钉改严（提取须含版本且落状态单元格 [A]#7）② CHANGELOG 最新发布头 / MIGRATION `spec-wave@X` / AGENTS `npx spec-wave@X` 三面入钉（纯数据 [A]#8）③ pin-04/06/07/10/11/12 失配 fixture 补全（[A]#14）④ `verify --spec` 目录型 slug 推导修复（[D]）⑤ 同文件钉面模式重叠 unfixable 误报候选债评估（[D] · 可只留评估结论） | 验收 §2/§4 · 债留痕 | **DONE**（CLOSE: PASS · feat `a675e78` · task `2-3-wiring-w1-pins-hardening`） |
+| W2 | 钉面维度扩展 | 「新增文档须在 `package.json#files` 白名单内」+「新增宿主须在根 README 多宿主表内」两条机械校验数据化（release-pins.yaml 或独立 check） | 验收 §7 对称现象 | **DONE**（CLOSE: PASS · feat `cf1b17d` · task `2-3-wiring-w2-pin-dimensions`） |
+| W3 | 安全与可观测性补全 | ① C3 补漏：`--json` target 字段与错误文案统一 toRel 相对化（test:149 期望同步 [A]#5）② exit 1 用法错时 `--json` 补 JSON 信封（[A]W3-P2）③ quickstart 第 3 步补 git init 前提（[A]#9）④ C4：CI `permissions:` 最小权限 + 依赖/密钥扫描（[R]）；附：C5 provenance/OIDC 仅出配置指引文档（账号配置仅人） | 验收 §4 · 路线 §5 | **DONE**（CLOSE: PASS · feat `661f6e2` · task `2-3-wiring-w3-security-observability`） |
+| W4 | A5+A6 闸语义接线 | 4 项 not_wired 闸接线/升级（G2 存在级→**结论级 R1 判定** · G4 warn-only 过渡 · FULL-reviews 裸 verify · INVOKE-HATS **lint-done 帽级升级**）+ `reviews.CLOSE` 语义补强 + 覆盖表 **note 回写**。**门禁语义变更须先出接线方案评审再动手 · 新行为不追溯存量**（00 裁决 2026-09-12） | 路线 §5 主线一 | **DONE**（CLOSE: PASS · feat `a62ca45` · task `2-3-wiring-w4-gate-wiring`） |
+| W5 | A2 资产完整性校验 | `assets/sha256.manifest` + `spec-wave assets verify` + CI 接线（failClosed exit 2 · 修复命令配套防持续报红） | 路线 §5 主线一 | **DONE**（CLOSE: PASS · feat `880ced6` · task `2-3-wiring-w5-assets-integrity`） |
+| W6 | B4 宿主补齐 | gemini / opencode / roo / zed / cline / aider 六宿主（复用 agents 资产面先例 · 落点按官方文档逐宿主取证 · 新宿主同步触发 W2 README 表校验） | 路线 §5 主线二 | **DONE**（CLOSE: PASS · feat `72c785e` · task `2-3-wiring-w6-host-completion`） |
+| W7 | DX 与工程健康 | ① 根 README 双语更新宿主表（[A]#4）② GLOSSARY「four gates」分层 +「每帽一 prompt 文件」措辞修正（[A]#10/#11）③ E2 离线 fixture + E5 tsconfig 加严（[R]） | 验收 §4 · 路线 §5 | **DONE**（CLOSE: PASS · feat `317446e` · task `2-3-wiring-w7-dx-health`） |
+| **release** | **2.3.0 收尾 bump** | package.json 2.2.1→2.3.0 · pins fix 对齐（pin-10 待人打 tag）· CHANGELOG 2.3.0 节 · RELEASING 待办节 · ACCEPTANCE 档 | 维护者下令（同 2.2.0 W8 / 2.2.1 先例） | **DONE**（CLOSE: PASS · task `2-3-wiring-release` · tag/push/publish 仅人） |
 
 **顺序与依赖**：W1 先行（核心 · 其余各波完成后受 pins check 保护；W1② 三面入钉后 bump 2.3.0 时不再静默过期）；W2 紧随（W6 新宿主落地即受 W2 README 表校验约束）；W3 安全可观测独立；W4 门禁语义变更最重、须先评审，排在机制债收口之后；W5 独立；W6 依赖 W2（校验先行）；W7 收尾（README 宿主表须含 W6 新宿主口径）。**每波一个独立 task、单独提交（`feat(2.3-W<n>): …`）**，每波链路：10-task → 20-task-audit（审查文落盘 `docs/harness/reviews/`）→ HG-AUDIT-R1（00 代签）→ 30/40（GATE_VERIFY 首输出 → 实现 → 自证 → `gate-check` → `task close --yes`）。
 
