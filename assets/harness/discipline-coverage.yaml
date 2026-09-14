@@ -76,6 +76,11 @@ gaps:
     status: closed
     closed_in: "2.3.0"
     note: "close_invoke 帽集合闸 2026-08-24 T6 已接线（evalCloseInvokeHats src/cli-checks.ts#170 · 旧 note 过期 2.3-W4 回写）；2.3-W4 lint-done 帽级升级（src/cli-task-extra.ts#100-116 · resolveRequiredInvokeHats/missingInvokeHats 复用 · slug 级与帽级缺口同消费 docs/harness/legacy-gate-exempt.yaml 豁免）· 旧包史实（@cyning/harness 2.12.0 · default 10,30,40）"
+  - id: N4-EXIT1-REGISTER
+    title: 安全拒绝 exit 1 档位登记（非缺陷 · 仅留痕 · D-24-N4-REGISTER）
+    status: closed
+    closed_in: "unreleased"
+    note: "2.4-W6 N4（验收报告 §3.E 判定符合契约 · 行为零变更）：--task/--spec 仓外路径拒绝走 exit 1（用法档 · 符合 SPEC 00 §2.4「0 放行 · 1 用法错误/非阻断 · 2 门禁阻断」· resolveTaskPath 单点收口 src/cli-shared.ts · 回归锁 test/cli-security-closure.test.ts exit 1 用例组）——下游 CI 若需「安全事件」信号，应匹配拒绝文案而非仅依赖 exit 2；改 exit 码即超出 SPEC（F-W6-04）· 随 2.4.0 ACCEPTANCE 档「留痕」节收口"
 
 statements:
   - id: A1

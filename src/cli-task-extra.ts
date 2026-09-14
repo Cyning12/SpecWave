@@ -71,7 +71,17 @@ export function lintDoneInvokes(target: string): {
     const dir = path.join(target, rel)
     if (!existsSync(dir)) continue
     for (const file of collectMarkdown(dir)) {
-      const slug = normalizeSlug(extractTaskSlug(path.basename(file)))
+      // D-24-W6-N14（2.4-W6 · 验收报告 §3.O）：slug 级存在性判与帽级/豁免判（:110-113）
+      // 统一取值口径——集合键 = meta.task_slug ?? 文件名 slug（meta 优先 · 文件名兜底 ·
+      // normalizeSlug 归一沿用）；读/解析失败按文件名兜底（failClosed 方向不变 · F-W6-03）。
+      const fileSlug = extractTaskSlug(path.basename(file))
+      let metaSlug: string | undefined
+      try {
+        metaSlug = parseHarnessMeta(readFileSync(file, 'utf8')).task_slug
+      } catch {
+        metaSlug = undefined
+      }
+      const slug = normalizeSlug(metaSlug ?? fileSlug)
       if (!doneSlugs.has(slug)) {
         doneSlugs.set(slug, path.relative(target, file).replace(/\\/g, '/'))
       }
@@ -376,7 +386,7 @@ export function checkTaskFile(
 
 export async function cmdTaskLintDone(args: string[]): Promise<void> {
   if (args.includes('--help') || args.includes('-h')) {
-    console.log(`用法: npx spec-wave task lint-done [--target PATH]（slug 级存在性 + 2.3-W4 帽集合校验 · 存量豁免 docs/harness/legacy-gate-exempt.yaml）`)
+    console.log(`用法: npx spec-wave task lint-done [--target PATH]（slug 级存在性 + 2.3-W4 帽集合校验 · 存量豁免 docs/harness/legacy-gate-exempt.yaml · slug 口径 = meta.task_slug 优先 · 文件名兜底（D-24-W6-N14））`)
     return
   }
   let rest = args

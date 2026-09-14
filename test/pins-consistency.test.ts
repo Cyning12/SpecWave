@@ -1018,6 +1018,81 @@ describe('2.4-W1 pins 提取修正 · N7 refstyle / N8 表行锚定 / N9 语义�
   })
 })
 
+// ==== 2.4-W6 N10 pin-16 大小写口径 fixture（D-24-W6-N10 · 验收报告 §3.K 固化） ====
+// §3.K 假阳修复前留证：链接 foo.md · 盘上 FOO.md · 白名单含 FOO.md → 旧码 macOS 假红 exit 2
+// （本棒 30 开工时 mktemp fixture 实测复现）。新口径 = 大小写不敏感比较 + 磁盘存在性
+// （仓根条目快照 · 同为大小写不敏感）二次确认最终判据 → 双平台语义一致。
+const W6_PINS_YAML = [
+  'version: "1"',
+  'truth_source: package.json#version',
+  'pins:',
+  '  - id: pin-16',
+  '    path: package.json',
+  "    extract: { kind: files-whitelist-link }",
+  "    expected: { kind: const, value: 0-miss }",
+  '    required: true',
+  '    fixable: false',
+  '',
+].join('\n')
+
+/** W6 fixture 仓：仅 pin-16 · files 白名单由入参给定。 */
+async function makeW6Fixture(dir: string, files: string[]): Promise<void> {
+  await writeRel(
+    dir,
+    'package.json',
+    JSON.stringify({ name: 'spec-wave', version: FIXTURE_VERSION, files }, null, 2) + '\n',
+  )
+  await writeRel(dir, 'assets/release-pins.yaml', W6_PINS_YAML)
+}
+
+describe('2.4-W6 N10 · pin-16 白名单大小写口径统一（D-24-W6-N10 · §3.K · 双平台语义一致）', { concurrency: 1 }, () => {
+  it('24W6-N10a 正向双向：链接 foo.md vs 盘上+白名单 FOO.md → PASS；反向 链接 BAR.md vs 盘上+白名单 bar.md → PASS', async () => {
+    await withTemp(async (dir) => {
+      await makeW6Fixture(dir, ['README.md', 'FOO.md'])
+      await writeRel(dir, 'FOO.md', '# F\n')
+      await writeRel(dir, 'README.md', '# T\n\nsee [f](foo.md)\n')
+      const r = runCli(['pins', 'check'], dir)
+      assert.equal(r.status, 0, '大小写差异合法样本不得假红（§3.K）: ' + r.combined)
+      assert.match(r.combined, /\[ok\] pin-16 /)
+      assert.match(r.combined, /PINS: PASS/)
+    })
+    await withTemp(async (dir) => {
+      await makeW6Fixture(dir, ['README.md', 'bar.md'])
+      await writeRel(dir, 'bar.md', '# B\n')
+      await writeRel(dir, 'README.md', '# T\n\nsee [b](BAR.md)\n')
+      const r = runCli(['pins', 'check'], dir)
+      assert.equal(r.status, 0, '反向大小写差异（链接大写 · 盘上小写）同口径放行: ' + r.combined)
+      assert.match(r.combined, /\[ok\] pin-16 /)
+    })
+  })
+
+  it('24W6-N10b 负向对照（F-W6-01 不误放）：白名单含 GHOST.md 但盘上无任何大小写变体 → exit 2 指 文件:行号 -> ghost.md', async () => {
+    await withTemp(async (dir) => {
+      await makeW6Fixture(dir, ['README.md', 'GHOST.md'])
+      await writeRel(dir, 'README.md', '# T\n\nsee [g](ghost.md)\n')
+      const r = runCli(['pins', 'check'], dir)
+      assert.equal(r.status, 2, '白名单命中但盘上无变体 → 不放行（磁盘存在性为最终判据）: ' + r.combined)
+      assert.match(r.combined, /\[mismatch\] pin-16 package\.json/)
+      assert.match(r.combined, /README\.md:3 -> ghost\.md/)
+      assert.match(r.combined, /F-W6-01 不放行/)
+    })
+  })
+
+  it('24W6-N10c 回归：白名单外不存在目标仍不判（F-W2-07 口径保持）· 白名单外存在目标仍 exit 2（W2-B2 口径保持）', async () => {
+    await withTemp(async (dir) => {
+      await makeW6Fixture(dir, ['README.md'])
+      await writeRel(dir, 'README.md', '# T\n\nsee [g](GONE.md)\n')
+      const gone = runCli(['pins', 'check'], dir)
+      assert.equal(gone.status, 0, 'F-W2-07：白名单外不存在目标不判: ' + gone.combined)
+      await writeRel(dir, 'FOO.md', '# F\n')
+      await writeRel(dir, 'README.md', '# T\n\nsee [f](FOO.md)\n')
+      const bad = runCli(['pins', 'check'], dir)
+      assert.equal(bad.status, 2, '盘上存在但白名单外（无大小写变体命中）→ 仍 exit 2: ' + bad.combined)
+      assert.match(bad.combined, /README\.md:3 -> FOO\.md/)
+    })
+  })
+})
+
 describe('W1-A1 release pins · C组 声明源数据形态（SPEC 01 §5 · D-PINS-SCOPE-8）', { concurrency: 1 }, () => {
   type PinRow = {
     id: string

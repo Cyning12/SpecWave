@@ -90,4 +90,15 @@ describe('D-DOC 1.2.4 DEF-005 · discipline-coverage 与本包实接线对齐', 
     assert.match(text.out, /as_of: 2\.3\.1/)
     assert.match(text.out, /status 口径 = 本包实接线/, 'T4 口径注记')
   })
+
+  it('④ 2.4-W6 N4 留痕登记落盘可查（D-24-N4-REGISTER · 验收报告 §3.E · 仅登记不改行为）', () => {
+    const data = loadYaml()
+    const gap = (data.gaps as Array<{ id: string; status: string; note?: string }>).find(
+      (g) => g.id === 'N4-EXIT1-REGISTER',
+    )
+    assert.ok(gap, 'gaps 须含 N4-EXIT1-REGISTER 登记条目')
+    assert.match(gap!.note ?? '', /exit 1（用法档/)
+    assert.match(gap!.note ?? '', /匹配拒绝文案而非仅依赖 exit 2/)
+    assert.match(gap!.note ?? '', /行为零变更/)
+  })
 })

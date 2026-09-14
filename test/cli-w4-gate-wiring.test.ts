@@ -322,6 +322,58 @@ describe('2.3-W4 INVOKE-HATS · lint-done 帽级（failClosed + 数据豁免）'
   })
 })
 
+describe('2.4-W6 N14 · lint-done slug 口径统一（meta 优先 · 文件名兜底 · D-24-W6-N14 · 验收报告 §3.O）', { concurrency: 1 }, () => {
+  it('文件名 slug ≠ meta slug：无豁免时缺口点名 meta slug（归一后 · 声明口径）；豁免按 meta slug 命中 → PASS + 留痕（修复前按文件名 slug 永不命中）', async () => {
+    await withTemp(async (dir) => {
+      // 文件名 task_file_name_slug_v1.md（文件名 slug = file-name-slug）· meta task_slug = meta_slug_x（归一 meta-slug-x）
+      await writeRel(dir, 'docs/tasks/done/task_file_name_slug_v1.md', taskMd('meta_slug_x', 'done'))
+      // 无豁免 → FAIL · 缺口点名为 meta slug（声明口径 = meta 优先）· 不得点名文件名 slug
+      const noExempt = runCli(['task', 'lint-done', '--target', dir])
+      assert.equal(noExempt.status, 2, noExempt.combined)
+      assert.match(noExempt.combined, /- meta-slug-x/)
+      assert.doesNotMatch(noExempt.combined, /file-name-slug/)
+      // 四字段豁免（slug = meta_slug_x）→ 豁免命中留痕 · PASS（与帽级判同一取值口径）
+      await writeRel(
+        dir,
+        'docs/harness/legacy-gate-exempt.yaml',
+        [
+          'version: "1"',
+          'invoke_hats:',
+          '  - slug: meta_slug_x',
+          '    reason: N14 fixture 豁免（meta slug 口径）',
+          "    date: '2026-09-14'",
+          '    authorized_by: 00（fixture）',
+          '',
+        ].join('\n'),
+      )
+      const good = runCli(['task', 'lint-done', '--target', dir])
+      assert.equal(good.status, 0, good.combined)
+      assert.match(good.combined, /豁免命中留痕: meta_slug_x（N14 fixture 豁免（meta slug 口径） · 2026-09-14 · 00（fixture））/)
+      assert.match(good.combined, /LINT-DONE: PASS/)
+    })
+  })
+
+  it('文件名 slug ≠ meta slug · invoke 目录按 meta slug 落 → 存在性/帽级双命中 PASS（不再裂成 missing+extra）', async () => {
+    await withTemp(async (dir) => {
+      await writeRel(dir, 'docs/tasks/done/task_file_name_slug_v1.md', taskMd('meta_slug_x', 'done'))
+      for (const hat of ['10', '30', '40']) {
+        await writeRel(dir, `docs/harness/invokes/by-task/meta-slug-x/invoke_20260914_${hat}_x.md`, `# invoke ${hat}\n`)
+      }
+      const r = runCli(['task', 'lint-done', '--target', dir])
+      assert.equal(r.status, 0, r.combined)
+      assert.match(r.combined, /done slugs: 1 · invoke dirs: 1/)
+      assert.doesNotMatch(r.combined, /file-name-slug/)
+      assert.match(r.combined, /LINT-DONE: PASS/)
+    })
+  })
+
+  it('生产数据零行为变化回归：真实仓 lint-done PASS（命名合规 · meta==文件名 slug）', () => {
+    const r = runCli(['task', 'lint-done'])
+    assert.equal(r.status, 0, r.combined)
+    assert.match(r.combined, /LINT-DONE: PASS/)
+  })
+})
+
 describe('2.3-W4 FULL-reviews · 裸 verify（仓级 reviews 扫描）', { concurrency: 1 }, () => {
   it('active 缺审查文仅信息报告不闸；done 结论不可机读 → BLOCKED；--json 键集含 reviews_scan', async () => {
     await withTemp(async (dir) => {

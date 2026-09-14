@@ -262,7 +262,8 @@ function evaluatePin(root: string, pin: Pin, truth: string): PinResult {
   // 语义数据声明见 release-pins.yaml pin-16 · 本求值器零口径硬编码以外的最小逻辑：
   // 扫 files[] 内 markdown 相对链接 → 仓根级且存在的 .md 目标 ∈ 白名单
   // （files[] 精确/目录前缀 ∪ npm 自动入包 README*/LICEN(S)E* · D-23-W2-NPM-AUTOINCLUDE）；
-  // 仓根级以外（docs/ 任意深度）出范围（D-23-W2-ROOTSCOPE）；不存在的目标不判（F-W2-07）。
+  // 仓根级以外（docs/ 任意深度）出范围（D-23-W2-ROOTSCOPE）；白名单外且不存在的目标不判（F-W2-07）；
+  // 白名单比较大小写不敏感 + 磁盘存在性二次确认为最终判据（D-24-W6-N10 · 2.4-W6）。
   if (kind === 'files-whitelist-link') {
     let pkg: { files?: unknown }
     try {
@@ -275,8 +276,23 @@ function evaluatePin(root: string, pin: Pin, truth: string): PinResult {
       return { ...base, status: 'extract_error', detail: 'package.json 缺 files 数组（failClosed）' }
     }
     const prefixes = files.map((f) => normalizeSlashPath(f).replace(/\/+$/, ''))
-    const inFiles = (rel: string): boolean =>
-      prefixes.some((p) => rel === p || rel.startsWith(p + '/'))
+    // D-24-W6-N10（2.4-W6 · 验收报告 §3.K）：白名单比较统一大小写口径——大小写不敏感命中后，
+    // 以磁盘存在性二次确认（仓根条目快照 · 大小写不敏感）为最终判据，保双平台语义一致
+    // （F-W6-01 命中但盘上无任何大小写变体 → 不放行；F-W6-02 同名两变体并存 → 命中其一即放行）。
+    const inFiles = (rel: string): boolean => {
+      const rl = rel.toLowerCase()
+      return prefixes.some((p) => {
+        const pl = p.toLowerCase()
+        return rl === pl || rl.startsWith(pl + '/')
+      })
+    }
+    let rootNamesLower: Set<string> | null = null
+    const existsOnDiskCi = (name: string): boolean => {
+      if (!rootNamesLower) {
+        rootNamesLower = new Set(readdirSync(root).map((n) => n.toLowerCase()))
+      }
+      return rootNamesLower.has(name.toLowerCase())
+    }
     const isNpmAuto = (baseName: string): boolean =>
       /^readme(\..+)?$/i.test(baseName) || /^licen[cs]e(\..+)?$/i.test(baseName)
     const sources: string[] = []
@@ -316,8 +332,19 @@ function evaluatePin(root: string, pin: Pin, truth: string): PinResult {
         const rel = normalizeSlashPath(path.relative(root, path.resolve(dir, target)))
         if (rel.startsWith('..')) continue
         if (rel.includes('/')) continue // D-23-W2-ROOTSCOPE：仅仓根级目标
+        if (inFiles(rel)) {
+          // D-24-W6-N10：白名单（大小写不敏感）命中 → 磁盘存在性二次确认为最终判据；
+          // 盘上无任何大小写变体 → 不放行（F-W6-01 · 按既有 mismatch 口径报）
+          if (!existsOnDiskCi(rel)) {
+            misses.push(
+              relSrc + ':' + lineOf(srcContent, f.index) + ' -> ' + rel +
+                '（白名单命中但盘上无任何大小写变体 · F-W6-01 不放行）',
+            )
+          }
+          continue
+        }
         if (!existsSync(path.resolve(root, rel))) continue // F-W2-07：不存在的目标本钉不判
-        if (!inFiles(rel) && !isNpmAuto(rel)) {
+        if (!isNpmAuto(rel)) {
           misses.push(relSrc + ':' + lineOf(srcContent, f.index) + ' -> ' + rel)
         }
       }
