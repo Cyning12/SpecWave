@@ -1,6 +1,6 @@
 # ACCEPTANCE · 2.4.0 门禁强度补全（gate strength）台账
 
-> **版本**：`spec-wave@2.4.0`（**待发版** · bump 已落 2026-09-14 · tag/push/publish 仅人）
+> **版本**：`spec-wave@2.4.0`（**已 published** · 2026-09-14 · 人执行 publish · dist-tags `latest=2.4.0` · `time.2.4.0`=2026-09-14T10:07:41Z · tag **`v2.4.0`** ↔ bump commit `343025d` · 探针全过）
 > **tasks**：[`docs/tasks/done/`](../tasks/done/) `task_2_4_gate_strength_w1..w6_*`（W1–W6 全 CLOSE · release 波无独立 task，走 RELEASING 人 checklist）
 > **依据**：[`.workbuddy/output/验收报告-SpecWave-2.3.0.md`](../../.workbuddy/output/验收报告-SpecWave-2.3.0.md) §6「建议 2.4」八组（N2–N14）+ §6 末对外口径三条 + [`ACCEPTANCE_2_3_1_patch_2_3_1_zh.md`](./ACCEPTANCE_2_3_1_patch_2_3_1_zh.md) 已知残余登记三条；规划 [`PLAN_2_4_gate_strength_v1_zh.md`](./PLAN_2_4_gate_strength_v1_zh.md)（HG-NEXT-PLAN=approved · 维护者授权 00 代签过程闸）
 
@@ -34,13 +34,14 @@
 
 ## 已知残余（主动登记）
 
-- **pin-10 tag-gated 设计红**：待人打 `v2.4.0` tag 后复跑转绿（17/17）· 口径同 2.3.x 先例（F-A1-05 git 操作仅人）。
+- **pin-10 tag-gated 设计红**：~~待人打 `v2.4.0` tag 后复跑转绿~~ **已转绿**——tag `v2.4.0` ↔ `343025d` 落位后 `pins check` **17/17 PASS · exit 0**（00 实测 2026-09-14）· 口径同 2.3.x 先例（F-A1-05 git 操作仅人）。
 - **W3 已知未测项**（task `2-4-gate-strength-w3` 登记）：仓外 target（/tmp 靶场）toRel 语义沿用既有（F-W3-02 · 断言判据只认仓根前缀）；`emitHostFail` base 取 `process.cwd()`（cwd≠target 时仓内绝对值兜底为原样 · 与既有 toRel 调用点口径一致）。
 - **W6 已知未测项**（task `2-4-gate-strength-w6` 登记）：**F-W6-02 无机测 fixture**——Linux 同名不同大小写两文件并存场景（macOS FS 不支持同名两变体 · 口径 = 存在性确认命中其一即放行 · 仓根条目快照天然覆盖）；N10 负向在 Linux CI 的等价性由「快照大小写不敏感」实现保证（非 existsSync 平台语义）。residual_risks：N10 同名冲突歧义（低危 · 口径明示）；N14 统一后外部脚本依赖文件名 slug（本仓内机制 · 无外部消费者证据）。
 - **N4 留痕收口**：`assets/harness/discipline-coverage.yaml` gaps `N4-EXIT1-REGISTER`（`closed_in: "2.4.0"`）——exit 1 档位判定符合契约、行为零变更，本台账「留痕」引用即收口。
 
 ## 发布边界
 
-- 本棒未执行 `git tag` / `git push` / `npm publish` / `npm deprecate`（仅人 · HG-RELEASE 不在 00 代签授权范围）· 未用 `--force`/`--allow-*`。
+- 本棒（bump/release）未执行 `git tag` / `git push` / `npm publish` / `npm deprecate`（仅人 · HG-RELEASE 不在 00 代签授权范围）· 未用 `--force`/`--allow-*`。
 - RELEASING 人 checklist 2.4.0 节已备（含「打 tag 后复跑 pins 17/17 + npm test 全绿」与「pack 清单无 .bak 对照 2.3.1 的 188 文件」探针）。
-- pin-10 设计红待人打 `v2.4.0` 后复跑转绿（见上「已知残余」第 1 条）。
+- pin-10 设计红待人打 `v2.4.0` 后复跑转绿（见上「已知残余」第 1 条 · **已转绿**）。
+- **发布完成回填（2026-09-14 · 人 publish 后 00+release 棒代核 ⑨）**：tag `v2.4.0` ↔ `343025d` 已 push；registry dist-tags `latest=2.4.0`（`time.2.4.0`=2026-09-14T10:07:41Z）；探针全过（`npm view`=2.4.0 · `git show v2.4.0:package.json`=2.4.0 · 真 tarball 188 文件对照 2.3.1 一致 · .bak/*~/.DS_Store=0）；打 tag 后复跑 `pins check` 17/17 · `npm test` 581 pass / 0 fail / 1 门控 skip。

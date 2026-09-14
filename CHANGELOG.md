@@ -9,7 +9,7 @@
 > 主题：**minor** —— **门禁强度补全（gate strength）**：W1 pins 提取三修正（N7/N8/N9 · 本次核心）+ W2 结论级闸强度增强（S1·N=20 · 评审先行）+ W3 输出层统一相对化（N12）+ W4 资产门禁可观测（N2/N5）+ W5 物料与对外口径对齐（N3/口径三调/N6）+ W6 P3 清扫（N10/N14/N4）；**不动 host-adapt schema、不扩大范围、S2 永不覆写**。  
 > 规划：[`docs/roadmap/PLAN_2_4_gate_strength_v1_zh.md`](docs/roadmap/PLAN_2_4_gate_strength_v1_zh.md) · SPEC：[`docs/spec/2_4-gate-strength/`](docs/spec/2_4-gate-strength/)  
 >
-> **发布状态**：**待发版**（registry `latest` 仍为 `2.3.1` · tag `v2.4.0` 待人打 · pin-10 设计红留痕）。
+> **发布状态**：**已 published** · tag **`v2.4.0`** ↔ `spec-wave@2.4.0`（人 · 2026-09-14 · registry `latest=2.4.0` · `time.2.4.0`=2026-09-14T10:07:41Z · bump commit `343025d` · 探针全过）。
 
 ### Changed（行为变更 · 明示）
 
