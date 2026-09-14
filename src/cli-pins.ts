@@ -214,10 +214,11 @@ function evaluatePin(root: string, pin: Pin, truth: string): PinResult {
     }
   }
 
-  // D-23-PIN08-STRICT（2.3-W1 · [A]#7 弱钉改严 · 语义数据声明见 release-pins.yaml pin-08）：
-  // 双判 —— (A) 状态列或描述列（cells[2+]）含版本串（点式/下划线式）且
-  // (B) slug 列含版本串或以 X_Y- 前缀开头（minor 主题夹行）。
-  // 别行 prose 顺带提到版本号（满足 A 不满足 B）判兜底嫌疑，不再放行（验收反例杀伤）。
+  // D-24-PIN08-SEMCELL（2.4-W1 · 验收报告 §3.J · 语义数据声明见 release-pins.yaml pin-08）：
+  // 行合格 ⟺ 状态列（cells[2] · 列序约定 cells[0]=slug/cells[1]=路径/cells[2]=状态）含当前版本
+  // 点式 X.Y.Z，且 slug 列（B）行身份辅助判成立（含版本串或以 X_Y- 前缀开头 · minor 主题夹行）。
+  // 下划线式 X_Y/X_Y_Z 一律不计入版本串（slug/文件名/归档链接顶包排除 · §3.J 两类顶包杀伤）；
+  // 「X.Y.Z 规划中」类非发布态行：状态列含点式串即算行身份合格（F-W1-05 定稿 · 发布态归 pin-10）。
   if (kind === 'spec-index-row') {
     const dotted = truth
     const under = truth.replace(/\./g, '_')
@@ -230,20 +231,20 @@ function evaluatePin(root: string, pin: Pin, truth: string): PinResult {
       const cells = t.split('|').slice(1, -1).map((c) => c.trim())
       if (cells.length < 3) continue
       const slugCell = (cells[0] ?? '').replace(/`/g, '')
-      const tail = cells.slice(2).join(' | ')
-      const hitA = tail.includes(dotted) || tail.includes(under)
-      if (!hitA) continue
+      const statusCell = cells[2] ?? '' // cells.length >= 3 已守卫（E5 收窄）
+      const hitA = statusCell.includes(dotted)
       const hitB =
         slugCell.includes(dotted) || slugCell.includes(under) || slugCell.startsWith(minorUnder + '-')
-      if (hitB) {
+      if (hitA && hitB) {
         return {
           ...base,
-          actual: 'L' + (i + 1) + ' 索引行存在（严化口径 D-23-PIN08-STRICT）',
+          actual: 'L' + (i + 1) + ' 索引行存在（语义格位口径 D-24-PIN08-SEMCELL）',
           line: i + 1,
           status: 'ok',
         }
       }
-      suspects.push(i + 1)
+      // 兜底嫌疑：行内其他位置（描述列/prose/归档链接）含版本形态串但状态格无点式串
+      if (!hitA && (t.includes(dotted) || t.includes(under))) suspects.push(i + 1)
     }
     return {
       ...base,
@@ -252,7 +253,7 @@ function evaluatePin(root: string, pin: Pin, truth: string): PinResult {
       detail:
         (pin.extract.semantics ?? '索引表存在当前 minor 对应行或标注行') +
         (suspects.length
-          ? ' · 兜底嫌疑行（状态/描述列含版本串但行身份不符 · [A]#7）: L' + suspects.join(', L')
+          ? ' · 兜底嫌疑行（行内含版本形态串但状态格无点式版本串 · D-24-PIN08-SEMCELL）: L' + suspects.join(', L')
           : ''),
     }
   }
@@ -293,15 +294,23 @@ function evaluatePin(root: string, pin: Pin, truth: string): PinResult {
       else if (f.toLowerCase().endsWith('.md')) sources.push(abs)
     }
     const linkRe = /!?\[[^\]]*\]\(\s*(<)?([^)\s>]+)(>)?\s*\)/g
+    // D-24-PIN16-REFSTYLE（2.4-W1 · 验收报告 §3.H）：reference-definition `^\s*[id]: target` 入扫描面，
+    // 与 inline 目标走同一归一/判定管线（去锚 · 剥尖括号 · scheme/纯锚点跳过 · 仓根级且存在 ∈ 白名单）。
+    const refRe = /^\s*!?\[[^\]]+\]:\s*(\S+)/gm
     const misses: string[] = []
     for (const abs of sources) {
       const relSrc = normalizeSlashPath(path.relative(root, abs))
       const srcContent = readFileSync(abs, 'utf8')
       const dir = path.dirname(abs)
-      const re = new RegExp(linkRe.source, 'g')
+      const found: Array<{ raw: string; index: number }> = []
       let m: RegExpExecArray | null
-      while ((m = re.exec(srcContent))) {
-        const target = m[2]!.split('#')[0] // linkRe 捕获组 2 必参与（E5 收窄）
+      const re = new RegExp(linkRe.source, 'g')
+      while ((m = re.exec(srcContent))) found.push({ raw: m[2]!, index: m.index }) // linkRe 捕获组 2 必参与（E5 收窄）
+      while ((m = refRe.exec(srcContent))) found.push({ raw: m[1]!, index: m.index }) // refRe 捕获组 1 必参与（E5 收窄）
+      for (const f of found) {
+        let target = f.raw
+        if (target.startsWith('<') && target.endsWith('>')) target = target.slice(1, -1) // refstyle 尖括号折叠写法
+        target = target.split('#')[0]!
         if (!target || /^[a-z][a-z0-9+.-]*:/i.test(target)) continue // scheme / 纯锚点跳过
         if (!target.toLowerCase().endsWith('.md')) continue
         const rel = normalizeSlashPath(path.relative(root, path.resolve(dir, target)))
@@ -309,7 +318,7 @@ function evaluatePin(root: string, pin: Pin, truth: string): PinResult {
         if (rel.includes('/')) continue // D-23-W2-ROOTSCOPE：仅仓根级目标
         if (!existsSync(path.resolve(root, rel))) continue // F-W2-07：不存在的目标本钉不判
         if (!inFiles(rel) && !isNpmAuto(rel)) {
-          misses.push(relSrc + ':' + lineOf(srcContent, m.index) + ' -> ' + rel)
+          misses.push(relSrc + ':' + lineOf(srcContent, f.index) + ' -> ' + rel)
         }
       }
     }
@@ -367,10 +376,15 @@ function evaluatePin(root: string, pin: Pin, truth: string): PinResult {
       }
       return out
     }
+    // D-24-PIN17-TABLEROW（2.4-W1 · 验收报告 §3.I）：词锚限定表格行内匹配 —— 命中 ⟺ 存在表行
+    // （^\s*\| 宽松起首 · F-W1-02）使 host_hits 至少一 pattern 命中该行；tagline/prose 裸词命中不计入。
+    const TABLE_ROW_RE = /^\s*\|/
+    const hitInTableRow = (body: string, res: RegExp[]): boolean =>
+      body.split('\n').some((l) => TABLE_ROW_RE.test(l) && res.some((re) => re.test(l)))
     const hitsAll = (id: string): boolean | null => {
       const res = compileAll(hostHits[id] ?? [])
       if (res === null || res.length === 0) return null
-      return readmeBodies.every((b) => res.some((re) => re.test(b)))
+      return readmeBodies.every((b) => hitInTableRow(b, res))
     }
     const dataDebts: string[] = []
     const misses: string[] = []
@@ -385,8 +399,8 @@ function evaluatePin(root: string, pin: Pin, truth: string): PinResult {
         return { ...base, status: 'extract_error', detail: 'host_hits 正则非法（failClosed）: ' + id }
       }
       readmes.forEach((r, i) => {
-        if (!res.some((re) => re.test(readmeBodies[i]!))) { // readmeBodies 与 readmes 等长（E5 收窄）
-          misses.push(id + ' · 缺 ' + r + '（' + sideOf(r) + ' 侧）')
+        if (!hitInTableRow(readmeBodies[i]!, res)) { // readmeBodies 与 readmes 等长（E5 收窄）
+          misses.push(id + ' · 缺 ' + r + '（' + sideOf(r) + ' 侧适配表行）')
         }
       })
     }

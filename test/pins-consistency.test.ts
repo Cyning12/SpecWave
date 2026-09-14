@@ -277,7 +277,7 @@ async function makeFixture(dir: string): Promise<void> {
     'docs/spec/README.md',
     '| slug | 路径 | 状态 | 一句话 |' + '\n' +
       '| --- | --- | --- | --- |' + '\n' +
-      // 2.3-W1 D-23-PIN08-STRICT：patch 收尾行形态（slug 列含版本串 · 双判 (A)+(B) 均满足）
+      // pin-08 语义格位口径（D-24-PIN08-SEMCELL）：patch 收尾行形态（状态列含点式版本串 + slug 列行身份）
       '| `' + FIXTURE_VERSION + '`（patch 收尾行） | — | **`' + FIXTURE_VERSION + '` published** | z |' + '\n',
   )
 }
@@ -823,14 +823,14 @@ describe('2.3-W2 钉面维度扩展 · pin-16 文档↔files / pin-17 宿主↔�
       const bad = runCli(['pins', 'check'], dir)
       assert.equal(bad.status, 2, bad.combined)
       assert.match(bad.combined, /\[mismatch\] pin-17 assets\/hosts\.yaml/)
-      assert.match(bad.combined, /beta · 缺 README\.md（EN 侧）/)
-      assert.match(bad.combined, /beta · 缺 README\.zh-CN\.md（ZH 侧）/)
+      assert.match(bad.combined, /beta · 缺 README\.md（EN 侧适配表行）/)
+      assert.match(bad.combined, /beta · 缺 README\.zh-CN\.md（ZH 侧适配表行）/)
       // 仅 EN 补行 → 仍 exit 2 且只剩 ZH 侧缺失
       await writeRel(dir, 'README.md', W2_README_EN + '| **Beta** | .b/ |\n')
       const half = runCli(['pins', 'check'], dir)
       assert.equal(half.status, 2, half.combined)
-      assert.doesNotMatch(half.combined, /beta · 缺 README\.md（EN 侧）/)
-      assert.match(half.combined, /beta · 缺 README\.zh-CN\.md（ZH 侧）/)
+      assert.doesNotMatch(half.combined, /beta · 缺 README\.md（EN 侧适配表行）/)
+      assert.match(half.combined, /beta · 缺 README\.zh-CN\.md（ZH 侧适配表行）/)
     })
   })
 
@@ -874,6 +874,146 @@ describe('2.3-W2 钉面维度扩展 · pin-16 文档↔files / pin-17 宿主↔�
       const ghost = runCli(['pins', 'check'], dir)
       assert.equal(ghost.status, 2, ghost.combined)
       assert.match(ghost.combined, /delta（已不在适配表 · 须移除豁免条目）/)
+    })
+  })
+})
+
+// ==== 2.4-W1 pins 提取修正 fixture（D-24-PIN16-REFSTYLE / D-24-PIN17-TABLEROW / D-24-PIN08-SEMCELL） ====
+// V1 对抗式验证构造固化（验收报告 §3.H/§3.I/§3.J）：三负向 fixture 修复前逐一真红（旧码 exit 0 顶包）留证。
+const W1_24_PINS_YAML = [
+  'version: "1"',
+  'truth_source: package.json#version',
+  'pins:',
+  '  - id: pin-16',
+  '    path: package.json',
+  "    extract: { kind: files-whitelist-link }",
+  "    expected: { kind: const, value: 0-miss }",
+  '    required: true',
+  '    fixable: false',
+  '  - id: pin-17',
+  '    path: assets/hosts.yaml',
+  '    extract:',
+  '      kind: readme-host-row',
+  '      readmes: [README.md, README.zh-CN.md]',
+  '      host_hits:',
+  "        alpha: ['\\|\\s*\\*\\*Alpha\\*\\*']",
+  "        beta: ['Beta']",
+  "    expected: { kind: const, value: 0-miss }",
+  '    required: true',
+  '    fixable: false',
+  '',
+].join('\n')
+
+const W1_24_HOSTS = 'version: "1"\nhosts:\n  - host_id: alpha\n  - host_id: beta\n'
+// §3.I 基线：beta 有适配表行（合规）；tagline 枚举句同时含 Beta 裸词（供 N8 删表行对照）
+const W1_24_README_EN =
+  '# T\n\n13 hosts (Alpha, Beta, Zed) supported\n\n| Host | X |\n| --- | --- |\n| **Alpha** | .a/ |\n| **Beta** | .b/ |\n\nsee [G](GLOSSARY.md)\n'
+const W1_24_README_ZH = '# T\n\n支持 13 宿主（Alpha、Beta、Zed）\n\n| 宿主 | X |\n| --- | --- |\n| **Alpha** | .a/ |\n| **Beta** | .b/ |\n'
+
+/** 2.4-W1 fixture 仓：pin-16 + pin-17（alpha/beta 双语表行命中）全绿基线。 */
+async function make24W1Fixture(dir: string): Promise<void> {
+  await writeRel(
+    dir,
+    'package.json',
+    JSON.stringify(
+      {
+        name: 'spec-wave',
+        version: FIXTURE_VERSION,
+        files: ['README.md', 'README.zh-CN.md', 'GLOSSARY.md'],
+      },
+      null,
+      2,
+    ) + '\n',
+  )
+  await writeRel(dir, 'assets/release-pins.yaml', W1_24_PINS_YAML)
+  await writeRel(dir, 'assets/hosts.yaml', W1_24_HOSTS)
+  await writeRel(dir, 'README.md', W1_24_README_EN)
+  await writeRel(dir, 'README.zh-CN.md', W1_24_README_ZH)
+  await writeRel(dir, 'GLOSSARY.md', '# G\n')
+}
+
+describe('2.4-W1 pins 提取修正 · N7 refstyle / N8 表行锚定 / N9 语义格位（D-24-* · 验收报告 §3.H/§3.I/§3.J 固化）', { concurrency: 1 }, () => {
+  it('24W1-N7 pin-16 refstyle 负向（D-24-PIN16-REFSTYLE · 复现 §3.H）：[r1]: FOO.md 引用白名单外仓根 .md → exit 2 指 文件:行号 · 入 files 转绿', async () => {
+    await withTemp(async (dir) => {
+      await make24W1Fixture(dir)
+      await writeRel(dir, 'FOO.md', '# F\n')
+      await writeRel(dir, 'BAR.md', '# B\n')
+      await writeRel(
+        dir,
+        'README.md',
+        W1_24_README_EN +
+          '\n[r1]: FOO.md\n[r2]: <BAR.md>\n[r3]: https://e.com/Q.md\n[r4]: #frag\n',
+      )
+      const bad = runCli(['pins', 'check'], dir)
+      assert.equal(bad.status, 2, bad.combined)
+      assert.match(bad.combined, /\[mismatch\] pin-16 package\.json/)
+      assert.match(bad.combined, /README\.md:\d+ -> FOO\.md/)
+      assert.match(bad.combined, /README\.md:\d+ -> BAR\.md/)
+      assert.doesNotMatch(bad.combined, /Q\.md/, 'scheme URL 目标须跳过（F-W1-01）')
+      // 对照：FOO.md/BAR.md 入 files[] → 转绿（§3.H 对照组口径）
+      const pkg = JSON.parse(await readFile(path.join(dir, 'package.json'), 'utf8')) as {
+        files: string[]
+      }
+      pkg.files.push('FOO.md', 'BAR.md')
+      await writeRel(dir, 'package.json', JSON.stringify(pkg, null, 2) + '\n')
+      const good = runCli(['pins', 'check'], dir)
+      assert.equal(good.status, 0, good.combined)
+      assert.match(good.combined, /\[ok\] pin-16 /)
+    })
+  })
+
+  it('24W1-N8 pin-17 表行锚定负向（D-24-PIN17-TABLEROW · 复现 §3.I）：删适配表行留 tagline 枚举句 → exit 2 · 连枚举词也删对照仍 exit 2 · 补表行转绿', async () => {
+    await withTemp(async (dir) => {
+      await make24W1Fixture(dir)
+      const base = runCli(['pins', 'check'], dir)
+      assert.equal(base.status, 0, '双语表行齐时基线须绿: ' + base.combined)
+      // §3.I 决定性构造：删 beta 适配表行 · 保留 tagline 枚举句 → 新口径 exit 2（修复前旧码此处 exit 0 = 顶包）
+      await writeRel(dir, 'README.md', W1_24_README_EN.replace('| **Beta** | .b/ |\n', ''))
+      await writeRel(dir, 'README.zh-CN.md', W1_24_README_ZH.replace('| **Beta** | .b/ |\n', ''))
+      const bad = runCli(['pins', 'check'], dir)
+      assert.equal(bad.status, 2, bad.combined)
+      assert.match(bad.combined, /\[mismatch\] pin-17 assets\/hosts\.yaml/)
+      assert.match(bad.combined, /beta · 缺 README\.md（EN 侧适配表行）/)
+      assert.match(bad.combined, /beta · 缺 README\.zh-CN\.md（ZH 侧适配表行）/)
+      // 对照（§3.I 对照组）：连枚举句里 Beta 也删 → 仍 exit 2
+      await writeRel(dir, 'README.md', W1_24_README_EN.replace('| **Beta** | .b/ |\n', '').replace('Alpha, Beta, Zed', 'Alpha, Zed'))
+      await writeRel(dir, 'README.zh-CN.md', W1_24_README_ZH.replace('| **Beta** | .b/ |\n', '').replace('Alpha、Beta、Zed', 'Alpha、Zed'))
+      const stripped = runCli(['pins', 'check'], dir)
+      assert.equal(stripped.status, 2, stripped.combined)
+      assert.match(stripped.combined, /beta · 缺 README\.md（EN 侧适配表行）/)
+      // 正向：表行恢复 → 转绿
+      await writeRel(dir, 'README.md', W1_24_README_EN)
+      await writeRel(dir, 'README.zh-CN.md', W1_24_README_ZH)
+      const good = runCli(['pins', 'check'], dir)
+      assert.equal(good.status, 0, good.combined)
+      assert.match(good.combined, /\[ok\] pin-17 /)
+    })
+  })
+
+  it('24W1-N9 pin-08 语义格位锁定负向（D-24-PIN08-SEMCELL · 复现 §3.J lead）：状态格改坏 · 同行归档链接保留 X_Y_Z 形态 → exit 2 · 改回转绿 · 下划线式状态格不计入', async () => {
+    await withTemp(async (dir) => {
+      await makeFixture(dir)
+      const brokenStatus =
+        '| slug | 路径 | 状态 | 一句话 |' + '\n' +
+        '| --- | --- | --- | --- |' + '\n' +
+        '| `' + FIXTURE_VERSION + '`（patch 收尾行） | — | **`9.9.9` published** | 归档 [A](../roadmap/ACCEPTANCE_' +
+        FIXTURE_VERSION.replace(/\./g, '_') + '_zh.md) |' + '\n' +
+        '| x-y | — | signed | 叙事顺带提及 spec-wave@' + FIXTURE_VERSION + ' |' + '\n'
+      await writeRel(dir, 'docs/spec/README.md', brokenStatus)
+      // §3.J lead 实验：状态格 9.9.9 · 同行归档链接 3_1_4 + 别行 prose 3.1.4 仍在 → 新口径 exit 2（修复前旧码 exit 0）
+      const bad = runCli(['pins', 'check'], dir)
+      assert.equal(bad.status, 2, bad.combined)
+      assert.match(bad.combined, /\[mismatch\] pin-08 docs\/spec\/README\.md/)
+      // 改回状态格点式版本串（同行归档链接 X_Y_Z 保留 · 证明状态格点式串即真值）→ 转绿
+      await writeRel(dir, 'docs/spec/README.md', brokenStatus.replace('`9.9.9` published', '`' + FIXTURE_VERSION + '` published'))
+      const good = runCli(['pins', 'check'], dir)
+      assert.equal(good.status, 0, good.combined)
+      assert.match(good.combined, /\[ok\] pin-08 /)
+      // 回归锁：状态格只写下划线式 X_Y_Z → 不计入版本串（slug/文件名顶包排除）→ exit 2
+      await writeRel(dir, 'docs/spec/README.md', brokenStatus.replace('`9.9.9` published', FIXTURE_VERSION.replace(/\./g, '_') + ' published'))
+      const under = runCli(['pins', 'check'], dir)
+      assert.equal(under.status, 2, under.combined)
+      assert.match(under.combined, /\[mismatch\] pin-08 docs\/spec\/README\.md/)
     })
   })
 })
@@ -954,13 +1094,17 @@ describe('W1-A1 release pins · C组 声明源数据形态（SPEC 01 §5 · D-PI
     assert.equal(p12.expected.kind, 'package-version')
   })
 
-  it('钉面 #8 提取语义入数据（D-PINS-SCOPE-8 + 2.3-W1 D-23-PIN08-STRICT 严化）：spec-index-row + 双判严化口径', () => {
+  it('钉面 #8 提取语义入数据（D-PINS-SCOPE-8 + 2.4-W1 D-24-PIN08-SEMCELL 语义格位锁定）：spec-index-row + 状态列点式唯一真值', () => {
     const p8 = data.pins.find((p) => p.id === 'pin-08')!
     assert.equal(p8.path, 'docs/spec/README.md')
     assert.equal(p8.extract.kind, 'spec-index-row')
-    assert.match(p8.extract.semantics ?? '', /严化口径/)
-    assert.match(p8.extract.semantics ?? '', /状态列或描述列/)
+    assert.match(p8.extract.semantics ?? '', /语义格位口径/)
+    assert.match(p8.extract.semantics ?? '', /状态列（cells\[2\]/)
+    assert.match(p8.extract.semantics ?? '', /点式 X\.Y\.Z/)
+    assert.match(p8.extract.semantics ?? '', /X_Y \/ X_Y_Z 一律不计入版本串/)
     assert.match(p8.extract.semantics ?? '', /兜底嫌疑行/)
+    // F-W1-05 定稿（2.4-W1 task 定稿位回填）：「规划中」类非发布态行口径入数据
+    assert.match(p8.extract.semantics ?? '', /规划中.*行身份合格|行身份合格.*规划中/s)
   })
 
   it('2.3 W1 新增 pin-13/14/15：CHANGELOG 发布头 / MIGRATION spec-wave@X / AGENTS npx spec-wave@X 三面入钉（纯数据 · [A]#8）', () => {
