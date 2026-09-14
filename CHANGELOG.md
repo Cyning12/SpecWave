@@ -4,18 +4,43 @@
 
 ## [Unreleased]
 
-### 2.4.0 接口预留（发版波落正式条目）
+## [2.4.0] - 2026-09-14
 
-- **2.4-W6（N10/N14/N4 · D-24-W6-N10 / D-24-W6-N14 / D-24-N4-REGISTER）P3 清扫（口径统一 · 门禁判据修复）**：① N10 pin-16 白名单比较统一大小写口径——链接目标与 `files[]` 成员大小写不敏感比较，命中后再以磁盘存在性二次确认（仓根条目快照 · 同为大小写不敏感）为最终判据，修复「链接 `foo.md` vs 盘上 `FOO.md`」假阳（验收报告 §3.K · macOS 易触发），双平台语义一致（白名单命中但盘上无任何大小写变体 → 不放行仍 exit 2 · F-W6-01）；② N14 `task lint-done` slug 口径统一——slug 级存在性判集合键由文件名 slug 改为 `meta.task_slug ?? 文件名 slug`（meta 优先 · 文件名兜底 · normalizeSlug 归一沿用），与帽级/豁免判同一真值源，修复「文件名 slug ≠ meta slug 时豁免永不命中」（§3.O），生产数据（命名合规）零行为变化；③ N4 安全拒绝 exit 1 档位仅登记留痕不改行为（§3.E 判定符合 SPEC 00 §2.4 契约）——登记落盘 `assets/harness/discipline-coverage.yaml` gaps `N4-EXIT1-REGISTER`（随 2.4.0 ACCEPTANCE 档「留痕」节收口），exit 1 用例回归锁 `test/cli-security-closure.test.ts` 不变。配套断言：`test/pins-consistency.test.ts` 新增 24W6-N10 组 3 用例（双向大小写差异正向 / F-W6-01 负向对照不误放 / F-W2-07 与白名单外口径回归）· `test/cli-w4-gate-wiring.test.ts` 新增 N14 组 3 用例（豁免 meta slug 命中红转绿 / meta slug invoke 目录双命中 / 真实仓零行为变化回归）· `test/cli-discipline-coverage.test.ts` 新增 N4 留痕存在性核查。
+> 主题：**minor** —— **门禁强度补全（gate strength）**：W1 pins 提取三修正（N7/N8/N9 · 本次核心）+ W2 结论级闸强度增强（S1·N=20 · 评审先行）+ W3 输出层统一相对化（N12）+ W4 资产门禁可观测（N2/N5）+ W5 物料与对外口径对齐（N3/口径三调/N6）+ W6 P3 清扫（N10/N14/N4）；**不动 host-adapt schema、不扩大范围、S2 永不覆写**。  
+> 规划：[`docs/roadmap/PLAN_2_4_gate_strength_v1_zh.md`](docs/roadmap/PLAN_2_4_gate_strength_v1_zh.md) · SPEC：[`docs/spec/2_4-gate-strength/`](docs/spec/2_4-gate-strength/)  
+>
+> **发布状态**：**待发版**（registry `latest` 仍为 `2.3.1` · tag `v2.4.0` 待人打 · pin-10 设计红留痕）。
 
-- **2.4-W4（N2/N5 · D-24-W4-WARN-ONLY）资产门禁可观测补全（行为增补 · exit code 语义不变）**：① `assets verify` 对 `assets/` 内被排除项（`*.bak` / `*~` / `.DS_Store` · D-23-W5-EXCLUDE 单一常量双侧消费保持）输出显式 `WARN: 排除项 N 个（不参与哈希校验）: <相对路径清单>`（超 5 条截断 + `… 共 M 个` 汇总），`--json` 信封新增 `excluded: string[]` 字段（键集只增不改）——排除项由「静默排除」升级为「排除但可见」，warning 级不升 exit 2、不干扰 failClosed（真实篡改仍 exit 2）与 CI 判读；② `assets manifest rebuild` dry-run 与 `--yes` 两路强制输出追认警示「本操作将当前资产状态追认为真值——若资产曾被篡改，篡改将随本次 rebuild 被合法化；防投毒依赖 provenance（未启用）」（口径同 `docs/guides/provenance_oidc_trusted_publishing_guide_v1_zh.md` 自述）。配套断言：`test/cli-w5-assets-integrity.test.ts` 新增 2.4-W4 组 4 用例（N2 构造正负 / 截断 / warning 不掩负向 / N5 快照两路）。
+### Changed（行为变更 · 明示）
 
-- **2.4-W3（N12 · D-24-OUTPUT-REL-EXIT）值相对化（接口说明 · 正式条目随 2.4.0 发版波落地）**：CLI 输出相对化从逐字段打补丁收敛为**输出层统一出口**——所有 `--json` 信封经 `printJson`（`src/cli-shared.ts` · 深遍历字符串值 · 仓根绝对前缀词法判据）打印；修复 V2 实测四处泄漏：`task lint --json#file`、`task close --json#dest`/`done_snapshot.path`（含 READY dry-run）、`verify`/`gate-check --json#task`（绝对入参形态）、`task close` 人类输出 `moved:`/`dest:`/`done_snapshot · path:`；另覆盖 `host validate --json#file` 同型泄漏。`--json` 信封**键集只增不改**（键名/类型/顺序不变 · 测试钉死），本条为**值**变更，循 D-23-JSON-TARGET-REL 按安全泄漏修复定性；既有 JSON 消费者若依赖绝对路径值须适配。exit code 语义不变；`CLOSE: PASS` 等冻结文案不变。配套机械断言：`test/cli-json-no-abs-path.test.ts`（全 `--json` 命令面 + 断言自身负向自证）。
+- **2.4-W2（A2 残余强度权衡 · D-24-W2-REVIEW-FIRST / D-24-W2-NO-RETRO）结论级闸强度增强（S1·N=20 定档）**：评审先行——强度方案评审文 `w2_conclusion_gate_strength_review_20260914` 落盘 `docs/harness/reviews/`（S1/S2/S3 对比 + 存量 48 份现行 PASS 审查文实测：S1·N=20 误伤 0 · S1·N=50 误伤 4 · S2 全灭 48/48 否决）→ 定档 S1·N=20 经 20-task-audit R1。`evalReviewConclusion`（`src/cli-checks.ts`）增节内容量判据：结论/签收节合并文本剥除全部通过词命中（gi 全局 strip 防残留凑数）后残余非空白字符 < `REVIEW_MIN_SUBSTANCE=20` → **判未通过**（failClosed exit 2 · detail 点名 S1·N=20）——封堵 A2 收窄形态「结论节内只写通过二字」空判；否定守卫 / 通过词落节内 / 无节判红既有判据不动，exit code 与豁免机制零改动；**不追溯存量**（66 份 done 全量复测波及=0 · 零新增豁免）。
+- **2.4-W3（N12 · D-24-OUTPUT-REL-EXIT）契约值变更 · 输出层统一相对化**：CLI 输出相对化从逐字段打补丁收敛为**输出层统一出口**——所有 `--json` 信封经 `printJson`（`src/cli-shared.ts` · 深遍历字符串值 · 仓根绝对前缀词法判据 · 路径边界 lookaround 防 `../../var/...` 相对形误改）打印，26 处 stdout JSON 出口收敛（写盘 JSON 不在出口面不动）；修复 V2 实测四处泄漏：`task lint --json#file`、`task close --json#dest`/`done_snapshot.path`（含 READY dry-run）、`verify`/`gate-check --json#task`（绝对入参形态）、`task close` 人类输出 `moved:`/`dest:`/`done_snapshot · path:`；另覆盖 `host validate --json#file` 同型泄漏。`--json` 信封**键集只增不改**（键名/类型/顺序不变 · 测试钉死），本条为**值**变更，循 D-23-JSON-TARGET-REL 按安全泄漏修复定性；既有 JSON 消费者若依赖绝对路径值须适配。exit code 语义不变；`CLOSE: PASS` 等冻结文案不变。
+- **2.4-W6（N14 · D-24-W6-N14）`task lint-done` slug 口径统一**：slug 级存在性判集合键由文件名 slug 改为 `meta.task_slug ?? 文件名 slug`（meta 优先 · 文件名兜底 · normalizeSlug 归一沿用），与帽级/豁免判同一真值源——修复「文件名 slug ≠ meta slug 时豁免永不命中」（验收报告 §3.O）；生产数据（命名合规）零行为变化。
 
+### Fixed
+
+- **2.4-W1（N7/N8/N9 · 本次核心）pins 提取三修正 + 三负向 fixture**（验收报告 §3.H/§3.I/§3.J · V1 三组对照构造机械化固化 · 修复前逐一真红留证）：
+  - **N7 · pin-16 refstyle 绕过封堵**（D-24-PIN16-REFSTYLE）：链接提取补 reference-definition 分支（`^\s*\[[^\]]+\]:\s*(\S+)`），refstyle 定义 `[id]: FOO.md` 入扫描面，与 inline 走同一归一/判定管线（剥尖括号 · 去锚 · scheme/纯锚点跳过 · 仓根级且存在 ∈ 白名单 ∪ npm 自动入包）。
+  - **N8 · pin-17 词锚∧表行双命中**（D-24-PIN17-TABLEROW）：词锚须命中 `^\s*\|` 宽松起首的表格行才算，tagline/prose 裸词顶包不再计入；miss 点名缺表行侧。
+  - **N9 · pin-08 语义格位锁定**（D-24-PIN08-SEMCELL）：spec 索引行合格 ⟺ 状态列（cells[2]）含点式 `X.Y.Z` ∧ slug 列行身份辅助判；`X_Y`/`X_Y_Z` 前缀式一律不计入版本串（归档链接/slug 顶包杀伤）；「改坏状态格版本串 → exit 2」回归锁（真仓对照实验 exit 0→2→0 留痕 · 对现行合规文件零误伤）。
+- **2.4-W6（N10 · D-24-W6-N10）pin-16 大小写口径统一（治假阳）**：链接目标与 `files[]` 成员大小写不敏感比较，命中后再以磁盘存在性二次确认（仓根条目快照 · 同为大小写不敏感）为最终判据——修复「链接 `foo.md` vs 盘上 `FOO.md`」假阳（验收报告 §3.K · macOS 易触发）；双平台语义一致：白名单命中但盘上无任何大小写变体 → 不放行仍 exit 2（F-W6-01 负向对照不误放）。
+
+### Added
+
+- **2.4-W4（N2/N5 · D-24-W4-WARN-ONLY）资产门禁可观测补全（行为增补 · exit code 语义不变）**：① `assets verify` 对 `assets/` 内被排除项（`*.bak` / `*~` / `.DS_Store` · D-23-W5-EXCLUDE 单一常量双侧消费保持）输出显式 `WARN: 排除项 N 个（不参与哈希校验）: <相对路径清单>`（超 5 条截断 + `… 共 M 个` 汇总），`--json` 信封新增 `excluded: string[]` 字段（键集只增不改）——排除项由「静默排除」升级为「排除但可见」，warning 级不升 exit 2、不干扰 failClosed（真实篡改仍 exit 2）与 CI 判读；② `assets manifest rebuild` dry-run 与 `--yes` 两路强制输出追认警示「本操作将当前资产状态追认为真值——若资产曾被篡改，篡改将随本次 rebuild 被合法化；防投毒依赖 provenance（未启用）」（口径同 `docs/guides/provenance_oidc_trusted_publishing_guide_v1_zh.md` 自述）。
+
+### Docs
+
+- **2.4-W5（N3/口径三调/N6）物料与对外口径对齐（纯文档波 · 零代码改动）**：① N3 —— `delivery/promotion/` 4 份物料逐份处置（03 发布博客天然快照 · 01/02/04 文首标注「历史版本快照（2.1.3 时点）」），黑名单词机检（`四宿主` / `406 用例` / `2.1.3` 现行表述位命中为零或快照标注存在）逐份留证；② 口径调一 —— 事实卡/README 的 T-03 表述从「可机检」降调为「防意外漂移」；③ 口径调二 —— 《安全设计》§5.3.1 A-1 行完整性依赖列收窄（「防漂移口径 · 防投毒依赖 provenance · 未启用」）· `:77`「篡改发现」→「意外漂移发现」（只收窄不重构 · 真实控制不动）；④ 口径调三 —— 「关账必经审查通过」对外声称以 W2 落地为界（落地前禁称核查留档）；⑤ N6 —— README 双语 aider 行补 `.aider.conf.yml` 写 `conventions-file: AGENTS.md` 等价配置路径（表行内保留 host 词锚 · pin-17 表行命中不破）。
+- **2.4-W6（N4 · D-24-N4-REGISTER）安全拒绝 exit 1 档位仅登记留痕**（不改行为 · 验收报告 §3.E 判定符合 SPEC 00 §2.4 契约）：登记落盘 `assets/harness/discipline-coverage.yaml` gaps `N4-EXIT1-REGISTER`（随 2.4.0 ACCEPTANCE 档收口）；exit 1 用例回归锁 `test/cli-security-closure.test.ts` 不变。
+
+### Tests
+
+- 新增机械断言：W1 三负向 fixture（24W1-N7/N8/N9 · V1 构造固化）· W2 六用例（A2 收窄形态 / 单通行词双变体 / 存量最低容量代表样本回归 / 19–20 阈值边界探针 / 否定守卫回归 / done 降级不回退锁）· W3 `test/cli-json-no-abs-path.test.ts` 21 测（19 个 `--json` 命令面绝对入参 · 负向自证 4 例真红 · 键集钉死 6 组）· W4 4 用例（N2 构造正负 / 截断 / warning 不掩负向 / N5 快照两路）· W6 `test/pins-consistency.test.ts` 24W6-N10 组 3 用例 + `test/cli-w4-gate-wiring.test.ts` N14 组 3 用例 + `test/cli-discipline-coverage.test.ts` N4 留痕存在性核查；测试基线 541 → 582 总（+41 · 579 pass · tag-gated 设计红 ×2 随 tag `v2.4.0` 落位转绿 · 复跑须全绿 · 1 门控 skip）。
 ## [2.3.1] - 2026-09-14
 
 > 主题：**patch** —— 2.3.0 验收报告 **PASS-with-issues** 三项修复（§6「建议 2.3.1」：N1/N11/N13 · task `2-3-1-patch`）。
-> **发布状态**：**待发版**（registry `latest` 仍为 `2.3.0` · tag `v2.3.1` 待人打 · pin-10 设计红留痕）。
+> **发布状态**：**已 published** · tag **`v2.3.1`** ↔ `spec-wave@2.3.1`（人 · 2026-09-14 · registry `latest=2.3.1` · bump commit `268ca21`）。
 
 ### Fixed
 

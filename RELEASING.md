@@ -10,26 +10,32 @@
 
 | 项 | 值 |
 |----|-----|
-| **工作树 / registry `latest`** | **`spec-wave@2.3.1`**（工作树 · **待发版** · bump 已落 · tag/push/publish 仅人）；registry `latest` 仍 **`2.3.0`**（**已 published** · 2026-09-14 · 人 · tag **`v2.3.0`** ↔ bump commit `87dfa6f` · ⑨ 00 代核探针全过 · 明细见下「人 checklist · 2.3.0」） |
-| **前一 latest** | **`spec-wave@2.2.1`**（2.2.0 验收四项修复 patch · 2026-09-12 · tag **`v2.2.1`** ↔ `c828e5e`） |
+| **工作树 / registry `latest`** | **`spec-wave@2.4.0`**（工作树 · **待发版** · bump 已落 · tag/push/publish 仅人）；registry `latest` 仍 **`2.3.1`**（**已 published** · 2026-09-14 · 人 · tag **`v2.3.1`** ↔ bump commit `268ca21` · 明细见下「人 checklist · 2.3.1」） |
+| **前一 latest** | **`spec-wave@2.3.0`**（接线补全 minor · 2026-09-14 · tag **`v2.3.0`** ↔ `87dfa6f`） |
 | **旧包名** | **`dsh-coding-kit`** · **已 deprecate**（文案 → `spec-wave`） |
 | **git（史实 · 2.1.1）** | tag **`v2.1.1`** · 改名前身份；**`v2.1.2` / `v2.1.3` / `v2.2.0` / `v2.2.1` / `v2.3.0`** 为 SpecWave 身份可溯源点（**禁止** `git tag -f`） |
+| **主题（已发 · 2.3.1）** | 2.3.0 验收三项修复：N1 .bak 发布卫生（gitignore/files 否定项/prepublishOnly 包内容断言/钉面备份自动清理）+ N11 结论级闸强制结论节（禁回退全文 · 存量 8 份豁免留痕）+ N13 豁免四字段显式类型判 |
 | **主题（已发 · 2.3.0）** | 接线补全（wiring completion）：W1 版本/身份钉机制补强（核心 · pin-08 严化 + 三面入钉 12→15 + fixture 补全 + 目录型 slug 修复）+ W2 钉面维度扩展（pin-16/17）+ W3 安全可观测（toRel / JSON 信封 / C4 / C5 指引）+ W4 闸语义接线（G2 结论级 / 裸 verify / lint-done 帽级 / reviews.CLOSE 强证据）+ W5 资产完整性（sha256.manifest + assets verify）+ W6 六宿主（7→13）+ W7 DX/工程健康（README 13 宿主表 / GLOSSARY / E2 / E5） |
 | **主题（已发 · 2.2.1）** | 2.2.0 验收报告四项修复：symlink realpath 归卡（P0 · C1 穿透封堵）· 钉面修复按文件聚合（P1 · 同文件多钉面一次收敛）· `.gitignore` 加 `.workbuddy/` / `GLOSSARY.md` 进包（P2 ×2） |
 | **主题（已发 · 2.2.0）** | 闭环起步：W1 版本/身份钉自动化（核心）+ W2–W7 安全封堵 / 可观测字段 / 上手断档 / 术语表 / 三宿主 / 小清理 |
 | **主题（已发 · 2.1.3）** | README/断言收尾 · 发布溯源测（tag↔package.json） |
 | **主题（已发 · 2.1.2）** | SpecWave 改名收口 |
-| **前一发版** | **`2.2.1`** · **`2.2.0`** · **`2.1.3`** · **`2.1.2`** · **`2.1.1`** · **`2.1.0`** |
+| **前一发版** | **`2.3.1`** · **`2.3.0`** · **`2.2.1`** · **`2.2.0`** · **`2.1.3`** · **`2.1.2`** · **`2.1.1`** · **`2.1.0`** |
 | **更早旧包** | `@cyning/harness` **已 deprecate**（文案指 **`spec-wave`**） |
 | **1.x** | **CLOSED** |
-| **下一主线** | **3.0 评估**（2.3.0 **已 published** · 2026-09-14 · 接线补全 W1–W7 全 CLOSE）；候选 = 机制债残余（叙事行语义盲区 等）+ workspaces / onboard 观察项 + D5 roadmap 改名评估（归 3.0）+ 路线研究 §5 3.0 候选集（A3 hooks surface 等）· 另闸 |
+| **下一主线** | **3.0 评估**（2.3.1 **已 published** · 2026-09-14 · 接线补全 W1–W7 + 验收三项修复全 CLOSE；2.4.0 门禁强度补全 W1–W6 全 CLOSE · **待发版**）；候选 = 机制债残余（叙事行语义盲区 等）+ workspaces / onboard 观察项 + D5 roadmap 改名评估（归 3.0）+ 路线研究 §5 3.0 候选集（A3 hooks surface 等）· 另闸 |
+| **验收（2.4.0）** | [`docs/roadmap/ACCEPTANCE_2_4_gate_strength_2_4_0_zh.md`](docs/roadmap/ACCEPTANCE_2_4_gate_strength_2_4_0_zh.md) · **待发版**（bump 已落 2026-09-14 · tag/push/publish 仅人） |
+| **验收（2.3.1）** | [`docs/roadmap/ACCEPTANCE_2_3_1_patch_2_3_1_zh.md`](docs/roadmap/ACCEPTANCE_2_3_1_patch_2_3_1_zh.md) · **CLOSED**（**已 published** · 2026-09-14 · 人 · tag `v2.3.1` ↔ `268ca21`） |
 | **验收（2.3.0）** | [`docs/roadmap/ACCEPTANCE_2_3_wiring_completion_2_3_0_zh.md`](docs/roadmap/ACCEPTANCE_2_3_wiring_completion_2_3_0_zh.md) · **CLOSED**（**已 published** · 2026-09-14 · 人 · ⑨ 00 代核探针全过） |
 | **验收（2.2.1）** | [`docs/roadmap/ACCEPTANCE_2_2_1_patch_2_2_1_zh.md`](docs/roadmap/ACCEPTANCE_2_2_1_patch_2_2_1_zh.md) · **CLOSED** |
 | **验收（2.2.0）** | [`docs/roadmap/ACCEPTANCE_2_2_closed_loop_start_2_2_0_zh.md`](docs/roadmap/ACCEPTANCE_2_2_closed_loop_start_2_2_0_zh.md) · **CLOSED** |
 | **验收（2.1.2）** | [`docs/roadmap/ACCEPTANCE_2_1_2_rename_closeout_2_1_2_zh.md`](docs/roadmap/ACCEPTANCE_2_1_2_rename_closeout_2_1_2_zh.md) · **CLOSED** |
 | **验收（2.1.1 UX）** | [`docs/roadmap/ACCEPTANCE_2_1_1_host_tools_ux_2_1_1_zh.md`](docs/roadmap/ACCEPTANCE_2_1_1_host_tools_ux_2_1_1_zh.md) |
+| **task（2.4.0）** | [`docs/tasks/done/`](docs/tasks/done/) `task_2_4_gate_strength_w1..w6_*` · **CLOSED**（W1–W6 全关账 · release 波走本 checklist） |
 | **task（2.3.0）** | [`docs/tasks/done/task_2_3_wiring_release.md`](docs/tasks/done/task_2_3_wiring_release.md) · **CLOSED**（2.3.0 接线补全收尾 bump） |
+| **task（2.3.1）** | [`docs/tasks/done/task_2_3_1_patch.md`](docs/tasks/done/task_2_3_1_patch.md) · **CLOSED**（无独立 SPEC 夹 · 属 2.3.0 验收后 patch） |
 | **task（2.2.1）** | [`docs/tasks/done/task_2_2_1_patch.md`](docs/tasks/done/task_2_2_1_patch.md) · **CLOSED**（无独立 SPEC 夹 · 属 2.2.0 验收后 patch） |
+| **规划 / SPEC（2.4.0）** | [`docs/roadmap/PLAN_2_4_gate_strength_v1_zh.md`](docs/roadmap/PLAN_2_4_gate_strength_v1_zh.md) · [`docs/spec/2_4-gate-strength/`](docs/spec/2_4-gate-strength/) |
 | **规划 / SPEC（2.3.0）** | [`docs/roadmap/PLAN_2_3_wiring_completion_v1_zh.md`](docs/roadmap/PLAN_2_3_wiring_completion_v1_zh.md) · [`docs/spec/2_3-wiring-completion/`](docs/spec/2_3-wiring-completion/) |
 | **规划 / SPEC（2.2.0）** | [`docs/roadmap/PLAN_2_2_closed_loop_start_v1_zh.md`](docs/roadmap/PLAN_2_2_closed_loop_start_v1_zh.md) · [`docs/spec/2_2-closed-loop-start/`](docs/spec/2_2-closed-loop-start/) |
 | **规划 / SPEC（2.1.2）** | [`docs/roadmap/PLAN_2_1_2_rename_closeout_v1_zh.md`](docs/roadmap/PLAN_2_1_2_rename_closeout_v1_zh.md) · [`docs/spec/2_1_2-rename-closeout/`](docs/spec/2_1_2-rename-closeout/) |
@@ -54,16 +60,27 @@
 - [ ] **⑧ npm publish（仅人）**：`npm publish`（`prepublishOnly` 会自动重跑②四门；⑦已核对清单）。**Agent 不得执行本步。**
 - [ ] **⑨ publish 后核验 + 过程档状态更新**：`npm view spec-wave version`（及 `dist-tags`）确认新版本已生效；抽样验证；更新过程档状态为已发布。（人 publish 后 · Agent 可代核）
 
-### 人 checklist · `2.3.1` 发版（**待发版** · Agent 侧已备齐 · 2026-09-14）
+### 人 checklist · `2.4.0` 发版（**待发版** · Agent 侧已备齐 · 2026-09-14）
+
+> 内容：2.3.0 验收报告 §6「建议 2.4」八组门禁强度补全 + 对外口径三条 + 2.3.1 残余登记三条 —— W1 pins 提取三修正（N7 refstyle / N8 表行锚定 / N9 语义格位 + 三负向 fixture）· W2 结论级闸强度增强（S1·N=20 · 评审先行 · 不追溯存量）· W3 输出层统一相对化（26 处 `--json` 出口收敛 + 无绝对路径断言）· W4 assets verify 排除项 warning + rebuild 追认警示 · W5 物料快照标注 + 口径三调 + aider conventions-file · W6 N10 大小写口径 / N14 slug 口径 / N4 留痕。tasks `2-4-gate-strength-w1..w6`（`docs/tasks/done/`）。
+
+1. [ ] 确认工作树已 commit（含 bump `2.4.0` · CHANGELOG `## [2.4.0] - 2026-09-14` · 钉点 16/17（pin-10 tag-gated 设计红 · 打 tag 后须 17/17）· 四门绿）
+2. [ ] `git tag v2.4.0`（annotated · 人执行）+ `git push origin main && git push origin v2.4.0`
+3. [ ] `npm publish`（包名 `spec-wave` · 版本 `2.4.0` · 人执行；`prepublishOnly` 末段含包内容卫生断言 —— 若红即停止：包内含 `*.bak`/`*~`/`.DS_Store`）
+4. [ ] 探针：`npm view spec-wave version` → `2.4.0`；`git show v2.4.0:package.json` → `version=2.4.0`；`npm pack spec-wave@2.4.0 --dry-run` 清单无 `.bak`（对照 2.3.1 的 188 文件 · 无 `*~` / `.DS_Store`）
+5. [ ] 打 tag 后复跑：`pins check` 17/17 · `npm test` 全绿（tag-gated 设计红转绿）
+6. [ ] 回填 ACCEPTANCE / 过程档为已 published（含本表勾选 · RELEASING「最近一次发版」表 · README 双语现行包行 · spec 索引行状态）
+
+### 人 checklist · `2.3.1` 发版（**已完成** · 2026-09-14 · 人执行 tag/push/publish · 2.4.0 release 棒代核回填）
 
 > 内容：2.3.0 验收报告 PASS-with-issues §6「建议 2.3.1」三项修复 —— N1 [P1] .bak 发布卫生（.gitignore `*.bak` · files `"!assets/**/*.bak"` · prepublishOnly 包内容机械断言 `scripts/check-pack-hygiene.mjs` failClosed · pins fix 备份成功后自动清理）· N11 [P1] 结论级闸强制结论节（禁回退全文 · 存量 8 份循 W4 先例豁免留痕）· N13 [P2] 豁免四字段显式类型判。task `2-3-1-patch`。
 
-1. [ ] 确认工作树已 commit（含 bump `2.3.1` · CHANGELOG `## [2.3.1] - 2026-09-14` · 钉点 16/17（pin-10 tag-gated 设计红 · 打 tag 后须 17/17）· 四门绿）
-2. [ ] `git tag v2.3.1`（annotated · 人执行）+ `git push origin main && git push origin v2.3.1`
-3. [ ] `npm publish`（包名 `spec-wave` · 版本 `2.3.1` · 人执行；`prepublishOnly` 末段含包内容卫生断言 —— 若红即停止：包内含 `*.bak`/`*~`/`.DS_Store`）
-4. [ ] 探针：`npm view spec-wave version` → `2.3.1`；`git show v2.3.1:package.json` → `version=2.3.1`；`npm pack spec-wave@2.3.1 --dry-run` 清单无 `.bak`（对照 2.3.0 的 5 个）
-5. [ ] 打 tag 后复跑：`pins check` 17/17 · `npm test` 全绿（tag-gated 设计红转绿）
-6. [ ] 回填 ACCEPTANCE / 过程档为已 published（含本表勾选 · RELEASING「最近一次发版」表 · README 双语现行包行 · spec 索引行状态）
+1. [x] 确认工作树已 commit（含 bump `2.3.1` · CHANGELOG `## [2.3.1] - 2026-09-14` · 钉点 16/17（pin-10 tag-gated 设计红 · 打 tag 后须 17/17）· 四门绿）
+2. [x] `git tag v2.3.1`（annotated · 人执行）+ `git push origin main && git push origin v2.3.1`（tag `v2.3.1` ↔ bump commit `268ca21` 本棒实核存在）
+3. [x] `npm publish`（包名 `spec-wave` · 版本 `2.3.1` · 人执行；`prepublishOnly` 末段含包内容卫生断言 —— 若红即停止：包内含 `*.bak`/`*~`/`.DS_Store`）
+4. [x] 探针：`npm view spec-wave version` → `2.3.1`（本棒实核 registry `latest=2.3.1`）；`git show v2.3.1:package.json` → `version=2.3.1`；`npm pack spec-wave@2.3.1 --dry-run` 清单无 `.bak`（对照 2.3.0 的 5 个）
+5. [x] 打 tag 后复跑：`pins check` 17/17（本棒 bump 前实测 exit 0）· `npm test` 全绿（tag-gated 设计红转绿）
+6. [x] 回填 ACCEPTANCE / 过程档为已 published（含本表勾选 · RELEASING「最近一次发版」表 · README 双语现行包行 · spec 索引行状态）
 
 ### 人 checklist · `2.3.0` 发版（**已完成** · 2026-09-14 · 人执行 tag/push/publish · 00 代跑 push · ⑨ 00 代核）
 

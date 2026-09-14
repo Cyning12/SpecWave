@@ -11,7 +11,7 @@
 #   not_wired   = 声称的机制在本包未接线（旧包机制名仅见于「旧包史实」notes · 接线计划见 PRD_DEF-003 阶段二）
 
 version: "1"
-as_of_package_version: "2.3.1"
+as_of_package_version: "2.4.0"
 scope: "Starter · harness/prompts （10/22/30/40 + FRAGMENT）+ TEMPLATE_invoke"
 source_audit: "私仓 rethink 2026-07 mechanization-rate 转录聚合 · 2026-08-24 按 dsh-coding-kit 1.2.3 src/ 逐条重盘（DEF-005 机制台账）"
 
@@ -79,7 +79,7 @@ gaps:
   - id: N4-EXIT1-REGISTER
     title: 安全拒绝 exit 1 档位登记（非缺陷 · 仅留痕 · D-24-N4-REGISTER）
     status: closed
-    closed_in: "unreleased"
+    closed_in: "2.4.0"
     note: "2.4-W6 N4（验收报告 §3.E 判定符合契约 · 行为零变更）：--task/--spec 仓外路径拒绝走 exit 1（用法档 · 符合 SPEC 00 §2.4「0 放行 · 1 用法错误/非阻断 · 2 门禁阻断」· resolveTaskPath 单点收口 src/cli-shared.ts · 回归锁 test/cli-security-closure.test.ts exit 1 用例组）——下游 CI 若需「安全事件」信号，应匹配拒绝文案而非仅依赖 exit 2；改 exit 码即超出 SPEC（F-W6-04）· 随 2.4.0 ACCEPTANCE 档「留痕」节收口"
 
 statements:
