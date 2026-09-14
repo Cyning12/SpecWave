@@ -58,7 +58,7 @@
 - [ ] **③ CHANGELOG 版本节已归拢**：`CHANGELOG.md` 的 `## [Unreleased]` 内容已归入 `## [X.Y.Z] - YYYY-MM-DD` 版本节（日期 + 版本号齐全），无残留 Unreleased 条目遗漏。（Agent 可做）
 - [ ] **④ 版本钉（pins）已同步（F5 方案 B）**：新版本号已同步全部**现行钉点** —— `assets/ontology.yaml#product_semver`、`assets/harness/discipline-coverage.yaml#as_of_package_version`、README 双文件中的 `spec-wave@x.y.z`、以及含版本断言的测试。闸测：`test/version-pins-f5.test.ts`（及既有 ontology / discipline 分面测）。**仓根 `SPEC.md` 为 archived epic，不要求与包版本对齐，禁止再把其标题当作现行契约。**（Agent 可做）
 - [ ] **⑤ npm version + tag（Agent 默认可做）**：`npm version <patch|minor|major>`（或等价：改 `package.json` + 钉点同步后落 version commit + `vX.Y.Z` tag）；确认 tag 与 CHANGELOG 版本节一致。**禁止**在钉点未同步时 bump。**本仓另有** `test/release-tag-identity.test.ts`：须先有 `vX.Y.Z` tag 再期望测绿。
-- [ ] **⑥ PR 合并 + CI 绿**：发版 PR 已 merge 进 `main` 且 CI 全绿（**CI 未绿禁合**）；`git push` 含 `--follow-tags`（或单独 push tag），远端 main 与 tag 指向发布真值。（Agent 可推送，须用户/环境授权）
+- [ ] **⑥ PR 合并 + CI 绿**：发版 PR 已 merge 进 `main` 且 CI 全绿（**CI 未绿禁合**）；**push 须原子或 tag 先行**：`git push origin main vX.Y.Z` 单条原子推（或先推 tag 再推 main），**禁「先 main 后 tag」分推**——main 分支 CI 的 checkout 拉全量 tag，含 tag 存在性闸项，分推存在「CI checkout 时 tag 未达」竞态（2026-09-14 v2.4.1 实测：main CI 24.x job checkout 比 tag 到远端早 ~1s，tag 闸项红 · tag 落远端后重跑转绿）；远端 main 与 tag 指向发布真值。（Agent 可推送，须用户/环境授权）
 - [ ] **⑦ npm pack --dry-run 检查**：`npm pack --dry-run` 逐行核对 tarball 清单 —— 无 `test/` 泄漏、无工作区/私仓文件；仅 `package.json#files` 白名单（`bin` / `lib` / `assets` / `cordis.patch.yml` / `README.md` / `LICENSE`）内的内容入包。（Agent 可做）
 - [ ] **⑧ npm publish（仅人）**：`npm publish`（`prepublishOnly` 会自动重跑②四门；⑦已核对清单）。**Agent 不得执行本步。**
 - [ ] **⑨ publish 后核验 + 过程档状态更新**：`npm view spec-wave version`（及 `dist-tags`）确认新版本已生效；抽样验证；更新过程档状态为已发布。（人 publish 后 · Agent 可代核）
@@ -69,11 +69,11 @@
 >
 > **授权注记（2026-09-14 维护者）**：**tag + push 已授权 00 代跑**（`git tag v2.4.1` + `git push origin main v2.4.1`）；**publish 仅人**（Agent 禁令不变）。
 
-1. [ ] 确认工作树已 commit（含 bump `2.4.1` · CHANGELOG `## [2.4.1] - 2026-09-14` · 钉点 16/17（pin-10 tag-gated 设计红 · 打 tag 后须 17/17）· 四门绿）
-2. [ ] `git tag v2.4.1`（annotated）+ `git push origin main && git push origin v2.4.1`（**00 代跑 · 维护者已授权**）
+1. [x] 确认工作树已 commit（含 bump `2.4.1` · CHANGELOG `## [2.4.1] - 2026-09-14` · 钉点 16/17（pin-10 tag-gated 设计红 · 打 tag 后须 17/17）· 四门绿）
+2. [x] `git tag v2.4.1`（annotated · 00 代跑 · 维护者已授权）+ push（tag `v2.4.1` ↔ `c89f92d` 已上 origin）。**教训留痕**：首次按「先 main 后 tag」分推触发竞态——main CI `test (24.x)` checkout 比 tag 到远端早 ~1s，tag 存在性闸项红（run 34843339145）；tag 落远端后 `gh run rerun --failed` 转绿。流程修正已入硬步骤 ⑥（原子推或 tag 先行）
 3. [ ] `npm publish`（包名 `spec-wave` · 版本 `2.4.1` · **仅人**；`prepublishOnly` 末段含包内容卫生断言 —— 若红即停止：包内含 `*.bak`/`*~`/`.DS_Store`）
 4. [ ] 探针：`npm view spec-wave version` → `2.4.1`；`git show v2.4.1:package.json` → `version=2.4.1`；`npm pack spec-wave@2.4.1 --dry-run` 清单无 `.bak`
-5. [ ] 打 tag 后复跑：`pins check` 17/17 · `npm test` 全绿（tag-gated 设计红转绿）
+5. [x] 打 tag 后复跑（00 实测）：`pins check` **17/17 PASS · exit 0**（设计红全转绿）· `npm test` **595 pass / 0 fail / 1 门控 skip**
 6. [ ] 回填 ACCEPTANCE / 过程档为已 published（含本表勾选 · RELEASING「最近一次发版」表 · README 双语现行包行 · spec 索引行状态 `待发版 → published`）
 
 ### 人 checklist · `2.4.0` 发版（**已完成** · 2026-09-14 · 人执行 tag/push/publish · 探针/回填 00+release 棒代核）
