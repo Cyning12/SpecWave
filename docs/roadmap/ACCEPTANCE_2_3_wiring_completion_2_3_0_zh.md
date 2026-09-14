@@ -1,7 +1,7 @@
 # 验收档 · 2.3.0 · 接线补全（wiring completion）
 
-> **包**：`spec-wave@2.3.0`（**待发版** · bump 已落 · tag/push/publish 仅人）  
-> **状态**：**PENDING-RELEASE** · 发布归维护者（RELEASING ⑥⑧ · HG-RELEASE 仍 pending）  
+> **包**：`spec-wave@2.3.0`（**已 published** · 2026-09-14 · 人 · tag **`v2.3.0`** ↔ bump commit `87dfa6f`）  
+> **状态**：**CLOSED · 已 published**（⑨ 00 代核探针：`npm view spec-wave version`=`2.3.0` · `dist-tags.latest`=`2.3.0` · `time.2.3.0`=2026-09-14T01:15:25Z · `npm pack spec-wave@2.3.0 --dry-run` 193 文件 · `git show v2.3.0:package.json` name/version 正确 · 打 tag 后复跑 pins 17/17 · npm test 534 pass/0 fail/1 skip）  
 > **规划**：[`PLAN_2_3_wiring_completion_v1_zh.md`](./PLAN_2_3_wiring_completion_v1_zh.md)  
 > **SPEC**：[`../spec/2_3-wiring-completion/`](../spec/2_3-wiring-completion/)（signed · HG-SPEC-SIGNOFF=approved · 2026-09-12 维护者会话授权 00 代签）  
 > **task**：[`../tasks/done/task_2_3_wiring_release.md`](../tasks/done/task_2_3_wiring_release.md)（收口 task · 余七波见 Waves 表）

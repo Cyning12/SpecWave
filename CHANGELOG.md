@@ -9,7 +9,7 @@
 > 主题：**minor** —— **接线补全（wiring completion）**：W1 pins 机制补强（核心）+ W2 钉面维度扩展 + W3 安全可观测 + W4 闸语义接线 + W5 资产完整性 + W6 六宿主补齐（7→13）+ W7 DX/工程健康；**不动 schema、不扩大范围、S2 永不覆写**。  
 > 规划：[`docs/roadmap/PLAN_2_3_wiring_completion_v1_zh.md`](docs/roadmap/PLAN_2_3_wiring_completion_v1_zh.md) · SPEC：[`docs/spec/2_3-wiring-completion/`](docs/spec/2_3-wiring-completion/)  
 >
-> **发布状态**：**待发版**（bump 已落 · tag/push/publish 仅人 · 现行 registry `latest` 仍为 `2.2.1`）。
+> **发布状态**：**已 published** · tag **`v2.3.0`** ↔ `spec-wave@2.3.0`（人 · 2026-09-14 核验 `latest=2.3.0` · bump commit `87dfa6f`）。
 
 ### Changed（行为变更 · 明示）
 

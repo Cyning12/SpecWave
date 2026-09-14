@@ -1,7 +1,7 @@
 # 规划 · 2.3.0 · 接线补全（wiring completion）
 
 > **状态**：`signed` · **HG-SPEC-SIGNOFF=approved** · **HG-NEXT-PLAN=approved**（2026-09-12 维护者会话授权 00 代签 · 与 2.2.0/2.2.1 同模式）  
-> **目标发版**：`spec-wave@2.3.0`（**minor** · 「声明 → 接线 → 可验证」主线之接线补全）  
+> **目标发版**：`spec-wave@2.3.0`（**minor** · 「声明 → 接线 → 可验证」主线之接线补全）· **发布状态：已 published**（2026-09-14 · 人 · tag `v2.3.0` ↔ bump commit `87dfa6f` · 归档 [`ACCEPTANCE_2_3_wiring_completion_2_3_0_zh.md`](./ACCEPTANCE_2_3_wiring_completion_2_3_0_zh.md)）  
 > **基线**：`spec-wave@2.2.1` published（npm `latest` · tag `v2.2.1` ↔ 包身份一致）· 464 用例全通过 · `pins check` 12/12 PASS（本棒实测 2026-09-12 · exit 0）· typecheck 0 错 0 警 · 运行时依赖仅 `js-yaml` · 宿主 7 个  
 > **任务来源**：[`.workbuddy/output/PROMPT-2.3.0-落地-交给SpecWave-agent.md`](../.workbuddy/output/PROMPT-2.3.0-落地-交给SpecWave-agent.md)（§3 波次表 · §4 硬约束 · §5 人闸模式）  
 > **判断依据**：[`.workbuddy/output/路线研究-SpecWave-2.2-3.0.md`](../.workbuddy/output/路线研究-SpecWave-2.2-3.0.md)（§5 波次编排出处）· [`.workbuddy/output/验收报告-SpecWave-2.2.0.md`](../.workbuddy/output/验收报告-SpecWave-2.2.0.md)（§4 问题清单 §7 机制化建议 · 本次范围主源）  
@@ -160,7 +160,7 @@
 | **HG-SPEC-SIGNOFF** | **approved**（2026-09-12 维护者会话授权 00 代签 · 与 2.2.0/2.2.1 同模式） | ~~SPEC 系列定稿~~ |
 | **HG-NEXT-PLAN** | **approved**（2026-09-12 维护者会话授权 00 代签） | ~~开 W1 task 起草~~ |
 | HG-AUDIT-R1（每波 ×7） | pending | 各波 30 改码前（task 阶段逐波走 10-task → 20-task-audit → 00 代签） |
-| HG-RELEASE（2.3.0 发版） | pending | publish（仅人） |
+| HG-RELEASE（2.3.0 发版） | **done**（2026-09-14 · 人执行 tag/push/publish · 00 代跑 push + ⑨ 代核探针全过） | ~~publish（仅人）~~（已完成） |
 
 ---
 
