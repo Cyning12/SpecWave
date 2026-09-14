@@ -10,10 +10,11 @@
 
 | 项 | 值 |
 |----|-----|
-| **工作树 / registry `latest`** | **`spec-wave@2.4.1`**（工作树 · **待发版** · bump 已落 · tag+push 已授权 00 代跑 · publish 仅人）；registry `latest` 仍 **`2.4.0`**（**已 published** · 2026-09-14 · 人 · dist-tags `latest=2.4.0` · tag **`v2.4.0`** ↔ bump commit `343025d` · ⑨ 探针全过 · 明细见下「人 checklist · 2.4.0」） |
-| **前一 latest** | **`spec-wave@2.3.1`**（2.3.0 验收三项修复 patch · 2026-09-14 · tag **`v2.3.1`** ↔ `268ca21`） |
+| **工作树 / registry `latest`** | **`spec-wave@2.4.1`**（**已 published** · 2026-09-14 · 人执行 publish · dist-tags `latest=2.4.1`（registry API 直查实核 · npm CLI 缓存滞后曾显示 2.4.0 已绕缓存）· `time.2.4.1`=2026-09-14T12:47:48Z · tag **`v2.4.1`** ↔ bump commit `c89f92d`（tag+push 00 代跑 · 维护者授权）· ⑨ 探针全过 · 明细见下「人 checklist · 2.4.1」） |
+| **前一 latest** | **`spec-wave@2.4.0`**（门禁强度补全 minor · 2026-09-14 · tag **`v2.4.0`** ↔ `343025d`） |
 | **旧包名** | **`dsh-coding-kit`** · **已 deprecate**（文案 → `spec-wave`） |
 | **git（史实 · 2.1.1）** | tag **`v2.1.1`** · 改名前身份；**`v2.1.2` / `v2.1.3` / `v2.2.0` / `v2.2.1` / `v2.3.0`** 为 SpecWave 身份可溯源点（**禁止** `git tag -f`） |
+| **主题（已发 · 2.4.1）** | 2.4.0 验收报告四项修复：NEW-1 结论门禁否定守卫语义放宽（B/D/E 断链封堵 · 存量 76 份零误伤）+ NEW-2 printJson 基参统一命令 target + realpath 双侧归一（host validate 补 `--target`）+ NEW-3 钉面 pin-16 HTML 锚点入扫描面 + NEW-9/N9 钉面 pin-08 状态格边界正则精确锁定（同族弱点「裸子串判定」收口） |
 | **主题（已发 · 2.4.0）** | 门禁强度补全（gate strength）：W1 钉面提取三修正（N7 refstyle / N8 表行锚定 / N9 语义格位 + 三负向 fixture）+ W2 结论级闸强度增强（S1·N=20 · 评审先行 · 不追溯存量）+ W3 输出层统一相对化（26 处 JSON 出口收敛 + 无绝对路径断言）+ W4 资产门禁可观测（排除项 warning / rebuild 追认警示）+ W5 物料与对外口径对齐（快照标注 / 口径三调 / aider conventions-file）+ W6 P3 清扫（N10 大小写 / N14 slug / N4 留痕） |
 | **主题（已发 · 2.3.1）** | 2.3.0 验收三项修复：N1 .bak 发布卫生（gitignore/files 否定项/prepublishOnly 包内容断言/钉面备份自动清理）+ N11 结论级闸强制结论节（禁回退全文 · 存量 8 份豁免留痕）+ N13 豁免四字段显式类型判 |
 | **主题（已发 · 2.3.0）** | 接线补全（wiring completion）：W1 版本/身份钉机制补强（核心 · pin-08 严化 + 三面入钉 12→15 + fixture 补全 + 目录型 slug 修复）+ W2 钉面维度扩展（pin-16/17）+ W3 安全可观测（toRel / JSON 信封 / C4 / C5 指引）+ W4 闸语义接线（G2 结论级 / 裸 verify / lint-done 帽级 / reviews.CLOSE 强证据）+ W5 资产完整性（sha256.manifest + assets verify）+ W6 六宿主（7→13）+ W7 DX/工程健康（README 13 宿主表 / GLOSSARY / E2 / E5） |
@@ -21,11 +22,11 @@
 | **主题（已发 · 2.2.0）** | 闭环起步：W1 版本/身份钉自动化（核心）+ W2–W7 安全封堵 / 可观测字段 / 上手断档 / 术语表 / 三宿主 / 小清理 |
 | **主题（已发 · 2.1.3）** | README/断言收尾 · 发布溯源测（tag↔package.json） |
 | **主题（已发 · 2.1.2）** | SpecWave 改名收口 |
-| **前一发版** | **`2.4.0`** · **`2.3.1`** · **`2.3.0`** · **`2.2.1`** · **`2.2.0`** · **`2.1.3`** · **`2.1.2`** · **`2.1.1`** · **`2.1.0`** |
+| **前一发版** | **`2.4.1`** · **`2.4.0`** · **`2.3.1`** · **`2.3.0`** · **`2.2.1`** · **`2.2.0`** · **`2.1.3`** · **`2.1.2`** · **`2.1.1`** · **`2.1.0`** |
 | **更早旧包** | `@cyning/harness` **已 deprecate**（文案指 **`spec-wave`**） |
 | **1.x** | **CLOSED** |
-| **下一主线** | **3.0 评估**（2.4.0 **已 published** · 2026-09-14 · 门禁强度补全 W1–W6 全 CLOSE）；候选 = 机制债残余（叙事行语义盲区 等）+ workspaces / onboard 观察项 + D5 roadmap 改名评估（归 3.0）+ 路线研究 §5 3.0 候选集（A3 hooks surface 等）· 另闸 |
-| **验收（2.4.1）** | [`docs/roadmap/ACCEPTANCE_2_4_1_patch_2_4_1_zh.md`](docs/roadmap/ACCEPTANCE_2_4_1_patch_2_4_1_zh.md) · **待发版**（bump 已落 · tag `v2.4.1` 待人打后转 published · task `2-4-1-patch`） |
+| **下一主线** | **3.0 评估**（2.4.1 **已 published** · 2026-09-14 · 门禁强度补全 W1–W6 + 验收四项修复全 CLOSE）；候选 = 机制债残余（叙事行语义盲区 等）+ workspaces / onboard 观察项 + D5 roadmap 改名评估（归 3.0）+ 路线研究 §5 3.0 候选集（A3 hooks surface 等）+ 2.4.0 验收 §6.2 归 3.0 清单（NEW-4/5/6/7/8/10/11/12 · N5）· 另闸 |
+| **验收（2.4.1）** | [`docs/roadmap/ACCEPTANCE_2_4_1_patch_2_4_1_zh.md`](docs/roadmap/ACCEPTANCE_2_4_1_patch_2_4_1_zh.md) · **CLOSED**（**已 published** · 2026-09-14 · 人 publish · tag `v2.4.1` ↔ `c89f92d` · ⑨ 探针全过） |
 | **验收（2.4.0）** | [`docs/roadmap/ACCEPTANCE_2_4_gate_strength_2_4_0_zh.md`](docs/roadmap/ACCEPTANCE_2_4_gate_strength_2_4_0_zh.md) · **CLOSED**（**已 published** · 2026-09-14 · 人 · tag `v2.4.0` ↔ `343025d` · ⑨ 探针全过） |
 | **验收（2.3.1）** | [`docs/roadmap/ACCEPTANCE_2_3_1_patch_2_3_1_zh.md`](docs/roadmap/ACCEPTANCE_2_3_1_patch_2_3_1_zh.md) · **CLOSED**（**已 published** · 2026-09-14 · 人 · tag `v2.3.1` ↔ `268ca21`） |
 | **验收（2.3.0）** | [`docs/roadmap/ACCEPTANCE_2_3_wiring_completion_2_3_0_zh.md`](docs/roadmap/ACCEPTANCE_2_3_wiring_completion_2_3_0_zh.md) · **CLOSED**（**已 published** · 2026-09-14 · 人 · ⑨ 00 代核探针全过） |
@@ -33,7 +34,7 @@
 | **验收（2.2.0）** | [`docs/roadmap/ACCEPTANCE_2_2_closed_loop_start_2_2_0_zh.md`](docs/roadmap/ACCEPTANCE_2_2_closed_loop_start_2_2_0_zh.md) · **CLOSED** |
 | **验收（2.1.2）** | [`docs/roadmap/ACCEPTANCE_2_1_2_rename_closeout_2_1_2_zh.md`](docs/roadmap/ACCEPTANCE_2_1_2_rename_closeout_2_1_2_zh.md) · **CLOSED** |
 | **验收（2.1.1 UX）** | [`docs/roadmap/ACCEPTANCE_2_1_1_host_tools_ux_2_1_1_zh.md`](docs/roadmap/ACCEPTANCE_2_1_1_host_tools_ux_2_1_1_zh.md) |
-| **task（2.4.1）** | [`docs/tasks/done/task_2_4_1_patch.md`](docs/tasks/done/task_2_4_1_patch.md) · **CLOSED**（无独立 SPEC 夹 · 属 2.4.0 验收后 patch · NEW-1/2/3/9 + N9 闭环 + bump · 待发版） |
+| **task（2.4.1）** | [`docs/tasks/done/task_2_4_1_patch.md`](docs/tasks/done/task_2_4_1_patch.md) · **CLOSED**（无独立 SPEC 夹 · 属 2.4.0 验收后 patch · NEW-1/2/3/9 + N9 闭环 + bump · **已 published**） |
 | **task（2.4.0）** | [`docs/tasks/done/`](docs/tasks/done/) `task_2_4_gate_strength_w1..w6_*` · **CLOSED**（W1–W6 全关账 · release 波走本 checklist） |
 | **task（2.3.0）** | [`docs/tasks/done/task_2_3_wiring_release.md`](docs/tasks/done/task_2_3_wiring_release.md) · **CLOSED**（2.3.0 接线补全收尾 bump） |
 | **task（2.3.1）** | [`docs/tasks/done/task_2_3_1_patch.md`](docs/tasks/done/task_2_3_1_patch.md) · **CLOSED**（无独立 SPEC 夹 · 属 2.3.0 验收后 patch） |
@@ -63,7 +64,7 @@
 - [ ] **⑧ npm publish（仅人）**：`npm publish`（`prepublishOnly` 会自动重跑②四门；⑦已核对清单）。**Agent 不得执行本步。**
 - [ ] **⑨ publish 后核验 + 过程档状态更新**：`npm view spec-wave version`（及 `dist-tags`）确认新版本已生效；抽样验证；更新过程档状态为已发布。（人 publish 后 · Agent 可代核）
 
-### 人 checklist · `2.4.1` 发版（**待发版** · Agent 侧已备齐 · 2026-09-14）
+### 人 checklist · `2.4.1` 发版（**已完成** · 2026-09-14 · 人执行 publish · tag/push 00 代跑（维护者授权）· 探针/回填 00+release 棒代核）
 
 > 内容：2.4.0 验收报告 PASS-with-issues §6.1「建议纳入 2.4.1」四项修复 —— NEW-1 [P1] 结论门禁否定守卫语义放宽（`不.{0,3}通过`/`未.{0,3}通过`/`no\s*pass`/`reject` · B/D/E 断链封堵 · 存量 76 份零误伤）· NEW-2 [P1] `printJson` 基参统一命令 target + realpath 双侧归一（cli.ts×5 含 :1299 信封增量 + cli-host.ts×4 · `host validate` 补 `--target` additive · cwd≠target/symlink 对偶测试 ×6）· NEW-3 [P2] pin-16 HTML `<a href>` 入扫描面（yaml semantics 三形态同步）· NEW-9/N9 [P2] pin-08 状态格边界正则精确锁定（`(?<![0-9A-Za-z._-])X\.Y\.Z(?![0-9A-Za-z._-])` · 三负向 + 存量索引行零误伤）。task `2-4-1-patch`。
 >
@@ -71,10 +72,10 @@
 
 1. [x] 确认工作树已 commit（含 bump `2.4.1` · CHANGELOG `## [2.4.1] - 2026-09-14` · 钉点 16/17（pin-10 tag-gated 设计红 · 打 tag 后须 17/17）· 四门绿）
 2. [x] `git tag v2.4.1`（annotated · 00 代跑 · 维护者已授权）+ push（tag `v2.4.1` ↔ `c89f92d` 已上 origin）。**教训留痕**：首次按「先 main 后 tag」分推触发竞态——main CI `test (24.x)` checkout 比 tag 到远端早 ~1s，tag 存在性闸项红（run 34843339145）；tag 落远端后 `gh run rerun --failed` 转绿。流程修正已入硬步骤 ⑥（原子推或 tag 先行）
-3. [ ] `npm publish`（包名 `spec-wave` · 版本 `2.4.1` · **仅人**；`prepublishOnly` 末段含包内容卫生断言 —— 若红即停止：包内含 `*.bak`/`*~`/`.DS_Store`）
-4. [ ] 探针：`npm view spec-wave version` → `2.4.1`；`git show v2.4.1:package.json` → `version=2.4.1`；`npm pack spec-wave@2.4.1 --dry-run` 清单无 `.bak`
+3. [x] `npm publish`（包名 `spec-wave` · 版本 `2.4.1` · **仅人** · 人执行；dist-tags `latest=2.4.1` · `time.2.4.1`=2026-09-14T12:47:48Z · `prepublishOnly` 末段包内容卫生断言过）
+4. [x] 探针（00 实测 · 全过）：registry API 直查 dist-tags `latest=2.4.1`（npm CLI 缓存滞后曾显示 2.4.0 · 已绕缓存实核）；`git show v2.4.1:package.json` → `version=2.4.1`；真 tarball `spec-wave@2.4.1` 清单 188 文件（对照 2.4.0 一致）· 无 `.bak` / `*~` / `.DS_Store`
 5. [x] 打 tag 后复跑（00 实测）：`pins check` **17/17 PASS · exit 0**（设计红全转绿）· `npm test` **595 pass / 0 fail / 1 门控 skip**
-6. [ ] 回填 ACCEPTANCE / 过程档为已 published（含本表勾选 · RELEASING「最近一次发版」表 · README 双语现行包行 · spec 索引行状态 `待发版 → published`）
+6. [x] 回填 ACCEPTANCE / 过程档为已 published（本棒 · 00+release 棒代核 ⑨：本表勾选 · RELEASING「最近一次发版」表 · README 双语现行包行（bump 时已联改 2.4.1 · 钉面受控）· spec 索引行状态 `待发版 → published` · ACCEPTANCE 头部与已知残余转绿注记）
 
 ### 人 checklist · `2.4.0` 发版（**已完成** · 2026-09-14 · 人执行 tag/push/publish · 探针/回填 00+release 棒代核）
 

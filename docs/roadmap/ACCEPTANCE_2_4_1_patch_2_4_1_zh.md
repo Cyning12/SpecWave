@@ -1,6 +1,6 @@
 # ACCEPTANCE · 2.4.1 patch（验收报告 NEW-1/2/3/9 修复）台账
 
-> **版本**：`spec-wave@2.4.1`（**待发版** · bump 已落 2026-09-14 · **tag+push 维护者已授权 00 代跑 · publish 仅人**）
+> **版本**：`spec-wave@2.4.1`（**已 published** · 2026-09-14 · 人执行 publish · dist-tags `latest=2.4.1`（registry API 直查实核）· `time.2.4.1`=2026-09-14T12:47:48Z · tag **`v2.4.1`** ↔ bump commit `c89f92d`（tag+push 00 代跑 · 维护者授权）· 探针全过）
 > **task**：[`docs/tasks/done/task_2_4_1_patch.md`](../tasks/done/task_2_4_1_patch.md)（slug `2-4-1-patch` · 无独立 SPEC 夹 · 属 2_4-gate-strength 验收后 patch · 已关账 CLOSED）
 > **依据**：`.workbuddy/output/验收报告-SpecWave-2.4.0.md` §3（NEW-1/2/3/9）· §2 N9 · §6.1「建议纳入 2.4.1」（判 PASS-with-issues · §7.3 不开 2.5.0）· R1 审查文 `docs/harness/reviews/task_2_4_1_patch_audit_R1_20260914.md`（PASS · 三裁决照其定稿执行）
 
@@ -33,10 +33,11 @@
 ## 已知残余（主动登记 · 归 3.0）
 
 - 验收报告 §6.2 归 3.0 清单全部未动：NEW-4（pin-17 伪表行）· NEW-5（S1·N=20 非语义闸）· NEW-6/7/8/12（机械清扫类）· NEW-10（exempt 数据后门）· NEW-11（广义词表面）· N5（assets rebuild 追认设计性残留）。
-- pin-10 tag-gated 设计红待打 `v2.4.1` 后复跑转绿（须 17/17）。
+- pin-10 tag-gated 设计红 ~~待打 `v2.4.1` 后复跑转绿~~ **已转绿**——tag `v2.4.1` ↔ `c89f92d` 落位后 `pins check` **17/17 PASS · exit 0**（00 实测 2026-09-14）。
 - NEW-1 换行形态「不\n通过」漏网（见上 · R1 留痕口径）。
 
 ## 发布边界
 
 - 本棒未执行 `git tag` / `git push` / `npm publish` / `npm deprecate`（**tag+push 维护者 2026-09-14 已授权 00 代跑 · publish 仅人**）· 未用 `--force` / `git add -A`。
 - RELEASING 人 checklist 2.4.1 节已备（含授权注记 · 打 tag 后复跑 pins 17/17 + npm test 全绿 · pack 清单无 .bak 探针）。
+- **发布完成回填（2026-09-14 · 人 publish 后 00+release 棒代核 ⑨）**：tag `v2.4.1` ↔ `c89f92d` 已 push（00 代跑 · 维护者授权）；registry dist-tags `latest=2.4.1`（`time.2.4.1`=2026-09-14T12:47:48Z · registry API 直查实核 · npm CLI 缓存滞后已绕）；探针全过（`git show v2.4.1:package.json`=2.4.1 · 真 tarball 188 文件对照 2.4.0 一致 · .bak/*~/.DS_Store=0）；打 tag 后复跑 `pins check` 17/17 · `npm test` 595 pass / 0 fail / 1 门控 skip。**竞态教训留痕**：首次「先 main 后 tag」分推致 main CI（run 34843339145）tag 存在性闸项红，tag 落远端后 rerun 转绿；RELEASING 硬步骤⑥已加原子推规则（commit `9b1ee75`）。
