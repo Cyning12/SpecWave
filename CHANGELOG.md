@@ -6,6 +6,8 @@
 
 ### 2.4.0 接口预留（发版波落正式条目）
 
+- **2.4-W4（N2/N5 · D-24-W4-WARN-ONLY）资产门禁可观测补全（行为增补 · exit code 语义不变）**：① `assets verify` 对 `assets/` 内被排除项（`*.bak` / `*~` / `.DS_Store` · D-23-W5-EXCLUDE 单一常量双侧消费保持）输出显式 `WARN: 排除项 N 个（不参与哈希校验）: <相对路径清单>`（超 5 条截断 + `… 共 M 个` 汇总），`--json` 信封新增 `excluded: string[]` 字段（键集只增不改）——排除项由「静默排除」升级为「排除但可见」，warning 级不升 exit 2、不干扰 failClosed（真实篡改仍 exit 2）与 CI 判读；② `assets manifest rebuild` dry-run 与 `--yes` 两路强制输出追认警示「本操作将当前资产状态追认为真值——若资产曾被篡改，篡改将随本次 rebuild 被合法化；防投毒依赖 provenance（未启用）」（口径同 `docs/guides/provenance_oidc_trusted_publishing_guide_v1_zh.md` 自述）。配套断言：`test/cli-w5-assets-integrity.test.ts` 新增 2.4-W4 组 4 用例（N2 构造正负 / 截断 / warning 不掩负向 / N5 快照两路）。
+
 - **2.4-W3（N12 · D-24-OUTPUT-REL-EXIT）值相对化（接口说明 · 正式条目随 2.4.0 发版波落地）**：CLI 输出相对化从逐字段打补丁收敛为**输出层统一出口**——所有 `--json` 信封经 `printJson`（`src/cli-shared.ts` · 深遍历字符串值 · 仓根绝对前缀词法判据）打印；修复 V2 实测四处泄漏：`task lint --json#file`、`task close --json#dest`/`done_snapshot.path`（含 READY dry-run）、`verify`/`gate-check --json#task`（绝对入参形态）、`task close` 人类输出 `moved:`/`dest:`/`done_snapshot · path:`；另覆盖 `host validate --json#file` 同型泄漏。`--json` 信封**键集只增不改**（键名/类型/顺序不变 · 测试钉死），本条为**值**变更，循 D-23-JSON-TARGET-REL 按安全泄漏修复定性；既有 JSON 消费者若依赖绝对路径值须适配。exit code 语义不变；`CLOSE: PASS` 等冻结文案不变。配套机械断言：`test/cli-json-no-abs-path.test.ts`（全 `--json` 命令面 + 断言自身负向自证）。
 
 ## [2.3.1] - 2026-09-14

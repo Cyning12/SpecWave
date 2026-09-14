@@ -1,6 +1,6 @@
 # Task：2.4 W4 · 资产门禁可观测补全（assets observability）
 
-> **状态**：`active`（HG-TASK-DRAFT=approved · **HG-AUDIT-R1=approved**（00 代签 · 2026-09-14） · 2026-09-14 开单）  
+> **状态**：`done`（HG-TASK-DRAFT=approved · **HG-AUDIT-R1=approved**（00 代签 · 2026-09-14） · 2026-09-14 开单 · 2026-09-14 关账）  
 > **wave**：W4（2.4.0 门禁强度补全）  
 > **关联 SPEC**：[`docs/spec/2_4-gate-strength/04_w4_assets_observability_v1.md`](../../spec/2_4-gate-strength/04_w4_assets_observability_v1.md)（**唯一蓝本** · signed）· [`00_policy_and_boundaries.md`](../../spec/2_4-gate-strength/00_policy_and_boundaries.md)  
 > **Open Folder**：仓根
@@ -45,9 +45,9 @@
 
 ## 范围
 
-- [ ] ① **N2 · verify 排除项 warning**：verify 侧收集被排除项清单 → 输出 `WARN: 排除项 N 个（不参与哈希校验）: <相对路径清单>`（量大截断 + 总数汇总 · F-W4-01）；`--json` 面新增 `excluded` 字段（键集只增 · 合规）；exit code 语义不变。
-- [ ] ② **N5 · rebuild 追认警示**：dry-run（`src/cli-assets.ts:196`）与 `--yes` 写盘两路均追加警示文案——「本操作将当前资产状态追认为真值 · 若资产曾被篡改将随本次 rebuild 被合法化 · 防投毒依赖 provenance（当前未启用）」；文案快照断言入测试；是否加 `--yes` 外二次确认由本 task 20 审定（默认警示即够）。
-- [ ] ③ **回退锁**：mismatch / missing / extra 三负向仍 exit 2（2.3-W5 既有用例全绿）；warning 不影响 failClosed（真实篡改仍 exit 2）。
+- [x] ① **N2 · verify 排除项 warning**：verify 侧收集被排除项清单 → 输出 `WARN: 排除项 N 个（不参与哈希校验）: <相对路径清单>`（量大截断 + 总数汇总 · F-W4-01）；`--json` 面新增 `excluded` 字段（键集只增 · 合规）；exit code 语义不变。
+- [x] ② **N5 · rebuild 追认警示**：dry-run（`src/cli-assets.ts:196`）与 `--yes` 写盘两路均追加警示文案——「本操作将当前资产状态追认为真值 · 若资产曾被篡改将随本次 rebuild 被合法化 · 防投毒依赖 provenance（当前未启用）」；文案快照断言入测试；是否加 `--yes` 外二次确认由本 task 20 审定（默认警示即够）。
+- [x] ③ **回退锁**：mismatch / missing / extra 三负向仍 exit 2（2.3-W5 既有用例全绿）；warning 不影响 failClosed（真实篡改仍 exit 2）。
 
 ## 非范围
 
@@ -80,14 +80,14 @@
 
 > ①–⑤ 逐字对齐 SPEC 04 §7 五条；⑥–⑧ 为本棒纪律性增补。
 
-- [ ] ① **N2 构造**：靶场 `assets/` 放 `.bak` → `assets verify` exit 0 **且** WARN 点名该文件（相对路径）；删除后 warning 消失；`--json` 面含 `excluded` 字段。贴实际命令与输出。
-- [ ] ② **N5 快照断言**：rebuild dry-run 与 `--yes` 两路输出含追认警示（「追认」「provenance（未启用）」关键词断言）；警示口径与 `docs/guides/provenance_oidc_trusted_publishing_guide_v1_zh.md:3` 自述一致。
-- [ ] ③ **三负向不回退**：mismatch / missing / extra 仍 exit 2（既有用例全绿）。
-- [ ] ④ **CI 语义不变**：warning 不影响 failClosed · 无 `continue-on-error` / `|| true` 类削弱引入。
-- [ ] ⑤ `npm run typecheck` 0 错 · `npm test` 全绿（含新增）。
-- [ ] ⑥ **行为变更旧测影响面（TEST-LOCK）**：assets 测试夹影响面逐处列出并联改（grep 留证）。
-- [ ] ⑦ 波末 `npx spec-wave gate-check --task docs/tasks/active/task_2_4_gate_strength_w4_assets_observability.md` 通过 + `task close --yes` 闭环。
-- [ ] ⑧ **提交边界**：禁 `git add -A`；逐路径精确 `git add`；提交信息 `feat(2.4-W4): …`。
+- [x] ① **N2 构造**：靶场 `assets/` 放 `.bak` → `assets verify` exit 0 **且** WARN 点名该文件（相对路径）；删除后 warning 消失；`--json` 面含 `excluded` 字段。贴实际命令与输出。
+- [x] ② **N5 快照断言**：rebuild dry-run 与 `--yes` 两路输出含追认警示（「追认」「provenance（未启用）」关键词断言）；警示口径与 `docs/guides/provenance_oidc_trusted_publishing_guide_v1_zh.md:3` 自述一致。
+- [x] ③ **三负向不回退**：mismatch / missing / extra 仍 exit 2（既有用例全绿）。
+- [x] ④ **CI 语义不变**：warning 不影响 failClosed · 无 `continue-on-error` / `|| true` 类削弱引入。
+- [x] ⑤ `npm run typecheck` 0 错 · `npm test` 全绿（含新增）。
+- [x] ⑥ **行为变更旧测影响面（TEST-LOCK）**：assets 测试夹影响面逐处列出并联改（grep 留证）。
+- [x] ⑦ 波末 `npx spec-wave gate-check --task docs/tasks/active/task_2_4_gate_strength_w4_assets_observability.md` 通过 + `task close --yes` 闭环。
+- [x] ⑧ **提交边界**：禁 `git add -A`；逐路径精确 `git add`；提交信息 `feat(2.4-W4): …`。
 
 ---
 
@@ -116,13 +116,28 @@
 
 | 项 | 状态 | 备注 |
 |----|------|------|
-| `src/cli-assets.ts` verify 排除项 warning | ⬜ | — |
-| `src/cli-assets.ts` rebuild 追认警示 | ⬜ | — |
-| 测试扩组 + 三负向回退锁 | ⬜ | — |
+| `src/cli-assets.ts` verify 排除项 warning | ✅ | `scanAssets` 双侧同扫收集 excluded（manifest 自身为结构性排除不入 warning）· 人类面 `WARN: 排除项 N 个（不参与哈希校验 · D-23-W5-EXCLUDE）: <前 5 条> … 共 M 个`（F-W4-01 截断）· `--json` 新增 `excluded` 字段（键集只增）· exit code 语义不动 |
+| `src/cli-assets.ts` rebuild 追认警示 | ✅ | `REBUILD_WARN` 常量单一文案 · dry-run 与 `--yes` 两路（含幂等空转路）均输出「追认为真值 · 篡改将随 rebuild 被合法化 · provenance（未启用）」· 口径同 guide :3 自述 |
+| 测试扩组 + 三负向回退锁 | ✅ | `test/cli-w5-assets-integrity.test.ts` 新增 describe ×4 用例（N2 构造正负/截断/warning 不掩负向 · N5 快照断言两路）· 2.3-W5 既有 9 用例全绿未改断言 |
 
 ### 自检结论（执行者）
 
-（30/40 回填：验证命令与退出码表 · 验收 ①–⑧ 逐条 · 已知未测项 · Task_KPI%）
+- **验证命令与退出码**：`npm run typecheck` 0 错 · `npm test` 574 pass / 0 fail / 1 skipped（含新增 4）· `npm run build` OK · `npm run test:lib` 6/6 · `node bin/specgate.js pins check` 17/17 · `node bin/specgate.js assets verify` PASS 110/110（仓内无排除项 · 无 WARN）
+- **验收① N2 构造（先红后绿）**：红 = stash 旧码靶场放 `leak.bak` → verify exit 0 且无排除项提示（结构性失明复现）；绿 = 新码 exit 0 + `WARN: 排除项 1 个…: prompts/leak.bak` · `--json` 含 `excluded: ["prompts/leak.bak"]` · 删除后 warning 消失
+- **验收② N5 快照断言**：dry-run 与 `--yes` 两路输出均含「追认」「provenance（未启用）」· 测试内整句快照断言锁文案（F-W4-03）
+- **验收③ 三负向不回退**：mismatch/missing/extra 既有用例全绿仍 exit 2；新增「排除项+篡改并存 → exit 2」用例钉死 warning 不掩负向
+- **验收④ CI 语义不变**：exit code 0/1/2 口径未动 · 未触 `.github/workflows/` · 无 `continue-on-error`/`|| true` 引入
+- **验收⑥ TEST-LOCK 影响面**：grep `assets verify|sha256.manifest|excluded` → `cli-w5-assets-integrity.test.ts`（本波扩组）· `cli-json-no-abs-path.test.ts`（`--json` 新键为相对路径 · 无绝对前缀 · 不需联改）· `lib-smoke/cli-lib-smoke.test.ts` S5（仓内无排除项 · PASS 断言不受影响）· 旧断言零改动
+- **已知未测项**：无（F-W4-01 截断、F-W4-02 字段/前缀区分均有用例）
+- **Task_KPI**：范围 3/3 · 验收 ①–⑥⑧ 自证齐 · ⑦ 见关账记录
+
+### KPI（00）
+
+Task_KPI%: 96（验收 8/8 自证通过 · N2 先红后绿留证（stash 旧码复现静默 PASS → 新码 WARN 点名 + `--json#excluded`）· N5 快照断言两路锁文案 · 机械断言 +4 测全绿 · 三负向回退锁含「warning 不掩负向」新钉 · 四门绿 574 pass+1 既有门控 skip · pins 17/17 · assets 110/110 无 WARN · TEST-LOCK 3 处核对零联改 · exit code/CI 判据不动 · 不 bump 版本号）
+
+### 经验总结
+
+可观测性补全的关键判据是「warning 与 failClosed 严格分层」：`WARN:` 前缀 + `--json` 独立 `excluded` 字段让排除项可见而不改变 exit code 契约（D-24-W4-WARN-ONLY），CI 零判据新增即不干扰既有判读；manifest 自身属结构性排除须从 warning 清单剔除，否则每次 verify 恒定告警反而消解信号。rebuild 警示用单一常量文案 + 三路（dry-run/--yes/幂等）统一输出 + 快照断言锁定，防文案漂移（F-W4-03）。
 
 ---
 
