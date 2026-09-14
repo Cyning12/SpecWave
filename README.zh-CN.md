@@ -35,7 +35,7 @@
 | **Roo Code** | `AGENTS.md` 片段（共享 marker 块 · 官方仓 merged PR 加载）· 不物化 skills（无官方目录约定） |
 | **Zed** | `AGENTS.md` 片段（共享 marker 块）· `.agents/skills/` |
 | **Cline** | `AGENTS.md` 片段（共享 marker 块）· `.cline/skills/` |
-| **aider**（注入层） | `AGENTS.md` 片段（注入层支持：aider **不会**自动加载 AGENTS.md——须 `aider --read AGENTS.md` 或 `.aider.conf.yml` 配置）· 不物化 skills（无官方约定） |
+| **aider**（注入层） | `AGENTS.md` 片段（注入层支持：aider **不会**自动加载 AGENTS.md——须 `aider --read AGENTS.md` 或在 `.aider.conf.yml` 写 `conventions-file: AGENTS.md`）· 不物化 skills（无官方约定） |
 
 **2.2 W6 / 2.3 W6 宿主增量**（同一包）：上述九宿主复用 **agents** 资产面（零新资产）；落点逐宿主官方文档取证，无官方 skills 目录约定的宿主不物化 skills（永不强造目录）。aider 为如实标注的降级——仅注入层。
 

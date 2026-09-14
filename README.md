@@ -35,7 +35,7 @@ One declarative table → native landing on several hosts (always_on + skills + 
 | **Roo Code** | `AGENTS.md` fragment (shared marker block; loaded per official-repo merged PR) · no skills dir (no official convention) |
 | **Zed** | `AGENTS.md` fragment (shared marker block) · `.agents/skills/` |
 | **Cline** | `AGENTS.md` fragment (shared marker block) · `.cline/skills/` |
-| **aider** (injection layer) | `AGENTS.md` fragment (injection-layer support: aider does **not** auto-load AGENTS.md — use `aider --read AGENTS.md` or `.aider.conf.yml`) · no skills dir (no official convention) |
+| **aider** (injection layer) | `AGENTS.md` fragment (injection-layer support: aider does **not** auto-load AGENTS.md — use `aider --read AGENTS.md` or `.aider.conf.yml` with `conventions-file: AGENTS.md`) · no skills dir (no official convention) |
 
 **2.2 W6 / 2.3 W6 host additions** (same package): the nine hosts above reuse the **agents** asset face (zero new assets); each landing follows the host's official docs, and hosts without an official skills convention get no skills directory (never fabricated). aider is a documented downgrade — injection layer only.
 

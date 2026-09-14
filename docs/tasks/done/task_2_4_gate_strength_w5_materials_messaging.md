@@ -1,6 +1,6 @@
 # Task：2.4 W5 · 物料与对外口径对齐（materials & messaging）
 
-> **状态**：`active`（HG-TASK-DRAFT=approved · **HG-AUDIT-R1=approved**（00 代签 · 2026-09-14） · 2026-09-14 开单）  
+> **状态**：`done`（HG-TASK-DRAFT=approved · **HG-AUDIT-R1=approved**（00 代签 · 2026-09-14） · 2026-09-14 开单 · 2026-09-14 关账）  
 > **wave**：W5（2.4.0 门禁强度补全 · 纯文档波）  
 > **关联 SPEC**：[`docs/spec/2_4-gate-strength/05_w5_materials_messaging_v1.md`](../../spec/2_4-gate-strength/05_w5_materials_messaging_v1.md)（**唯一蓝本** · signed）· [`00_policy_and_boundaries.md`](../../spec/2_4-gate-strength/00_policy_and_boundaries.md)  
 > **Open Folder**：仓根
@@ -43,11 +43,11 @@ N3（§3.D）：`delivery/promotion/` 4 份物料全部停在 2.1.3、命中 SPE
 
 ## 范围
 
-- [ ] ① **N3 物料处置**：`delivery/promotion/` 4 份（`01-项目简介单页.md` / `02-README-重写版.md` / `03-发布博客-1x到2x路线.md` / `04-一页纸简介.md`）逐份定「翻新 / 历史快照标注」（默认：03 发布博客天然快照 · 01/02/04 快照标注为最低代价合规 · 若翻新则数字以 bump 前实测为准）；逐份过黑名单词机检留证。
-- [ ] ② **口径调一（T-03 降调）**：README / 事实卡中 T-03「可机检」类表述 → 「防意外漂移/防遗忘」口径（防投毒依赖 provenance · 未启用 · 指引链 docs/guides/provenance_oidc_trusted_publishing_guide_v1_zh.md）。
-- [ ] ③ **口径调二（安全设计收窄）**：`delivery/安全设计.md` §5.3.1 A-1 行完整性依赖列追加限定（「防漂移口径 · 防投毒依赖 provenance · 未启用」）· `:77`「篡改发现」→「意外漂移发现」· `:418` 同步核对；**只收窄不重构**（tarball sha512/2FA 等真实控制不动 · F-W5-03）。
-- [ ] ④ **口径调三（关账声称核查）**：对外面「关账必经审查通过」出现处清单 + 与 W2 落地状态一致的口径结论留档（W2 未落地前维持保守口径）。
-- [ ] ⑤ **N6 aider 行**：`README.md:38` 双语补 `.aider.conf.yml` 写 `conventions-file: AGENTS.md` 的等价配置路径；**表行内保留 host 词锚**（pin-17 表行命中不破 · F-W5-02）。
+- [x] ① **N3 物料处置**：`delivery/promotion/` 4 份（`01-项目简介单页.md` / `02-README-重写版.md` / `03-发布博客-1x到2x路线.md` / `04-一页纸简介.md`）逐份定「翻新 / 历史快照标注」（默认：03 发布博客天然快照 · 01/02/04 快照标注为最低代价合规 · 若翻新则数字以 bump 前实测为准）；逐份过黑名单词机检留证。
+- [x] ② **口径调一（T-03 降调）**：README / 事实卡中 T-03「可机检」类表述 → 「防意外漂移/防遗忘」口径（防投毒依赖 provenance · 未启用 · 指引链 docs/guides/provenance_oidc_trusted_publishing_guide_v1_zh.md）。
+- [x] ③ **口径调二（安全设计收窄）**：`delivery/安全设计.md` §5.3.1 A-1 行完整性依赖列追加限定（「防漂移口径 · 防投毒依赖 provenance · 未启用」）· `:77`「篡改发现」→「意外漂移发现」· `:418` 同步核对；**只收窄不重构**（tarball sha512/2FA 等真实控制不动 · F-W5-03）。
+- [x] ④ **口径调三（关账声称核查）**：对外面「关账必经审查通过」出现处清单 + 与 W2 落地状态一致的口径结论留档（W2 未落地前维持保守口径）。
+- [x] ⑤ **N6 aider 行**：`README.md:38` 双语补 `.aider.conf.yml` 写 `conventions-file: AGENTS.md` 的等价配置路径；**表行内保留 host 词锚**（pin-17 表行命中不破 · F-W5-02）。
 
 ## 非范围
 
@@ -80,14 +80,14 @@ N3（§3.D）：`delivery/promotion/` 4 份物料全部停在 2.1.3、命中 SPE
 
 > ①–⑤ 逐字对齐 SPEC 05 §7 五条；⑥–⑧ 为本棒纪律性增补。
 
-- [ ] ① **物料机检**：4 份逐份 grep `四宿主|406 用例|2\.1\.3`（现行表述位）→ 命中为零 **或** 快照标注行存在；处置方式逐份留证。
-- [ ] ② **口径机检**：README / 事实卡 grep「可机检」（T-03 语境）→ 零命中或带降调限定；`delivery/安全设计.md` `:77` 与 §5.3.1 A-1 行含收窄/「未启用」标注。贴 grep 输出。
-- [ ] ③ **关账声称核查**：出现处清单 + 口径与 W2 状态一致结论留档。
-- [ ] ④ **aider 行**：README 双语含 `conventions-file: AGENTS.md` 写法；`node bin/specgate.js pins check` 全量 PASS（pin-17 表行命中不破）。
-- [ ] ⑤ `npm test` 全绿（防测试夹文案断言漂移）。
-- [ ] ⑥ **文档影响面**：grep 留证（黑名单词 · 「可机检」 · 「篡改发现」三组前后对照）。
-- [ ] ⑦ 波末 `npx spec-wave gate-check --task docs/tasks/active/task_2_4_gate_strength_w5_materials_messaging.md` 通过 + `task close --yes` 闭环。
-- [ ] ⑧ **提交边界**：禁 `git add -A`；逐路径精确 `git add`；提交信息 `feat(2.4-W5): …`（或 `docs(2.4-W5): …` 纯文档口径 · 随仓惯例）。
+- [x] ① **物料机检**：4 份逐份 grep `四宿主|406 用例|2\.1\.3`（现行表述位）→ 命中为零 **或** 快照标注行存在；处置方式逐份留证。
+- [x] ② **口径机检**：README / 事实卡 grep「可机检」（T-03 语境）→ 零命中或带降调限定；`delivery/安全设计.md` `:77` 与 §5.3.1 A-1 行含收窄/「未启用」标注。贴 grep 输出。
+- [x] ③ **关账声称核查**：出现处清单 + 口径与 W2 状态一致结论留档。
+- [x] ④ **aider 行**：README 双语含 `conventions-file: AGENTS.md` 写法；`node bin/specgate.js pins check` 全量 PASS（pin-17 表行命中不破）。
+- [x] ⑤ `npm test` 全绿（防测试夹文案断言漂移）。
+- [x] ⑥ **文档影响面**：grep 留证（黑名单词 · 「可机检」 · 「篡改发现」三组前后对照）。
+- [x] ⑦ 波末 `npx spec-wave gate-check --task docs/tasks/active/task_2_4_gate_strength_w5_materials_messaging.md` 通过 + `task close --yes` 闭环。
+- [x] ⑧ **提交边界**：禁 `git add -A`；逐路径精确 `git add`；提交信息 `feat(2.4-W5): …`（或 `docs(2.4-W5): …` 纯文档口径 · 随仓惯例）。
 
 ---
 
@@ -115,13 +115,32 @@ N3（§3.D）：`delivery/promotion/` 4 份物料全部停在 2.1.3、命中 SPE
 
 | 项 | 状态 | 备注 |
 |----|------|------|
-| 物料 4 份处置 | ⬜ | — |
-| 口径三调 | ⬜ | — |
-| aider 行双语 | ⬜ | — |
+| 物料 4 份处置 | ✅ | 逐份定**快照标注**（默认最低代价合规 · 03 天然快照同标注）；4 份文首均有「历史版本快照（2.1.3 时点）」标注行 + 指向仓根 README 现行事实面；正文历史叙事不改写 |
+| 口径三调 | ✅ | ① 事实卡 §11 :221 行改写为 2.3.0 已交付 + 「防意外漂移/防遗忘」降调口径（README 双语「可机检」零命中，与 R1 T-5 一致）；② 安全设计 :77「篡改发现」→「意外漂移发现（防主动投毒依赖 provenance · 未启用）」· :418 同步标注 · §5.3.1 A-1 行（:768）完整性依赖列追加「防漂移口径 · 防投毒依赖 provenance · 未启用」；③ 关账声称恢复见自检结论 ③ |
+| aider 行双语 | ✅ | README.md:38 / README.zh-CN.md:38 各补 `.aider.conf.yml` 写 `conventions-file: AGENTS.md` 等价写法；表行 host 词锚 `**aider**` 保留 · pins check 17/17 不破 |
 
 ### 自检结论（执行者）
 
-（30/40 回填：机检输出 · 验收 ①–⑧ 逐条 · 已知未测项 · Task_KPI%）
+30 回填（2026-09-14）：
+
+- ① **物料机检**：4 份逐份 `grep -c "历史版本快照（2.1.3 时点）"` = 1/1/1/1（快照标注行存在 · 处置方式 = 快照标注逐份留证）。黑名单词改前命中 3/5/7/11 处，改后仍存在于正文但**全部落在快照叙事内**（文首标注覆盖 · 验收①「命中为零或快照标注行存在」取后者）。
+- ② **口径机检**：README.md / README.zh-CN.md / 事实卡 grep「可机检」**exit=1 零命中**（事实卡面已纳入 grep 断言 · R1 T-5 防空转）；`delivery/安全设计.md` grep「篡改发现」**exit=1 零命中**；:77 / :418 / :768 三处收窄限定行 grep 命中留证（见上）。
+- ③ **关账声称核查**：对外面（README 双语 · 事实卡 · promotion 4 份）grep「关账必经」唯一出现处 = 事实卡 :234（原禁称行）。W2 已落地（`task_2_4_gate_strength_w2_conclusion_gate.md` done · S1·N=20 定档 · 结论节实质内容判据入 `evalReviewConclusion`）→ 按 SPEC 05 §6「落地后恢复」口径，:234 行改写为**可声称「关账必经结论级审查通过（机读文本闸）」**，并保留「非人工复核等价物」的诚实限定。结论：对外口径与 W2 落地状态一致，留档于此。
+- ④ **aider 行**：双语 README :38 均含 `conventions-file: AGENTS.md`；`pins check` 17/17 PASS（pin-17 表行命中不破 · F-W5-02 未触发）。
+- ⑤ **npm test**：见关账记录（四门全绿）。
+- ⑥ **文档影响面**：三组 grep 前后对照已贴（改前：黑名单词 3/5/7/11 · 可机检 0 · 篡改发现 1；改后：快照标注 1/1/1/1 · 可机检 0 · 篡改发现 0 + 收窄限定 3 行）。
+- ⑦ gate-check + task close：见关账记录。
+- ⑧ 提交边界：逐路径精确 `git add`（9 文件）· `docs(2.4-W5): 物料与对外口径对齐（N3/口径三调/N6）`。
+- **已知未测项**：无（纯文档波 · 零代码改动 · src/test 未动）。
+- **Task_KPI**：验收 ①–⑧ 全过 · 100%。
+
+### KPI（00）
+
+Task_KPI%: 100（验收 8/8 自证通过 · 物料 4 份快照标注逐份 grep 留证（改前黑名单词 3/5/7/11 → 快照行 1/1/1/1）· 「可机检」README/事实卡零命中（R1 T-5 锚定事实卡防空转）· 「篡改发现」零命中 + 安全设计 :77/:418/:768 三处收窄限定留证 · 关账声称出现处清单（唯一 = 事实卡 :234）+ W2 落地（S1·N=20）一致口径恢复留档 · aider 行双语 `conventions-file: AGENTS.md` + pin-17 表行不破 · 四门绿（575 tests · 574 pass + 1 既有门控 skip）· pins 17/17 · assets 110/110 · 零代码改动 · 逐路径 add 9 文件 · 不 bump 版本号）
+
+### 经验总结
+
+纯文档波的验收强度靠「grep 断言锚定具体文件 + 前后对照留证」撑住：R1 提示级 T-5（验收②锚定事实卡）正是防「零命中空转」的关键——若只对 README grep「可机检」，断言恒真却无意义。快照标注是历史物料的最低代价合规路径：文首一行 + 指向仓根 README 现行事实面，既不伪造历史叙事，又让黑名单词命中从「现行表述」降级为「定格史实」。收窄类改动的边界纪律是「只收窄高估口径、不动真实控制」（F-W5-03）：tarball sha512/2FA 等真实防护一字未动。
 
 ---
 

@@ -1,5 +1,7 @@
 # SpecWave
 
+> **历史版本快照（2.1.3 时点）**：本文为 README 重写**草稿**，数字与能力表述定格于 `spec-wave@2.1.3` 时点，**不作现行口径引用**；现行事实面（宿主数 · 测试规模 · 已交付能力）以仓根 [README.md](../../README.md) 为准。
+
 > 跨宿主规范分发器——把 AI 编码纪律从"建议性提示词"升级为"机械门禁 + 留档可审计的过程轨"。零云、零服务端、MIT 开源。
 
 [![npm version](https://img.shields.io/npm/v/spec-wave.svg)](https://www.npmjs.com/package/spec-wave)
