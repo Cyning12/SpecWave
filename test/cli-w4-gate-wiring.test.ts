@@ -44,7 +44,8 @@ async function writeRel(root: string, rel: string, body: string): Promise<string
   return abs
 }
 
-const REVIEW_PASS = '# R1 fixture\n\n## 结论\n\nPASS · 零内容阻塞（fixture）\n'
+// 2.4-W2 S1·N=20：结论节须含实质签收内容（去通过词后非空白 ≥20 字符）· 本 fixture substance=42
+const REVIEW_PASS = '# R1 fixture\n\n## 结论\n\nPASS · 零内容阻塞（fixture）\n\n审查结论：fixture 全项合规，无阻塞遗留，准予关账。\n'
 const REVIEW_NO_PASS = '# R1 fixture\n\n## 结论\n\n| 项 | 判定 |\n|----|------|\n| 仅文档 | 是 |\n'
 
 // verify 面最小 task fixture（闸全 approved · test_strategy=recommended）
@@ -394,6 +395,104 @@ describe('2.3.1 N11 [P1] · 结论级闸强制结论节（禁止回退全文 · 
       const good = runCli(['task', 'close', '--file', rel], dir)
       assert.equal(good.status, 0, good.combined)
       assert.match(good.combined, /CLOSE: READY/)
+    })
+  })
+})
+
+describe('2.4-W2 · 结论级闸强度增强（S1·N=20 · 评审文 w2_conclusion_gate_strength_review_20260914 §4 定档）', { concurrency: 1 }, () => {
+  // 修复前真红留证：下列薄结论节形态在 2.3.1 码下 verify exit 0（残余缺口复现 · 证据见 task 自检结论节）
+  async function seedW2(dir: string, slug: string, review: string, done = false): Promise<string> {
+    const rel = `docs/tasks/${done ? 'done' : 'active'}/task_${slug}_v1.md`
+    await writeRel(dir, rel, taskMd(slug, done ? 'done' : 'draft'))
+    await writeRel(dir, `docs/harness/invokes/by-task/${slug.replace(/_/g, '-')}/invoke_20260901_10_x.md`, '# invoke 10\n')
+    await writeRel(dir, `docs/harness/reviews/task_${slug}_audit_R1_20260914.md`, review)
+    return rel
+  }
+
+  it('① A2 收窄形态：结论节只写「通过」二字 → BLOCKED exit 2 点名 S1·N=20', async () => {
+    await withTemp(async (dir) => {
+      const rel = await seedW2(dir, 'w2_a2', '# R1 fixture\n\n## 结论\n\n通过\n')
+      const r = runCli(['verify', '--task', rel, '--target', dir])
+      assert.equal(r.status, 2, r.combined)
+      assert.match(r.combined, /VERIFY: BLOCKED · 审查文结论不可机读通过/)
+      assert.match(r.combined, /内容量不足（去通过词后非空白 4<20 字符/)
+      assert.match(r.combined, /2\.4-W2 S1·N=20/)
+    })
+  })
+
+  it('② 单通行词变体：## 签收\\nPASS / ## 结论\\n零阻塞 → BLOCKED exit 2', async () => {
+    await withTemp(async (dir) => {
+      const rel = await seedW2(dir, 'w2_var', '# R1 fixture\n\n## 签收\n\nPASS\n')
+      const a = runCli(['verify', '--task', rel, '--target', dir])
+      assert.equal(a.status, 2, a.combined)
+      assert.match(a.combined, /内容量不足/)
+      await writeRel(dir, 'docs/harness/reviews/task_w2_var_audit_R1_20260914.md', '# R1 fixture\n\n## 结论\n\n零阻塞\n')
+      const b = runCli(['verify', '--task', rel, '--target', dir])
+      assert.equal(b.status, 2, b.combined)
+      assert.match(b.combined, /内容量不足/)
+    })
+  })
+
+  it('③ 合规正向：实质结论节 exit 0 · 存量最低容量代表样本（2_1_1-host-tools-ux w1 审查文原文 · substance=40）回归 exit 0', async () => {
+    await withTemp(async (dir) => {
+      const rel = await seedW2(dir, 'w2_ok', '# R1 fixture\n\n## 结论\n\nPASS · 零内容阻塞。审查项逐条核对，范围与验收一致，无阻塞遗留，准予关账。\n')
+      const good = runCli(['verify', '--task', rel, '--target', dir])
+      assert.equal(good.status, 0, good.combined)
+      assert.match(good.combined, /VERIFY: PASS/)
+      // 存量代表样本：docs/harness/reviews/task_2_1_1_host_tools_ux_w1_sticky_audit_R1_20260910.md 原文（存量 48 份中节内容量最低档 min=40）
+      const legacy = [
+        '# 20-task-audit · R1 · `2_1_1-host-tools-ux-w1-sticky`',
+        '',
+        '> **hat**：20-task-audit · **日期**：2026-09-10 · **结论**：**PASS**（可签 `HG-AUDIT-R1`）',
+        '',
+        '## 核对',
+        '',
+        '| 项 | 结论 |',
+        '|----|------|',
+        '| 范围/非范围清晰 | PASS · 粘性 + `--tools all` |',
+        '',
+        '## 结论',
+        '',
+        '**PASS** · 建议 `HG-AUDIT-R1=approved` · 派 **30**。',
+        '',
+      ].join('\n')
+      await writeRel(dir, 'docs/harness/reviews/task_w2_ok_audit_R1_20260914.md', legacy)
+      const reg = runCli(['verify', '--task', rel, '--target', dir])
+      assert.equal(reg.status, 0, reg.combined)
+      assert.match(reg.combined, /VERIFY: PASS/)
+    })
+  })
+
+  it('④ 阈值边界探针：去通过词后恰 19 → exit 2 · 恰 20 → exit 0（N=20 两侧钉死）', async () => {
+    await withTemp(async (dir) => {
+      const rel = await seedW2(dir, 'w2_edge', '# R1 fixture\n\n## 结论\n\n通过 abcdefghijklmno\n')
+      const under = runCli(['verify', '--task', rel, '--target', dir])
+      assert.equal(under.status, 2, under.combined)
+      assert.match(under.combined, /内容量不足（去通过词后非空白 19<20 字符/)
+      await writeRel(dir, 'docs/harness/reviews/task_w2_edge_audit_R1_20260914.md', '# R1 fixture\n\n## 结论\n\n通过 abcdefghijklmnop\n')
+      const at = runCli(['verify', '--task', rel, '--target', dir])
+      assert.equal(at.status, 0, at.combined)
+      assert.match(at.combined, /VERIFY: PASS/)
+    })
+  })
+
+  it('⑤ 否定守卫回归：通过词 + 实质内容 + 未否定「退回」→ 仍 exit 2（守卫优先 · 2.3-W4 B2 形态不回退）', async () => {
+    await withTemp(async (dir) => {
+      const rel = await seedW2(dir, 'w2_neg', '# R1 fixture\n\n## 结论\n\n整体通过，但有一处需退回修改后再审，审查项逐条核对完毕。\n')
+      const r = runCli(['verify', '--task', rel, '--target', dir])
+      assert.equal(r.status, 2, r.combined)
+      assert.match(r.combined, /VERIFY: BLOCKED · 审查文结论不可机读通过/)
+      assert.match(r.combined, /含否定结论词/)
+    })
+  })
+
+  it('done 目录降级不回退：薄结论节 done task → exit 0 + warn（D-24-W2-NO-RETRO 不追溯存量）', async () => {
+    await withTemp(async (dir) => {
+      const rel = await seedW2(dir, 'w2_legacy', '# R1 fixture\n\n## 结论\n\n通过\n', true)
+      const r = runCli(['verify', '--task', rel, '--target', dir])
+      assert.equal(r.status, 0, r.combined)
+      assert.match(r.combined, /verify: warn · task_w2_legacy_audit_R1_20260914\.md 结论不可机读通过/)
+      assert.match(r.combined, /VERIFY: PASS/)
     })
   })
 })

@@ -30,7 +30,7 @@ gaps:
     title: reviews 留档闸
     status: closed
     closed_in: "2.3.0"
-    note: "存在级 2026-08-24 已接线（verify src/cli.ts · close evalCloseReview src/cli-checks.ts · T4/T6 · 旧 note 过期 2.3-W4 回写）；2.3-W4 升结论级 R1 通过判定（findLatestReview src/cli-checks.ts#644 + evalReviewConclusion #682 · v2 节标题起首口径 · 接入 close #188 与 verify --task src/cli.ts#952 · active failClosed / done warn 降级 · D-23-W4-TRANSITION 不追溯存量 · 评审文 w4_gate_wiring_plan_review_20260913）· 旧包史实（@cyning/harness 2.5.0 · N4 全量 2.9.0）"
+    note: "存在级 2026-08-24 已接线（verify src/cli.ts · close evalCloseReview src/cli-checks.ts · T4/T6 · 旧 note 过期 2.3-W4 回写）；2.3-W4 升结论级 R1 通过判定（findLatestReview src/cli-checks.ts#644 + evalReviewConclusion #682 · v2 节标题起首口径 · 接入 close #188 与 verify --task src/cli.ts#952 · active failClosed / done warn 降级 · D-23-W4-TRANSITION 不追溯存量 · 评审文 w4_gate_wiring_plan_review_20260913）；2.3.1 N11 强制结论/签收节存在（禁回退全文）；2.4-W2 结论节强度 S1·N=20（去通过词后残余非空白 ≥20 字符 · REVIEW_MIN_SUBSTANCE src/cli-checks.ts · 评审文 w2_conclusion_gate_strength_review_20260914 定档 · 存量 48 份实测误伤 0 · D-24-W2-NO-RETRO 不追溯）· 旧包史实（@cyning/harness 2.5.0 · N4 全量 2.9.0）"
   - id: G3
     title: 文本纪律（绝对路径）
     status: closed

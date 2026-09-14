@@ -117,7 +117,7 @@ describe('DEF-016 reviews.CLOSE 接线 + event_count 0/null 语义统一（先�
       await writeRel(
         dir,
         'docs/harness/reviews/task_close_done_audit_R1_20260913.md',
-        '# R1\n\n## 结论\n\nPASS · 零内容阻塞（fixture）\n',
+        '# R1\n\n## 结论\n\nPASS · 零内容阻塞（fixture）\n\n审查结论：fixture 全项合规，无阻塞遗留，准予关账。\n',
       )
       const donePayload = statusJson(dir, relDone)
       assert.equal(donePayload.reviews.CLOSE, true, 'status=done 且审查结论通过 应 CLOSE=true')

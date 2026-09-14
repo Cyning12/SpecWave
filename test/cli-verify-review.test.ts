@@ -101,7 +101,7 @@ describe('DEF-003 T4 · verify 查 R<n> 审查文存在性', { concurrency: 1 },
   it('补 docs/harness/reviews/task_*_audit_R1_* → VERIFY: PASS · exit 0', async () => {
     await withTemp(async (dir) => {
       await seedTask(dir)
-      await writeRel(dir, REVIEW_REL, '# R1 fixture\n\n## 结论\n\nPASS · 零内容阻塞（fixture）\n')
+      await writeRel(dir, REVIEW_REL, '# R1 fixture\n\n## 结论\n\nPASS · 零内容阻塞（fixture）\n\n审查结论：fixture 全项合规，无阻塞遗留，准予关账。\n')
       const r = runCli(['verify', '--task', TASK_REL, '--target', dir])
       assert.equal(r.status, 0, r.combined)
       assert.match(r.combined, /VERIFY: PASS/)
@@ -111,7 +111,7 @@ describe('DEF-003 T4 · verify 查 R<n> 审查文存在性', { concurrency: 1 },
   it('reviews/ 备选目录同样认可（findReview 双路径口径）', async () => {
     await withTemp(async (dir) => {
       await seedTask(dir)
-      await writeRel(dir, 'reviews/task_vr_ok_audit_R2_2026-08-20.md', '# R2 fixture\n\n## 结论\n\nPASS · 零内容阻塞（fixture · R2 终轮）\n')
+      await writeRel(dir, 'reviews/task_vr_ok_audit_R2_2026-08-20.md', '# R2 fixture\n\n## 结论\n\nPASS · 零内容阻塞（fixture · R2 终轮）\n\n审查结论：fixture 全项合规，无阻塞遗留，准予关账。\n')
       const r = runCli(['verify', '--task', TASK_REL, '--target', dir])
       assert.equal(r.status, 0, r.combined)
       assert.match(r.combined, /VERIFY: PASS/)
@@ -121,7 +121,7 @@ describe('DEF-003 T4 · verify 查 R<n> 审查文存在性', { concurrency: 1 },
   it('task 文件 _v<n> 版本后缀不影响审查文匹配（stripVer 口径与 status 一致）', async () => {
     await withTemp(async (dir) => {
       await seedTask(dir, 'docs/tasks/active/task_vr_suff_v3.md', 'vr_suff')
-      await writeRel(dir, 'docs/harness/reviews/task_vr_suff_audit_R1_x.md', '# R1 fixture\n\n## 结论\n\nPASS · 零内容阻塞（fixture）\n')
+      await writeRel(dir, 'docs/harness/reviews/task_vr_suff_audit_R1_x.md', '# R1 fixture\n\n## 结论\n\nPASS · 零内容阻塞（fixture）\n\n审查结论：fixture 全项合规，无阻塞遗留，准予关账。\n')
       const r = runCli(['verify', '--task', 'docs/tasks/active/task_vr_suff_v3.md', '--target', dir])
       assert.equal(r.status, 0, r.combined)
       assert.match(r.combined, /VERIFY: PASS/)

@@ -220,7 +220,7 @@ describe('D1–D7 G1–G7 runtime', { concurrency: 1 }, () => {
       const rel = 'docs/tasks/active/task_lc_target_v1.md'
       await writeRel(dir, rel, taskMd({ slug: 'lc_target' }))
       // DEF-003 T3：reviews_retention 已真接线（缺 R<n> 审查文即 fail/blocked）· 补审查文保持本用例聚焦 --target 解析
-      await writeRel(dir, 'docs/harness/reviews/task_lc_target_audit_R1_2026-08-20.md', '# R1 fixture\n\n## 结论\n\nPASS · 零内容阻塞（fixture）\n')
+      await writeRel(dir, 'docs/harness/reviews/task_lc_target_audit_R1_2026-08-20.md', '# R1 fixture\n\n## 结论\n\nPASS · 零内容阻塞（fixture）\n\n审查结论：fixture 全项合规，无阻塞遗留，准予关账。\n')
       // 带 --target：--task 相对 target 解析成功（cwd=KIT 下该相对路径不存在）
       const withTarget = runCli([
         'lifecycle', 'dry-run', '--transition', 'to_30', '--from', 'draft',

@@ -9,6 +9,7 @@
 
 | 关账日 | task | 摘要 |
 |--------|------|------|
+| 2026-09-14 | [`task_2_4_gate_strength_w2_conclusion_gate.md`](./task_2_4_gate_strength_w2_conclusion_gate.md) | 2.4.0 W2 · 结论级闸强度增强（S1·N=20 定档）：评审先行硬前置（评审文 w2_conclusion_gate_strength_review_20260914 · S1/S2/S3 对比 + 存量 48 份实测 S1·N=20 误伤 0、S2 全灭否决）+ evalReviewConclusion 增节内容量判据（去全部通过词命中后非空白 ≥20 字符 · gi 全局 strip · 封堵 A2 收窄形态「结论节只写通过二字」）+ 六形态 fixture（A2 收窄/双变体/19-20 边界/合规正向/守卫回归/done 降级锁 · 修复前真红 exit 0→2 留证）+ 存量 66 份复测新判据波及 0（零波及登记 · 无新增豁免）+ TEST-LOCK 15 文件 24 处联改 · D-24-W2-NO-RETRO 不追溯存量 · 549 pass+1 门控 skip · pins 17/17 · assets 110/110 · 不 bump 版本号 |
 | 2026-09-14 | [`task_2_4_gate_strength_w1_pins_extract.md`](./task_2_4_gate_strength_w1_pins_extract.md) | 2.4.0 W1 · pins 提取修正（核心波）：N7 pin-16 补 reference-definition 分支（refstyle 目标与 inline 同一归一/判定管线 · D-24-PIN16-REFSTYLE）+ N8 pin-17 词锚∧表行双命中（tagline/prose 顶包不计入 · D-24-PIN17-TABLEROW）+ N9 pin-08 语义格位锁定（版本真值只认状态列 cells[2] 点式 X.Y.Z · X_Y/X_Y_Z 不计入 · slug 列降为行身份辅助 · D-24-PIN08-SEMCELL）+ 三负向 fixture 固化 V1 构造（修复前逐一真红留证 · §3.H/§3.I/§3.J）+ T-1 消解（spec 索引 2.3.1 行 published 口径追认）+ F-W1-05「规划中」口径定稿入 yaml semantics · 543 pass+1 门控 skip · pins 17/17（pin-08 真仓对照实验 exit 0→2→0）· assets 110/110 · 不 bump 版本号 |
 | 2026-09-14 | [`task_2_3_1_patch.md`](./task_2_3_1_patch.md) | 2.3.1 patch · 验收报告 §6 三项修复：N1 .bak 发布卫生六件套（gitignore/files 否定项/prepublishOnly 包内容断言 failClosed/pins fix 备份成功后自动清理 · 生产实证零 .bak 残留）+ N11 结论级闸强制结论节（禁回退全文 · A2 负向真红复现 · 存量波及 8 份循 W4 先例豁免留痕零静默）+ N13 豁免四字段显式类型判（00 无引号无效+留痕/"00" 命中/123 真红锁）+ bump 2.3.1（唯一手工点 + 叙事漂移改回 ×4 + 断言联改 8 文件双模式两轮 + RELEASING 人 checklist 2.3.1 节 + ACCEPTANCE_2_3_1 档 + spec 索引行 + manifest 110/110）· 540+6 新测 · pins 16/17（pin-10 tag-gated 设计红）· 零发布本体越权 |
 | 2026-09-14 | [`task_2_3_wiring_release.md`](./task_2_3_wiring_release.md) | 2.3.0 release · 接线补全收尾 bump（2.2.1→2.3.0）：package.json 唯一手工点 + CHANGELOG 2.3.0 节先行（pin-13 首个命中防历史头回写）+ pins fix 9 落点对齐（16/17 + pin-10 tag-gated 设计红待人打 tag）+ 叙事漂移巡检 ×4 + 未钉引用/断言联改（8 测试文件 perl 双模式一轮清零）+ RELEASING 待办节+台账（九步顺序测一轮绿）+ ACCEPTANCE_2_3 档 + PLAN 波次表 + assets manifest 重生成 110/110 · 532/534（2 红 tag-gated 设计红）· 零发布本体越权（tag/push/publish 仅人） |
@@ -63,3 +64,4 @@
 | 2026-09-12 | 增 2.3.0 W2 pin-dimensions 关账行 |
 | 2026-09-13 | 增 2.3.0 W3 security-observability 关账行 |
 | 2026-09-13 | 增 2.3.0 W4 gate-wiring 关账行 |
+| 2026-09-14 | 增 2.4.0 W2 conclusion-gate 关账行 |

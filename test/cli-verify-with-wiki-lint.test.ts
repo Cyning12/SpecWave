@@ -93,7 +93,7 @@ const REVIEW_REL = 'docs/harness/reviews/task_wlw_ok_audit_R1_2026-08-27.md'
 // 主 task 自身带 wiki_delta（scope=all 会扫到它）；缺口来自兄弟 active task（K4 场景）
 async function seed(dir: string, opts: { withGap?: boolean } = {}): Promise<void> {
   await writeRel(dir, TASK_REL, taskMd({ slug: 'wlw_ok', wikiDelta: 'n/a' }))
-  await writeRel(dir, REVIEW_REL, '# R1 fixture\n\n## 结论\n\nPASS · 零内容阻塞（fixture）\n')
+  await writeRel(dir, REVIEW_REL, '# R1 fixture\n\n## 结论\n\nPASS · 零内容阻塞（fixture）\n\n审查结论：fixture 全项合规，无阻塞遗留，准予关账。\n')
   if (opts.withGap) await writeRel(dir, GAP_REL, taskMd({ slug: 'wlw_gap' }))
 }
 
@@ -184,7 +184,7 @@ describe('verify --with-wiki-lint（K3 · lint-wiki-delta 并入 verify）', { c
     await withTemp(async (dir) => {
       // task 落仓根（不在 lint 扫描的 docs/tasks/ 候选目录内）
       await writeRel(dir, 'task_wlw_solo_v1.md', taskMd({ slug: 'wlw_solo' }))
-      await writeRel(dir, REVIEW_REL.replace('wlw_ok', 'wlw_solo'), '# R1 fixture\n\n## 结论\n\nPASS · 零内容阻塞（fixture）\n')
+      await writeRel(dir, REVIEW_REL.replace('wlw_ok', 'wlw_solo'), '# R1 fixture\n\n## 结论\n\nPASS · 零内容阻塞（fixture）\n\n审查结论：fixture 全项合规，无阻塞遗留，准予关账。\n')
       const text = runCli(['verify', '--task', 'task_wlw_solo_v1.md', '--target', dir, '--with-wiki-lint'])
       assert.equal(text.status, 0, text.combined)
       assert.match(text.combined, /VERIFY: PASS/)
@@ -216,7 +216,7 @@ describe('verify --with-wiki-lint（K3 · lint-wiki-delta 并入 verify）', { c
         '- fixture',
         '',
       ].join('\n'))
-      await writeRel(dir, 'docs/harness/reviews/spec_wlw_audit_R1_x.md', '# R1 fixture\n\n## 结论\n\nPASS · 零内容阻塞（fixture）\n')
+      await writeRel(dir, 'docs/harness/reviews/spec_wlw_audit_R1_x.md', '# R1 fixture\n\n## 结论\n\nPASS · 零内容阻塞（fixture）\n\n审查结论：fixture 全项合规，无阻塞遗留，准予关账。\n')
       await writeRel(dir, GAP_REL, taskMd({ slug: 'wlw_gap' }))
       const off = runCli(['verify', '--spec', SPEC_REL, '--target', dir])
       assert.equal(off.status, 0, off.combined)

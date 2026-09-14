@@ -89,7 +89,7 @@ const INVOKE10_REL = 'docs/harness/invokes/by-task/vih_ok/invoke_20260801_10_vih
 async function seed(dir: string, opts: { profile?: string; requiredHats?: string } = {}): Promise<void> {
   await writeRel(dir, TASK_REL, taskMd({ slug: 'vih_ok', ...opts }))
   // 审查文补齐：isolate T5 invoke 检查（review 硬闸属 T4 口径）
-  await writeRel(dir, REVIEW_REL, '# R1 fixture\n\n## 结论\n\nPASS · 零内容阻塞（fixture）\n')
+  await writeRel(dir, REVIEW_REL, '# R1 fixture\n\n## 结论\n\nPASS · 零内容阻塞（fixture）\n\n审查结论：fixture 全项合规，无阻塞遗留，准予关账。\n')
 }
 
 // DEF-003 阶段二 T5：verify 查 pre-30 invoke hats（FRAGMENT_30_gate_verify_v1_zh.md#18 语义：
