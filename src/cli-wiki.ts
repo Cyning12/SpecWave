@@ -1,6 +1,6 @@
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
-import { fail, resolveTarget, takeOption } from './cli-shared.ts'
+import { fail, relativizeOutputValue, resolveTarget, takeOption } from './cli-shared.ts'
 
 export const WIKI_GRAPH_SCHEMA = 'harness.wiki_graph.v1'
 
@@ -175,7 +175,7 @@ export async function cmdWiki(args: string[]): Promise<void> {
     edges: graph.edges,
     warnings: graph.warnings,
   }
-  const text = `${JSON.stringify(payload, null, 2)}\n`
+  const text = `${JSON.stringify(relativizeOutputValue(target, payload), null, 2)}\n`
   const out = outArg || '-'
   if (out === '-') process.stdout.write(text)
   else {

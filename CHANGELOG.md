@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+### 2.4.0 接口预留（发版波落正式条目）
+
+- **2.4-W3（N12 · D-24-OUTPUT-REL-EXIT）值相对化（接口说明 · 正式条目随 2.4.0 发版波落地）**：CLI 输出相对化从逐字段打补丁收敛为**输出层统一出口**——所有 `--json` 信封经 `printJson`（`src/cli-shared.ts` · 深遍历字符串值 · 仓根绝对前缀词法判据）打印；修复 V2 实测四处泄漏：`task lint --json#file`、`task close --json#dest`/`done_snapshot.path`（含 READY dry-run）、`verify`/`gate-check --json#task`（绝对入参形态）、`task close` 人类输出 `moved:`/`dest:`/`done_snapshot · path:`；另覆盖 `host validate --json#file` 同型泄漏。`--json` 信封**键集只增不改**（键名/类型/顺序不变 · 测试钉死），本条为**值**变更，循 D-23-JSON-TARGET-REL 按安全泄漏修复定性；既有 JSON 消费者若依赖绝对路径值须适配。exit code 语义不变；`CLOSE: PASS` 等冻结文案不变。配套机械断言：`test/cli-json-no-abs-path.test.ts`（全 `--json` 命令面 + 断言自身负向自证）。
+
 ## [2.3.1] - 2026-09-14
 
 > 主题：**patch** —— 2.3.0 验收报告 **PASS-with-issues** 三项修复（§6「建议 2.3.1」：N1/N11/N13 · task `2-3-1-patch`）。

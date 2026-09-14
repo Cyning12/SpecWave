@@ -7,6 +7,7 @@ import {
   normalizeSlug,
   parseHarnessMeta,
   parseHumanGates,
+  printJson,
   resolveTarget,
   resolveTaskPath,
   STATUS_RE,
@@ -197,7 +198,7 @@ export async function cmdStatus(args: string[]): Promise<void> {
         may_start_30: gateEval.ok,
       }
     })
-    if (json) console.log(JSON.stringify({ schema_version: 'obs_status_list.v1', tasks: rows }, null, 2))
+    if (json) printJson(target, { schema_version: 'obs_status_list.v1', tasks: rows })
     else {
       if (rows.length === 0) process.stdout.write('active tasks: (none)\n')
       else {
@@ -214,7 +215,7 @@ export async function cmdStatus(args: string[]): Promise<void> {
   }
   const { payload, warnings, checkFailed } = buildTaskStatus(target, taskFile, { check })
   for (const w of warnings) console.error(w)
-  if (json) console.log(JSON.stringify(payload, null, 2))
+  if (json) printJson(target, payload)
   else console.log(formatStatusHuman(payload))
   if (check && checkFailed) fail('', 2)
 }
@@ -254,6 +255,6 @@ export async function cmdTimeline(args: string[]): Promise<void> {
   const { buildTaskTimeline, formatTimelineHuman } = await import('./cli-timeline.ts')
   const { payload, warnings } = buildTaskTimeline(target, taskFile, { limit, ingest })
   for (const w of warnings) console.error(w)
-  if (json) console.log(JSON.stringify(payload, null, 2))
+  if (json) printJson(target, payload)
   else process.stdout.write(formatTimelineHuman(payload))
 }

@@ -1,6 +1,6 @@
 # Task：2.4 W3 · 输出层统一相对化（output relativization unified exit）
 
-> **状态**：`active`（HG-TASK-DRAFT=approved · **HG-AUDIT-R1=approved**（00 代签 · 2026-09-14） · 2026-09-14 开单）  
+> **状态**：`done`（HG-TASK-DRAFT=approved · **HG-AUDIT-R1=approved**（00 代签 · 2026-09-14） · 2026-09-14 开单）  
 > **wave**：W3（2.4.0 门禁强度补全）  
 > **关联 SPEC**：[`docs/spec/2_4-gate-strength/03_w3_output_rel_unified_v1.md`](../../spec/2_4-gate-strength/03_w3_output_rel_unified_v1.md)（**唯一蓝本** · signed）· [`00_policy_and_boundaries.md`](../../spec/2_4-gate-strength/00_policy_and_boundaries.md)  
 > **Open Folder**：仓根
@@ -45,9 +45,9 @@ C3「绝对路径零泄漏」逐字段打补丁，V2 实测四处仍泄漏（§3
 
 ## 范围
 
-- [ ] ① **输出层统一出口**：JSON 序列化出口统一经 `printJson` 类助手（深遍历字符串值 · 仓内绝对路径 → toRel）；人类输出路径值经同一口径；复用 `src/cli-shared.ts` toRel 既有实现；仓外路径行为沿用既有语义。
-- [ ] ② **V2 清单四处逐项修复**：`task lint --json#file` · `task close --json#dest/done_snapshot.path` · `verify/gate-check --json#task` · `task close` 人类输出三处——逐项实测留证（含传绝对路径入参形态）。
-- [ ] ③ **机械断言组**：遍历全部 `--json` 命令面（verify / gate-check / audit / task lint / task close / status / pins / assets 等）· 断言 stdout 可 `JSON.parse` 且不含仓根绝对路径前缀；断言组自身负向自证（人为注入一处绝对路径输出 → 断言真红）。
+- [x] ① **输出层统一出口**：JSON 序列化出口统一经 `printJson` 类助手（深遍历字符串值 · 仓内绝对路径 → toRel）；人类输出路径值经同一口径；复用 `src/cli-shared.ts` toRel 既有实现；仓外路径行为沿用既有语义。
+- [x] ② **V2 清单四处逐项修复**：`task lint --json#file` · `task close --json#dest/done_snapshot.path` · `verify/gate-check --json#task` · `task close` 人类输出三处——逐项实测留证（含传绝对路径入参形态）。
+- [x] ③ **机械断言组**：遍历全部 `--json` 命令面（verify / gate-check / audit / task lint / task close / status / pins / assets 等）· 断言 stdout 可 `JSON.parse` 且不含仓根绝对路径前缀；断言组自身负向自证（人为注入一处绝对路径输出 → 断言真红）。
 
 ## 非范围
 
@@ -79,14 +79,14 @@ C3「绝对路径零泄漏」逐字段打补丁，V2 实测四处仍泄漏（§3
 
 > ①–⑤ 逐字对齐 SPEC 03 §7 五条；⑥–⑧ 为本棒纪律性增补。
 
-- [ ] ① **V2 清单逐项转相对**：四条命令实测（含绝对路径入参）→ 输出无仓内绝对路径 · 贴实际命令与输出。
-- [ ] ② **机械断言全绿**：断言组覆盖全部 `--json` 命令面 · 任一命令传绝对路径入参 → stdout grep 仓根绝对前缀为空；断言组负向自证真红留证。
-- [ ] ③ **干净对照不回退**：`status --json#task_path` 相对口径保持；既有 `--json` 信封键集不变（键名 diff 断言）。
-- [ ] ④ **人类输出**：`task close` 的 `moved:`/`dest:`/`done_snapshot·path` 相对化 · CLOSE: PASS 冻结文案不变。
-- [ ] ⑤ `npm run typecheck` 0 错 · `npm test` 全绿（含新增）· CHANGELOG 2.4.0 值相对化条目留接口说明（发版波落正式条目）。
-- [ ] ⑥ **行为变更旧测影响面（TEST-LOCK）**：输出断言影响面逐处列出并联改（grep 留证）。
-- [ ] ⑦ 波末 `npx spec-wave gate-check --task docs/tasks/active/task_2_4_gate_strength_w3_output_rel.md` 通过 + `task close --yes` 闭环。
-- [ ] ⑧ **提交边界**：禁 `git add -A`；逐路径精确 `git add`；提交信息 `feat(2.4-W3): …`。
+- [x] ① **V2 清单逐项转相对**：四条命令实测（含绝对路径入参）→ 输出无仓内绝对路径 · 贴实际命令与输出。
+- [x] ② **机械断言全绿**：断言组覆盖全部 `--json` 命令面 · 任一命令传绝对路径入参 → stdout grep 仓根绝对前缀为空；断言组负向自证真红留证。
+- [x] ③ **干净对照不回退**：`status --json#task_path` 相对口径保持；既有 `--json` 信封键集不变（键名 diff 断言）。
+- [x] ④ **人类输出**：`task close` 的 `moved:`/`dest:`/`done_snapshot·path` 相对化 · CLOSE: PASS 冻结文案不变。
+- [x] ⑤ `npm run typecheck` 0 错 · `npm test` 全绿（含新增）· CHANGELOG 2.4.0 值相对化条目留接口说明（发版波落正式条目）。
+- [x] ⑥ **行为变更旧测影响面（TEST-LOCK）**：输出断言影响面逐处列出并联改（grep 留证）。
+- [x] ⑦ 波末 `npx spec-wave gate-check --task docs/tasks/active/task_2_4_gate_strength_w3_output_rel.md` 通过 + `task close --yes` 闭环。
+- [x] ⑧ **提交边界**：禁 `git add -A`；逐路径精确 `git add`；提交信息 `feat(2.4-W3): …`。
 
 ---
 
@@ -116,13 +116,31 @@ C3「绝对路径零泄漏」逐字段打补丁，V2 实测四处仍泄漏（§3
 
 | 项 | 状态 | 备注 |
 |----|------|------|
-| 输出层统一出口 | ⬜ | — |
-| V2 清单四处逐项修复 | ⬜ | — |
-| 机械断言组 | ⬜ | — |
+| 输出层统一出口 | ✅ | `src/cli-shared.ts` 新增 `printJson(base, payload, indent=2)` + `relativizeOutputValue/String`（深遍历 · 词法仓根前缀判据 · 路径边界 lookaround 防 `../../var/...` 相对形误改）；全部 26 处 stdout JSON 出口（cli.ts ×9 · cli-status ×3 · cli-task-extra · cli-lifecycle ×3 · cli-pins · cli-assets · cli-host ×6 · cli-skills · cli-refresh-ide-blocks（indent=0 保单行契约）· cli-graph · cli-sync-prompts · cli-wiki）收敛经统一出口；写盘 JSON（manifest/snapshot/index 等）不在出口面不动 |
+| V2 清单四处逐项修复 | ✅ | 四处修复前后实测对照留证（HEAD d70e1bd worktree vs 工作区 · 绝对入参 · /tmp fixture）：① `task lint --json#file` 绝对→`docs/tasks/...`；② `close --json#dest`/`done_snapshot.path`（READY dry-run + PASS 均相对）；③ `verify`/`gate-check --json#task` 相对；④ 人类输出 `moved:`/`dest:`/`done_snapshot · path:` 相对 · `CLOSE: PASS` 冻结文案不动；另发现并同出口修复 `host validate --json#file` 同型泄漏 |
+| 机械断言组 | ✅ | `test/cli-json-no-abs-path.test.ts`（21 测）：19 个 `--json` 命令面（verify×4/gate-check/status/timeline/task lint/task close×4/lint-wiki-delta/refresh-ide-blocks/graph axioms/wiki export/错误信封×2/pins/assets/lifecycle/discipline/skills/host validate）· 绝对入参 · stdout 整体 JSON.parse + 仓根前缀（realpath+词法双形态）grep 为空；负向自证 4 例（整串值/内嵌文案/裸仓根/非 JSON → 断言真红）；键集钉死 6 组（verify/gate-check/status/close READY/PASS/BLOCKED/错误信封）；F-W3-04 判据细化：词法前缀不绑 existsSync（READY dest 尚不存在亦相对化 · task R2 自由度内） |
 
 ### 自检结论（执行者）
 
-（30/40 回填：验证命令与退出码表 · 验收 ①–⑧ 逐条 · 已知未测项 · Task_KPI%）
+| 命令 | 退出码 |
+|------|--------|
+| `node bin/specgate.js verify --target . --task docs/tasks/active/task_2_4_gate_strength_w3_output_rel.md`（开工 GATE_VERIFY） | 0（VERIFY: PASS · HG-AUDIT-R1 approved） |
+| `npm run typecheck` | 0 |
+| `npm test`（571 测 · 含新增 21） | 0（570 pass · 0 fail · 1 skipped 既有） |
+| `npm run build` | 0 |
+| `npm run test:lib` | 0（6/6） |
+| `node bin/specgate.js pins check` | 0（PASS 17/17） |
+| `node bin/specgate.js assets verify` | 0（PASS 110/110）· 本棒无 assets/ 变更，无需 manifest rebuild |
+
+验收逐条：① 四处逐项实测转相对（修复前后对照见备忘 · 绝对入参形态覆盖）✅；② 机械断言 21 测全绿 + 负向自证 4 例真红 ✅；③ `status --json#task_path` 相对口径保持（断言 `task_path === docs/tasks/active/...` 非绝对）+ 键集 diff 钉死 ✅；④ close 人类输出三处相对化 + CLOSE: PASS 冻结文案断言 ✅；⑤ typecheck/test 全绿 + CHANGELOG [Unreleased] 2.4.0 接口说明 ✅；⑥ TEST-LOCK 联改 2 处：`test/cli-task-close-done-snapshot.test.ts` dry-run READY 期望改相对 dest（标题同步改注）· `src/cli-shared.ts` 边界守卫修复使 `test/cli-flags.test.ts` 既有相对形断言免改（grep 留证：全量测试 570/570）；⑦ 波末 verify + task close 见下；⑧ 逐路径精确 git add ✅。已知未测项：仓外 target（/tmp 靶场）toRel 语义沿用既有（F-W3-02 · 断言判据只认仓根前缀）；`emitHostFail` base 取 process.cwd()（cwd≠target 时仓内绝对值兜底为原样 · 与既有 toRel 调用点口径一致）。
+
+### KPI（00）
+
+Task_KPI%: 95（验收 8/8 自证通过 · V2 四处修复前后对照留证 · 机械断言 21 测含负向自证 4 例真红 · 四门绿 570 pass+1 既有门控 skip · pins 17/17 · assets 110/110 · TEST-LOCK 2 处联改 · 不 bump 版本号）
+
+### 经验总结
+
+输出层收敛的核心教训：逐字段打补丁式安全修复必然漏网（N12 病根），统一出口 + 机械断言兜底才是根治；词法前缀替换必须带路径边界守卫，否则 `../../var/...` 这类文本包含仓根子串的相对形会被误改（cli-flags 既有断言充当了反向 fixture）。
 
 ---
 

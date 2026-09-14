@@ -1,7 +1,7 @@
 import { createHash } from 'node:crypto'
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
-import { fail, packageRoot, resolveLayoutFile, resolveTarget, takeOption } from './cli-shared.ts'
+import { fail, packageRoot, printJson, resolveLayoutFile, resolveTarget, takeOption } from './cli-shared.ts'
 
 /** Starter 白名单（R1 钉死 · 不含 README.md） */
 export const SYNC_PROMPT_FILES = [
@@ -170,19 +170,13 @@ export async function cmdSyncPrompts(args: string[]): Promise<void> {
 
   const result = applySyncPrompts(target, { yes, force })
   if (json) {
-    console.log(
-      JSON.stringify(
-        {
-          dry_run: result.dryRun,
-          skip: result.skip.map((e) => e.targetRel),
-          add: result.add.map((e) => e.targetRel),
-          conflict: result.conflict.map((e) => e.targetRel),
-          written: result.written.map((e) => e.targetRel),
-        },
-        null,
-        2,
-      ),
-    )
+    printJson(target, {
+      dry_run: result.dryRun,
+      skip: result.skip.map((e) => e.targetRel),
+      add: result.add.map((e) => e.targetRel),
+      conflict: result.conflict.map((e) => e.targetRel),
+      written: result.written.map((e) => e.targetRel),
+    })
   } else {
     printHumanReport(result)
   }

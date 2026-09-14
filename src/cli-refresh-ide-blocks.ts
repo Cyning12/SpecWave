@@ -14,7 +14,7 @@ import {
   writeFileSync,
 } from 'node:fs'
 import path from 'node:path'
-import { assertNotS2Abs, fail, kitLayoutJoin, resolveTarget, takeOption, toRel } from './cli-shared.ts'
+import { assertNotS2Abs, fail, kitLayoutJoin, printJson, resolveTarget, takeOption, toRel } from './cli-shared.ts'
 
 // ---------- T1：marker 块解析器（§3 冻结形态 · 纯函数 · 不写盘） ----------
 
@@ -576,7 +576,7 @@ export async function cmdRefreshIdeBlocks(args: string[]): Promise<void> {
     totals,
     exit: 0,
   }
-  if (json) console.log(JSON.stringify(report))
+  if (json) printJson(target, report, 0) // 单行 JSON 契约（2.4-W3 统一出口 · 形态不变）
   else printHumanReport(report, scans)
 }
 

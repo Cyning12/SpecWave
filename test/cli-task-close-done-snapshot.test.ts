@@ -147,7 +147,7 @@ describe('K5 · task close done 片段快照 + --json', { concurrency: 1 }, () =
     })
   })
 
-  it('dry-run READY：stdout 与 1.7.1 逐字一致（无快照 · 冻结文案回归钉死）', async () => {
+  it('dry-run READY：无快照 · 冻结文案回归钉死（2.4-W3：dest 行改相对口径 · D-24-OUTPUT-REL-EXIT）', async () => {
     await withTemp(async (dir) => {
       await seedComplete(dir)
       const r = close(dir)
@@ -155,10 +155,9 @@ describe('K5 · task close done 片段快照 + --json', { concurrency: 1 }, () =
       assert.match(r.stdout, /CLOSE: READY · snap_ok/)
       assert.doesNotMatch(r.stdout, /done_snapshot/)
       assert.doesNotMatch(r.stdout, /禁止手写 done/)
-      const realDir = realpathSync(dir)
       const expected =
         'mode: dry-run（未执行 mv · 加 --yes 执行）\n' +
-        `dest: ${path.join(realDir, DONE_REL)}\n` +
+        `dest: ${DONE_REL}\n` +
         'CLOSE: READY · snap_ok\n'
       assert.equal(r.stdout, expected)
     })

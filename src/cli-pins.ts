@@ -8,7 +8,7 @@
 import { execFileSync } from 'node:child_process'
 import { copyFileSync, existsSync, readdirSync, readFileSync, statSync, unlinkSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
-import { fail, isS2RelPath, normalizeSlashPath, takeOption } from './cli-shared.ts'
+import { fail, isS2RelPath, normalizeSlashPath, printJson, takeOption } from './cli-shared.ts'
 import { yamlLoad } from './yaml.ts'
 
 const PINS_REL = 'assets/release-pins.yaml'
@@ -529,11 +529,11 @@ function cmdPinsCheck(root: string, json: boolean): void {
   const { truth, results } = runPinsCheck(root)
   const bad = results.filter((r) => r.status !== 'ok')
   if (json) {
-    console.log(JSON.stringify({
+    printJson(root, {
       truth_version: truth,
       status: bad.length === 0 ? 'pass' : 'blocked',
       pins: results,
-    }, null, 2))
+    })
   } else {
     printCheckHuman(truth, results)
   }

@@ -29,6 +29,7 @@ import {
   kitLayoutJoin,
   normalizeSlashPath,
   packageRoot,
+  printJson,
   resolveTarget,
   takeOption,
   toRel,
@@ -486,19 +487,13 @@ async function cmdHostValidate(args: string[]): Promise<void> {
   } catch (err) {
     const msg = `YAML 解析失败: ${(err as Error).message}`
     if (json) {
-      console.log(
-        JSON.stringify(
-          {
-            command: 'host validate',
-            file: abs,
-            ok: false,
-            verdict: 'FAIL',
-            errors: [{ path: '$', code: 'parse', message: msg }],
-          },
-          null,
-          2,
-        ),
-      )
+      printJson(process.cwd(), {
+        command: 'host validate',
+        file: abs,
+        ok: false,
+        verdict: 'FAIL',
+        errors: [{ path: '$', code: 'parse', message: msg }],
+      })
     } else {
       console.error(msg)
       console.log('HOST VALIDATE: FAIL')
@@ -509,19 +504,13 @@ async function cmdHostValidate(args: string[]): Promise<void> {
   const issues = validateHostAdaptDoc(data)
   if (issues.length > 0) {
     if (json) {
-      console.log(
-        JSON.stringify(
-          {
-            command: 'host validate',
-            file: abs,
-            ok: false,
-            verdict: 'FAIL',
-            errors: issues,
-          },
-          null,
-          2,
-        ),
-      )
+      printJson(process.cwd(), {
+        command: 'host validate',
+        file: abs,
+        ok: false,
+        verdict: 'FAIL',
+        errors: issues,
+      })
     } else {
       for (const e of issues) {
         console.error(`  - [${e.code}] ${e.path}: ${e.message}`)
@@ -532,21 +521,15 @@ async function cmdHostValidate(args: string[]): Promise<void> {
   }
 
   if (json) {
-    console.log(
-      JSON.stringify(
-        {
-          command: 'host validate',
-          file: abs,
-          ok: true,
-          verdict: 'PASS',
-        },
-        null,
-        2,
-      ),
-    )
+    printJson(process.cwd(), {
+      command: 'host validate',
+      file: abs,
+      ok: true,
+      verdict: 'PASS',
+    })
     return
   }
-  console.log(`file: ${abs}`)
+  console.log(`file: ${toRel(process.cwd(), abs)}`) // 2.4-W3：人类输出路径值同口径相对化
   console.log('HOST VALIDATE: PASS')
 }
 
@@ -798,17 +781,11 @@ function emitHostFail(
   extraLines: string[],
 ): never {
   if (json) {
-    console.log(
-      JSON.stringify(
-        {
-          ...payload,
-          ok: false,
-          verdict: 'FAIL',
-        },
-        null,
-        2,
-      ),
-    )
+    printJson(process.cwd(), {
+      ...payload,
+      ok: false,
+      verdict: 'FAIL',
+    })
   } else {
     for (const line of extraLines) console.error(line)
     console.log(`${hostBanner(command)}: FAIL`)
@@ -1252,7 +1229,7 @@ async function cmdHostApply(args: string[]): Promise<void> {
     ok: true,
     verdict: 'PASS',
   }
-  if (json) console.log(JSON.stringify(report, null, 2))
+  if (json) printJson(target, report)
   else printHostHuman(report)
 }
 
@@ -1426,7 +1403,7 @@ async function cmdHostUpdate(args: string[]): Promise<void> {
     ok: true,
     verdict: 'PASS',
   }
-  if (json) console.log(JSON.stringify(report, null, 2))
+  if (json) printJson(target, report)
   else printHostHuman(report)
 }
 

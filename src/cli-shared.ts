@@ -375,6 +375,62 @@ export function toRel(target: string, abs: string): string {
   return rel.split(path.sep).join('/')
 }
 
+/**
+ * 输出层统一相对化（2.4-W3 · D-24-OUTPUT-REL-EXIT · N12 根治）：CLI stdout 的
+ * JSON 信封与人类输出路径值统一经本判据 —— 词法命中「base 仓根绝对前缀」即转相对，
+ * 仓外路径与非路径串不动（F-W3-02）。判据为词法前缀（不绑 existsSync：dry-run 的
+ * dest 尚不存在亦须相对化 · F-W3-04 判据细化经 task R2 自由度定稿）。
+ * 整串为仓内绝对路径 → toRel；长文案中嵌入的 `base/` 前缀 → 剥前缀得相对形；
+ * 残余裸 base（后随非路径字符或串尾 · 防 /repo2 误改）→ '.'。
+ */
+export function relativizeOutputString(base: string, s: string): string {
+  if (!s.includes(base)) return s
+  if (path.isAbsolute(s)) {
+    const rel = path.relative(base, s)
+    if (!rel) return '.'
+    if (rel !== '..' && !rel.startsWith(`..${path.sep}`) && !path.isAbsolute(rel)) {
+      return rel.split(path.sep).join('/')
+    }
+    return s
+  }
+  // 嵌入出现的替换仅限「路径边界」（前导/后随非路径字符或串端）——否则 ../../var/... 等
+  // 相对形中文本包含 base 子串会被误改（F-W3-04 反向 fixture · cli-flags 既有断言钉死）
+  const prefix = base.endsWith(path.sep) ? base : base + path.sep
+  const prefixRe = new RegExp(`(?<![A-Za-z0-9._~\\/-])${escapeRegExp(prefix)}`, 'g')
+  let out = s.replace(prefixRe, '')
+  if (out.includes(base)) {
+    const bareRe = new RegExp(
+      `(?<![A-Za-z0-9._~\\/-])${escapeRegExp(base)}(?=$|[^A-Za-z0-9._~\\/-])`,
+      'g',
+    )
+    out = out.replace(bareRe, '.')
+  }
+  return out
+}
+
+/** 深遍历 JSON 载荷：仅改字符串值（键名不动 · 契约「键集只增不改」）。 */
+export function relativizeOutputValue(base: string, value: unknown): unknown {
+  if (typeof value === 'string') return relativizeOutputString(base, value)
+  if (Array.isArray(value)) return value.map((v) => relativizeOutputValue(base, v))
+  if (value !== null && typeof value === 'object') {
+    const out: Record<string, unknown> = {}
+    for (const [k, v] of Object.entries(value as Record<string, unknown>)) {
+      out[k] = relativizeOutputValue(base, v)
+    }
+    return out
+  }
+  return value
+}
+
+/**
+ * --json 唯一出口（D-24-OUTPUT-REL-EXIT）：所有 CLI JSON 信封经本助手打印，
+ * 深遍历相对化后序列化；indent 缺省 2（与既有信封一致），传 0 保持单行形态
+ * （refresh-ide-blocks 单行 JSON 契约）。
+ */
+export function printJson(base: string, payload: unknown, indent = 2): void {
+  console.log(JSON.stringify(relativizeOutputValue(base, payload), null, indent))
+}
+
 export function extractHatsFromInvokeFilename(name: string): string[] {
   const base = path.basename(name, '.md')
   const parts = base.split('_')

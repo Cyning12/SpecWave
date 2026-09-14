@@ -10,7 +10,7 @@ import {
 } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
-import { fail, isS2AbsPath, KIT_DEST_WHITELIST, packageRoot, resolveTarget, takeOption } from './cli-shared.ts'
+import { fail, isS2AbsPath, KIT_DEST_WHITELIST, packageRoot, printJson, resolveTarget, takeOption } from './cli-shared.ts'
 import { yamlDump, yamlLoad } from './yaml.ts'
 
 export const EXECUTE_TRACK = 'starter-experimental'
@@ -423,7 +423,7 @@ export async function cmdSkills(args: string[]): Promise<void> {
     const unknown = rest.filter((a) => a !== '--json')
     if (unknown.length > 0) fail(`skills check 未知参数: ${unknown.join(' ')}`)
     const r = checkSkills({ promptsDir, skillsDir })
-    if (rest.includes('--json')) console.log(JSON.stringify(r, null, 2))
+    if (rest.includes('--json')) printJson(process.cwd(), r)
     else if (r.ok) console.log('SKILLS CHECK: PASS · frontmatter 合法 · skills/ 无 drift')
     else console.log(`SKILLS CHECK: FAIL\n${r.errors.map((e) => `  - ${e}`).join('\n')}`)
     if (!r.ok) fail('skills check FAIL', 2)

@@ -9,7 +9,7 @@ import { cmdHost, listKnownHostIds } from './cli-host.ts'
 import { cmdRefreshIdeBlocks, countStaleIdeLiterals } from './cli-refresh-ide-blocks.ts'
 import { cmdDiscipline, cmdLifecycle } from './cli-lifecycle.ts'
 import { cmdSkills } from './cli-skills.ts'
-import { buildDoneSnapshot, CliError, evaluateMayStart30, extractSection, extractTaskSlug, fail, findGate, HARNESS_META_HEADING, kitLayoutJoin, KIT_LAYOUT_DIR, LEGACY_LAYOUT_DIR, legacyLayoutHint, normalizeSlug, packageRoot, parseHarnessMeta, parseHumanGates, resolveLayoutFile, resolveTarget, resolveTaskPath, STATUS_RE, takeOption, toRel } from './cli-shared.ts'
+import { buildDoneSnapshot, CliError, evaluateMayStart30, extractSection, extractTaskSlug, fail, findGate, HARNESS_META_HEADING, kitLayoutJoin, KIT_LAYOUT_DIR, LEGACY_LAYOUT_DIR, legacyLayoutHint, normalizeSlug, packageRoot, parseHarnessMeta, parseHumanGates, printJson, resolveLayoutFile, resolveTarget, resolveTaskPath, STATUS_RE, takeOption, toRel } from './cli-shared.ts'
 import {
   checkPre30InvokeHats,
   evalCloseGuard,
@@ -562,20 +562,14 @@ async function cmdGateCheck(args: string[]): Promise<void> {
   if (!existsSync(abs)) fail(`错误: 未找到 --task 文件 ${toRel(target, abs)}`)
   const formatted = formatGateCheck(abs, await readFile(abs, 'utf8'))
   if (json) {
-    console.log(
-      JSON.stringify(
-        {
-          command: 'gate-check',
-          // C3 补漏（2.3-W3 · D-23-JSON-TARGET-REL）：--json target 字段绝对 → 相对（与人类面同口径）
-          target: toRel(process.cwd(), target),
-          task: taskFile,
-          blocked: formatted.blocked,
-          verdict: formatted.blocked ? 'BLOCKED' : 'PASS',
-        },
-        null,
-        2,
-      ),
-    )
+    printJson(target, {
+      command: 'gate-check',
+      // C3 补漏（2.3-W3 · D-23-JSON-TARGET-REL）：--json target 字段绝对 → 相对（与人类面同口径）
+      target: toRel(process.cwd(), target),
+      task: taskFile,
+      blocked: formatted.blocked,
+      verdict: formatted.blocked ? 'BLOCKED' : 'PASS',
+    })
   } else {
     process.stdout.write(formatted.text)
   }
@@ -658,27 +652,21 @@ async function verifySpecMode(
   ): void => {
     // obs 恒非空：emitJson 全部调用点均在 opts.json 守卫内（obs 仅 --json 时计算）
     const o = obs as VerifyObservability
-    console.log(
-      JSON.stringify(
-        {
-          command: 'verify',
-          // C3 补漏（2.3-W3 · D-23-JSON-TARGET-REL）：--json target 字段绝对 → 相对（与人类面同口径）
-          target: toRel(process.cwd(), target),
-          spec: specFile,
-          blocked,
-          verdict: blocked ? 'BLOCKED' : 'PASS',
-          traceId: o.traceId,
-          exitCode: blocked ? VERIFY_BLOCKED_EXIT_CODE : 0,
-          source: o.source,
-          injectedFiles: o.injectedFiles,
-          ...(extra?.skipped ? { skipped: extra.skipped } : {}),
-          ...(extra?.waived && extra.waived.length > 0 ? { waived: extra.waived } : {}),
-          ...(wikiLint ? { wiki_lint: wikiLintJson(wikiLint) } : {}),
-        },
-        null,
-        2,
-      ),
-    )
+    printJson(target, {
+      command: 'verify',
+      // C3 补漏（2.3-W3 · D-23-JSON-TARGET-REL）：--json target 字段绝对 → 相对（与人类面同口径）
+      target: toRel(process.cwd(), target),
+      spec: specFile,
+      blocked,
+      verdict: blocked ? 'BLOCKED' : 'PASS',
+      traceId: o.traceId,
+      exitCode: blocked ? VERIFY_BLOCKED_EXIT_CODE : 0,
+      source: o.source,
+      injectedFiles: o.injectedFiles,
+      ...(extra?.skipped ? { skipped: extra.skipped } : {}),
+      ...(extra?.waived && extra.waived.length > 0 ? { waived: extra.waived } : {}),
+      ...(wikiLint ? { wiki_lint: wikiLintJson(wikiLint) } : {}),
+    })
   }
   // C3 补漏（2.3-W3 · D-23-W3-REL-BASE）：错误文案相对化（target 归卡基）
   if (!existsSync(abs)) fail(`错误: 未找到 --spec 文件 ${toRel(target, abs)}`)
@@ -790,31 +778,25 @@ async function verifyBareReviewsMode(
   if (opts.json) {
     // obs 恒非空：本分支在 opts.json 守卫内（obs 仅 --json 时计算）
     const o = obs as VerifyObservability
-    console.log(
-      JSON.stringify(
-        {
-          command: 'verify',
-          target: toRel(process.cwd(), target),
-          blocked: blocked || wikiBlocked,
-          verdict: blocked || wikiBlocked ? 'BLOCKED' : 'PASS',
-          traceId: o.traceId,
-          exitCode: blocked || wikiBlocked ? VERIFY_BLOCKED_EXIT_CODE : 0,
-          source: o.source,
-          injectedFiles: o.injectedFiles,
-          reviews_scan: {
-            done: doneFiles.length,
-            active: activeFiles.length,
-            active_missing_reviews: activeMissing,
-            gaps,
-            exempted: exempted.map((e) => ({ slug: e.slug, gap: e.reason, exempt: e.entry })),
-            exempt_invalid: exempt.invalid,
-          },
-          ...(wikiLint ? { wiki_lint: wikiLintJson(wikiLint) } : {}),
-        },
-        null,
-        2,
-      ),
-    )
+    printJson(target, {
+      command: 'verify',
+      target: toRel(process.cwd(), target),
+      blocked: blocked || wikiBlocked,
+      verdict: blocked || wikiBlocked ? 'BLOCKED' : 'PASS',
+      traceId: o.traceId,
+      exitCode: blocked || wikiBlocked ? VERIFY_BLOCKED_EXIT_CODE : 0,
+      source: o.source,
+      injectedFiles: o.injectedFiles,
+      reviews_scan: {
+        done: doneFiles.length,
+        active: activeFiles.length,
+        active_missing_reviews: activeMissing,
+        gaps,
+        exempted: exempted.map((e) => ({ slug: e.slug, gap: e.reason, exempt: e.entry })),
+        exempt_invalid: exempt.invalid,
+      },
+      ...(wikiLint ? { wiki_lint: wikiLintJson(wikiLint) } : {}),
+    })
   } else {
     console.log(`目标: ${toRel(process.cwd(), target)}`)
     console.log('verify: 仓级 reviews 全量扫描（双路径 docs/harness/reviews + reviews/ · 2.3-W4 FULL-reviews）')
@@ -890,26 +872,20 @@ async function cmdVerify(args: string[]): Promise<void> {
   const emitJson = (blocked: boolean, waived?: string[], wikiLint?: WikiLintGateResult | null): void => {
     // obs 恒非空：emitJson 全部调用点均在 if (json) 守卫内（obs 仅 --json 时计算）
     const o = obs as VerifyObservability
-    console.log(
-      JSON.stringify(
-        {
-          command: 'verify',
-          // C3 补漏（2.3-W3 · D-23-JSON-TARGET-REL）：--json target 字段绝对 → 相对（与人类面同口径）
-          target: toRel(process.cwd(), target),
-          task: taskFile,
-          blocked,
-          verdict: blocked ? 'BLOCKED' : 'PASS',
-          traceId: o.traceId,
-          exitCode: blocked ? VERIFY_BLOCKED_EXIT_CODE : 0,
-          source: o.source,
-          injectedFiles: o.injectedFiles,
-          ...(waived && waived.length > 0 ? { waived } : {}),
-          ...(wikiLint ? { wiki_lint: wikiLintJson(wikiLint) } : {}),
-        },
-        null,
-        2,
-      ),
-    )
+    printJson(target, {
+      command: 'verify',
+      // C3 补漏（2.3-W3 · D-23-JSON-TARGET-REL）：--json target 字段绝对 → 相对（与人类面同口径）
+      target: toRel(process.cwd(), target),
+      task: taskFile,
+      blocked,
+      verdict: blocked ? 'BLOCKED' : 'PASS',
+      traceId: o.traceId,
+      exitCode: blocked ? VERIFY_BLOCKED_EXIT_CODE : 0,
+      source: o.source,
+      injectedFiles: o.injectedFiles,
+      ...(waived && waived.length > 0 ? { waived } : {}),
+      ...(wikiLint ? { wiki_lint: wikiLintJson(wikiLint) } : {}),
+    })
   }
   if (!existsSync(abs)) {
     if (json) emitJson(true)
@@ -1023,7 +999,8 @@ async function cmdTaskLint(args: string[]): Promise<void> {
   if (!fileArg) fail('task lint 须指定 --file PATH')
   const result = lintTaskFile(fileArg, process.cwd())
   if (json) {
-    console.log(JSON.stringify(result, null, 2))
+    // 2.4-W3（D-24-OUTPUT-REL-EXIT）：统一出口 —— result.file 绝对入参经 printJson 深遍历相对化
+    printJson(process.cwd(), result)
   } else {
     for (const e of result.errors) {
       console.log(`  - [${e.rule}${e.line ? `:L${e.line}` : ''}] ${e.message}`)
@@ -1111,14 +1088,14 @@ async function cmdTaskClose(args: string[]): Promise<void> {
   } else {
     dest = path.join(path.dirname(activeDir), 'done', path.basename(abs))
   }
-  if (dest && existsSync(dest)) blockers.push(`目标已存在（不覆盖）: ${dest}`)
+  if (dest && existsSync(dest)) blockers.push(`目标已存在（不覆盖）: ${toRel(process.cwd(), dest)}`)
   if (!json) {
     for (const t of traces) console.log(t)
   }
   if (blockers.length > 0) {
     if (json) {
       // K5：--json BLOCKED —— 非 0 退出 · JSON 仅错误面（无 done_snapshot 字段）
-      console.log(JSON.stringify({ ok: false, status: 'BLOCKED', slug, blockers, traces }, null, 2))
+      printJson(process.cwd(), { ok: false, status: 'BLOCKED', slug, blockers, traces })
     } else {
       for (const b of blockers) console.log(`  - ${b}`)
       console.log(`CLOSE: BLOCKED · ${slug}`)
@@ -1128,12 +1105,11 @@ async function cmdTaskClose(args: string[]): Promise<void> {
   if (!yes) {
     if (json) {
       // K5：--json READY（dry-run · 含豁免 dry-run）—— 未归档 → done_snapshot 恒 null · exit 0
-      console.log(
-        JSON.stringify({ ok: true, status: 'READY', slug, dest, traces, done_snapshot: null }, null, 2),
-      )
+      printJson(process.cwd(), { ok: true, status: 'READY', slug, dest, traces, done_snapshot: null })
     } else {
       console.log('mode: dry-run（未执行 mv · 加 --yes 执行）')
-      console.log(`dest: ${dest}`)
+      // 2.4-W3（D-24-OUTPUT-REL-EXIT）：人类输出路径值同口径相对化（C3 零泄漏）
+      console.log(`dest: ${toRel(process.cwd(), dest ?? '')}`)
       console.log(`CLOSE: READY · ${slug}`)
     }
     return
@@ -1146,30 +1122,25 @@ async function cmdTaskClose(args: string[]): Promise<void> {
   // 唯绑归档事件，与豁免旗标无关（20 审 R2 口径裁决：豁免 + --yes → 快照照打）
   const snapshot = buildDoneSnapshot(dest)
   if (json) {
-    console.log(
-      JSON.stringify(
-        {
-          ok: true,
-          status: 'PASS',
-          slug,
-          dest,
-          traces,
-          done_snapshot: {
-            path: snapshot.path,
-            harness_meta_section: snapshot.harness_meta_section,
-          },
-        },
-        null,
-        2,
-      ),
-    )
+    printJson(process.cwd(), {
+      ok: true,
+      status: 'PASS',
+      slug,
+      dest,
+      traces,
+      done_snapshot: {
+        path: snapshot.path,
+        harness_meta_section: snapshot.harness_meta_section,
+      },
+    })
     return
   }
-  console.log(`moved: ${abs} → ${dest}`)
+  // 2.4-W3（D-24-OUTPUT-REL-EXIT）：人类输出路径值同口径相对化（冻结文案 CLOSE: PASS 不动）
+  console.log(`moved: ${toRel(process.cwd(), abs)} → ${toRel(process.cwd(), dest)}`)
   console.log(`CLOSE: PASS · ${slug}`)
   // K5（W1）：PASS 分支 stdout 追加快照块 —— 归档后路径 + 元信息节摘录 + 禁手写提示；
   // 取不到元信息节（异常态）打 canonical 模板占位 + WARN 行；不改 CLOSE: PASS 冻结文案，仅追加
-  console.log(`done_snapshot · path: ${snapshot.path}`)
+  console.log(`done_snapshot · path: ${toRel(process.cwd(), snapshot.path)}`)
   if (snapshot.warn) console.log(`WARN: ${snapshot.warn}`)
   console.log('done_snapshot · harness_meta_section:')
   console.log(snapshot.harness_meta_section)
@@ -1324,9 +1295,8 @@ export function exitWithCliError(err: unknown, argv: string[]): never {
   const exitCode = typeof e.exitCode === 'number' ? e.exitCode : 1
   if (exitCode === 1 && argv.includes('--json')) {
     const command = argv.find((a) => !a.startsWith('-')) ?? 'unknown' // F-W3-07 兜底
-    console.log(
-      JSON.stringify({ command, exitCode: 1, error: { message: e.message ?? '' } }, null, 2),
-    )
+    // 2.4-W3（D-24-OUTPUT-REL-EXIT）：错误信封同走统一出口（message 内嵌仓内绝对路径剥前缀）
+    printJson(process.cwd(), { command, exitCode: 1, error: { message: e.message ?? '' } })
   }
   if (e.message) console.error(e.message)
   process.exit(exitCode)

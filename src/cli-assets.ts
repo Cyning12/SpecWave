@@ -11,7 +11,7 @@
 import { createHash } from 'node:crypto'
 import { existsSync, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
-import { fail, normalizeSlashPath, takeOption } from './cli-shared.ts'
+import { fail, normalizeSlashPath, printJson, takeOption } from './cli-shared.ts'
 
 const ASSETS_REL = 'assets'
 const MANIFEST_REL = 'assets/sha256.manifest'
@@ -139,12 +139,12 @@ function cmdAssetsVerify(root: string, json: boolean): void {
     extra: bad.filter((r) => r.status === 'extra').length,
   }
   if (json) {
-    console.log(JSON.stringify({
+    printJson(root, {
       status: bad.length === 0 ? 'pass' : 'blocked',
       manifest: MANIFEST_REL,
       counts,
       files: results,
-    }, null, 2))
+    })
   } else {
     console.log('assets verify · manifest ' + MANIFEST_REL + ' · 登记 ' + registered + ' 文件')
     for (const r of results) {

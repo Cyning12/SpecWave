@@ -1,5 +1,5 @@
 import path from 'node:path'
-import { fail, resolveTarget, takeOption, toRel } from './cli-shared.ts'
+import { fail, printJson, resolveTarget, takeOption, toRel } from './cli-shared.ts'
 import {
   allGraphIds,
   checkGraph,
@@ -191,7 +191,7 @@ async function cmdGraphAxioms(args: string[]): Promise<void> {
   const events = loadEvents(target)
   const snapshot = buildSnapshot(events)
   const result = checkAxioms(snapshot, events)
-  if (json) console.log(JSON.stringify(result, null, 2))
+  if (json) printJson(target, result)
   else {
     console.log(`axioms: ${result.ok ? 'PASS' : 'FAIL'}`)
     console.log(`violations: ${result.violations.length}`)

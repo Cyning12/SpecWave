@@ -7,6 +7,7 @@ import {
   HARNESS_META_HEADING,
   normalizeSlug,
   parseHarnessMeta,
+  printJson,
   resolveTarget,
   takeOption,
   toRel,
@@ -436,7 +437,7 @@ export async function cmdTaskLintWikiDelta(args: string[]): Promise<void> {
   } catch (e) {
     fail((e as Error).message || String(e))
   }
-  if (json) console.log(JSON.stringify(result, null, 2))
+  if (json) printJson(target, result)
   else {
     console.log(`目标: ${toRel(process.cwd(), target)}`) // C3（2.2-W2）：目标打印相对化
     console.log(

@@ -1,6 +1,6 @@
 import { existsSync, readFileSync } from 'node:fs'
 import path from 'node:path'
-import { fail, findGate, packageRoot, parseHumanGates, resolveTarget, takeOption } from './cli-shared.ts'
+import { fail, findGate, packageRoot, parseHumanGates, printJson, resolveTarget, takeOption } from './cli-shared.ts'
 // DEF-003 阶段二 T3：dry-run 守卫 adapter 复用 cli-checks 单一实现源（与 verify / status 同口径）
 // DEF-003 阶段二 T6：close_* 守卫复用 cli-checks evalCloseGuard（与 task close 同一实现源）
 // PRD_DEF-003 后续棒：to_00 spec_reviews_retention 复用 cli-checks evalSpecReviewsRetention（与 verify --spec 同一实现源）
@@ -372,7 +372,7 @@ export async function cmdLifecycle(args: string[]): Promise<void> {
     const unknown = rest.filter((a) => a !== '--json')
     if (unknown.length > 0) fail(`lifecycle show 未知参数: ${unknown.join(' ')}`)
     const { data } = loadLifecycle()
-    if (json) console.log(JSON.stringify(data, null, 2))
+    if (json) printJson(process.cwd(), data)
     else console.log(formatLifecycleShow(data))
     return
   }
@@ -428,7 +428,7 @@ export async function cmdLifecycle(args: string[]): Promise<void> {
       flags,
       cwd: target,
     })
-    if (json) console.log(JSON.stringify(report, null, 2))
+    if (json) printJson(target, report)
     else console.log(formatLifecycleDryRun(report))
     if (report.exitCode && report.exitCode !== 0) fail('', report.exitCode)
     return
@@ -449,7 +449,7 @@ export async function cmdDiscipline(args: string[]): Promise<void> {
     const unknown = rest.filter((a) => a !== '--json')
     if (unknown.length > 0) fail(`discipline show 未知参数: ${unknown.join(' ')}`)
     const { data } = loadDiscipline()
-    if (json) console.log(JSON.stringify(data, null, 2))
+    if (json) printJson(process.cwd(), data)
     else console.log(formatDisciplineShow(data))
     return
   }
