@@ -671,8 +671,10 @@ export function findReview(target: string, taskFile: string): boolean {
 }
 
 // ==== 2.3-W4 G2 结论级：审查文「R1 通过判定」机读口径（评审文 w4_gate_wiring_plan_review_20260913 §2.1 定稿 v2） ====
-// 抽取：节标题以「结论/签收」起首（允许中文序号前缀）的节合并；无匹配节 → 回退全文（宁可误红 · failClosed）。
-// 通过词：PASS / ACCEPT / 签收 / 通过 / 零内容阻塞 / 零阻塞（大小写不敏感）。
+// 抽取：节标题以「结论/签收」起首（允许中文序号前缀）的节合并。
+// 2.3.1 N11 [P1]（验收报告-SpecWave-2.3.0 §3.L）：无结论/签收节 → 直接判未通过（禁止回退全文 ·
+// A2 形态「只写通过二字」绕过面封堵 · failClosed 成立）。
+// 通过词：PASS / ACCEPT / 签收 / 通过 / 零内容阻塞 / 零阻塞（大小写不敏感 · 须落结论节内）。
 // 否定守卫：退回（前置 无需/不/未 除外）· 未通过 · 不通过 · 内容阻塞（前置 零 除外）——命中即不通过。
 // 判定：通过词命中且无否定命中 → pass；否则 fail（不可解析 = 不通过 · 不误绿）。
 const REVIEW_SECTION_HEAD_RE = /^#{2,3}\s*(?:[一二三四五六七八九十]+[、.]\s*)?(结论|签收)/
@@ -697,8 +699,12 @@ export function evalReviewConclusion(content: string): { pass: boolean; detail: 
     if (cur) cur.push(l)
   }
   if (cur) chunks.push(cur.join('\n'))
-  const text = chunks.length > 0 ? chunks.join('\n') : content
-  const scope = chunks.length > 0 ? '结论/签收节' : '全文（无结论节回退）'
+  // 2.3.1 N11：无结论/签收节 → 直接判未通过（禁止回退全文）
+  if (chunks.length === 0) {
+    return { pass: false, detail: '无结论/签收节（禁止回退全文 · 审查文须含以「结论/签收」起首的 ##/### 节且通过词落节内）' }
+  }
+  const text = chunks.join('\n')
+  const scope = '结论/签收节'
   if (REVIEW_NEG_RE.test(text)) return { pass: false, detail: scope + '含否定结论词（退回/未通过/内容阻塞）' }
   if (!REVIEW_PASS_RE.test(text)) return { pass: false, detail: scope + '无可机读通过词（PASS/ACCEPT/签收/通过/零阻塞）' }
   return { pass: true, detail: scope + '结论可机读通过' }
@@ -736,8 +742,11 @@ export function loadLegacyGateExempt(target: string): LegacyGateExempt {
     }
     for (const ent of list) {
       const e = ent as Partial<LegacyGateExemptEntry> | null
-      if (!e || !e.slug || !e.reason || !e.date || !e.authorized_by) {
-        out.invalid.push(section + ' 条目缺四字段（slug/reason/date/authorized_by）: ' + JSON.stringify(ent))
+      // 2.3.1 N13 [P2]（验收报告 §3.N）：显式类型判 · 防 YAML 未加引号标量（00 → 整型 0）falsy 静默失效；
+      // 同时拒收非字符串标量（旧 falsy 判会把 123/true 静默 String() 收编为有效授权人）。
+      const nonEmpty = (x: unknown): x is string => typeof x === 'string' && x.length > 0
+      if (!e || !nonEmpty(e.slug) || !nonEmpty(e.reason) || !nonEmpty(e.date) || !nonEmpty(e.authorized_by)) {
+        out.invalid.push(section + ' 条目缺四字段（slug/reason/date/authorized_by · 须非空字符串 · 数字形态如 00 须加引号）: ' + JSON.stringify(ent))
         continue
       }
       out[section].set(normalizeSlug(String(e.slug)), {

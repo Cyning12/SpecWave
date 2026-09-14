@@ -1,6 +1,8 @@
 # 2.3-W4 过渡豁免清单（D-23-W4-EXEMPT-FORMAT · F-W4-04）
 # 消费面：裸 verify（FULL-reviews done 面）· task lint-done（INVOKE-HATS 帽级）· verify --task done 复验
 # 纪律：新增条目必须 slug/reason/date/authorized_by 四字段齐（谁/何时/理由）；缺字段条目视为无效并 warn（不豁免）。
+# YAML 引号规范（2.3.1 N13）：四字段一律须为非空字符串；数字形态值（如 00）**必须加引号**（"00"），
+# 未加引号会被 YAML 解析为整型 0 → 显式类型判（typeof === 'string'）拒收 → 条目无效不豁免并留痕。
 # 本清单为「闸新行为不追溯存量」（SPEC 04 §5.4 · D-23-W4-TRANSITION）的数据载体：全部条目为 2.3.0 接线前历史关账。
 version: "1"
 
@@ -44,6 +46,38 @@ reviews:
   - slug: 1x-mvp-w4-spec-version-pin
     reason: 2.3.0 前历史关账 · 审查文结论节为纯表格无可机读通过词（结论级 v2 口径 2026-09-13 接线前合法）
     date: '2026-09-13'
+    authorized_by: 00（2026-09-12 维护者会话授权）
+  - slug: 2_1_2-rename-closeout-w1-identity-docs
+    reason: 2.3.0 前历史关账 · 审查文无结论/签收节（通过词在全文 · 结论级 v2 回退全文口径 2026-09-13 接线前合法 · 2.3.1 N11 强制结论节接线后经裸 verify 实测波及 · task_2_3_1_patch 抽验核因）
+    date: '2026-09-14'
+    authorized_by: 00（2026-09-12 维护者会话授权）
+  - slug: 2_1_2-rename-closeout-w2-assets-copy
+    reason: 2.3.0 前历史关账 · 审查文无结论/签收节（通过词在全文 · 结论级 v2 回退全文口径 2026-09-13 接线前合法 · 2.3.1 N11 强制结论节接线后经裸 verify 实测波及 · task_2_3_1_patch 抽验核因）
+    date: '2026-09-14'
+    authorized_by: 00（2026-09-12 维护者会话授权）
+  - slug: 2_1_2-rename-closeout-w3-init-yes
+    reason: 2.3.0 前历史关账 · 审查文无结论/签收节（通过词在全文 · 结论级 v2 回退全文口径 2026-09-13 接线前合法 · 2.3.1 N11 强制结论节接线后经裸 verify 实测波及 · task_2_3_1_patch 抽验核因）
+    date: '2026-09-14'
+    authorized_by: 00（2026-09-12 维护者会话授权）
+  - slug: 2_1_2-rename-closeout-w4-release
+    reason: 2.3.0 前历史关账 · 审查文无结论/签收节（通过词在全文 · 结论级 v2 回退全文口径 2026-09-13 接线前合法 · 2.3.1 N11 强制结论节接线后经裸 verify 实测波及 · task_2_3_1_patch 抽验核因）
+    date: '2026-09-14'
+    authorized_by: 00（2026-09-12 维护者会话授权）
+  - slug: rename-specgate-w1-package-identity
+    reason: 2.3.0 前历史关账 · 审查文无结论/签收节（通过词在全文 · 结论级 v2 回退全文口径 2026-09-13 接线前合法 · 2.3.1 N11 强制结论节接线后经裸 verify 实测波及 · task_2_3_1_patch 抽验核因）
+    date: '2026-09-14'
+    authorized_by: 00（2026-09-12 维护者会话授权）
+  - slug: rename-specgate-w2-docs-assets
+    reason: 2.3.0 前历史关账 · 审查文无结论/签收节（通过词在全文 · 结论级 v2 回退全文口径 2026-09-13 接线前合法 · 2.3.1 N11 强制结论节接线后经裸 verify 实测波及 · task_2_3_1_patch 抽验核因）
+    date: '2026-09-14'
+    authorized_by: 00（2026-09-12 维护者会话授权）
+  - slug: rename-specgate-w3-github-rename
+    reason: 2.3.0 前历史关账 · 审查文无结论/签收节（通过词在全文 · 结论级 v2 回退全文口径 2026-09-13 接线前合法 · 2.3.1 N11 强制结论节接线后经裸 verify 实测波及 · task_2_3_1_patch 抽验核因）
+    date: '2026-09-14'
+    authorized_by: 00（2026-09-12 维护者会话授权）
+  - slug: rename-specgate-w4-publish-deprecate
+    reason: 2.3.0 前历史关账 · 审查文无结论/签收节（通过词在全文 · 结论级 v2 回退全文口径 2026-09-13 接线前合法 · 2.3.1 N11 强制结论节接线后经裸 verify 实测波及 · task_2_3_1_patch 抽验核因）
+    date: '2026-09-14'
     authorized_by: 00（2026-09-12 维护者会话授权）
 
 invoke_hats:

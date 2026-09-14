@@ -352,7 +352,7 @@ describe('W1-A1 release pins · B组 fixture 仓行为', { concurrency: 1 }, () 
     })
   })
 
-  it('B4 fix --yes：写回真值 · 留 .bak（旧值）· 复跑幂等（0 修改 · 备份不被覆写）', async () => {
+  it('B4 fix --yes：写回真值 · .bak 写前备份成功后自动清理（2.3.1 N1-d）· 复跑幂等（0 修改 · 不再产备份）', async () => {
     await withTemp(async (dir) => {
       await makeFixture(dir)
       await writeRel(dir, 'assets/ontology.yaml', BROKEN_ONTOLOGY)
@@ -360,15 +360,21 @@ describe('W1-A1 release pins · B组 fixture 仓行为', { concurrency: 1 }, () 
       assert.equal(r.status, 0, r.combined)
       const fixed = await readFile(path.join(dir, 'assets/ontology.yaml'), 'utf8')
       assert.equal(fixed, GOOD_ONTOLOGY)
-      const bak = await readFile(path.join(dir, 'assets/ontology.yaml.bak'), 'utf8')
-      assert.equal(bak, BROKEN_ONTOLOGY, '.bak 须保留写前旧值')
+      assert.equal(
+        existsSync(path.join(dir, 'assets/ontology.yaml.bak')),
+        false,
+        'fix 成功后 .bak 须自动清理（2.3.1 N1-d · 防 .bak 随包发布）',
+      )
       const check = runCli(['pins', 'check'], dir)
       assert.equal(check.status, 0, check.combined)
       const again = runCli(['pins', 'fix', '--yes'], dir)
       assert.equal(again.status, 0, again.combined)
       assert.match(again.combined, /0 处|无偏差|nothing/i)
-      const bak2 = await readFile(path.join(dir, 'assets/ontology.yaml.bak'), 'utf8')
-      assert.equal(bak2, BROKEN_ONTOLOGY, '幂等复跑不得覆写既有备份')
+      assert.equal(
+        existsSync(path.join(dir, 'assets/ontology.yaml.bak')),
+        false,
+        '幂等复跑不得新产备份',
+      )
     })
   })
 
@@ -473,8 +479,11 @@ describe('W1-A1 release pins · B组 fixture 仓行为', { concurrency: 1 }, () 
       assert.equal(fix.status, 0, fix.combined)
       const after = await readFile(path.join(dir, 'assets/ide/host-adapt/README.md'), 'utf8')
       assert.equal(after, DUAL_GOOD, '同文件双钉面须全部写回真值（不得静默部分修复）')
-      const bak = await readFile(path.join(dir, 'assets/ide/host-adapt/README.md.bak'), 'utf8')
-      assert.equal(bak, DUAL_BROKEN, '.bak 须保留写前旧值且同文件只备份一次')
+      assert.equal(
+        existsSync(path.join(dir, 'assets/ide/host-adapt/README.md.bak')),
+        false,
+        'fix 成功后 .bak 须自动清理（2.3.1 N1-d · 同文件聚合写盘语义保持：单条 [written]）',
+      )
       const check = runCli(['pins', 'check'], dir)
       assert.equal(check.status, 0, '一次 fix 后 check 须转绿（exit 0 自称全修 = 实际全修）: ' + check.combined)
       assert.match(check.combined, /PINS: PASS/)

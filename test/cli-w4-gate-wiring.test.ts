@@ -356,3 +356,86 @@ describe('2.3-W4 FULL-reviews · 裸 verify（仓级 reviews 扫描）', { concu
     })
   })
 })
+
+describe('2.3.1 N11 [P1] · 结论级闸强制结论节（禁止回退全文 · 验收报告 §3.L A2 形态）', { concurrency: 1 }, () => {
+  const REVIEW_PASS_NO_SECTION = '# R1 fixture\n\n本次审查通过\n'
+  it('A2 形态：只写「通过」二字无结论节 → BLOCKED exit 2；结论节内通过词 → PASS；通过+未通过 仍红（负向守卫不破）', async () => {
+    await withTemp(async (dir) => {
+      const rel = 'docs/tasks/active/task_n11_a2_v1.md'
+      await writeRel(dir, rel, taskMd('n11_a2'))
+      await writeRel(dir, 'docs/harness/invokes/by-task/n11-a2/invoke_20260901_10_x.md', '# invoke 10\n')
+      // A2：通过词在全文但无结论/签收节 → 禁止回退全文 → 红
+      await writeRel(dir, 'docs/harness/reviews/task_n11_a2_audit_R1_20260914.md', REVIEW_PASS_NO_SECTION)
+      const bad = runCli(['verify', '--task', rel, '--target', dir])
+      assert.equal(bad.status, 2, bad.combined)
+      assert.match(bad.combined, /VERIFY: BLOCKED · 审查文结论不可机读通过/)
+      assert.match(bad.combined, /无结论/)
+      // 通过词落结论节内 → 绿
+      await writeRel(dir, 'docs/harness/reviews/task_n11_a2_audit_R1_20260914.md', REVIEW_PASS)
+      const good = runCli(['verify', '--task', rel, '--target', dir])
+      assert.equal(good.status, 0, good.combined)
+      assert.match(good.combined, /VERIFY: PASS/)
+      // 结论节内 通过+未通过 → 负向守卫仍红
+      await writeRel(dir, 'docs/harness/reviews/task_n11_a2_audit_R1_20260914.md', '# R1 fixture\n\n## 结论\n\n整体通过但局部未通过项待修\n')
+      const neg = runCli(['verify', '--task', rel, '--target', dir])
+      assert.equal(neg.status, 2, neg.combined)
+      assert.match(neg.combined, /VERIFY: BLOCKED · 审查文结论不可机读通过/)
+    })
+  })
+
+  it('task close 同口径：无结论节 → CLOSE BLOCKED 点名 close_review', async () => {
+    await withTemp(async (dir) => {
+      const rel = await seedCloseable(dir, 'n11c_a2', '# R1 fixture\n\n通过\n')
+      const bad = runCli(['task', 'close', '--file', rel], dir)
+      assert.equal(bad.status, 2, bad.combined)
+      assert.match(bad.combined, /CLOSE: BLOCKED/)
+      assert.match(bad.combined, /close_review: 审查文结论不可机读通过/)
+      await writeRel(dir, 'docs/harness/reviews/task_n11c_a2_audit_R1_20260913.md', REVIEW_PASS)
+      const good = runCli(['task', 'close', '--file', rel], dir)
+      assert.equal(good.status, 0, good.combined)
+      assert.match(good.combined, /CLOSE: READY/)
+    })
+  })
+})
+
+describe('2.3.1 N13 [P2] · 豁免四字段显式类型判（falsy 陷阱 · 验收报告 §3.N）', { concurrency: 1 }, () => {
+  async function seedHatGap(dir: string): Promise<void> {
+    await writeRel(dir, 'docs/tasks/done/task_n13_falsy_v1.md', taskMd('n13_falsy', 'done'))
+    await writeRel(dir, 'docs/harness/invokes/by-task/n13-falsy/invoke_20260901_30_x.md', '# invoke 30\n')
+  }
+  function exemptYaml(authorizedBy: string): string {
+    return [
+      'version: "1"',
+      'invoke_hats:',
+      '  - slug: n13_falsy',
+      '    reason: falsy 陷阱 fixture',
+      "    date: '2026-09-14'",
+      `    authorized_by: ${authorizedBy}`,
+      '',
+    ].join('\n')
+  }
+  it('authorized_by: 00（无引号 → YAML 整型 0）→ 条目无效+留痕不豁免；authorized_by: "00"（加引号）→ 豁免命中 PASS', async () => {
+    await withTemp(async (dir) => {
+      await seedHatGap(dir)
+      await writeRel(dir, 'docs/harness/legacy-gate-exempt.yaml', exemptYaml('00'))
+      const bad = runCli(['task', 'lint-done', '--target', dir])
+      assert.equal(bad.status, 2, bad.combined)
+      assert.match(bad.combined, /豁免条目无效（不豁免）/)
+      await writeRel(dir, 'docs/harness/legacy-gate-exempt.yaml', exemptYaml('"00"'))
+      const good = runCli(['task', 'lint-done', '--target', dir])
+      assert.equal(good.status, 0, good.combined)
+      assert.match(good.combined, /豁免命中留痕: n13_falsy/)
+      assert.match(good.combined, /LINT-DONE: PASS/)
+    })
+  })
+  it('authorized_by: 123（非字符串标量）→ 条目无效不豁免（旧 falsy 判会静默 String() 收编 · 真红锁）', async () => {
+    await withTemp(async (dir) => {
+      await seedHatGap(dir)
+      await writeRel(dir, 'docs/harness/legacy-gate-exempt.yaml', exemptYaml('123'))
+      const bad = runCli(['task', 'lint-done', '--target', dir])
+      assert.equal(bad.status, 2, bad.combined)
+      assert.match(bad.combined, /豁免条目无效（不豁免）/)
+    })
+  })
+})
+

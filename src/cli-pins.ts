@@ -6,7 +6,7 @@
  * 硬纪律：D-PINS-EXIT 偏差 exit 2 · S2 机械拒写无豁免（00 §3 S2）· 无 --force/--allow-*（P0-GATE）。
  */
 import { execFileSync } from 'node:child_process'
-import { copyFileSync, existsSync, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs'
+import { copyFileSync, existsSync, readdirSync, readFileSync, statSync, unlinkSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
 import { fail, isS2RelPath, normalizeSlashPath, takeOption } from './cli-shared.ts'
 import { yamlLoad } from './yaml.ts'
@@ -571,11 +571,13 @@ function cmdPinsFix(root: string, yes: boolean): void {
     console.log('[unfixable] ' + u.result.id + ' ' + u.result.path + ' · ' + u.reason)
   }
   if (!yes) {
-    console.log('PINS FIX: dry-run · 以上 ' + plans.length + ' 处将改（--yes 才写盘 · 写前备份 <file>.bak）')
+    console.log('PINS FIX: dry-run · 以上 ' + plans.length + ' 处将改（--yes 才写盘 · 写前备份 <file>.bak · 写盘成功后自动清理）')
     if (unfixable.length > 0) fail('PINS FIX: ' + unfixable.length + ' 处不可修（须人工）', 2)
     return
   }
   // 同文件只写一次（最终累计内容）· 只备份一次（写前旧值 · F-P1-07 一次收敛）
+  // 2.3.1 N1-d：备份在写盘成功后自动清理（只清本次自写 .bak · F-P2-08）——
+  // 备份唯一消费场景是写盘失败回滚；留存会被 npm publish 从工作树打入包内（验收报告 §3.B）。
   const written = new Set<string>()
   for (const p of plans) {
     if (written.has(p.rel)) continue
@@ -584,8 +586,9 @@ function cmdPinsFix(root: string, yes: boolean): void {
     const abs = path.resolve(root, p.rel)
     copyFileSync(abs, abs + '.bak')
     writeFileSync(abs, final.newContent)
+    unlinkSync(abs + '.bak') // 写盘成功 → 自动清理本次备份（2.3.1 N1-d）
     written.add(p.rel)
-    console.log('[written] ' + p.rel + '（备份 ' + p.rel + '.bak）')
+    console.log('[written] ' + p.rel + '（写前备份已于成功后自动清理 · 2.3.1）')
   }
   console.log('PINS FIX: 写入 ' + plans.length + ' 处 · 不可修 ' + unfixable.length + ' 处')
   if (unfixable.length > 0) fail('PINS FIX: ' + unfixable.length + ' 处不可修（须人工 · 真值源/git 永不反向改）', 2)
