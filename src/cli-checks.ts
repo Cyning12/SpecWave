@@ -675,11 +675,15 @@ export function findReview(target: string, taskFile: string): boolean {
 // 2.3.1 N11 [P1]（验收报告-SpecWave-2.3.0 §3.L）：无结论/签收节 → 直接判未通过（禁止回退全文 ·
 // A2 形态「只写通过二字」绕过面封堵 · failClosed 成立）。
 // 通过词：PASS / ACCEPT / 签收 / 通过 / 零内容阻塞 / 零阻塞（大小写不敏感 · 须落结论节内）。
-// 否定守卫：退回（前置 无需/不/未 除外）· 未通过 · 不通过 · 内容阻塞（前置 零 除外）——命中即不通过。
+// 否定守卫：退回（前置 无需/不/未 除外）· 否定+通过（不/未 与 通过 之间允许 ≤3 任意字符 · 2.4.1 NEW-1
+// 放宽：封堵「不予通过」「不 通过」插字断链绕过面）· no pass / reject（英文基本形态 · i 旗标）·
+// 内容阻塞（前置 零 除外）——命中即不通过。
+// 已知残余（R1 审查 §3-1 裁决留痕）：`.` 不跨行，「不\n通过」换行形态仍漏网（攻击者须主动换行 ·
+// 与 NEW-11 广义词表面同属 3.0 语义化议题）。
 // 判定：通过词命中且无否定命中且节内容量达标（2.4-W2 S1·N=20）→ pass；否则 fail（不可解析 = 不通过 · 不误绿）。
 const REVIEW_SECTION_HEAD_RE = /^#{2,3}\s*(?:[一二三四五六七八九十]+[、.]\s*)?(结论|签收)/
 const REVIEW_PASS_RE = /(\bPASS\b|ACCEPT|签收|零内容阻塞|零阻塞|通过)/i
-const REVIEW_NEG_RE = /((?<!无需)(?<!不)(?<!未)退回|未通过|不通过|(?<!零)内容阻塞)/
+const REVIEW_NEG_RE = /((?<!无需)(?<!不)(?<!未)退回|不.{0,3}通过|未.{0,3}通过|no\s*pass|reject|(?<!零)内容阻塞)/i
 // 2.4-W2 S1·N=20（评审文 w2_conclusion_gate_strength_review_20260914 §4 定档）：
 // 结论/签收节合并文本去除全部通过词命中后，残余非空白字符数须 >= REVIEW_MIN_SUBSTANCE，
 // 封堵 A2 收窄形态「结论节只写通过二字」（存量 48 份现行 PASS 文实测误伤 0/48 · D-24-W2-NO-RETRO 不追溯）。
@@ -710,7 +714,7 @@ export function evalReviewConclusion(content: string): { pass: boolean; detail: 
   }
   const text = chunks.join('\n')
   const scope = '结论/签收节'
-  if (REVIEW_NEG_RE.test(text)) return { pass: false, detail: scope + '含否定结论词（退回/未通过/内容阻塞）' }
+  if (REVIEW_NEG_RE.test(text)) return { pass: false, detail: scope + '含否定结论词（退回/不.未通过/no pass/reject/内容阻塞）' }
   if (!REVIEW_PASS_RE.test(text)) return { pass: false, detail: scope + '无可机读通过词（PASS/ACCEPT/签收/通过/零阻塞）' }
   // 2.4-W2 S1·N=20：节内容量判据（去通过词后残余非空白字符 < N → 判未通过 · failClosed 方向）
   const substance = text.replace(REVIEW_PASS_STRIP_RE, '').replace(/\s+/g, '').length

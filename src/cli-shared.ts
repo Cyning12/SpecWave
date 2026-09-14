@@ -408,18 +408,46 @@ export function relativizeOutputString(base: string, s: string): string {
   return out
 }
 
+/**
+ * 2.4.1 NEW-2（验收报告-SpecWave-2.4.0 §3 · R1 裁决口径）：realpath 双侧归一 ——
+ * 基参词法形与 realpath 形各试一次。macOS /tmp→/private/tmp 或 symlink 入参致
+ * 「基参词法形 vs 路径值 realpath 形」错配时词法前缀失效（报告 :107 子类），
+ * 以 realpath 归一后的基再判一次封堵；悬空 base 回落最近现存祖先
+ * （与 resolveTaskPath real() 同口径 · dry-run dest 尚不存在亦须归一）。
+ */
+function realpathOrAncestor(p: string): string {
+  try {
+    return realpathSync(p)
+  } catch {
+    const parent = path.dirname(p)
+    if (parent === p) return p
+    return path.join(realpathOrAncestor(parent), path.basename(p))
+  }
+}
+
 /** 深遍历 JSON 载荷：仅改字符串值（键名不动 · 契约「键集只增不改」）。 */
 export function relativizeOutputValue(base: string, value: unknown): unknown {
-  if (typeof value === 'string') return relativizeOutputString(base, value)
-  if (Array.isArray(value)) return value.map((v) => relativizeOutputValue(base, v))
-  if (value !== null && typeof value === 'object') {
-    const out: Record<string, unknown> = {}
-    for (const [k, v] of Object.entries(value as Record<string, unknown>)) {
-      out[k] = relativizeOutputValue(base, v)
+  const realBase = realpathOrAncestor(base)
+  const bases = realBase === base ? [base] : [base, realBase]
+  const walkString = (s: string): string => {
+    for (const b of bases) {
+      if (s.includes(b)) return relativizeOutputString(b, s)
     }
-    return out
+    return s
   }
-  return value
+  const walk = (v: unknown): unknown => {
+    if (typeof v === 'string') return walkString(v)
+    if (Array.isArray(v)) return v.map(walk)
+    if (v !== null && typeof v === 'object') {
+      const out: Record<string, unknown> = {}
+      for (const [k, vv] of Object.entries(v as Record<string, unknown>)) {
+        out[k] = walk(vv)
+      }
+      return out
+    }
+    return v
+  }
+  return walk(value)
 }
 
 /**

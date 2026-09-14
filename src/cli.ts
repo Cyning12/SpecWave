@@ -9,7 +9,7 @@ import { cmdHost, listKnownHostIds } from './cli-host.ts'
 import { cmdRefreshIdeBlocks, countStaleIdeLiterals } from './cli-refresh-ide-blocks.ts'
 import { cmdDiscipline, cmdLifecycle } from './cli-lifecycle.ts'
 import { cmdSkills } from './cli-skills.ts'
-import { buildDoneSnapshot, CliError, evaluateMayStart30, extractSection, extractTaskSlug, fail, findGate, HARNESS_META_HEADING, kitLayoutJoin, KIT_LAYOUT_DIR, LEGACY_LAYOUT_DIR, legacyLayoutHint, normalizeSlug, packageRoot, parseHarnessMeta, parseHumanGates, printJson, resolveLayoutFile, resolveTarget, resolveTaskPath, STATUS_RE, takeOption, toRel } from './cli-shared.ts'
+import { buildDoneSnapshot, CliError, evaluateMayStart30, extractSection, extractTaskSlug, fail, findGate, findGitRoot, HARNESS_META_HEADING, kitLayoutJoin, KIT_LAYOUT_DIR, LEGACY_LAYOUT_DIR, legacyLayoutHint, normalizeSlug, packageRoot, parseHarnessMeta, parseHumanGates, printJson, resolveLayoutFile, resolveTarget, resolveTaskPath, STATUS_RE, takeOption, toRel } from './cli-shared.ts'
 import {
   checkPre30InvokeHats,
   evalCloseGuard,
@@ -999,8 +999,10 @@ async function cmdTaskLint(args: string[]): Promise<void> {
   if (!fileArg) fail('task lint 须指定 --file PATH')
   const result = lintTaskFile(fileArg, process.cwd())
   if (json) {
-    // 2.4-W3（D-24-OUTPUT-REL-EXIT）：统一出口 —— result.file 绝对入参经 printJson 深遍历相对化
-    printJson(process.cwd(), result)
+    // 2.4.1 NEW-2（D-24-OUTPUT-REL-EXIT 补漏）：基参取命令 target = 任务文件所在仓根
+    // （findGitRoot 上溯 · 无 .git 回落 cwd 保持旧行为）——cwd≠target 时 result.file 仍可相对化
+    const target = findGitRoot(result.file) ?? process.cwd()
+    printJson(target, result)
   } else {
     for (const e of result.errors) {
       console.log(`  - [${e.rule}${e.line ? `:L${e.line}` : ''}] ${e.message}`)
@@ -1048,6 +1050,9 @@ async function cmdTaskClose(args: string[]): Promise<void> {
   if (!fileArg) fail('task close 须指定 --file PATH')
   const abs = path.resolve(process.cwd(), fileArg)
   if (!existsSync(abs)) fail(`task 文件不存在: ${fileArg}`, 2)
+  // 2.4.1 NEW-2：--json 基参取命令 target = task 文件所在仓根（findGitRoot 上溯 · 无 .git 回落 cwd
+  // 保持旧行为）——cwd≠target 时 dest/done_snapshot/blockers 内嵌路径仍可相对化（报告 §3 代理复现面）
+  const closeJsonBase = findGitRoot(abs) ?? process.cwd()
   const content = await readFile(abs, 'utf8')
   const meta = parseHarnessMeta(content)
   const fileSlug = extractTaskSlug(abs)
@@ -1095,7 +1100,7 @@ async function cmdTaskClose(args: string[]): Promise<void> {
   if (blockers.length > 0) {
     if (json) {
       // K5：--json BLOCKED —— 非 0 退出 · JSON 仅错误面（无 done_snapshot 字段）
-      printJson(process.cwd(), { ok: false, status: 'BLOCKED', slug, blockers, traces })
+      printJson(closeJsonBase, { ok: false, status: 'BLOCKED', slug, blockers, traces })
     } else {
       for (const b of blockers) console.log(`  - ${b}`)
       console.log(`CLOSE: BLOCKED · ${slug}`)
@@ -1105,7 +1110,7 @@ async function cmdTaskClose(args: string[]): Promise<void> {
   if (!yes) {
     if (json) {
       // K5：--json READY（dry-run · 含豁免 dry-run）—— 未归档 → done_snapshot 恒 null · exit 0
-      printJson(process.cwd(), { ok: true, status: 'READY', slug, dest, traces, done_snapshot: null })
+      printJson(closeJsonBase, { ok: true, status: 'READY', slug, dest, traces, done_snapshot: null })
     } else {
       console.log('mode: dry-run（未执行 mv · 加 --yes 执行）')
       // 2.4-W3（D-24-OUTPUT-REL-EXIT）：人类输出路径值同口径相对化（C3 零泄漏）
@@ -1122,7 +1127,7 @@ async function cmdTaskClose(args: string[]): Promise<void> {
   // 唯绑归档事件，与豁免旗标无关（20 审 R2 口径裁决：豁免 + --yes → 快照照打）
   const snapshot = buildDoneSnapshot(dest)
   if (json) {
-    printJson(process.cwd(), {
+    printJson(closeJsonBase, {
       ok: true,
       status: 'PASS',
       slug,
@@ -1295,8 +1300,12 @@ export function exitWithCliError(err: unknown, argv: string[]): never {
   const exitCode = typeof e.exitCode === 'number' ? e.exitCode : 1
   if (exitCode === 1 && argv.includes('--json')) {
     const command = argv.find((a) => !a.startsWith('-')) ?? 'unknown' // F-W3-07 兜底
-    // 2.4-W3（D-24-OUTPUT-REL-EXIT）：错误信封同走统一出口（message 内嵌仓内绝对路径剥前缀）
-    printJson(process.cwd(), { command, exitCode: 1, error: { message: e.message ?? '' } })
+    // 2.4.1 NEW-2（R1 §3-3 增量纳入）：exit-1 信封基参同取命令 target —— argv 携 --target 则
+    // 以其（cwd 解析）为基，缺省回落 cwd；error.message 内嵌仓内绝对路径经统一出口剥前缀
+    const tIdx = argv.indexOf('--target')
+    const tVal = tIdx !== -1 ? argv[tIdx + 1] : undefined
+    const target = tVal && !tVal.startsWith('-') ? path.resolve(process.cwd(), tVal) : process.cwd()
+    printJson(target, { command, exitCode: 1, error: { message: e.message ?? '' } })
   }
   if (e.message) console.error(e.message)
   process.exit(exitCode)

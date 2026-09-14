@@ -4,6 +4,22 @@
 
 ## [Unreleased]
 
+## [2.4.1] - 2026-09-14
+
+> 主题：**patch** —— 2.4.0 验收报告 **PASS-with-issues** 四项修复（§6.1「建议纳入 2.4.1」：NEW-1/NEW-2/NEW-3/NEW-9+N9 · task `2-4-1-patch` · 同族系统性弱点「判据用裸子串/字面连续而非语义边界」收口）。
+> **发布状态**：**待发版**（registry `latest` 仍为 `2.4.0` · tag `v2.4.1` 待人打 · pin-10 设计红留痕）。
+
+### Fixed
+
+- **NEW-1 [P1] · 结论门禁否定守卫语义判据放宽**（验收报告 §3 · B「不予通过」/ D「不 通过」/ E「NO PASS」三形态插字断链绕过封堵）：`REVIEW_NEG_RE`（`src/cli-checks.ts`）由字面连续（`不通过`/`未通过` · 仅中文）放宽为 `不.{0,3}通过` / `未.{0,3}通过` / `no\s*pass` / `reject`（i 旗标）——否定先于通过的判定顺序不动（病根在正则覆盖面）；退回（前置 无需/不/未 除外）与内容阻塞（前置 零 除外）判据不回退。存量波及抽验：现行 76 份审查文 `evalReviewConclusion` 直评修复前后 pass/fail 名单逐字一致（57/19 · 误伤 0 · 无需豁免）。已知残余（R1 §3-1 裁决留痕）：`.` 不跨行，「不\n通过」换行形态仍漏网（与 NEW-11 广义词表面同属 3.0 语义化议题）。
+- **NEW-2 [P1] · `--json` 基参统一取命令 target + realpath 双侧归一**（验收报告 §3 · cwd≠target 与 symlink/realpath 两子类泄漏封堵）：`src/cli.ts`（task lint / task close READY·BLOCKED·PASS 三面 + exit-1 错误信封 :1299 增量纳入）与 `src/cli-host.ts`（host validate 三面 + emitHostFail/emitU01Degraded 透传）的 `printJson(process.cwd(), …)` 全部改取命令 target（task lint/close = task 文件所在仓根 findGitRoot 上溯 · 无 .git 回落 cwd 保持旧行为；exit-1 信封 = argv `--target` 或 cwd）；`relativizeOutputValue`（`src/cli-shared.ts` 统一出口）对基参做 realpath 双侧归一（词法形 + realpath 形各试一次 · 悬空 base 回落最近现存祖先 · 与 resolveTaskPath real() 同口径），堵 macOS `/tmp → /private/tmp` / symlink 入参形态错配子类。**接口面（additive · 契约只增不改）**：`host validate` 补 `--target PATH`（缺省 cwd · 既有无参调用零回退 · 与 verify/pins 等命令面一致）。掩盖源根治：`test/cli-json-no-abs-path.test.ts` 21 测全 cwd==target 恰好对齐 → 补 cwd≠target + symlink/realpath 对偶测试 ×6（修复前全真红复现报告代理实验）。
+- **NEW-3 [P2] · pin-16 扫描面纳入 HTML 锚点**（验收报告 §3 · 维护者定稿修）：`files-whitelist-link` 提取补 `<a href="…">`（单/双引号同口径），与 inline / reference-definition 走同一归一/判定管线（剥 #锚点 · scheme/纯锚点跳过 · 仓根级且存在的 .md ∈ 白名单）；`assets/release-pins.yaml` pin-16 `semantics` 声明同步扩为三形态（数据声明与实现一致 · D-23-W2-CHECK-FORM）。
+- **NEW-9 / N9 [P2] · pin-08 状态格精确版本锁定**（验收报告 §3 + §2 N9 未闭环项 · 2.3.0 遗留唯一未闭环）：`hitA` 由裸子串 `statusCell.includes(dotted)` 改边界正则 `(?<![0-9A-Za-z._-])X\.Y\.Z(?![0-9A-Za-z._-])`（R1 §3-2 定稿口径）——左/右边界排除数字/字母/点/下划线/连字符：拦 `` `vX.Y.Z` `` v 前缀 / `` `X.Y.Z-beta` `` 修饰 / `X.Y.Z.N` 加长顶包与同格 ``tag `vX.Y.Z` `` 子串顶包（N9 原构造）；放行反引号/星号/@ 包裹形态（现行 `docs/spec/README.md` 全量索引行回归零误伤）；hitB（slug 列行身份辅助判）不动；yaml pin-08 `semantics` 声明同步写清边界口径。
+
+### Tests
+
+- 新增/联改：NEW-1 负向 fixture ×3 + close 同口径 + A/C/F 对照零回退（`test/cli-w4-gate-wiring.test.ts` · 修复前全真红复现报告探针 B/D/E 行）· NEW-2 对偶测试 ×6（cwd≠target / symlink 入参 / realpath 双侧归一 / host validate --target / task lint / exit-1 信封 · `test/cli-json-no-abs-path.test.ts` · 修复前全真红）· NEW-3 `<a href>` 负向 + 基线回归（`test/pins-consistency.test.ts` · 修复前真红复现报告构造）· NEW-9 负向 ×3（9.9.9 同格 v-tag / v 前缀 / -beta 修饰）+ 正向零回退 + 加长版本号拦（同文件 · 修复前真红）；测试基线 582 → 596（593 pass + 2 tag-gated 设计红（release-tag-identity / pins pin-10）+ 1 门控 skip · tag `v2.4.1` 落位后复跑须全绿）；版本断言联改 8 测试文件（perl 双模式字面+转义 · 沿袭 2.3.1 先例 · 历史标题与「2.4.0 码」红测留证注释保留）· README 双语未钉现行版引用联改 ×8（:289/:290/:309/:311 · :375「currently published=2.4.0」真值指针保留）。
+
 ## [2.4.0] - 2026-09-14
 
 > 主题：**minor** —— **门禁强度补全（gate strength）**：W1 pins 提取三修正（N7/N8/N9 · 本次核心）+ W2 结论级闸强度增强（S1·N=20 · 评审先行）+ W3 输出层统一相对化（N12）+ W4 资产门禁可观测（N2/N5）+ W5 物料与对外口径对齐（N3/口径三调/N6）+ W6 P3 清扫（N10/N14/N4）；**不动 host-adapt schema、不扩大范围、S2 永不覆写**。  

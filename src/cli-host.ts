@@ -44,7 +44,7 @@ import { yamlLoad } from './yaml.ts'
 export { sniffHostContract } from './host-contract.ts'
 
 const HOST_USAGE =
-  'host validate [--file PATH] [--json]\n  host apply --tools LIST|all [--profile core|expanded] [--target PATH] [--file PATH] [--json] [--dry-run|--yes]\n  host update [--tools LIST|all] [--profile core|expanded] [--target PATH] [--file PATH] [--json] [--dry-run|--yes] [--force]'
+  'host validate [--file PATH] [--target PATH] [--json]\n  host apply --tools LIST|all [--profile core|expanded] [--target PATH] [--file PATH] [--json] [--dry-run|--yes]\n  host update [--tools LIST|all] [--profile core|expanded] [--target PATH] [--file PATH] [--json] [--dry-run|--yes] [--force]'
 
 const APPLY_USAGE =
   'host apply --tools cursor,claude|all [--profile core|expanded] [--target PATH] [--file PATH] [--json] [--dry-run|--yes]'
@@ -474,8 +474,13 @@ async function cmdHostValidate(args: string[]): Promise<void> {
   }
   const { value: fileArg, rest: r1 } = takeOption(rest, '--file')
   rest = r1
+  // 2.4.1 NEW-2 接口面定稿（10 棒建议 · 20 审确认）：补 --target（additive · 缺省 cwd 兼容
+  // 既有无参调用 · 与 verify/pins 等命令面一致）——--json 基参与相对化口径统一取命令 target
+  const { value: targetArg, rest: r2 } = takeOption(rest, '--target')
+  rest = r2
   if (rest.length > 0) fail(`host validate 未知参数: ${rest.join(' ')}\n用法: ${HOST_USAGE}`)
 
+  const target = resolveTarget(process.cwd(), targetArg)
   const abs = resolveValidateFile(fileArg)
   if (!existsSync(abs)) {
     fail(`host validate 文件不存在: ${abs}`)
@@ -487,7 +492,7 @@ async function cmdHostValidate(args: string[]): Promise<void> {
   } catch (err) {
     const msg = `YAML 解析失败: ${(err as Error).message}`
     if (json) {
-      printJson(process.cwd(), {
+      printJson(target, {
         command: 'host validate',
         file: abs,
         ok: false,
@@ -504,7 +509,7 @@ async function cmdHostValidate(args: string[]): Promise<void> {
   const issues = validateHostAdaptDoc(data)
   if (issues.length > 0) {
     if (json) {
-      printJson(process.cwd(), {
+      printJson(target, {
         command: 'host validate',
         file: abs,
         ok: false,
@@ -521,7 +526,7 @@ async function cmdHostValidate(args: string[]): Promise<void> {
   }
 
   if (json) {
-    printJson(process.cwd(), {
+    printJson(target, {
       command: 'host validate',
       file: abs,
       ok: true,
@@ -777,11 +782,13 @@ function printHostHuman(report: HostWriteReport): void {
 function emitHostFail(
   json: boolean,
   command: HostWriteReport['command'],
+  base: string,
   payload: Omit<HostWriteReport, 'ok' | 'verdict'> & { errors?: HostValidateIssue[]; message?: string },
   extraLines: string[],
 ): never {
   if (json) {
-    printJson(process.cwd(), {
+    // 2.4.1 NEW-2：基参取命令 target（调用方透传 · realpath 双侧归一由统一出口兜底）
+    printJson(base, {
       ...payload,
       ok: false,
       verdict: 'FAIL',
@@ -801,7 +808,8 @@ function tableVersionOf(data: unknown): string {
 function emitU01Degraded(
   json: boolean,
   command: HostWriteReport['command'],
-  base: Omit<HostWriteReport, 'ok' | 'verdict' | 'contract'>,
+  base: string,
+  payloadBase: Omit<HostWriteReport, 'ok' | 'verdict' | 'contract'>,
   contract: HostContractResult,
 ): never {
   const extraLines = [
@@ -811,8 +819,9 @@ function emitU01Degraded(
   emitHostFail(
     json,
     command,
+    base,
     {
-      ...base,
+      ...payloadBase,
       planned: [],
       written: [],
       skipped: [],
@@ -1146,7 +1155,7 @@ async function cmdHostApply(args: string[]): Promise<void> {
     data = yamlLoad(readFileSync(fileAbs, 'utf8'))
   } catch (err) {
     const msg = `YAML 解析失败: ${(err as Error).message}`
-    emitHostFail(json, 'host apply', { ...baseReport, errors: [{ path: '$', code: 'parse', message: msg }] }, [msg])
+    emitHostFail(json, 'host apply', target, { ...baseReport, errors: [{ path: '$', code: 'parse', message: msg }] }, [msg])
   }
 
   const issues = validateHostAdaptDoc(data)
@@ -1154,6 +1163,7 @@ async function cmdHostApply(args: string[]): Promise<void> {
     emitHostFail(
       json,
       'host apply',
+      target,
       { ...baseReport, errors: issues },
       issues.map((e) => `  - [${e.code}] ${e.path}: ${e.message}`),
     )
@@ -1171,7 +1181,7 @@ async function cmdHostApply(args: string[]): Promise<void> {
 
   const contract = evaluateHostContract(tableVersionOf(data))
   if (contract.status === 'degraded') {
-    emitU01Degraded(json, 'host apply', baseReport, contract)
+    emitU01Degraded(json, 'host apply', target, baseReport, contract)
   }
 
   const { items, s2 } = planApply({
@@ -1186,6 +1196,7 @@ async function cmdHostApply(args: string[]): Promise<void> {
     emitHostFail(
       json,
       'host apply',
+      target,
       {
         ...baseReport,
         errors: uniq.map((p) => ({
@@ -1305,7 +1316,7 @@ async function cmdHostUpdate(args: string[]): Promise<void> {
     data = yamlLoad(readFileSync(fileAbs, 'utf8'))
   } catch (err) {
     const msg = `YAML 解析失败: ${(err as Error).message}`
-    emitHostFail(json, 'host update', { ...baseReport, errors: [{ path: '$', code: 'parse', message: msg }] }, [
+    emitHostFail(json, 'host update', target, { ...baseReport, errors: [{ path: '$', code: 'parse', message: msg }] }, [
       msg,
     ])
   }
@@ -1315,6 +1326,7 @@ async function cmdHostUpdate(args: string[]): Promise<void> {
     emitHostFail(
       json,
       'host update',
+      target,
       { ...baseReport, errors: issues },
       issues.map((e) => `  - [${e.code}] ${e.path}: ${e.message}`),
     )
@@ -1345,7 +1357,7 @@ async function cmdHostUpdate(args: string[]): Promise<void> {
 
   const contract = evaluateHostContract(tableVersionOf(data))
   if (contract.status === 'degraded') {
-    emitU01Degraded(json, 'host update', baseReport, contract)
+    emitU01Degraded(json, 'host update', target, baseReport, contract)
   }
 
   const { items, s2 } = planApply({
@@ -1361,6 +1373,7 @@ async function cmdHostUpdate(args: string[]): Promise<void> {
     emitHostFail(
       json,
       'host update',
+      target,
       {
         ...baseReport,
         errors: uniq.map((p) => ({

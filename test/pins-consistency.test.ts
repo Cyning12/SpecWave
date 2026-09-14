@@ -1078,17 +1078,93 @@ describe('2.4-W6 N10 · pin-16 白名单大小写口径统一（D-24-W6-N10 · �
     })
   })
 
-  it('24W6-N10c 回归：白名单外不存在目标仍不判（F-W2-07 口径保持）· 白名单外存在目标仍 exit 2（W2-B2 口径保持）', async () => {
+})
+
+describe('2.4.1 NEW-3 [P2] · pin-16 HTML 锚点入扫描面（验收报告-SpecWave-2.4.0 §3 · 维护者定稿修）', { concurrency: 1 }, () => {
+  // 红测先行：2.4.0 码只扫 inline + reference-definition 两形态 —— README 加 <a href="FOO.md">
+  // 修复前 pins check exit 0（报告对照实验：同文件 [x](FOO.md) → exit 2）。
+  it('负向：<a href="FOO.md">（FOO.md 白名单外仓根级存在）→ exit 2 指 文件:行号 · 入 files 转绿', async () => {
     await withTemp(async (dir) => {
-      await makeW6Fixture(dir, ['README.md'])
-      await writeRel(dir, 'README.md', '# T\n\nsee [g](GONE.md)\n')
-      const gone = runCli(['pins', 'check'], dir)
-      assert.equal(gone.status, 0, 'F-W2-07：白名单外不存在目标不判: ' + gone.combined)
+      await make24W1Fixture(dir)
       await writeRel(dir, 'FOO.md', '# F\n')
-      await writeRel(dir, 'README.md', '# T\n\nsee [f](FOO.md)\n')
+      await writeRel(dir, 'BAR.md', '# B\n')
+      await writeRel(
+        dir,
+        'README.md',
+        W1_24_README_EN +
+          '\n<a href="FOO.md">foo</a>\n<a href=\'BAR.md\'>bar</a>\n' +
+          '<a href="https://e.com/Q.md">ext</a>\n<a href="#frag">anchor</a>\n',
+      )
       const bad = runCli(['pins', 'check'], dir)
-      assert.equal(bad.status, 2, '盘上存在但白名单外（无大小写变体命中）→ 仍 exit 2: ' + bad.combined)
-      assert.match(bad.combined, /README\.md:3 -> FOO\.md/)
+      assert.equal(bad.status, 2, bad.combined)
+      assert.match(bad.combined, /\[mismatch\] pin-16 package\.json/)
+      assert.match(bad.combined, /README\.md:\d+ -> FOO\.md/)
+      assert.match(bad.combined, /README\.md:\d+ -> BAR\.md/)
+      assert.doesNotMatch(bad.combined, /Q\.md/, 'scheme URL 目标须跳过（F-W1-01 同口径）')
+      // 对照：FOO.md/BAR.md 入 files[] → 转绿（与 inline/refstyle 同一归一/判定管线）
+      const pkg = JSON.parse(await readFile(path.join(dir, 'package.json'), 'utf8')) as {
+        files: string[]
+      }
+      pkg.files.push('FOO.md', 'BAR.md')
+      await writeRel(dir, 'package.json', JSON.stringify(pkg, null, 2) + '\n')
+      const good = runCli(['pins', 'check'], dir)
+      assert.equal(good.status, 0, good.combined)
+      assert.match(good.combined, /\[ok\] pin-16 /)
+    })
+  })
+
+  it('回归：无 HTML 锚点的基线仓仍全绿（inline/refstyle 两形态既有判据零回退）', async () => {
+    await withTemp(async (dir) => {
+      await make24W1Fixture(dir)
+      const r = runCli(['pins', 'check'], dir)
+      assert.equal(r.status, 0, r.combined)
+      assert.match(r.combined, /PINS: PASS/)
+    })
+  })
+})
+
+describe('2.4.1 NEW-9/N9 [P2] · pin-08 状态格精确版本锁定（边界正则 · R1 §3-2 定稿口径）', { concurrency: 1 }, () => {
+  // 红测先行：2.4.0 码 hitA = statusCell.includes(dotted) 裸子串 —— 三形态顶包全 exit 0。
+  // 定稿边界：(?<![0-9A-Za-z._-])X\.Y\.Z(?![0-9A-Za-z._-])（拦 v 前缀 / -beta 修饰 / 加长版本号 ·
+  // 放行反引号/星号包裹）。
+  const SPEC_README = (statusCell: string): string =>
+    '| slug | 路径 | 状态 | 一句话 |' + '\n' +
+    '| --- | --- | --- | --- |' + '\n' +
+    '| `' + FIXTURE_VERSION + '`（patch 收尾行） | — | ' + statusCell + ' | z |' + '\n'
+
+  it('负向 ×3：9.9.9 同格保留 v-tag / v 前缀 / -beta 修饰 → 全 exit 2（复现 §2 N9 + §3 NEW-9 构造）', async () => {
+    await withTemp(async (dir) => {
+      await makeFixture(dir)
+      // ① N9 原构造：状态格 9.9.9 改坏 · 同格保留 tag `v3.1.4`（裸子串顶包面）
+      await writeRel(dir, 'docs/spec/README.md', SPEC_README('**`9.9.9` published · tag `v' + FIXTURE_VERSION + '`**'))
+      const n9 = runCli(['pins', 'check'], dir)
+      assert.equal(n9.status, 2, n9.combined)
+      assert.match(n9.combined, /\[mismatch\] pin-08 docs\/spec\/README\.md/)
+      // ② v 前缀形态：状态格 `v3.1.4` published（左边界拦 v）
+      await writeRel(dir, 'docs/spec/README.md', SPEC_README('**`v' + FIXTURE_VERSION + '` published**'))
+      const vprefix = runCli(['pins', 'check'], dir)
+      assert.equal(vprefix.status, 2, vprefix.combined)
+      assert.match(vprefix.combined, /\[mismatch\] pin-08 docs\/spec\/README\.md/)
+      // ③ 修饰符形态：状态格 `3.1.4-beta`（右边界拦 -）
+      await writeRel(dir, 'docs/spec/README.md', SPEC_README('**`' + FIXTURE_VERSION + '-beta` published**'))
+      const beta = runCli(['pins', 'check'], dir)
+      assert.equal(beta.status, 2, beta.combined)
+      assert.match(beta.combined, /\[mismatch\] pin-08 docs\/spec\/README\.md/)
+    })
+  })
+
+  it('正向零回退：状态格 `3.1.4` published（反引号/星号包裹）→ PASS；加长版本号 3.1.4.1 / 3.1.4rc1 拦', async () => {
+    await withTemp(async (dir) => {
+      await makeFixture(dir)
+      const good = runCli(['pins', 'check'], dir)
+      assert.equal(good.status, 0, good.combined)
+      assert.match(good.combined, /\[ok\] pin-08 /)
+      await writeRel(dir, 'docs/spec/README.md', SPEC_README('**`' + FIXTURE_VERSION + '.1` published**'))
+      const longer = runCli(['pins', 'check'], dir)
+      assert.equal(longer.status, 2, longer.combined)
+      await writeRel(dir, 'docs/spec/README.md', SPEC_README('**`' + FIXTURE_VERSION + 'rc1` published**'))
+      const rc = runCli(['pins', 'check'], dir)
+      assert.equal(rc.status, 2, rc.combined)
     })
   })
 })

@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { spawnSync } from 'node:child_process'
-import { mkdtemp, rm, writeFile, mkdir } from 'node:fs/promises'
+import { mkdtemp, rm, writeFile, mkdir, symlink } from 'node:fs/promises'
 import { realpathSync } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
@@ -437,5 +437,98 @@ describe('2.4-W3 · --json 全命令面无绝对路径机械断言（D-24-OUTPUT
     const r = runCli(['host', 'validate', '--file', abs, '--json'], KIT)
     const obj = assertJsonNoAbsRoot(r, [realpathSync(KIT), KIT], 'host validate')
     assert.equal(obj.file, 'assets/ide/host-adapt/examples/mvp-hosts.yaml', `file 须为仓内相对形: ${obj.file}`)
+  })
+})
+
+describe('2.4.1 NEW-2 [P1] · printJson 基参统一 target + realpath 双侧归一（cwd≠target / symlink 对偶 · 验收报告-SpecWave-2.4.0 §3）', { concurrency: 1 }, () => {
+  // 掩盖源钉死：本节用例全部 cwd≠target 或 symlink/realpath 错配（现 21 测 cwd==target 恰好对齐）。
+  // 红测先行：2.4.0 码下 ①②⑤ 基参=process.cwd() → 绝对前缀泄漏；③ --target 词法形 vs realpath 值形态错配；
+  // ④ host validate 无 --target（用法错）；⑥ exit-1 信封基参=cwd。
+
+  it('① cwd≠target：task close --json --file（realpath 绝对）从他目录调用 → dest 相对化（报告 §3 代理复现构造）', async () => {
+    await withTemp(async (dir) => {
+      await seedFixture(dir)
+      await withTemp(async (other) => {
+        const abs = path.join(realpathSync(dir), TASK_REL)
+        const r = runCli(['task', 'close', '--file', abs, '--json'], other)
+        assert.equal(r.status, 0, r.combined)
+        const obj = assertJsonNoAbsRoot(r, fixtureRoots(dir), 'task close cwd≠target')
+        assert.equal(obj.dest, DONE_REL, `dest 须为仓内相对形: ${obj.dest}`)
+      })
+    })
+  })
+
+  it('② symlink 入参：task close --file 经 symlink 路径（cwd 第三地）→ 无 link/real 绝对前缀', async () => {
+    await withTemp(async (dir) => {
+      await seedFixture(dir)
+      await withTemp(async (other) => {
+        const link = path.join(other, 'close-link')
+        await symlink(realpathSync(dir), link, 'dir')
+        const abs = path.join(link, TASK_REL)
+        const r = runCli(['task', 'close', '--file', abs, '--json'], KIT)
+        assert.equal(r.status, 0, r.combined)
+        const obj = assertJsonNoAbsRoot(r, [link, realpathSync(link), ...fixtureRoots(dir)], 'task close symlink')
+        assert.equal(obj.dest, DONE_REL, `dest 须为仓内相对形: ${obj.dest}`)
+      })
+    })
+  })
+
+  it('③ realpath 双侧归一：verify --target <symlink> --task <realpath 绝对> → task 字段相对化（词法基 vs realpath 值错配子类）', async () => {
+    await withTemp(async (dir) => {
+      await seedFixture(dir)
+      await withTemp(async (other) => {
+        const link = path.join(other, 'verify-link')
+        await symlink(realpathSync(dir), link, 'dir')
+        const absTask = path.join(realpathSync(dir), TASK_REL)
+        const r = runCli(['verify', '--target', link, '--task', absTask, '--json'], KIT)
+        assert.equal(r.status, 0, r.combined)
+        const obj = JSON.parse(r.stdout) as { task: string; target: string }
+        // 值侧 realpath 形 / 基参词法形错配：realpath 双侧归一后 task 须剥至仓内相对形
+        assert.equal(obj.task, TASK_REL, `task 字段须为仓内相对形: ${obj.task}`)
+        // target 字段为 toRel(cwd, target) 的 '..' 相对形（F-W3-01 既定口径 · 非绝对泄漏）
+        assert.ok(!path.isAbsolute(obj.target), `target 不得为绝对形: ${obj.target}`)
+        for (const root of [link, realpathSync(link), ...fixtureRoots(dir)]) {
+          assert.ok(!obj.task.includes(root) && !path.isAbsolute(obj.task), `task 不得含仓根前缀 ${root}`)
+        }
+      })
+    })
+  })
+
+  it('④ host validate --target（additive）：--target <symlink→KIT> + --file realpath 绝对入参 → file 相对化', async () => {
+    await withTemp(async (other) => {
+      const link = path.join(other, 'validate-link')
+      await symlink(realpathSync(KIT), link, 'dir')
+      const relYaml = path.join('assets', 'ide', 'host-adapt', 'examples', 'mvp-hosts.yaml')
+      const absYaml = path.join(realpathSync(KIT), relYaml)
+      const r = runCli(['host', 'validate', '--file', absYaml, '--target', link, '--json'], other)
+      assert.equal(r.status, 0, r.combined)
+      const obj = assertJsonNoAbsRoot(r, [link, realpathSync(KIT), KIT], 'host validate --target')
+      assert.equal(obj.file, relYaml.split(path.sep).join('/'), `file 须相对 --target: ${obj.file}`)
+    })
+  })
+
+  it('⑤ task lint --json 从他目录调用（--file 绝对入参）→ file 字段按仓根相对化', async () => {
+    await withTemp(async (dir) => {
+      await seedFixture(dir)
+      await withTemp(async (other) => {
+        const abs = path.join(realpathSync(dir), TASK_REL)
+        const r = runCli(['task', 'lint', '--file', abs, '--json'], other)
+        const obj = assertJsonNoAbsRoot(r, fixtureRoots(dir), 'task lint cwd≠target')
+        assert.equal(obj.file, TASK_REL, `file 字段须为仓内相对形: ${obj.file}`)
+      })
+    })
+  })
+
+  it('⑥ exit-1 错误信封（cli.ts:1299 增量）：--target 为基 —— message 携绝对 target 相对化', async () => {
+    await withTemp(async (dir) => {
+      await withTemp(async (other) => {
+        const missing = path.join(realpathSync(dir), 'no-such-target')
+        const r = runCli(['host', 'apply', '--tools', 'all', '--target', missing, '--json'], other)
+        assert.equal(r.status, 1, r.combined)
+        const obj = assertJsonNoAbsRoot(r, fixtureRoots(dir), 'exit-1 envelope --target base')
+        assert.equal(obj.exitCode, 1)
+        assert.equal(obj.command, 'host')
+      })
+    })
   })
 })

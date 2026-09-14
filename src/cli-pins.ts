@@ -219,10 +219,17 @@ function evaluatePin(root: string, pin: Pin, truth: string): PinResult {
   // 点式 X.Y.Z，且 slug 列（B）行身份辅助判成立（含版本串或以 X_Y- 前缀开头 · minor 主题夹行）。
   // 下划线式 X_Y/X_Y_Z 一律不计入版本串（slug/文件名/归档链接顶包排除 · §3.J 两类顶包杀伤）；
   // 「X.Y.Z 规划中」类非发布态行：状态列含点式串即算行身份合格（F-W1-05 定稿 · 发布态归 pin-10）。
+  // 2.4.1 NEW-9/N9（验收报告-SpecWave-2.4.0 §3 + §2 N9 · R1 §3-2 定稿）：hitA 由裸子串
+  // includes 改边界正则 (?<![0-9A-Za-z._-])X\.Y\.Z(?![0-9A-Za-z._-]) —— 左/右边界排除
+  // 数字/字母/点/下划线/连字符（拦 `v2.4.0` 的 v 前缀 · `2.4.0-beta` 修饰 · `12.4.0` /
+  // `2.4.0.1` / `2.4.0rc1` 加长），放行反引号/星号/@ 包裹形态（存量索引行零误伤回归在案）。
   if (kind === 'spec-index-row') {
     const dotted = truth
     const under = truth.replace(/\./g, '_')
     const minorUnder = truth.split('.').slice(0, 2).join('_')
+    const dottedExactRe = new RegExp(
+      '(?<![0-9A-Za-z._-])' + dotted.replace(/\./g, '\\.') + '(?![0-9A-Za-z._-])',
+    )
     const lines = content.split('\n')
     const suspects: number[] = []
     for (let i = 0; i < lines.length; i++) {
@@ -232,7 +239,7 @@ function evaluatePin(root: string, pin: Pin, truth: string): PinResult {
       if (cells.length < 3) continue
       const slugCell = (cells[0] ?? '').replace(/`/g, '')
       const statusCell = cells[2] ?? '' // cells.length >= 3 已守卫（E5 收窄）
-      const hitA = statusCell.includes(dotted)
+      const hitA = dottedExactRe.test(statusCell)
       const hitB =
         slugCell.includes(dotted) || slugCell.includes(under) || slugCell.startsWith(minorUnder + '-')
       if (hitA && hitB) {
@@ -313,6 +320,9 @@ function evaluatePin(root: string, pin: Pin, truth: string): PinResult {
     // D-24-PIN16-REFSTYLE（2.4-W1 · 验收报告 §3.H）：reference-definition `^\s*[id]: target` 入扫描面，
     // 与 inline 目标走同一归一/判定管线（去锚 · 剥尖括号 · scheme/纯锚点跳过 · 仓根级且存在 ∈ 白名单）。
     const refRe = /^\s*!?\[[^\]]+\]:\s*(\S+)/gm
+    // 2.4.1 NEW-3（验收报告-SpecWave-2.4.0 §3 · 维护者定稿修）：HTML 锚点 <a href="…">（单/双引号同口径）
+    // 入扫描面 —— markdown 内合法相对链接形态，与 inline/refstyle 走同一归一/判定管线。
+    const htmlARe = /<a\s[^>]*?href\s*=\s*["']([^"']+)["'][^>]*>/gi
     const misses: string[] = []
     for (const abs of sources) {
       const relSrc = normalizeSlashPath(path.relative(root, abs))
@@ -323,6 +333,7 @@ function evaluatePin(root: string, pin: Pin, truth: string): PinResult {
       const re = new RegExp(linkRe.source, 'g')
       while ((m = re.exec(srcContent))) found.push({ raw: m[2]!, index: m.index }) // linkRe 捕获组 2 必参与（E5 收窄）
       while ((m = refRe.exec(srcContent))) found.push({ raw: m[1]!, index: m.index }) // refRe 捕获组 1 必参与（E5 收窄）
+      while ((m = htmlARe.exec(srcContent))) found.push({ raw: m[1]!, index: m.index }) // htmlARe 捕获组 1 必参与（E5 收窄）
       for (const f of found) {
         let target = f.raw
         if (target.startsWith('<') && target.endsWith('>')) target = target.slice(1, -1) // refstyle 尖括号折叠写法
