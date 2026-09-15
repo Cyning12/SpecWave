@@ -372,7 +372,7 @@ Three surfaces, not interchangeable: **System/Re-anchor** = short identity; **fu
 
 ## Releasing (maintainers)
 
-**Current package**: **`spec-wave@2.4.2`** — **bump landed · pending release** (tag/push/publish are maintainer-only; currently published = **`2.4.1`** (`latest` · tag `v2.4.1`)). Prior: **`2.4.0`** (gate strength) · **`2.3.1`** (acceptance-fixes patch) · **`2.3.0`** (wiring completion) · **`2.2.1`** (acceptance-fixes patch) · **`2.2.0`** (closed-loop start).
+**Current package**: **`spec-wave@2.4.2`** — **published** (`latest` · tag `v2.4.2` ↔ bump commit `2557119` · 2026-09-15). Prior: **`2.4.1`** (acceptance-fixes patch) · **`2.4.0`** (gate strength) · **`2.3.1`** (acceptance-fixes patch) · **`2.3.0`** (wiring completion) · **`2.2.1`** (acceptance-fixes patch) · **`2.2.0`** (closed-loop start).
 
 Release process: see [RELEASING.md](RELEASING.md) — hard pre-publish checklist (commit-before-publish · four green gates · version pins · Agent may bump/tag · **human-only `npm publish`**; institutionalizes the DEF-001 lesson).
 

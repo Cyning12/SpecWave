@@ -7,7 +7,7 @@
 ## [2.4.2] - 2026-09-15
 
 > 主题：**patch** —— 2.4.1 验收报告 **PASS-with-issues（无 P1）** 三条 P2 修复（§6.1「建议纳入 2.4.2」：R-1/R-2/R-3 · task `2-4-2-patch` · 覆盖面对齐收尾）。
-> **发布状态**：**待发版**（registry `latest` 仍为 `2.4.1` · tag `v2.4.2` 待人打 · pin-10 设计红留痕 · **本版 tag/push/publish/deprecate 全仅人**——2.4.1 代跑授权系一次性不延续 · 报告 §6.3）。
+> **发布状态**：**已 published** · tag **`v2.4.2`** ↔ `spec-wave@2.4.2`（人执行 publish · 2026-09-15 · registry `latest=2.4.2` · `time.2.4.2`=2026-09-15T08:28:17Z · bump commit `2557119` · tag+push 00 原子推代跑（维护者本窗授权）· 探针全过）。
 
 ### Fixed
 

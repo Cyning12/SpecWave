@@ -1,6 +1,6 @@
 # ACCEPTANCE · 2.4.2 patch（验收报告 R-1/R-2/R-3 修复）台账
 
-> **版本**：`spec-wave@2.4.2`（**待发版** · bump 已落 2026-09-15 · **本版 tag/push/publish/deprecate 全仅人**——2.4.1 代跑授权系一次性不延续 · 报告 §6.3）
+> **版本**：`spec-wave@2.4.2`（**已 published** · 2026-09-15 · 人执行 publish · dist-tags `latest=2.4.2`（registry API 直查实核）· `time.2.4.2`=2026-09-15T08:28:17Z · tag **`v2.4.2`** ↔ bump commit `2557119`（tag+push 00 原子推代跑 · 维护者本窗授权「授权git+push」）· 探针全过）
 > **task**：[`docs/tasks/done/task_2_4_2_patch.md`](../tasks/done/task_2_4_2_patch.md)（slug `2-4-2-patch` · 无独立 SPEC 夹 · 属 2_4-gate-strength 验收后 patch · 已关账 CLOSED）
 > **依据**：`.workbuddy/output/验收报告-SpecWave-2.4.1.md` §3.1/§3.2/§3.3 + §4 残余登记 + §6.1（判 PASS-with-issues 无 P1）· R1 审查文 `docs/harness/reviews/task_2_4_2_patch_audit_R1_20260915.md`（PASS · R-2 误伤预判模拟 0/67+0/76 · 提示级行号漂移 2 处以现值为准）
 
@@ -35,9 +35,10 @@
 - R-5（`不\n通过` 换行形态）维持漏网（2.4.1 R1 §3-1 裁决 + 本波窗口显式排除 `\n` · K 断言钉死）· 归 3.0。
 - R-6（git 可诊断性 · shim exit 69 分档/前置探测）归 3.0 W5（本波仅登记环境警示 + F-P3-14 对照实验条款）。
 - pin-08 版本↔发布态绑定（§3.3 C 形态）· pin-17 伪表行（NEW-4）· S1·N=20 非语义闸（NEW-5）· NEW-6..12 · NEW-10/NEW-11 · pin-16 语义面 —— 全部归 3.0 W4/W5（报告 §6.2 · PLAN_3_0 已启动）。
-- pin-10 tag-gated 设计红待人打 `v2.4.2` 后复跑转绿（须 17/17）。
+- pin-10 tag-gated 设计红 ~~待人打 `v2.4.2` 后复跑转绿~~ **已转绿**——tag `v2.4.2` ↔ `2557119` 落位后 `pins check` **17/17 PASS · exit 0**（00 实测 2026-09-15）。
 
 ## 发布边界
 
-- 本棒未执行 `git tag` / `git push` / `npm publish` / `npm deprecate`（**全仅人** · 2.4.1 代跑授权不延续）· 未用 `--force` / `git add -A`。
+- 本棒（bump/修复）未执行 `git tag` / `git push` / `npm publish` / `npm deprecate`（起草时按「全仅人」预备 · 2.4.1 代跑授权一次性不延续）· 未用 `--force` / `git add -A`。**实际执行口径**：2026-09-15 维护者本窗另授「授权git+push」→ tag+push 由 00 原子推代跑（`git push origin main v2.4.2` 单条），publish 仍仅人。
 - RELEASING 人 checklist 2.4.2 节已备（含发布边界注记 + 原子推教训保持 + 打 tag 后复跑 pins 17/17 + npm test 全绿 + pack 清单无 .bak 探针）。
+- **发布完成回填（2026-09-15 · 人 publish 后 00+release 棒代核 ⑨）**：tag `v2.4.2` ↔ `2557119` 已由 00 **原子推**（main/tag CI 双 success **零竞态** · 对照 2.4.1 分推竞态红 run 34843339145 · 硬步骤⑥原子推规则实战验证生效）；registry dist-tags `latest=2.4.2`（`time.2.4.2`=2026-09-15T08:28:17Z · registry API 直查实核）；探针全过（`git show v2.4.2:package.json`=2.4.2 · 真 tarball（curl registry 直取）188 文件对照 2.4.0/2.4.1 一致 · .bak/*~/.DS_Store=0）；打 tag 后复跑 `pins check` 17/17 · `npm test` 606 pass / 0 fail / 1 门控 skip。
