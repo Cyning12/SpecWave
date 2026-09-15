@@ -621,6 +621,86 @@ describe('2.4.1 NEW-1 [P1] · 否定守卫语义判据放宽（B/D/E 形态 · �
   })
 })
 
+describe('2.4.2 R-2 [P2] · 否定词表补 not\\s*pass + 同句共现窗口（验收报告-SpecWave-2.4.1 §3.1 行 G/I/J · §4 R-4 形态）', { concurrency: 1 }, () => {
+  // 红测先行：2.4.1 码（不.{0,3}通过|未.{0,3}通过|no\s*pass|reject）—— G「NOT PASS」未覆盖 ·
+  // I/J 插 4 字超 {0,3} 窗 → 三形态修复前误判 PASS（exit 0）。
+  async function seedR2(dir: string, slug: string, review: string): Promise<string> {
+    const rel = `docs/tasks/active/task_${slug}_v1.md`
+    await writeRel(dir, rel, taskMd(slug))
+    await writeRel(dir, `docs/harness/invokes/by-task/${slug.replace(/_/g, '-')}/invoke_20260901_10_x.md`, '# invoke 10\n')
+    await writeRel(dir, `docs/harness/reviews/task_${slug}_audit_R1_20260915.md`, review)
+    return rel
+  }
+  const NEG = (line: string): string => `# R1 fixture\n\n## 结论\n\n${line}\n`
+  const assertBlocked = async (dir: string, rel: string): Promise<void> => {
+    const r = runCli(['verify', '--task', rel, '--target', dir])
+    assert.equal(r.status, 2, r.combined)
+    assert.match(r.combined, /VERIFY: BLOCKED · 审查文结论不可机读通过/)
+    assert.match(r.combined, /含否定结论词/)
+  }
+
+  it('G 形态「NOT PASS」（英文大写否定）→ BLOCKED exit 2', async () => {
+    await withTemp(async (dir) => {
+      const rel = await seedR2(dir, 'r2_g', NEG('NOT PASS. Defects listed in probe table row G, rework required before any signoff.'))
+      await assertBlocked(dir, rel)
+    })
+  })
+
+  it('I 形态「不最终予以通过」（插 4 字超旧窗）→ BLOCKED exit 2（同句共现窗口）', async () => {
+    await withTemp(async (dir) => {
+      const rel = await seedR2(dir, 'r2_i', NEG('本任务不最终予以通过。缺陷清单见探针表 I 行，须修复后重审再签。'))
+      await assertBlocked(dir, rel)
+    })
+  })
+
+  it('J 形态「未能够予以通过」（插 4 字超旧窗）→ BLOCKED exit 2；task close 同口径', async () => {
+    await withTemp(async (dir) => {
+      const rel = await seedR2(dir, 'r2_j', NEG('本任务未能够予以通过。缺陷清单见探针表 J 行，须修复后重审再签。'))
+      await assertBlocked(dir, rel)
+      const rel2 = await seedCloseable(dir, 'r2_jc', NEG('本任务不最终予以通过。缺陷清单待修，close 面与裸 verify 同用 evalReviewConclusion。'))
+      const c = runCli(['task', 'close', '--file', rel2], dir)
+      assert.equal(c.status, 2, c.combined)
+      assert.match(c.combined, /CLOSE: BLOCKED/)
+      assert.match(c.combined, /close_review: 审查文结论不可机读通过/)
+    })
+  })
+
+  it('对照零回退：A PASS · B/D/E/L（不予通过/不 通过/NO PASS/rejected）FAIL · F FAIL · M（否定+通过并存）FAIL', async () => {
+    await withTemp(async (dir) => {
+      const rel = await seedR2(dir, 'r2_ctrl', NEG('PASS · 零内容阻塞。审查项逐条核对，范围与验收一致，无阻塞遗留，准予关账。'))
+      const a = runCli(['verify', '--task', rel, '--target', dir])
+      assert.equal(a.status, 0, a.combined)
+      const cases: Array<[string, string]> = [
+        ['B', '本任务不予通过。缺陷清单见探针表 B 行，须修复后重审再签。'],
+        ['D', '本任务不 通过。缺陷清单见探针表 D 行（空格断链形态），须修复后重审再签。'],
+        ['E', 'NO PASS. Defects listed in probe table row E, must be reworked before signoff.'],
+        ['L', 'Rejected: defect list pending rework, do not sign off this round.'],
+        ['M', '整体通过但局部不通过项待修，审查项逐条核对完毕。'],
+      ]
+      for (const [label, line] of cases) {
+        await writeRel(dir, 'docs/harness/reviews/task_r2_ctrl_audit_R1_20260915.md', NEG(line))
+        const r = runCli(['verify', '--task', rel, '--target', dir])
+        assert.equal(r.status, 2, `${label} 形态须仍判未通过: ${r.combined}`)
+      }
+      // F（只写「通过」二字）→ S1·N=20 内容量前闸不回退
+      await writeRel(dir, 'docs/harness/reviews/task_r2_ctrl_audit_R1_20260915.md', NEG('通过\n'))
+      const f = runCli(['verify', '--task', rel, '--target', dir])
+      assert.equal(f.status, 2, f.combined)
+      assert.match(f.combined, /内容量不足/)
+    })
+  })
+
+  it('K 形态「不\\n通过」换行：维持 PASS 漏网（R-5 已登记归 3.0 · 窗口排除 \\n 口径钉死 · 防顺手修）', async () => {
+    await withTemp(async (dir) => {
+      // 换行形态 + 实质内容达标 → 现口径判 PASS（已知残余 · 断言钉死防本波顺手修 R-5）
+      const rel = await seedR2(dir, 'r2_k', '# R1 fixture\n\n## 结论\n\n本任务经逐项核对不\n通过式检查均已完成，审查项合规，准予签收。\n')
+      const r = runCli(['verify', '--task', rel, '--target', dir])
+      assert.equal(r.status, 0, `K 换行形态须维持漏网（R-5 归 3.0 · 不得顺手修）: ${r.combined}`)
+      assert.match(r.combined, /VERIFY: PASS/)
+    })
+  })
+})
+
 describe('2.3.1 N13 [P2] · 豁免四字段显式类型判（falsy 陷阱 · 验收报告 §3.N）', { concurrency: 1 }, () => {
   async function seedHatGap(dir: string): Promise<void> {
     await writeRel(dir, 'docs/tasks/done/task_n13_falsy_v1.md', taskMd('n13_falsy', 'done'))

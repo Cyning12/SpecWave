@@ -322,7 +322,9 @@ function evaluatePin(root: string, pin: Pin, truth: string): PinResult {
     const refRe = /^\s*!?\[[^\]]+\]:\s*(\S+)/gm
     // 2.4.1 NEW-3（验收报告-SpecWave-2.4.0 §3 · 维护者定稿修）：HTML 锚点 <a href="…">（单/双引号同口径）
     // 入扫描面 —— markdown 内合法相对链接形态，与 inline/refstyle 走同一归一/判定管线。
-    const htmlARe = /<a\s[^>]*?href\s*=\s*["']([^"']+)["'][^>]*>/gi
+    // 2.4.2 R-3（验收报告-SpecWave-2.4.1 §3.3 末行）：属性值补无引号形态（合法 HTML5）——
+    // 三选一分支 "([^"]+)" | '([^']+)' | ([^\s>]+)，捕获组 1/2/3 按形态互斥参与。
+    const htmlARe = /<a\s[^>]*?href\s*=\s*(?:"([^"]+)"|'([^']+)'|([^\s>]+))[^>]*>/gi
     const misses: string[] = []
     for (const abs of sources) {
       const relSrc = normalizeSlashPath(path.relative(root, abs))
@@ -333,7 +335,7 @@ function evaluatePin(root: string, pin: Pin, truth: string): PinResult {
       const re = new RegExp(linkRe.source, 'g')
       while ((m = re.exec(srcContent))) found.push({ raw: m[2]!, index: m.index }) // linkRe 捕获组 2 必参与（E5 收窄）
       while ((m = refRe.exec(srcContent))) found.push({ raw: m[1]!, index: m.index }) // refRe 捕获组 1 必参与（E5 收窄）
-      while ((m = htmlARe.exec(srcContent))) found.push({ raw: m[1]!, index: m.index }) // htmlARe 捕获组 1 必参与（E5 收窄）
+      while ((m = htmlARe.exec(srcContent))) found.push({ raw: (m[1] ?? m[2] ?? m[3])!, index: m.index }) // htmlARe 捕获组 1/2/3 按形态互斥必居其一（E5 收窄 · 2.4.2 R-3 三选一联改）
       for (const f of found) {
         let target = f.raw
         if (target.startsWith('<') && target.endsWith('>')) target = target.slice(1, -1) // refstyle 尖括号折叠写法

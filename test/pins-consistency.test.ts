@@ -1123,6 +1123,59 @@ describe('2.4.1 NEW-3 [P2] · pin-16 HTML 锚点入扫描面（验收报告-Spec
   })
 })
 
+describe('2.4.2 R-3 [P2] · pin-16 HTML 锚点无引号属性值（验收报告-SpecWave-2.4.1 §3.3 末行）', { concurrency: 1 }, () => {
+  // 红测先行：2.4.1 码 htmlARe 只匹配带引号属性值 —— <a href=AGENTS.md>（合法 HTML5 无引号形态）
+  // 修复前 pins check exit 0 放行（对照：双引号/单引号/大写/属性序四形态均报红）。
+  it('负向：<a href=AGENTS.md> 无引号（白名单外仓根级存在）→ exit 2 指 文件:行号 · 入 files 转绿', async () => {
+    await withTemp(async (dir) => {
+      await make24W1Fixture(dir)
+      await writeRel(dir, 'AGENTS.md', '# A\n')
+      await writeRel(
+        dir,
+        'README.md',
+        W1_24_README_EN + '\n<a href=AGENTS.md>agents</a>\n',
+      )
+      const bad = runCli(['pins', 'check'], dir)
+      assert.equal(bad.status, 2, bad.combined)
+      assert.match(bad.combined, /\[mismatch\] pin-16 package\.json/)
+      assert.match(bad.combined, /README\.md:\d+ -> AGENTS\.md/)
+      // 对照：AGENTS.md 入 files[] → 转绿
+      const pkg = JSON.parse(await readFile(path.join(dir, 'package.json'), 'utf8')) as {
+        files: string[]
+      }
+      pkg.files.push('AGENTS.md')
+      await writeRel(dir, 'package.json', JSON.stringify(pkg, null, 2) + '\n')
+      const good = runCli(['pins', 'check'], dir)
+      assert.equal(good.status, 0, good.combined)
+      assert.match(good.combined, /\[ok\] pin-16 /)
+    })
+  })
+
+  it('四形态零回退 + 三捕获组取值（F-P3-07）：双引号/单引号/大写/属性序 + 无引号混合 → 全 exit 2 各指行号', async () => {
+    await withTemp(async (dir) => {
+      await make24W1Fixture(dir)
+      for (const f of ['FOO.md', 'BAR.md', 'BAZ.md', 'QUX.md', 'AGENTS.md']) {
+        await writeRel(dir, f, '# X\n')
+      }
+      await writeRel(
+        dir,
+        'README.md',
+        W1_24_README_EN + '\n' +
+          '<a href="FOO.md">dq</a>\n' +          // 双引号（捕获组 1）
+          "<a href='BAR.md'>sq</a>\n" +          // 单引号（捕获组 2）
+          '<A HREF="BAZ.md">upper</A>\n' +       // 大写（i 旗标 · 捕获组 1）
+          '<a target="_blank" href="QUX.md">attr-order</a>\n' + // 属性序（捕获组 1）
+          '<a href=AGENTS.md>bare</a>\n',        // 无引号（捕获组 3）
+      )
+      const bad = runCli(['pins', 'check'], dir)
+      assert.equal(bad.status, 2, bad.combined)
+      for (const f of ['FOO.md', 'BAR.md', 'BAZ.md', 'QUX.md', 'AGENTS.md']) {
+        assert.match(bad.combined, new RegExp('README\\.md:\\d+ -> ' + f.replace('.', '\\.')), `${f} 形态须报红指行号`)
+      }
+    })
+  })
+})
+
 describe('2.4.1 NEW-9/N9 [P2] · pin-08 状态格精确版本锁定（边界正则 · R1 §3-2 定稿口径）', { concurrency: 1 }, () => {
   // 红测先行：2.4.0 码 hitA = statusCell.includes(dotted) 裸子串 —— 三形态顶包全 exit 0。
   // 定稿边界：(?<![0-9A-Za-z._-])X\.Y\.Z(?![0-9A-Za-z._-])（拦 v 前缀 / -beta 修饰 / 加长版本号 ·

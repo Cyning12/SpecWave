@@ -4,6 +4,21 @@
 
 ## [Unreleased]
 
+## [2.4.2] - 2026-09-15
+
+> 主题：**patch** —— 2.4.1 验收报告 **PASS-with-issues（无 P1）** 三条 P2 修复（§6.1「建议纳入 2.4.2」：R-1/R-2/R-3 · task `2-4-2-patch` · 覆盖面对齐收尾）。
+> **发布状态**：**待发版**（registry `latest` 仍为 `2.4.1` · tag `v2.4.2` 待人打 · pin-10 设计红留痕 · **本版 tag/push/publish/deprecate 全仅人**——2.4.1 代跑授权系一次性不延续 · 报告 §6.3）。
+
+### Fixed
+
+- **R-1 [P2] · `host validate` 缺省基改取 `--file` 所在仓根**（验收报告 §3.2 第 5/7 行）：2.4.1 补的 `--target` 为 additive，但缺省基仍为 cwd——跨目录缺省调用 `--json` 的 `file` 打印绝对路径。缺省基改 `findGitRoot(path.dirname(abs))` 上溯（与 task lint/close 2.4.1 修法同口径 · `src/cli-host.ts` cmdHostValidate 三面 + 人类输出同口径）；`--target` 显式传入仍以 target 为准（2.4.1 接口面不动）；**仓外文件**（上溯为 null）不再打印绝对路径——JSON 标 `outside_repo: true` + `file` 取 basename 占位（键集只增合规 · 值级修复定性同 D-23-JSON-TARGET-REL 先例），人类输出同口径占位；校验行为本身不回退。`printJson(process.cwd()` grep 维持 0 命中。
+- **R-2 [P2] · 否定词表补 `not\s*pass` + 同句共现窗口**（验收报告 §3.1 行 G/I/J + §4 R-4 · §6.1 口径）：`REVIEW_NEG_RE`（`src/cli-checks.ts`）补 `not\s*pass`（封堵 `NOT PASS`）；`不.{0,3}通过` / `未.{0,3}通过` 窗口放宽为同句共现 `不[^。；\n]{0,12}通过` / `未[^。；\n]{0,12}通过`（封堵插 4 字形态「不最终予以通过」「未能够予以通过」· 排除 `。；` 限同句防跨句误中）；**窗口显式排除 `\n` → R-5 换行形态维持已登记残余不动（归 3.0 · K 断言钉死防顺手修）**。**存量误伤实测（R-2-c 硬条款）**：`evalReviewConclusion` 直评 A 面 done task 全量最新审查文（67 份 · 5 份无审查文）+ B 面 `docs/harness/reviews/` 全件（77 份）修复前/后双跑 —— 判定名单逐字一致，**措辞巧合误伤 0 · 真实否定语义翻转 0**（远低于 >3 回退阈值 · 无需回退保守档）。
+- **R-3 [P2] · pin-16 HTML 锚点无引号属性值**（验收报告 §3.3 末行）：`htmlARe` 属性值改三选一 `"([^"]+)"|'([^']+)'|([^\s>]+)`（合法 HTML5 无引号形态入扫描面）；消费点联改 `m[1] ?? m[2] ?? m[3]`（捕获组 1/2/3 按形态互斥 · E5 收窄注释同步）；`assets/release-pins.yaml` pin-16 `semantics` 声明同步（数据声明与实现一致）。
+
+### Tests
+
+- 新增：R-1 双负向（跨目录缺省调用 / realpath 同型）+ 仓外文件 outside_repo 占位 + 零回退对照（`test/cli-json-no-abs-path.test.ts` · 修复前 3 条真红复现 §3.2 绝对泄漏）· R-2 三负向（NOT PASS / 不最终予以通过 / 未能够予以通过 + close 同口径）+ 对照零回退（A/B/D/E/L/F/M）+ **K 形态「不\n通过」维持 PASS 漏网断言**（防顺手修 R-5）（`test/cli-w4-gate-wiring.test.ts` · 修复前 3 条真红复现 §3.1 行 G/I/J）· R-3 无引号负向 + 四形态零回退 + 三捕获组取值测（F-P3-07）（`test/pins-consistency.test.ts` · 修复前 2 条真红复现 §3.3 末行）；测试基线 596 → 607（604 pass + 2 tag-gated 设计红（release-tag-identity / pins pin-10）+ 1 门控 skip · tag `v2.4.2` 落位后复跑须全绿）；版本断言联改 8 测试文件（perl 双模式字面+转义 · 沿袭 2.3.1/2.4.1 先例 · 历史标题与「2.4.1 码」红测留证注释保留）· README 双语未钉现行版引用联改 ×8（:289/:290/:309/:311 · :375「currently published=2.4.1」真值指针保留）。
+
 ## [2.4.1] - 2026-09-14
 
 > 主题：**patch** —— 2.4.0 验收报告 **PASS-with-issues** 四项修复（§6.1「建议纳入 2.4.1」：NEW-1/NEW-2/NEW-3/NEW-9+N9 · task `2-4-1-patch` · 同族系统性弱点「判据用裸子串/字面连续而非语义边界」收口）。

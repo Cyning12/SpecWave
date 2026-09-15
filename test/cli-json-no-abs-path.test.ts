@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import { spawnSync } from 'node:child_process'
 import { mkdtemp, rm, writeFile, mkdir, symlink } from 'node:fs/promises'
-import { realpathSync } from 'node:fs'
+import { realpathSync, readFileSync } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import { describe, it } from 'node:test'
@@ -530,5 +530,68 @@ describe('2.4.1 NEW-2 [P1] · printJson 基参统一 target + realpath 双侧归
         assert.equal(obj.command, 'host')
       })
     })
+  })
+})
+
+describe('2.4.2 R-1 [P2] · host validate 缺省基改取 --file 所在仓根（findGitRoot 上溯 · 验收报告-SpecWave-2.4.1 §3.2）', { concurrency: 1 }, () => {
+  // 红测先行：2.4.1 码缺省基=cwd —— 跨目录缺省调用 file 打印绝对路径（§3.2 第 5/7 行）。
+  const EXAMPLE_REL = path.join('assets', 'ide', 'host-adapt', 'examples', 'mvp-hosts.yaml')
+
+  it('R-1-a 负向：cwd=/tmp 靶场 · 缺省 --target · --file 仓内示例表绝对路径 → file 为仓内相对形（修复前绝对）', async () => {
+    await withTemp(async (other) => {
+      const absYaml = path.join(realpathSync(KIT), EXAMPLE_REL)
+      const r = runCli(['host', 'validate', '--file', absYaml, '--json'], other)
+      assert.equal(r.status, 0, r.combined)
+      const obj = assertJsonNoAbsRoot(r, [realpathSync(KIT), KIT], 'host validate 缺省基跨目录')
+      assert.equal(obj.file, EXAMPLE_REL.split(path.sep).join('/'), `file 须为仓内相对形: ${obj.file}`)
+      assert.equal(obj.outside_repo, undefined, '仓内文件不得标 outside_repo')
+    })
+  })
+
+  it('R-1-a2 同型：--file 经 realpath 形态指 temp 仓内文件（/tmp vs /private/tmp 子类）→ file 相对该仓根', async () => {
+    await withTemp(async (dir) => {
+      await mkdir(path.join(dir, '.git'), { recursive: true })
+      await writeFile(path.join(dir, 'hosts.yaml'), readFileSync(path.join(KIT, EXAMPLE_REL), 'utf8'))
+      await withTemp(async (other) => {
+        const absYaml = path.join(realpathSync(dir), 'hosts.yaml')
+        const r = runCli(['host', 'validate', '--file', absYaml, '--json'], other)
+        assert.equal(r.status, 0, r.combined)
+        const obj = assertJsonNoAbsRoot(r, fixtureRoots(dir), 'host validate realpath 入参')
+        assert.equal(obj.file, 'hosts.yaml', `file 须相对 --file 所在仓根: ${obj.file}`)
+      })
+    })
+  })
+
+  it('R-1-b 仓外文件：findGitRoot 上溯为 null → JSON 标 outside_repo: true + file 占位（basename）· 无绝对路径 · 校验行为不回退', async () => {
+    await withTemp(async (dir) => {
+      // os.tmpdir() 下无 .git 祖先 → 仓外
+      await writeFile(path.join(dir, 'outside.yaml'), readFileSync(path.join(KIT, EXAMPLE_REL), 'utf8'))
+      const absYaml = path.join(dir, 'outside.yaml')
+      const r = runCli(['host', 'validate', '--file', absYaml, '--json'], KIT)
+      assert.equal(r.status, 0, r.combined)
+      const obj = assertJsonNoAbsRoot(r, fixtureRoots(dir), 'host validate 仓外文件')
+      assert.equal(obj.outside_repo, true, '仓外文件须标 outside_repo: true')
+      assert.equal(obj.file, 'outside.yaml', `仓外 file 取 basename 占位: ${obj.file}`)
+      assert.equal(obj.verdict, 'PASS', '校验行为本身不回退')
+    })
+  })
+
+  it('R-1-c 零回退：--target 显式优先（2.4.1 接口面）+ 缺省 cwd=仓根用例 + 人类输出相对化', async () => {
+    await withTemp(async (other) => {
+      const link = path.join(other, 'v242-link')
+      await symlink(realpathSync(KIT), link, 'dir')
+      const absYaml = path.join(realpathSync(KIT), EXAMPLE_REL)
+      // --target 显式 → 仍以 target 为基（不动 2.4.1 口径）
+      const r = runCli(['host', 'validate', '--file', absYaml, '--target', link, '--json'], other)
+      assert.equal(r.status, 0, r.combined)
+      const obj = assertJsonNoAbsRoot(r, [link, realpathSync(KIT), KIT], 'host validate --target 显式')
+      assert.equal(obj.file, EXAMPLE_REL.split(path.sep).join('/'))
+      assert.equal(obj.outside_repo, undefined)
+    })
+    // 缺省 cwd=仓根（既有主用例形态 · 与人类输出同口径）
+    const absYaml = path.join(KIT, EXAMPLE_REL)
+    const r2 = runCli(['host', 'validate', '--file', absYaml], KIT)
+    assert.equal(r2.status, 0, r2.combined)
+    assert.ok(r2.stdout.includes(`file: ${EXAMPLE_REL.split(path.sep).join('/')}`), `人类输出 file 须相对化:\n${r2.stdout}`)
   })
 })

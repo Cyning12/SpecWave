@@ -24,6 +24,7 @@ import path from 'node:path'
 import {
   assertNotS2Abs,
   fail,
+  findGitRoot,
   isS2AbsPath,
   isS2RelPath,
   kitLayoutJoin,
@@ -485,6 +486,16 @@ async function cmdHostValidate(args: string[]): Promise<void> {
   if (!existsSync(abs)) {
     fail(`host validate 文件不存在: ${abs}`)
   }
+  // 2.4.2 R-1（验收报告-SpecWave-2.4.1 §3.2）：缺省基改取 --file 所在仓根（findGitRoot 上溯 ·
+  // 与 task lint/close 2.4.1 修法同口径）——缺省 cwd 在跨目录调用下无法相对化（绝对泄漏病根）；
+  // --target 显式传入仍以 target 为准（2.4.1 接口面不动 · F-P3-08）；
+  // 仓外文件（上溯为 null）不打印绝对路径：JSON 标 outside_repo: true + file 取 basename 占位
+  //（键集只增合规 · 校验行为照常），人类输出同口径占位。
+  const fileRepoRoot = targetArg !== undefined ? target : findGitRoot(path.dirname(abs))
+  const outsideRepo = targetArg === undefined && fileRepoRoot === null
+  const base = fileRepoRoot ?? target
+  const fileOut = outsideRepo ? path.basename(abs) : abs
+  const outsideField = outsideRepo ? { outside_repo: true } : {}
 
   let data: unknown
   try {
@@ -492,9 +503,10 @@ async function cmdHostValidate(args: string[]): Promise<void> {
   } catch (err) {
     const msg = `YAML 解析失败: ${(err as Error).message}`
     if (json) {
-      printJson(target, {
+      printJson(base, {
         command: 'host validate',
-        file: abs,
+        file: fileOut,
+        ...outsideField,
         ok: false,
         verdict: 'FAIL',
         errors: [{ path: '$', code: 'parse', message: msg }],
@@ -509,9 +521,10 @@ async function cmdHostValidate(args: string[]): Promise<void> {
   const issues = validateHostAdaptDoc(data)
   if (issues.length > 0) {
     if (json) {
-      printJson(target, {
+      printJson(base, {
         command: 'host validate',
-        file: abs,
+        file: fileOut,
+        ...outsideField,
         ok: false,
         verdict: 'FAIL',
         errors: issues,
@@ -526,15 +539,17 @@ async function cmdHostValidate(args: string[]): Promise<void> {
   }
 
   if (json) {
-    printJson(target, {
+    printJson(base, {
       command: 'host validate',
-      file: abs,
+      file: fileOut,
+      ...outsideField,
       ok: true,
       verdict: 'PASS',
     })
     return
   }
-  console.log(`file: ${toRel(process.cwd(), abs)}`) // 2.4-W3：人类输出路径值同口径相对化
+  // 2.4-W3 + 2.4.2 R-1：人类输出路径值同口径相对化（基与 JSON 面同一 · 仓外占位不打印绝对路径）
+  console.log(`file: ${outsideRepo ? fileOut + '（仓外文件 · outside_repo · 不打印绝对路径）' : toRel(base, abs)}`)
   console.log('HOST VALIDATE: PASS')
 }
 
