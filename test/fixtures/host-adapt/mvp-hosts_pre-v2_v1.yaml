@@ -2,43 +2,14 @@
 # 2.2 W6：copilot / codex / windsurf 原生读 AGENTS.md · always_on/skills 全量复用 agents 行资产（近零新资产）
 #   skills 原生落点：copilot=.github/skills · codex=.agents/skills（官方 repo 级扫描目录）· windsurf=.windsurf/skills
 # 2.3 W6：gemini / opencode / roo / zed / cline / aider（B4 · 落点逐宿主官方文档取证 @2026-09-13 · 见末尾六行注释）
-# 3.0 W2：schema_version 2 化 —— command_sets 入表（= 内建目录逐字）· 13 宿主全量显式 hooks 声明
-#   （claude/cursor/gemini=config-hook[pre-commit,pre-archive] · 其余 10 宿主显式 none 降级锚点 · S3.1 机制族定稿）
-#   · verify 面消重复（defaults.surfaces.verify + 每宿主 extends: defaults · 行级 always_on/skills/commands 不动）
 # 校验：npx spec-wave host validate [--file PATH]
 # 物化：npx spec-wave host apply --tools cursor,claude --profile core|expanded [--dry-run|--yes]
 # 刷新：npx spec-wave host update [--tools LIST] [--profile core|expanded] [--dry-run|--yes] [--force]
 # schema：../host-adapt.schema.json
 # skills 落点矩阵：../README.md
 version: "1"
-schema_version: 2
-command_sets:
-  core:
-    - verify
-    - gate-status
-    - init-guide
-    - apply-standards
-    - hat-reanchor
-  expanded:
-    - hat-00-delegate
-    - hat-10-spec
-    - hat-10-task
-    - hat-20-spec-audit
-    - hat-20-task-audit
-    - graph-check
-    - sync-prompts-guide
-  forbidden:
-    - kit-30
-    - kit-publish
-defaults:
-  surfaces:
-    verify:
-      kind: cli
-      bin: spec-wave
-      failClosed: true
 hosts:
   - host_id: dsh
-    extends: defaults
     surfaces:
       always_on: []
       skills:
@@ -50,11 +21,12 @@ hosts:
           from: assets/ide/skills-orch/*
       # DSH：slash 发现根 = .dsh/skills；commands 必须空
       commands: []
-      hooks:
-        mechanism: none
+      verify:
+        kind: cli
+        bin: spec-wave
+        failClosed: true
 
   - host_id: cursor
-    extends: defaults
     surfaces:
       always_on:
         - target: .cursor/rules/05-kit-starter.mdc
@@ -69,15 +41,12 @@ hosts:
         - target_dir: .cursor/commands
           from: assets/ide/commands/cursor/*
           profile: expanded
-      hooks:
-        mechanism: config-hook
-        triggers:
-          - pre-commit
-          - pre-archive
-        command: "npx spec-wave verify --target ."
+      verify:
+        kind: cli
+        bin: spec-wave
+        failClosed: true
 
   - host_id: claude
-    extends: defaults
     surfaces:
       always_on:
         - target: CLAUDE.md
@@ -92,15 +61,12 @@ hosts:
         - target_dir: .claude/commands/kit
           from: assets/ide/commands/claude/kit/*
           profile: expanded
-      hooks:
-        mechanism: config-hook
-        triggers:
-          - pre-commit
-          - pre-archive
-        command: "npx spec-wave verify --target ."
+      verify:
+        kind: cli
+        bin: spec-wave
+        failClosed: true
 
   - host_id: agents
-    extends: defaults
     surfaces:
       always_on:
         - target: AGENTS.md
@@ -109,12 +75,13 @@ hosts:
         - target_dir: .agents/skills
           from: assets/skills/*
       commands: []
-      hooks:
-        mechanism: none
+      verify:
+        kind: cli
+        bin: spec-wave
+        failClosed: true
 
   # 2.2 W6 新增三宿主（B1）：均原生读 AGENTS.md · 资产面与 agents 行完全一致（仅 skills target_dir 按宿主原生目录）
   - host_id: copilot
-    extends: defaults
     surfaces:
       always_on:
         - target: AGENTS.md
@@ -123,11 +90,12 @@ hosts:
         - target_dir: .github/skills
           from: assets/skills/*
       commands: []
-      hooks:
-        mechanism: none
+      verify:
+        kind: cli
+        bin: spec-wave
+        failClosed: true
 
   - host_id: codex
-    extends: defaults
     surfaces:
       always_on:
         - target: AGENTS.md
@@ -136,11 +104,12 @@ hosts:
         - target_dir: .agents/skills
           from: assets/skills/*
       commands: []
-      hooks:
-        mechanism: none
+      verify:
+        kind: cli
+        bin: spec-wave
+        failClosed: true
 
   - host_id: windsurf
-    extends: defaults
     surfaces:
       always_on:
         - target: AGENTS.md
@@ -149,8 +118,10 @@ hosts:
         - target_dir: .windsurf/skills
           from: assets/skills/*
       commands: []
-      hooks:
-        mechanism: none
+      verify:
+        kind: cli
+        bin: spec-wave
+        failClosed: true
 
   # 2.3 W6 新增六宿主（B4）：always_on/skills 全量复用 agents 行资产（AGENTS.md 片段 + assets/skills/* · 零新资产 · marker merge 幂等）
   # 落点逐宿主官方文档取证（2026-09-13 · 取证卡见 task_2_3_wiring_w6_host_completion）：
@@ -168,7 +139,6 @@ hosts:
   #     （aider.chat/docs/usage/conventions.html · issue #4363 open）；落 AGENTS.md 为跨工具注入层价值（同仓 AGENTS.md 系宿主共享），
   #     aider 侧须用户自行 --read AGENTS.md 或配置 read: AGENTS.md；无官方 skills 约定 → 不物化
   - host_id: gemini
-    extends: defaults
     surfaces:
       always_on:
         - target: GEMINI.md
@@ -177,15 +147,12 @@ hosts:
         - target_dir: .gemini/skills
           from: assets/skills/*
       commands: []
-      hooks:
-        mechanism: config-hook
-        triggers:
-          - pre-commit
-          - pre-archive
-        command: "npx spec-wave verify --target ."
+      verify:
+        kind: cli
+        bin: spec-wave
+        failClosed: true
 
   - host_id: opencode
-    extends: defaults
     surfaces:
       always_on:
         - target: AGENTS.md
@@ -194,22 +161,24 @@ hosts:
         - target_dir: .agents/skills
           from: assets/skills/*
       commands: []
-      hooks:
-        mechanism: none
+      verify:
+        kind: cli
+        bin: spec-wave
+        failClosed: true
 
   - host_id: roo
-    extends: defaults
     surfaces:
       always_on:
         - target: AGENTS.md
           source: assets/ide/adapters/AGENTS.md.fragment.example
       skills: []
       commands: []
-      hooks:
-        mechanism: none
+      verify:
+        kind: cli
+        bin: spec-wave
+        failClosed: true
 
   - host_id: zed
-    extends: defaults
     surfaces:
       always_on:
         - target: AGENTS.md
@@ -218,11 +187,12 @@ hosts:
         - target_dir: .agents/skills
           from: assets/skills/*
       commands: []
-      hooks:
-        mechanism: none
+      verify:
+        kind: cli
+        bin: spec-wave
+        failClosed: true
 
   - host_id: cline
-    extends: defaults
     surfaces:
       always_on:
         - target: AGENTS.md
@@ -231,16 +201,19 @@ hosts:
         - target_dir: .cline/skills
           from: assets/skills/*
       commands: []
-      hooks:
-        mechanism: none
+      verify:
+        kind: cli
+        bin: spec-wave
+        failClosed: true
 
   - host_id: aider
-    extends: defaults
     surfaces:
       always_on:
         - target: AGENTS.md
           source: assets/ide/adapters/AGENTS.md.fragment.example
       skills: []
       commands: []
-      hooks:
-        mechanism: none
+      verify:
+        kind: cli
+        bin: spec-wave
+        failClosed: true

@@ -113,9 +113,12 @@ describe('3.0 W1 阶段一 · schema_version 探测树（S2.1 · 评审文 §3.1
     assert.match(r.combined, /HOST VALIDATE:\s*PASS/i)
   })
 
-  it('现行包内表仍为 v1（无 schema_version 键）· 探测分派零 issue（表内容本阶段不动）', () => {
+  // 3.0 W2 · F-W2-13 有意翻转登记（本波唯一被授权改动的既有测试断言）：
+  // 原断言逐字 = 「现行包内表仍为 v1（无 schema_version 键）· 探测分派零 issue（表内容本阶段不动）」+ probe kind 'v1'；
+  // 内置表 v2 化（S3.2）即本波动作 ⇒ 翻转为 v2 断言。恒等锁见 test/w2-builtin-table-v2-identity.test.ts（验收 #8）。
+  it('包内表为 v2（schema_version: 2）· 探测分派零 issue（3.0 W2 内置表 v2 化 · F-W2-13 有意翻转：原「现行包内表仍为 v1」断言）', () => {
     const doc = loadFixtureDoc('assets/ide/host-adapt/examples/mvp-hosts.yaml')
-    assert.equal(probeHostAdaptSchemaVersion(doc).kind, 'v1')
+    assert.equal(probeHostAdaptSchemaVersion(doc).kind, 'v2')
     assert.deepEqual(validateHostAdaptDocDispatch(doc), [])
     assert.ok(LIVE_EXAMPLE.endsWith('mvp-hosts.yaml'))
   })

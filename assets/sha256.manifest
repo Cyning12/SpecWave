@@ -84,7 +84,7 @@ b9c581828c108ce7882372168279a982369962c12ec362fbc5405a96addd82c6  ide/commands/c
 78f012143fed5df991b87aa8a762a7d05c297835d7b0f251a53415d7e6e6937c  ide/commands/cursor/kit-sync-prompts-guide.md
 f15b62615ca3cfda76e3903d0bfa9265ca9a773fe1d91653ff09b802cd5ba9e5  ide/commands/cursor/kit-verify.md
 2bfc08f7cd19b17d52ed7d40a6ec76f17ee31af23305273334f28fcbe82fc6b2  ide/host-adapt/README.md
-b80f9a15e7da9051689b957daf737b4799f4a2392d6a9130dcaee770f2203894  ide/host-adapt/examples/mvp-hosts.yaml
+32381f8702e1b3203aa9429639c3477795d20ab2f004dba7859f190650277bb7  ide/host-adapt/examples/mvp-hosts.yaml
 36ac518a57c5eeab9a820b9d9d82fc1fdb5df71d58bdc8aeb4223bbfc511742f  ide/host-adapt/host-adapt.schema.json
 f9758bc93e51747d68794f0e80a583e435c551015bbd24acb01b8a867ab43393  ide/skills-orch/README.md
 6868fec39fd9f5cfe146db087fa2f7d1d509d09333986eaeedbe21be2270c694  ide/skills-orch/kit-apply-standards/SKILL.md
