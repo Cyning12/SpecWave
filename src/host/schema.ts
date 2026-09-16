@@ -162,3 +162,68 @@ export function validateHostAdaptDoc(data: unknown): HostValidateIssue[] {
   })
   return issues
 }
+
+// ─── 3.0 W1 阶段一 · schema_version 探测树（S2.1 · 评审文 §2.1/§3.1 · F-W1-03） ───
+
+/** schema_version 探测结果（S2.1 探测树三分支） */
+export type HostAdaptSchemaProbe =
+  | { kind: 'v1' } // 键不存在 → v1 旧扁平语义（恒等）
+  | { kind: 'v2' } // 整数 2 → v2 解析路径（本阶段为入口桩）
+  | { kind: 'invalid'; issues: HostValidateIssue[] } // 非整数报红 / 未知整数 fail-closed
+
+/**
+ * schema_version 整数探测（S2.1 探测树 · 评审文 §3.1）：
+ * 键不存在 → v1；整数 2 → v2 入口；整数 ≠ 2 → fail-closed「未知 schema_version」
+ * （F-W1-03 明文覆盖 >2 · 探测树未定义 <2 整数语义，保守并入同一 fail-closed · 不得静默按旧格式解析）；
+ * 非整数 → schema 校验报红。
+ * 歧义边界（评审文 §2.1）：v1 根白名单仅 allow version/hosts ⇒ 合法 v1 表不可能含本键，探测无灰色地带。
+ */
+export function probeHostAdaptSchemaVersion(data: unknown): HostAdaptSchemaProbe {
+  if (!isPlainObject(data)) return { kind: 'v1' } // 根非对象：交由 v1 校验报「根须为对象」（既有行为原样）
+  if (!('schema_version' in data)) return { kind: 'v1' }
+  const v = data['schema_version'] // 'schema_version' in data 守卫后读取（noUncheckedIndexedAccess 口径）
+  if (typeof v === 'number' && Number.isInteger(v)) {
+    if (v === 2) return { kind: 'v2' }
+    return {
+      kind: 'invalid',
+      issues: [
+        {
+          path: '$.schema_version',
+          code: 'schema',
+          message: `未知 schema_version: ${v}（支持：缺省=v1 或 2 · 不得静默按旧格式解析）`,
+        },
+      ],
+    }
+  }
+  return {
+    kind: 'invalid',
+    issues: [
+      {
+        path: '$.schema_version',
+        code: 'schema',
+        message: `schema_version 须为整数（收到: ${JSON.stringify(v) ?? String(v)}）`,
+      },
+    ],
+  }
+}
+
+/**
+ * 探测分派校验（S2.1 · 装载路径统一入口）：v1 → validateHostAdaptDoc 语义原样（逐字不变）；
+ * v2 → 入口桩 fail-closed（全新校验 + defaults/extends 解析归 W1 后续阶段 · 不静默放行）；
+ * invalid → 探测 issue（F-W1-03）。
+ */
+export function validateHostAdaptDocDispatch(data: unknown): HostValidateIssue[] {
+  const probe = probeHostAdaptSchemaVersion(data)
+  if (probe.kind === 'invalid') return probe.issues
+  if (probe.kind === 'v2') {
+    return [
+      {
+        path: '$.schema_version',
+        code: 'schema',
+        message:
+          'schema_version 2 解析未实现（3.0 W1 后续阶段填充 · 本阶段仅探测树 + v1 兼容桥 · fail-closed 不静默）',
+      },
+    ]
+  }
+  return validateHostAdaptDoc(data)
+}

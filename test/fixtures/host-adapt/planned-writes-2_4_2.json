@@ -1,0 +1,1810 @@
+{
+  "note": "3.0 W1 验收 #1 compat 回归锁：2.4.2 版 mvp-hosts.yaml（test/fixtures/host-adapt/mvp-hosts_2_4_2.yaml · 与 git tag v2.4.2 逐字一致）的 planned writes 快照 · 新版 host apply 计划须与本快照逐字一致（防 v1 兼容桥/映射漂移 · 评审文 §3.3）",
+  "source_fixture": "test/fixtures/host-adapt/mvp-hosts_2_4_2.yaml",
+  "source_sha256": "b80f9a15e7da9051689b957daf737b4799f4a2392d6a9130dcaee770f2203894",
+  "generated_at": "2026-09-16",
+  "generated_by": "spec-wave 2.4.2 行为面（W1 阶段一改码后复跑同值 · planApply 直采）",
+  "toolIds": [
+    "dsh",
+    "cursor",
+    "claude",
+    "agents",
+    "copilot",
+    "codex",
+    "windsurf",
+    "gemini",
+    "opencode",
+    "roo",
+    "zed",
+    "cline",
+    "aider"
+  ],
+  "profiles": {
+    "core": {
+      "items": [
+        {
+          "hostId": "dsh",
+          "kind": "skill",
+          "destRel": ".dsh/skills/harness-00-delegate-only/SKILL.md",
+          "sourceRel": "assets/skills/harness-00-delegate-only/SKILL.md",
+          "op": "write",
+          "sha256": "948dd46e3b0358703c19a3e234e6bdffdf59e1d2f168d0efd4b82e5b58e83c76"
+        },
+        {
+          "hostId": "dsh",
+          "kind": "skill",
+          "destRel": ".dsh/skills/harness-10-spec/SKILL.md",
+          "sourceRel": "assets/skills/harness-10-spec/SKILL.md",
+          "op": "write",
+          "sha256": "30fe7e7a3bccd57ca2fbbb943dde00b43c949df106e2d7b21067edfaf7c40848"
+        },
+        {
+          "hostId": "dsh",
+          "kind": "skill",
+          "destRel": ".dsh/skills/harness-10-task/SKILL.md",
+          "sourceRel": "assets/skills/harness-10-task/SKILL.md",
+          "op": "write",
+          "sha256": "5d1b6844805a8e71886542adbe6c2cd7386c00a3edb6ae4da7a7c6825643d50e"
+        },
+        {
+          "hostId": "dsh",
+          "kind": "skill",
+          "destRel": ".dsh/skills/harness-20-spec-audit/SKILL.md",
+          "sourceRel": "assets/skills/harness-20-spec-audit/SKILL.md",
+          "op": "write",
+          "sha256": "c4947fac317d48628d03e9ab5bc66b80d17c91f8805857129383cbebf36166fe"
+        },
+        {
+          "hostId": "dsh",
+          "kind": "skill",
+          "destRel": ".dsh/skills/harness-20-task-audit/references/TEMPLATE_30_gate_stop.md",
+          "sourceRel": "assets/skills/harness-20-task-audit/references/TEMPLATE_30_gate_stop.md",
+          "op": "write",
+          "sha256": "c68c72d9795dfe8fadbf963162fc9cb431c94a0d5ad14044535a366c687990a6"
+        },
+        {
+          "hostId": "dsh",
+          "kind": "skill",
+          "destRel": ".dsh/skills/harness-20-task-audit/SKILL.md",
+          "sourceRel": "assets/skills/harness-20-task-audit/SKILL.md",
+          "op": "write",
+          "sha256": "dbdf84fc24eb726cdeb5d0073ee9964d47a2d741c2a6f082073d5a16f90f7c27"
+        },
+        {
+          "hostId": "dsh",
+          "kind": "skill",
+          "destRel": ".dsh/skills/harness-hat-reanchor/SKILL.md",
+          "sourceRel": "assets/skills/harness-hat-reanchor/SKILL.md",
+          "op": "write",
+          "sha256": "73c004e5092c94194d80863f30c492db36b13a673f6ae4105a72678c06a7bf33"
+        },
+        {
+          "hostId": "dsh",
+          "kind": "skill",
+          "destRel": ".dsh/skills/kit-apply-standards/SKILL.md",
+          "sourceRel": "assets/ide/skills-orch/kit-apply-standards/SKILL.md",
+          "op": "write",
+          "sha256": "6868fec39fd9f5cfe146db087fa2f7d1d509d09333986eaeedbe21be2270c694"
+        },
+        {
+          "hostId": "dsh",
+          "kind": "skill",
+          "destRel": ".dsh/skills/kit-gate-status/SKILL.md",
+          "sourceRel": "assets/ide/skills-orch/kit-gate-status/SKILL.md",
+          "op": "write",
+          "sha256": "c0dd680f6f043e3c23e6a12cd840a7fa963947926d8d5488effb99c556acdc05"
+        },
+        {
+          "hostId": "dsh",
+          "kind": "skill",
+          "destRel": ".dsh/skills/kit-hat-reanchor/SKILL.md",
+          "sourceRel": "assets/ide/skills-orch/kit-hat-reanchor/SKILL.md",
+          "op": "write",
+          "sha256": "ff04277c0e46c715d6dd0fabb24b8c25d8ec1c633a1cead9dec60ffae1acf4a0"
+        },
+        {
+          "hostId": "dsh",
+          "kind": "skill",
+          "destRel": ".dsh/skills/kit-init-guide/SKILL.md",
+          "sourceRel": "assets/ide/skills-orch/kit-init-guide/SKILL.md",
+          "op": "write",
+          "sha256": "b7abed0a618f324bae6e2f448d7be839b0cfb02a3b31998d5e8b72e208e56e02"
+        },
+        {
+          "hostId": "dsh",
+          "kind": "skill",
+          "destRel": ".dsh/skills/kit-verify/SKILL.md",
+          "sourceRel": "assets/ide/skills-orch/kit-verify/SKILL.md",
+          "op": "write",
+          "sha256": "eec9ed776a3ae1bf7157fcc229583e9c24a74c29eefc6ef6244811eb74d9bc20"
+        },
+        {
+          "hostId": "cursor",
+          "kind": "always_on",
+          "destRel": ".cursor/rules/05-kit-starter.mdc",
+          "sourceRel": "assets/ide/adapters/cursor-harness-starter.mdc.example",
+          "op": "write",
+          "sha256": "e5929a1976f84df42cf2d97d1de4717a91eeed6fde2ae621d356013a2860b66c"
+        },
+        {
+          "hostId": "cursor",
+          "kind": "skill",
+          "destRel": ".cursor/skills/harness-00-delegate-only/SKILL.md",
+          "sourceRel": "assets/skills/harness-00-delegate-only/SKILL.md",
+          "op": "write",
+          "sha256": "948dd46e3b0358703c19a3e234e6bdffdf59e1d2f168d0efd4b82e5b58e83c76"
+        },
+        {
+          "hostId": "cursor",
+          "kind": "skill",
+          "destRel": ".cursor/skills/harness-10-spec/SKILL.md",
+          "sourceRel": "assets/skills/harness-10-spec/SKILL.md",
+          "op": "write",
+          "sha256": "30fe7e7a3bccd57ca2fbbb943dde00b43c949df106e2d7b21067edfaf7c40848"
+        },
+        {
+          "hostId": "cursor",
+          "kind": "skill",
+          "destRel": ".cursor/skills/harness-10-task/SKILL.md",
+          "sourceRel": "assets/skills/harness-10-task/SKILL.md",
+          "op": "write",
+          "sha256": "5d1b6844805a8e71886542adbe6c2cd7386c00a3edb6ae4da7a7c6825643d50e"
+        },
+        {
+          "hostId": "cursor",
+          "kind": "skill",
+          "destRel": ".cursor/skills/harness-20-spec-audit/SKILL.md",
+          "sourceRel": "assets/skills/harness-20-spec-audit/SKILL.md",
+          "op": "write",
+          "sha256": "c4947fac317d48628d03e9ab5bc66b80d17c91f8805857129383cbebf36166fe"
+        },
+        {
+          "hostId": "cursor",
+          "kind": "skill",
+          "destRel": ".cursor/skills/harness-20-task-audit/references/TEMPLATE_30_gate_stop.md",
+          "sourceRel": "assets/skills/harness-20-task-audit/references/TEMPLATE_30_gate_stop.md",
+          "op": "write",
+          "sha256": "c68c72d9795dfe8fadbf963162fc9cb431c94a0d5ad14044535a366c687990a6"
+        },
+        {
+          "hostId": "cursor",
+          "kind": "skill",
+          "destRel": ".cursor/skills/harness-20-task-audit/SKILL.md",
+          "sourceRel": "assets/skills/harness-20-task-audit/SKILL.md",
+          "op": "write",
+          "sha256": "dbdf84fc24eb726cdeb5d0073ee9964d47a2d741c2a6f082073d5a16f90f7c27"
+        },
+        {
+          "hostId": "cursor",
+          "kind": "skill",
+          "destRel": ".cursor/skills/harness-hat-reanchor/SKILL.md",
+          "sourceRel": "assets/skills/harness-hat-reanchor/SKILL.md",
+          "op": "write",
+          "sha256": "73c004e5092c94194d80863f30c492db36b13a673f6ae4105a72678c06a7bf33"
+        },
+        {
+          "hostId": "cursor",
+          "kind": "command",
+          "destRel": ".cursor/commands/kit-apply-standards.md",
+          "sourceRel": "assets/ide/commands/cursor/kit-apply-standards.md",
+          "op": "write",
+          "sha256": "1ecb180cda632a8b6804b35379a827e3c1b258fd0d0ce238f1d2933cbe5a3915"
+        },
+        {
+          "hostId": "cursor",
+          "kind": "command",
+          "destRel": ".cursor/commands/kit-gate-status.md",
+          "sourceRel": "assets/ide/commands/cursor/kit-gate-status.md",
+          "op": "write",
+          "sha256": "2ff62d2e6df0759e816e13fd0ad3f4d0fe99346a37b4af2fbde7fbc75431b94d"
+        },
+        {
+          "hostId": "cursor",
+          "kind": "command",
+          "destRel": ".cursor/commands/kit-hat-reanchor.md",
+          "sourceRel": "assets/ide/commands/cursor/kit-hat-reanchor.md",
+          "op": "write",
+          "sha256": "f17217dfd785f1db1a9c8c44db7266435d2c12b0ce8b0edd84ffbe942393b94c"
+        },
+        {
+          "hostId": "cursor",
+          "kind": "command",
+          "destRel": ".cursor/commands/kit-init-guide.md",
+          "sourceRel": "assets/ide/commands/cursor/kit-init-guide.md",
+          "op": "write",
+          "sha256": "b9c581828c108ce7882372168279a982369962c12ec362fbc5405a96addd82c6"
+        },
+        {
+          "hostId": "cursor",
+          "kind": "command",
+          "destRel": ".cursor/commands/kit-verify.md",
+          "sourceRel": "assets/ide/commands/cursor/kit-verify.md",
+          "op": "write",
+          "sha256": "f15b62615ca3cfda76e3903d0bfa9265ca9a773fe1d91653ff09b802cd5ba9e5"
+        },
+        {
+          "hostId": "claude",
+          "kind": "always_on",
+          "destRel": "CLAUDE.md",
+          "sourceRel": "assets/ide/adapters/CLAUDE.md.fragment.example",
+          "op": "write",
+          "sha256": "658eac9f203cb1c50f7a71c59552d5da016a276228b4071da178931197169c69"
+        },
+        {
+          "hostId": "claude",
+          "kind": "skill",
+          "destRel": ".claude/skills/harness-00-delegate-only/SKILL.md",
+          "sourceRel": "assets/skills/harness-00-delegate-only/SKILL.md",
+          "op": "write",
+          "sha256": "948dd46e3b0358703c19a3e234e6bdffdf59e1d2f168d0efd4b82e5b58e83c76"
+        },
+        {
+          "hostId": "claude",
+          "kind": "skill",
+          "destRel": ".claude/skills/harness-10-spec/SKILL.md",
+          "sourceRel": "assets/skills/harness-10-spec/SKILL.md",
+          "op": "write",
+          "sha256": "30fe7e7a3bccd57ca2fbbb943dde00b43c949df106e2d7b21067edfaf7c40848"
+        },
+        {
+          "hostId": "claude",
+          "kind": "skill",
+          "destRel": ".claude/skills/harness-10-task/SKILL.md",
+          "sourceRel": "assets/skills/harness-10-task/SKILL.md",
+          "op": "write",
+          "sha256": "5d1b6844805a8e71886542adbe6c2cd7386c00a3edb6ae4da7a7c6825643d50e"
+        },
+        {
+          "hostId": "claude",
+          "kind": "skill",
+          "destRel": ".claude/skills/harness-20-spec-audit/SKILL.md",
+          "sourceRel": "assets/skills/harness-20-spec-audit/SKILL.md",
+          "op": "write",
+          "sha256": "c4947fac317d48628d03e9ab5bc66b80d17c91f8805857129383cbebf36166fe"
+        },
+        {
+          "hostId": "claude",
+          "kind": "skill",
+          "destRel": ".claude/skills/harness-20-task-audit/references/TEMPLATE_30_gate_stop.md",
+          "sourceRel": "assets/skills/harness-20-task-audit/references/TEMPLATE_30_gate_stop.md",
+          "op": "write",
+          "sha256": "c68c72d9795dfe8fadbf963162fc9cb431c94a0d5ad14044535a366c687990a6"
+        },
+        {
+          "hostId": "claude",
+          "kind": "skill",
+          "destRel": ".claude/skills/harness-20-task-audit/SKILL.md",
+          "sourceRel": "assets/skills/harness-20-task-audit/SKILL.md",
+          "op": "write",
+          "sha256": "dbdf84fc24eb726cdeb5d0073ee9964d47a2d741c2a6f082073d5a16f90f7c27"
+        },
+        {
+          "hostId": "claude",
+          "kind": "skill",
+          "destRel": ".claude/skills/harness-hat-reanchor/SKILL.md",
+          "sourceRel": "assets/skills/harness-hat-reanchor/SKILL.md",
+          "op": "write",
+          "sha256": "73c004e5092c94194d80863f30c492db36b13a673f6ae4105a72678c06a7bf33"
+        },
+        {
+          "hostId": "claude",
+          "kind": "command",
+          "destRel": ".claude/commands/kit/apply-standards.md",
+          "sourceRel": "assets/ide/commands/claude/kit/apply-standards.md",
+          "op": "write",
+          "sha256": "9ea39557d5ff4a367d5be7b087c2b60067b4007541465d98da1531fe18fb770f"
+        },
+        {
+          "hostId": "claude",
+          "kind": "command",
+          "destRel": ".claude/commands/kit/gate-status.md",
+          "sourceRel": "assets/ide/commands/claude/kit/gate-status.md",
+          "op": "write",
+          "sha256": "913acab6c852fba2712c00d50f2f61572515bd4934e89ab4bb6408d05ef13a53"
+        },
+        {
+          "hostId": "claude",
+          "kind": "command",
+          "destRel": ".claude/commands/kit/hat-reanchor.md",
+          "sourceRel": "assets/ide/commands/claude/kit/hat-reanchor.md",
+          "op": "write",
+          "sha256": "cd450cbe5c49056fe180ea84ea1a7bec7e166ba3bfed7bd9eec4fc6b76d0d848"
+        },
+        {
+          "hostId": "claude",
+          "kind": "command",
+          "destRel": ".claude/commands/kit/init-guide.md",
+          "sourceRel": "assets/ide/commands/claude/kit/init-guide.md",
+          "op": "write",
+          "sha256": "687143f95d6ef80e82b8d3b52fa6bc7d23dad5bf20fe2ab85c996af51edd1724"
+        },
+        {
+          "hostId": "claude",
+          "kind": "command",
+          "destRel": ".claude/commands/kit/verify.md",
+          "sourceRel": "assets/ide/commands/claude/kit/verify.md",
+          "op": "write",
+          "sha256": "7806c5b38adade2b6088e835008a36ff1038da87607583026a54c3ba57f218f6"
+        },
+        {
+          "hostId": "agents",
+          "kind": "always_on",
+          "destRel": "AGENTS.md",
+          "sourceRel": "assets/ide/adapters/AGENTS.md.fragment.example",
+          "op": "write",
+          "sha256": "65d8ccaf62d1bba70e2ed46ce5ac3032489fbb421c88240a97934de2d258f5d0"
+        },
+        {
+          "hostId": "agents",
+          "kind": "skill",
+          "destRel": ".agents/skills/harness-00-delegate-only/SKILL.md",
+          "sourceRel": "assets/skills/harness-00-delegate-only/SKILL.md",
+          "op": "write",
+          "sha256": "948dd46e3b0358703c19a3e234e6bdffdf59e1d2f168d0efd4b82e5b58e83c76"
+        },
+        {
+          "hostId": "agents",
+          "kind": "skill",
+          "destRel": ".agents/skills/harness-10-spec/SKILL.md",
+          "sourceRel": "assets/skills/harness-10-spec/SKILL.md",
+          "op": "write",
+          "sha256": "30fe7e7a3bccd57ca2fbbb943dde00b43c949df106e2d7b21067edfaf7c40848"
+        },
+        {
+          "hostId": "agents",
+          "kind": "skill",
+          "destRel": ".agents/skills/harness-10-task/SKILL.md",
+          "sourceRel": "assets/skills/harness-10-task/SKILL.md",
+          "op": "write",
+          "sha256": "5d1b6844805a8e71886542adbe6c2cd7386c00a3edb6ae4da7a7c6825643d50e"
+        },
+        {
+          "hostId": "agents",
+          "kind": "skill",
+          "destRel": ".agents/skills/harness-20-spec-audit/SKILL.md",
+          "sourceRel": "assets/skills/harness-20-spec-audit/SKILL.md",
+          "op": "write",
+          "sha256": "c4947fac317d48628d03e9ab5bc66b80d17c91f8805857129383cbebf36166fe"
+        },
+        {
+          "hostId": "agents",
+          "kind": "skill",
+          "destRel": ".agents/skills/harness-20-task-audit/references/TEMPLATE_30_gate_stop.md",
+          "sourceRel": "assets/skills/harness-20-task-audit/references/TEMPLATE_30_gate_stop.md",
+          "op": "write",
+          "sha256": "c68c72d9795dfe8fadbf963162fc9cb431c94a0d5ad14044535a366c687990a6"
+        },
+        {
+          "hostId": "agents",
+          "kind": "skill",
+          "destRel": ".agents/skills/harness-20-task-audit/SKILL.md",
+          "sourceRel": "assets/skills/harness-20-task-audit/SKILL.md",
+          "op": "write",
+          "sha256": "dbdf84fc24eb726cdeb5d0073ee9964d47a2d741c2a6f082073d5a16f90f7c27"
+        },
+        {
+          "hostId": "agents",
+          "kind": "skill",
+          "destRel": ".agents/skills/harness-hat-reanchor/SKILL.md",
+          "sourceRel": "assets/skills/harness-hat-reanchor/SKILL.md",
+          "op": "write",
+          "sha256": "73c004e5092c94194d80863f30c492db36b13a673f6ae4105a72678c06a7bf33"
+        },
+        {
+          "hostId": "copilot",
+          "kind": "always_on",
+          "destRel": "AGENTS.md",
+          "sourceRel": "assets/ide/adapters/AGENTS.md.fragment.example",
+          "op": "write",
+          "sha256": "65d8ccaf62d1bba70e2ed46ce5ac3032489fbb421c88240a97934de2d258f5d0"
+        },
+        {
+          "hostId": "copilot",
+          "kind": "skill",
+          "destRel": ".github/skills/harness-00-delegate-only/SKILL.md",
+          "sourceRel": "assets/skills/harness-00-delegate-only/SKILL.md",
+          "op": "write",
+          "sha256": "948dd46e3b0358703c19a3e234e6bdffdf59e1d2f168d0efd4b82e5b58e83c76"
+        },
+        {
+          "hostId": "copilot",
+          "kind": "skill",
+          "destRel": ".github/skills/harness-10-spec/SKILL.md",
+          "sourceRel": "assets/skills/harness-10-spec/SKILL.md",
+          "op": "write",
+          "sha256": "30fe7e7a3bccd57ca2fbbb943dde00b43c949df106e2d7b21067edfaf7c40848"
+        },
+        {
+          "hostId": "copilot",
+          "kind": "skill",
+          "destRel": ".github/skills/harness-10-task/SKILL.md",
+          "sourceRel": "assets/skills/harness-10-task/SKILL.md",
+          "op": "write",
+          "sha256": "5d1b6844805a8e71886542adbe6c2cd7386c00a3edb6ae4da7a7c6825643d50e"
+        },
+        {
+          "hostId": "copilot",
+          "kind": "skill",
+          "destRel": ".github/skills/harness-20-spec-audit/SKILL.md",
+          "sourceRel": "assets/skills/harness-20-spec-audit/SKILL.md",
+          "op": "write",
+          "sha256": "c4947fac317d48628d03e9ab5bc66b80d17c91f8805857129383cbebf36166fe"
+        },
+        {
+          "hostId": "copilot",
+          "kind": "skill",
+          "destRel": ".github/skills/harness-20-task-audit/references/TEMPLATE_30_gate_stop.md",
+          "sourceRel": "assets/skills/harness-20-task-audit/references/TEMPLATE_30_gate_stop.md",
+          "op": "write",
+          "sha256": "c68c72d9795dfe8fadbf963162fc9cb431c94a0d5ad14044535a366c687990a6"
+        },
+        {
+          "hostId": "copilot",
+          "kind": "skill",
+          "destRel": ".github/skills/harness-20-task-audit/SKILL.md",
+          "sourceRel": "assets/skills/harness-20-task-audit/SKILL.md",
+          "op": "write",
+          "sha256": "dbdf84fc24eb726cdeb5d0073ee9964d47a2d741c2a6f082073d5a16f90f7c27"
+        },
+        {
+          "hostId": "copilot",
+          "kind": "skill",
+          "destRel": ".github/skills/harness-hat-reanchor/SKILL.md",
+          "sourceRel": "assets/skills/harness-hat-reanchor/SKILL.md",
+          "op": "write",
+          "sha256": "73c004e5092c94194d80863f30c492db36b13a673f6ae4105a72678c06a7bf33"
+        },
+        {
+          "hostId": "codex",
+          "kind": "always_on",
+          "destRel": "AGENTS.md",
+          "sourceRel": "assets/ide/adapters/AGENTS.md.fragment.example",
+          "op": "write",
+          "sha256": "65d8ccaf62d1bba70e2ed46ce5ac3032489fbb421c88240a97934de2d258f5d0"
+        },
+        {
+          "hostId": "codex",
+          "kind": "skill",
+          "destRel": ".agents/skills/harness-00-delegate-only/SKILL.md",
+          "sourceRel": "assets/skills/harness-00-delegate-only/SKILL.md",
+          "op": "write",
+          "sha256": "948dd46e3b0358703c19a3e234e6bdffdf59e1d2f168d0efd4b82e5b58e83c76"
+        },
+        {
+          "hostId": "codex",
+          "kind": "skill",
+          "destRel": ".agents/skills/harness-10-spec/SKILL.md",
+          "sourceRel": "assets/skills/harness-10-spec/SKILL.md",
+          "op": "write",
+          "sha256": "30fe7e7a3bccd57ca2fbbb943dde00b43c949df106e2d7b21067edfaf7c40848"
+        },
+        {
+          "hostId": "codex",
+          "kind": "skill",
+          "destRel": ".agents/skills/harness-10-task/SKILL.md",
+          "sourceRel": "assets/skills/harness-10-task/SKILL.md",
+          "op": "write",
+          "sha256": "5d1b6844805a8e71886542adbe6c2cd7386c00a3edb6ae4da7a7c6825643d50e"
+        },
+        {
+          "hostId": "codex",
+          "kind": "skill",
+          "destRel": ".agents/skills/harness-20-spec-audit/SKILL.md",
+          "sourceRel": "assets/skills/harness-20-spec-audit/SKILL.md",
+          "op": "write",
+          "sha256": "c4947fac317d48628d03e9ab5bc66b80d17c91f8805857129383cbebf36166fe"
+        },
+        {
+          "hostId": "codex",
+          "kind": "skill",
+          "destRel": ".agents/skills/harness-20-task-audit/references/TEMPLATE_30_gate_stop.md",
+          "sourceRel": "assets/skills/harness-20-task-audit/references/TEMPLATE_30_gate_stop.md",
+          "op": "write",
+          "sha256": "c68c72d9795dfe8fadbf963162fc9cb431c94a0d5ad14044535a366c687990a6"
+        },
+        {
+          "hostId": "codex",
+          "kind": "skill",
+          "destRel": ".agents/skills/harness-20-task-audit/SKILL.md",
+          "sourceRel": "assets/skills/harness-20-task-audit/SKILL.md",
+          "op": "write",
+          "sha256": "dbdf84fc24eb726cdeb5d0073ee9964d47a2d741c2a6f082073d5a16f90f7c27"
+        },
+        {
+          "hostId": "codex",
+          "kind": "skill",
+          "destRel": ".agents/skills/harness-hat-reanchor/SKILL.md",
+          "sourceRel": "assets/skills/harness-hat-reanchor/SKILL.md",
+          "op": "write",
+          "sha256": "73c004e5092c94194d80863f30c492db36b13a673f6ae4105a72678c06a7bf33"
+        },
+        {
+          "hostId": "windsurf",
+          "kind": "always_on",
+          "destRel": "AGENTS.md",
+          "sourceRel": "assets/ide/adapters/AGENTS.md.fragment.example",
+          "op": "write",
+          "sha256": "65d8ccaf62d1bba70e2ed46ce5ac3032489fbb421c88240a97934de2d258f5d0"
+        },
+        {
+          "hostId": "windsurf",
+          "kind": "skill",
+          "destRel": ".windsurf/skills/harness-00-delegate-only/SKILL.md",
+          "sourceRel": "assets/skills/harness-00-delegate-only/SKILL.md",
+          "op": "write",
+          "sha256": "948dd46e3b0358703c19a3e234e6bdffdf59e1d2f168d0efd4b82e5b58e83c76"
+        },
+        {
+          "hostId": "windsurf",
+          "kind": "skill",
+          "destRel": ".windsurf/skills/harness-10-spec/SKILL.md",
+          "sourceRel": "assets/skills/harness-10-spec/SKILL.md",
+          "op": "write",
+          "sha256": "30fe7e7a3bccd57ca2fbbb943dde00b43c949df106e2d7b21067edfaf7c40848"
+        },
+        {
+          "hostId": "windsurf",
+          "kind": "skill",
+          "destRel": ".windsurf/skills/harness-10-task/SKILL.md",
+          "sourceRel": "assets/skills/harness-10-task/SKILL.md",
+          "op": "write",
+          "sha256": "5d1b6844805a8e71886542adbe6c2cd7386c00a3edb6ae4da7a7c6825643d50e"
+        },
+        {
+          "hostId": "windsurf",
+          "kind": "skill",
+          "destRel": ".windsurf/skills/harness-20-spec-audit/SKILL.md",
+          "sourceRel": "assets/skills/harness-20-spec-audit/SKILL.md",
+          "op": "write",
+          "sha256": "c4947fac317d48628d03e9ab5bc66b80d17c91f8805857129383cbebf36166fe"
+        },
+        {
+          "hostId": "windsurf",
+          "kind": "skill",
+          "destRel": ".windsurf/skills/harness-20-task-audit/references/TEMPLATE_30_gate_stop.md",
+          "sourceRel": "assets/skills/harness-20-task-audit/references/TEMPLATE_30_gate_stop.md",
+          "op": "write",
+          "sha256": "c68c72d9795dfe8fadbf963162fc9cb431c94a0d5ad14044535a366c687990a6"
+        },
+        {
+          "hostId": "windsurf",
+          "kind": "skill",
+          "destRel": ".windsurf/skills/harness-20-task-audit/SKILL.md",
+          "sourceRel": "assets/skills/harness-20-task-audit/SKILL.md",
+          "op": "write",
+          "sha256": "dbdf84fc24eb726cdeb5d0073ee9964d47a2d741c2a6f082073d5a16f90f7c27"
+        },
+        {
+          "hostId": "windsurf",
+          "kind": "skill",
+          "destRel": ".windsurf/skills/harness-hat-reanchor/SKILL.md",
+          "sourceRel": "assets/skills/harness-hat-reanchor/SKILL.md",
+          "op": "write",
+          "sha256": "73c004e5092c94194d80863f30c492db36b13a673f6ae4105a72678c06a7bf33"
+        },
+        {
+          "hostId": "gemini",
+          "kind": "always_on",
+          "destRel": "GEMINI.md",
+          "sourceRel": "assets/ide/adapters/AGENTS.md.fragment.example",
+          "op": "write",
+          "sha256": "65d8ccaf62d1bba70e2ed46ce5ac3032489fbb421c88240a97934de2d258f5d0"
+        },
+        {
+          "hostId": "gemini",
+          "kind": "skill",
+          "destRel": ".gemini/skills/harness-00-delegate-only/SKILL.md",
+          "sourceRel": "assets/skills/harness-00-delegate-only/SKILL.md",
+          "op": "write",
+          "sha256": "948dd46e3b0358703c19a3e234e6bdffdf59e1d2f168d0efd4b82e5b58e83c76"
+        },
+        {
+          "hostId": "gemini",
+          "kind": "skill",
+          "destRel": ".gemini/skills/harness-10-spec/SKILL.md",
+          "sourceRel": "assets/skills/harness-10-spec/SKILL.md",
+          "op": "write",
+          "sha256": "30fe7e7a3bccd57ca2fbbb943dde00b43c949df106e2d7b21067edfaf7c40848"
+        },
+        {
+          "hostId": "gemini",
+          "kind": "skill",
+          "destRel": ".gemini/skills/harness-10-task/SKILL.md",
+          "sourceRel": "assets/skills/harness-10-task/SKILL.md",
+          "op": "write",
+          "sha256": "5d1b6844805a8e71886542adbe6c2cd7386c00a3edb6ae4da7a7c6825643d50e"
+        },
+        {
+          "hostId": "gemini",
+          "kind": "skill",
+          "destRel": ".gemini/skills/harness-20-spec-audit/SKILL.md",
+          "sourceRel": "assets/skills/harness-20-spec-audit/SKILL.md",
+          "op": "write",
+          "sha256": "c4947fac317d48628d03e9ab5bc66b80d17c91f8805857129383cbebf36166fe"
+        },
+        {
+          "hostId": "gemini",
+          "kind": "skill",
+          "destRel": ".gemini/skills/harness-20-task-audit/references/TEMPLATE_30_gate_stop.md",
+          "sourceRel": "assets/skills/harness-20-task-audit/references/TEMPLATE_30_gate_stop.md",
+          "op": "write",
+          "sha256": "c68c72d9795dfe8fadbf963162fc9cb431c94a0d5ad14044535a366c687990a6"
+        },
+        {
+          "hostId": "gemini",
+          "kind": "skill",
+          "destRel": ".gemini/skills/harness-20-task-audit/SKILL.md",
+          "sourceRel": "assets/skills/harness-20-task-audit/SKILL.md",
+          "op": "write",
+          "sha256": "dbdf84fc24eb726cdeb5d0073ee9964d47a2d741c2a6f082073d5a16f90f7c27"
+        },
+        {
+          "hostId": "gemini",
+          "kind": "skill",
+          "destRel": ".gemini/skills/harness-hat-reanchor/SKILL.md",
+          "sourceRel": "assets/skills/harness-hat-reanchor/SKILL.md",
+          "op": "write",
+          "sha256": "73c004e5092c94194d80863f30c492db36b13a673f6ae4105a72678c06a7bf33"
+        },
+        {
+          "hostId": "opencode",
+          "kind": "always_on",
+          "destRel": "AGENTS.md",
+          "sourceRel": "assets/ide/adapters/AGENTS.md.fragment.example",
+          "op": "write",
+          "sha256": "65d8ccaf62d1bba70e2ed46ce5ac3032489fbb421c88240a97934de2d258f5d0"
+        },
+        {
+          "hostId": "opencode",
+          "kind": "skill",
+          "destRel": ".agents/skills/harness-00-delegate-only/SKILL.md",
+          "sourceRel": "assets/skills/harness-00-delegate-only/SKILL.md",
+          "op": "write",
+          "sha256": "948dd46e3b0358703c19a3e234e6bdffdf59e1d2f168d0efd4b82e5b58e83c76"
+        },
+        {
+          "hostId": "opencode",
+          "kind": "skill",
+          "destRel": ".agents/skills/harness-10-spec/SKILL.md",
+          "sourceRel": "assets/skills/harness-10-spec/SKILL.md",
+          "op": "write",
+          "sha256": "30fe7e7a3bccd57ca2fbbb943dde00b43c949df106e2d7b21067edfaf7c40848"
+        },
+        {
+          "hostId": "opencode",
+          "kind": "skill",
+          "destRel": ".agents/skills/harness-10-task/SKILL.md",
+          "sourceRel": "assets/skills/harness-10-task/SKILL.md",
+          "op": "write",
+          "sha256": "5d1b6844805a8e71886542adbe6c2cd7386c00a3edb6ae4da7a7c6825643d50e"
+        },
+        {
+          "hostId": "opencode",
+          "kind": "skill",
+          "destRel": ".agents/skills/harness-20-spec-audit/SKILL.md",
+          "sourceRel": "assets/skills/harness-20-spec-audit/SKILL.md",
+          "op": "write",
+          "sha256": "c4947fac317d48628d03e9ab5bc66b80d17c91f8805857129383cbebf36166fe"
+        },
+        {
+          "hostId": "opencode",
+          "kind": "skill",
+          "destRel": ".agents/skills/harness-20-task-audit/references/TEMPLATE_30_gate_stop.md",
+          "sourceRel": "assets/skills/harness-20-task-audit/references/TEMPLATE_30_gate_stop.md",
+          "op": "write",
+          "sha256": "c68c72d9795dfe8fadbf963162fc9cb431c94a0d5ad14044535a366c687990a6"
+        },
+        {
+          "hostId": "opencode",
+          "kind": "skill",
+          "destRel": ".agents/skills/harness-20-task-audit/SKILL.md",
+          "sourceRel": "assets/skills/harness-20-task-audit/SKILL.md",
+          "op": "write",
+          "sha256": "dbdf84fc24eb726cdeb5d0073ee9964d47a2d741c2a6f082073d5a16f90f7c27"
+        },
+        {
+          "hostId": "opencode",
+          "kind": "skill",
+          "destRel": ".agents/skills/harness-hat-reanchor/SKILL.md",
+          "sourceRel": "assets/skills/harness-hat-reanchor/SKILL.md",
+          "op": "write",
+          "sha256": "73c004e5092c94194d80863f30c492db36b13a673f6ae4105a72678c06a7bf33"
+        },
+        {
+          "hostId": "roo",
+          "kind": "always_on",
+          "destRel": "AGENTS.md",
+          "sourceRel": "assets/ide/adapters/AGENTS.md.fragment.example",
+          "op": "write",
+          "sha256": "65d8ccaf62d1bba70e2ed46ce5ac3032489fbb421c88240a97934de2d258f5d0"
+        },
+        {
+          "hostId": "zed",
+          "kind": "always_on",
+          "destRel": "AGENTS.md",
+          "sourceRel": "assets/ide/adapters/AGENTS.md.fragment.example",
+          "op": "write",
+          "sha256": "65d8ccaf62d1bba70e2ed46ce5ac3032489fbb421c88240a97934de2d258f5d0"
+        },
+        {
+          "hostId": "zed",
+          "kind": "skill",
+          "destRel": ".agents/skills/harness-00-delegate-only/SKILL.md",
+          "sourceRel": "assets/skills/harness-00-delegate-only/SKILL.md",
+          "op": "write",
+          "sha256": "948dd46e3b0358703c19a3e234e6bdffdf59e1d2f168d0efd4b82e5b58e83c76"
+        },
+        {
+          "hostId": "zed",
+          "kind": "skill",
+          "destRel": ".agents/skills/harness-10-spec/SKILL.md",
+          "sourceRel": "assets/skills/harness-10-spec/SKILL.md",
+          "op": "write",
+          "sha256": "30fe7e7a3bccd57ca2fbbb943dde00b43c949df106e2d7b21067edfaf7c40848"
+        },
+        {
+          "hostId": "zed",
+          "kind": "skill",
+          "destRel": ".agents/skills/harness-10-task/SKILL.md",
+          "sourceRel": "assets/skills/harness-10-task/SKILL.md",
+          "op": "write",
+          "sha256": "5d1b6844805a8e71886542adbe6c2cd7386c00a3edb6ae4da7a7c6825643d50e"
+        },
+        {
+          "hostId": "zed",
+          "kind": "skill",
+          "destRel": ".agents/skills/harness-20-spec-audit/SKILL.md",
+          "sourceRel": "assets/skills/harness-20-spec-audit/SKILL.md",
+          "op": "write",
+          "sha256": "c4947fac317d48628d03e9ab5bc66b80d17c91f8805857129383cbebf36166fe"
+        },
+        {
+          "hostId": "zed",
+          "kind": "skill",
+          "destRel": ".agents/skills/harness-20-task-audit/references/TEMPLATE_30_gate_stop.md",
+          "sourceRel": "assets/skills/harness-20-task-audit/references/TEMPLATE_30_gate_stop.md",
+          "op": "write",
+          "sha256": "c68c72d9795dfe8fadbf963162fc9cb431c94a0d5ad14044535a366c687990a6"
+        },
+        {
+          "hostId": "zed",
+          "kind": "skill",
+          "destRel": ".agents/skills/harness-20-task-audit/SKILL.md",
+          "sourceRel": "assets/skills/harness-20-task-audit/SKILL.md",
+          "op": "write",
+          "sha256": "dbdf84fc24eb726cdeb5d0073ee9964d47a2d741c2a6f082073d5a16f90f7c27"
+        },
+        {
+          "hostId": "zed",
+          "kind": "skill",
+          "destRel": ".agents/skills/harness-hat-reanchor/SKILL.md",
+          "sourceRel": "assets/skills/harness-hat-reanchor/SKILL.md",
+          "op": "write",
+          "sha256": "73c004e5092c94194d80863f30c492db36b13a673f6ae4105a72678c06a7bf33"
+        },
+        {
+          "hostId": "cline",
+          "kind": "always_on",
+          "destRel": "AGENTS.md",
+          "sourceRel": "assets/ide/adapters/AGENTS.md.fragment.example",
+          "op": "write",
+          "sha256": "65d8ccaf62d1bba70e2ed46ce5ac3032489fbb421c88240a97934de2d258f5d0"
+        },
+        {
+          "hostId": "cline",
+          "kind": "skill",
+          "destRel": ".cline/skills/harness-00-delegate-only/SKILL.md",
+          "sourceRel": "assets/skills/harness-00-delegate-only/SKILL.md",
+          "op": "write",
+          "sha256": "948dd46e3b0358703c19a3e234e6bdffdf59e1d2f168d0efd4b82e5b58e83c76"
+        },
+        {
+          "hostId": "cline",
+          "kind": "skill",
+          "destRel": ".cline/skills/harness-10-spec/SKILL.md",
+          "sourceRel": "assets/skills/harness-10-spec/SKILL.md",
+          "op": "write",
+          "sha256": "30fe7e7a3bccd57ca2fbbb943dde00b43c949df106e2d7b21067edfaf7c40848"
+        },
+        {
+          "hostId": "cline",
+          "kind": "skill",
+          "destRel": ".cline/skills/harness-10-task/SKILL.md",
+          "sourceRel": "assets/skills/harness-10-task/SKILL.md",
+          "op": "write",
+          "sha256": "5d1b6844805a8e71886542adbe6c2cd7386c00a3edb6ae4da7a7c6825643d50e"
+        },
+        {
+          "hostId": "cline",
+          "kind": "skill",
+          "destRel": ".cline/skills/harness-20-spec-audit/SKILL.md",
+          "sourceRel": "assets/skills/harness-20-spec-audit/SKILL.md",
+          "op": "write",
+          "sha256": "c4947fac317d48628d03e9ab5bc66b80d17c91f8805857129383cbebf36166fe"
+        },
+        {
+          "hostId": "cline",
+          "kind": "skill",
+          "destRel": ".cline/skills/harness-20-task-audit/references/TEMPLATE_30_gate_stop.md",
+          "sourceRel": "assets/skills/harness-20-task-audit/references/TEMPLATE_30_gate_stop.md",
+          "op": "write",
+          "sha256": "c68c72d9795dfe8fadbf963162fc9cb431c94a0d5ad14044535a366c687990a6"
+        },
+        {
+          "hostId": "cline",
+          "kind": "skill",
+          "destRel": ".cline/skills/harness-20-task-audit/SKILL.md",
+          "sourceRel": "assets/skills/harness-20-task-audit/SKILL.md",
+          "op": "write",
+          "sha256": "dbdf84fc24eb726cdeb5d0073ee9964d47a2d741c2a6f082073d5a16f90f7c27"
+        },
+        {
+          "hostId": "cline",
+          "kind": "skill",
+          "destRel": ".cline/skills/harness-hat-reanchor/SKILL.md",
+          "sourceRel": "assets/skills/harness-hat-reanchor/SKILL.md",
+          "op": "write",
+          "sha256": "73c004e5092c94194d80863f30c492db36b13a673f6ae4105a72678c06a7bf33"
+        },
+        {
+          "hostId": "aider",
+          "kind": "always_on",
+          "destRel": "AGENTS.md",
+          "sourceRel": "assets/ide/adapters/AGENTS.md.fragment.example",
+          "op": "write",
+          "sha256": "65d8ccaf62d1bba70e2ed46ce5ac3032489fbb421c88240a97934de2d258f5d0"
+        }
+      ],
+      "s2": []
+    },
+    "expanded": {
+      "items": [
+        {
+          "hostId": "dsh",
+          "kind": "skill",
+          "destRel": ".dsh/skills/harness-00-delegate-only/SKILL.md",
+          "sourceRel": "assets/skills/harness-00-delegate-only/SKILL.md",
+          "op": "write",
+          "sha256": "948dd46e3b0358703c19a3e234e6bdffdf59e1d2f168d0efd4b82e5b58e83c76"
+        },
+        {
+          "hostId": "dsh",
+          "kind": "skill",
+          "destRel": ".dsh/skills/harness-10-spec/SKILL.md",
+          "sourceRel": "assets/skills/harness-10-spec/SKILL.md",
+          "op": "write",
+          "sha256": "30fe7e7a3bccd57ca2fbbb943dde00b43c949df106e2d7b21067edfaf7c40848"
+        },
+        {
+          "hostId": "dsh",
+          "kind": "skill",
+          "destRel": ".dsh/skills/harness-10-task/SKILL.md",
+          "sourceRel": "assets/skills/harness-10-task/SKILL.md",
+          "op": "write",
+          "sha256": "5d1b6844805a8e71886542adbe6c2cd7386c00a3edb6ae4da7a7c6825643d50e"
+        },
+        {
+          "hostId": "dsh",
+          "kind": "skill",
+          "destRel": ".dsh/skills/harness-20-spec-audit/SKILL.md",
+          "sourceRel": "assets/skills/harness-20-spec-audit/SKILL.md",
+          "op": "write",
+          "sha256": "c4947fac317d48628d03e9ab5bc66b80d17c91f8805857129383cbebf36166fe"
+        },
+        {
+          "hostId": "dsh",
+          "kind": "skill",
+          "destRel": ".dsh/skills/harness-20-task-audit/references/TEMPLATE_30_gate_stop.md",
+          "sourceRel": "assets/skills/harness-20-task-audit/references/TEMPLATE_30_gate_stop.md",
+          "op": "write",
+          "sha256": "c68c72d9795dfe8fadbf963162fc9cb431c94a0d5ad14044535a366c687990a6"
+        },
+        {
+          "hostId": "dsh",
+          "kind": "skill",
+          "destRel": ".dsh/skills/harness-20-task-audit/SKILL.md",
+          "sourceRel": "assets/skills/harness-20-task-audit/SKILL.md",
+          "op": "write",
+          "sha256": "dbdf84fc24eb726cdeb5d0073ee9964d47a2d741c2a6f082073d5a16f90f7c27"
+        },
+        {
+          "hostId": "dsh",
+          "kind": "skill",
+          "destRel": ".dsh/skills/harness-hat-reanchor/SKILL.md",
+          "sourceRel": "assets/skills/harness-hat-reanchor/SKILL.md",
+          "op": "write",
+          "sha256": "73c004e5092c94194d80863f30c492db36b13a673f6ae4105a72678c06a7bf33"
+        },
+        {
+          "hostId": "dsh",
+          "kind": "skill",
+          "destRel": ".dsh/skills/kit-apply-standards/SKILL.md",
+          "sourceRel": "assets/ide/skills-orch/kit-apply-standards/SKILL.md",
+          "op": "write",
+          "sha256": "6868fec39fd9f5cfe146db087fa2f7d1d509d09333986eaeedbe21be2270c694"
+        },
+        {
+          "hostId": "dsh",
+          "kind": "skill",
+          "destRel": ".dsh/skills/kit-gate-status/SKILL.md",
+          "sourceRel": "assets/ide/skills-orch/kit-gate-status/SKILL.md",
+          "op": "write",
+          "sha256": "c0dd680f6f043e3c23e6a12cd840a7fa963947926d8d5488effb99c556acdc05"
+        },
+        {
+          "hostId": "dsh",
+          "kind": "skill",
+          "destRel": ".dsh/skills/kit-hat-reanchor/SKILL.md",
+          "sourceRel": "assets/ide/skills-orch/kit-hat-reanchor/SKILL.md",
+          "op": "write",
+          "sha256": "ff04277c0e46c715d6dd0fabb24b8c25d8ec1c633a1cead9dec60ffae1acf4a0"
+        },
+        {
+          "hostId": "dsh",
+          "kind": "skill",
+          "destRel": ".dsh/skills/kit-init-guide/SKILL.md",
+          "sourceRel": "assets/ide/skills-orch/kit-init-guide/SKILL.md",
+          "op": "write",
+          "sha256": "b7abed0a618f324bae6e2f448d7be839b0cfb02a3b31998d5e8b72e208e56e02"
+        },
+        {
+          "hostId": "dsh",
+          "kind": "skill",
+          "destRel": ".dsh/skills/kit-verify/SKILL.md",
+          "sourceRel": "assets/ide/skills-orch/kit-verify/SKILL.md",
+          "op": "write",
+          "sha256": "eec9ed776a3ae1bf7157fcc229583e9c24a74c29eefc6ef6244811eb74d9bc20"
+        },
+        {
+          "hostId": "cursor",
+          "kind": "always_on",
+          "destRel": ".cursor/rules/05-kit-starter.mdc",
+          "sourceRel": "assets/ide/adapters/cursor-harness-starter.mdc.example",
+          "op": "write",
+          "sha256": "e5929a1976f84df42cf2d97d1de4717a91eeed6fde2ae621d356013a2860b66c"
+        },
+        {
+          "hostId": "cursor",
+          "kind": "skill",
+          "destRel": ".cursor/skills/harness-00-delegate-only/SKILL.md",
+          "sourceRel": "assets/skills/harness-00-delegate-only/SKILL.md",
+          "op": "write",
+          "sha256": "948dd46e3b0358703c19a3e234e6bdffdf59e1d2f168d0efd4b82e5b58e83c76"
+        },
+        {
+          "hostId": "cursor",
+          "kind": "skill",
+          "destRel": ".cursor/skills/harness-10-spec/SKILL.md",
+          "sourceRel": "assets/skills/harness-10-spec/SKILL.md",
+          "op": "write",
+          "sha256": "30fe7e7a3bccd57ca2fbbb943dde00b43c949df106e2d7b21067edfaf7c40848"
+        },
+        {
+          "hostId": "cursor",
+          "kind": "skill",
+          "destRel": ".cursor/skills/harness-10-task/SKILL.md",
+          "sourceRel": "assets/skills/harness-10-task/SKILL.md",
+          "op": "write",
+          "sha256": "5d1b6844805a8e71886542adbe6c2cd7386c00a3edb6ae4da7a7c6825643d50e"
+        },
+        {
+          "hostId": "cursor",
+          "kind": "skill",
+          "destRel": ".cursor/skills/harness-20-spec-audit/SKILL.md",
+          "sourceRel": "assets/skills/harness-20-spec-audit/SKILL.md",
+          "op": "write",
+          "sha256": "c4947fac317d48628d03e9ab5bc66b80d17c91f8805857129383cbebf36166fe"
+        },
+        {
+          "hostId": "cursor",
+          "kind": "skill",
+          "destRel": ".cursor/skills/harness-20-task-audit/references/TEMPLATE_30_gate_stop.md",
+          "sourceRel": "assets/skills/harness-20-task-audit/references/TEMPLATE_30_gate_stop.md",
+          "op": "write",
+          "sha256": "c68c72d9795dfe8fadbf963162fc9cb431c94a0d5ad14044535a366c687990a6"
+        },
+        {
+          "hostId": "cursor",
+          "kind": "skill",
+          "destRel": ".cursor/skills/harness-20-task-audit/SKILL.md",
+          "sourceRel": "assets/skills/harness-20-task-audit/SKILL.md",
+          "op": "write",
+          "sha256": "dbdf84fc24eb726cdeb5d0073ee9964d47a2d741c2a6f082073d5a16f90f7c27"
+        },
+        {
+          "hostId": "cursor",
+          "kind": "skill",
+          "destRel": ".cursor/skills/harness-hat-reanchor/SKILL.md",
+          "sourceRel": "assets/skills/harness-hat-reanchor/SKILL.md",
+          "op": "write",
+          "sha256": "73c004e5092c94194d80863f30c492db36b13a673f6ae4105a72678c06a7bf33"
+        },
+        {
+          "hostId": "cursor",
+          "kind": "command",
+          "destRel": ".cursor/commands/kit-apply-standards.md",
+          "sourceRel": "assets/ide/commands/cursor/kit-apply-standards.md",
+          "op": "write",
+          "sha256": "1ecb180cda632a8b6804b35379a827e3c1b258fd0d0ce238f1d2933cbe5a3915"
+        },
+        {
+          "hostId": "cursor",
+          "kind": "command",
+          "destRel": ".cursor/commands/kit-gate-status.md",
+          "sourceRel": "assets/ide/commands/cursor/kit-gate-status.md",
+          "op": "write",
+          "sha256": "2ff62d2e6df0759e816e13fd0ad3f4d0fe99346a37b4af2fbde7fbc75431b94d"
+        },
+        {
+          "hostId": "cursor",
+          "kind": "command",
+          "destRel": ".cursor/commands/kit-hat-reanchor.md",
+          "sourceRel": "assets/ide/commands/cursor/kit-hat-reanchor.md",
+          "op": "write",
+          "sha256": "f17217dfd785f1db1a9c8c44db7266435d2c12b0ce8b0edd84ffbe942393b94c"
+        },
+        {
+          "hostId": "cursor",
+          "kind": "command",
+          "destRel": ".cursor/commands/kit-init-guide.md",
+          "sourceRel": "assets/ide/commands/cursor/kit-init-guide.md",
+          "op": "write",
+          "sha256": "b9c581828c108ce7882372168279a982369962c12ec362fbc5405a96addd82c6"
+        },
+        {
+          "hostId": "cursor",
+          "kind": "command",
+          "destRel": ".cursor/commands/kit-verify.md",
+          "sourceRel": "assets/ide/commands/cursor/kit-verify.md",
+          "op": "write",
+          "sha256": "f15b62615ca3cfda76e3903d0bfa9265ca9a773fe1d91653ff09b802cd5ba9e5"
+        },
+        {
+          "hostId": "cursor",
+          "kind": "command",
+          "destRel": ".cursor/commands/kit-graph-check.md",
+          "sourceRel": "assets/ide/commands/cursor/kit-graph-check.md",
+          "op": "write",
+          "sha256": "b7b40559a350ce632aa689b2d5ed95b5f12505b0df4a3f991bc57e35f3109df0"
+        },
+        {
+          "hostId": "cursor",
+          "kind": "command",
+          "destRel": ".cursor/commands/kit-hat-00-delegate.md",
+          "sourceRel": "assets/ide/commands/cursor/kit-hat-00-delegate.md",
+          "op": "write",
+          "sha256": "19a48f0adbc4fb6c9be552b01d5760b30d235d3414c1f9e666648ba64f5112b6"
+        },
+        {
+          "hostId": "cursor",
+          "kind": "command",
+          "destRel": ".cursor/commands/kit-hat-10-spec.md",
+          "sourceRel": "assets/ide/commands/cursor/kit-hat-10-spec.md",
+          "op": "write",
+          "sha256": "f277357fe9301ca38a7b1eb26dbb67b59b944bec1dceed4937a2caf8b4836758"
+        },
+        {
+          "hostId": "cursor",
+          "kind": "command",
+          "destRel": ".cursor/commands/kit-hat-10-task.md",
+          "sourceRel": "assets/ide/commands/cursor/kit-hat-10-task.md",
+          "op": "write",
+          "sha256": "b2ad2afc644ccf031969494bcbf35070f52eb0c3ad7ec60436ed3d5a5f20c01b"
+        },
+        {
+          "hostId": "cursor",
+          "kind": "command",
+          "destRel": ".cursor/commands/kit-hat-20-spec-audit.md",
+          "sourceRel": "assets/ide/commands/cursor/kit-hat-20-spec-audit.md",
+          "op": "write",
+          "sha256": "ab800ec9a64559919524ecd550c199e7f4d33cc8aae0e11d52b6aa90605fa3bc"
+        },
+        {
+          "hostId": "cursor",
+          "kind": "command",
+          "destRel": ".cursor/commands/kit-hat-20-task-audit.md",
+          "sourceRel": "assets/ide/commands/cursor/kit-hat-20-task-audit.md",
+          "op": "write",
+          "sha256": "084b880ab7a33a45e91f1a0c4566c5ee9f630a9353ede165de1640ae9b2e11ac"
+        },
+        {
+          "hostId": "cursor",
+          "kind": "command",
+          "destRel": ".cursor/commands/kit-sync-prompts-guide.md",
+          "sourceRel": "assets/ide/commands/cursor/kit-sync-prompts-guide.md",
+          "op": "write",
+          "sha256": "78f012143fed5df991b87aa8a762a7d05c297835d7b0f251a53415d7e6e6937c"
+        },
+        {
+          "hostId": "claude",
+          "kind": "always_on",
+          "destRel": "CLAUDE.md",
+          "sourceRel": "assets/ide/adapters/CLAUDE.md.fragment.example",
+          "op": "write",
+          "sha256": "658eac9f203cb1c50f7a71c59552d5da016a276228b4071da178931197169c69"
+        },
+        {
+          "hostId": "claude",
+          "kind": "skill",
+          "destRel": ".claude/skills/harness-00-delegate-only/SKILL.md",
+          "sourceRel": "assets/skills/harness-00-delegate-only/SKILL.md",
+          "op": "write",
+          "sha256": "948dd46e3b0358703c19a3e234e6bdffdf59e1d2f168d0efd4b82e5b58e83c76"
+        },
+        {
+          "hostId": "claude",
+          "kind": "skill",
+          "destRel": ".claude/skills/harness-10-spec/SKILL.md",
+          "sourceRel": "assets/skills/harness-10-spec/SKILL.md",
+          "op": "write",
+          "sha256": "30fe7e7a3bccd57ca2fbbb943dde00b43c949df106e2d7b21067edfaf7c40848"
+        },
+        {
+          "hostId": "claude",
+          "kind": "skill",
+          "destRel": ".claude/skills/harness-10-task/SKILL.md",
+          "sourceRel": "assets/skills/harness-10-task/SKILL.md",
+          "op": "write",
+          "sha256": "5d1b6844805a8e71886542adbe6c2cd7386c00a3edb6ae4da7a7c6825643d50e"
+        },
+        {
+          "hostId": "claude",
+          "kind": "skill",
+          "destRel": ".claude/skills/harness-20-spec-audit/SKILL.md",
+          "sourceRel": "assets/skills/harness-20-spec-audit/SKILL.md",
+          "op": "write",
+          "sha256": "c4947fac317d48628d03e9ab5bc66b80d17c91f8805857129383cbebf36166fe"
+        },
+        {
+          "hostId": "claude",
+          "kind": "skill",
+          "destRel": ".claude/skills/harness-20-task-audit/references/TEMPLATE_30_gate_stop.md",
+          "sourceRel": "assets/skills/harness-20-task-audit/references/TEMPLATE_30_gate_stop.md",
+          "op": "write",
+          "sha256": "c68c72d9795dfe8fadbf963162fc9cb431c94a0d5ad14044535a366c687990a6"
+        },
+        {
+          "hostId": "claude",
+          "kind": "skill",
+          "destRel": ".claude/skills/harness-20-task-audit/SKILL.md",
+          "sourceRel": "assets/skills/harness-20-task-audit/SKILL.md",
+          "op": "write",
+          "sha256": "dbdf84fc24eb726cdeb5d0073ee9964d47a2d741c2a6f082073d5a16f90f7c27"
+        },
+        {
+          "hostId": "claude",
+          "kind": "skill",
+          "destRel": ".claude/skills/harness-hat-reanchor/SKILL.md",
+          "sourceRel": "assets/skills/harness-hat-reanchor/SKILL.md",
+          "op": "write",
+          "sha256": "73c004e5092c94194d80863f30c492db36b13a673f6ae4105a72678c06a7bf33"
+        },
+        {
+          "hostId": "claude",
+          "kind": "command",
+          "destRel": ".claude/commands/kit/apply-standards.md",
+          "sourceRel": "assets/ide/commands/claude/kit/apply-standards.md",
+          "op": "write",
+          "sha256": "9ea39557d5ff4a367d5be7b087c2b60067b4007541465d98da1531fe18fb770f"
+        },
+        {
+          "hostId": "claude",
+          "kind": "command",
+          "destRel": ".claude/commands/kit/gate-status.md",
+          "sourceRel": "assets/ide/commands/claude/kit/gate-status.md",
+          "op": "write",
+          "sha256": "913acab6c852fba2712c00d50f2f61572515bd4934e89ab4bb6408d05ef13a53"
+        },
+        {
+          "hostId": "claude",
+          "kind": "command",
+          "destRel": ".claude/commands/kit/hat-reanchor.md",
+          "sourceRel": "assets/ide/commands/claude/kit/hat-reanchor.md",
+          "op": "write",
+          "sha256": "cd450cbe5c49056fe180ea84ea1a7bec7e166ba3bfed7bd9eec4fc6b76d0d848"
+        },
+        {
+          "hostId": "claude",
+          "kind": "command",
+          "destRel": ".claude/commands/kit/init-guide.md",
+          "sourceRel": "assets/ide/commands/claude/kit/init-guide.md",
+          "op": "write",
+          "sha256": "687143f95d6ef80e82b8d3b52fa6bc7d23dad5bf20fe2ab85c996af51edd1724"
+        },
+        {
+          "hostId": "claude",
+          "kind": "command",
+          "destRel": ".claude/commands/kit/verify.md",
+          "sourceRel": "assets/ide/commands/claude/kit/verify.md",
+          "op": "write",
+          "sha256": "7806c5b38adade2b6088e835008a36ff1038da87607583026a54c3ba57f218f6"
+        },
+        {
+          "hostId": "claude",
+          "kind": "command",
+          "destRel": ".claude/commands/kit/graph-check.md",
+          "sourceRel": "assets/ide/commands/claude/kit/graph-check.md",
+          "op": "write",
+          "sha256": "3bf7104802090cf600d7da971632068949db26b30086a59a60c02559bd5f4006"
+        },
+        {
+          "hostId": "claude",
+          "kind": "command",
+          "destRel": ".claude/commands/kit/hat-00-delegate.md",
+          "sourceRel": "assets/ide/commands/claude/kit/hat-00-delegate.md",
+          "op": "write",
+          "sha256": "498ea449a17c7fcccd606cf9c23b0d54cc258e0197debb9efb1af4802e15e178"
+        },
+        {
+          "hostId": "claude",
+          "kind": "command",
+          "destRel": ".claude/commands/kit/hat-10-spec.md",
+          "sourceRel": "assets/ide/commands/claude/kit/hat-10-spec.md",
+          "op": "write",
+          "sha256": "45191fdd39c98946a01c675e26100ea1504597f6b21a6aa999e4be504c71737c"
+        },
+        {
+          "hostId": "claude",
+          "kind": "command",
+          "destRel": ".claude/commands/kit/hat-10-task.md",
+          "sourceRel": "assets/ide/commands/claude/kit/hat-10-task.md",
+          "op": "write",
+          "sha256": "e0ee7e12f5a2e2f474644875ea8b4ba23f9f6d0b5a0649e83178ab0cb304285e"
+        },
+        {
+          "hostId": "claude",
+          "kind": "command",
+          "destRel": ".claude/commands/kit/hat-20-spec-audit.md",
+          "sourceRel": "assets/ide/commands/claude/kit/hat-20-spec-audit.md",
+          "op": "write",
+          "sha256": "f8f0b904848bd4012f499198c29e16b94ab378d901370b74020a5d6314ed3512"
+        },
+        {
+          "hostId": "claude",
+          "kind": "command",
+          "destRel": ".claude/commands/kit/hat-20-task-audit.md",
+          "sourceRel": "assets/ide/commands/claude/kit/hat-20-task-audit.md",
+          "op": "write",
+          "sha256": "e971b3704c0e7736c6cac69444413a95aec5b27ce90955fbee2f71093c4501a3"
+        },
+        {
+          "hostId": "claude",
+          "kind": "command",
+          "destRel": ".claude/commands/kit/sync-prompts-guide.md",
+          "sourceRel": "assets/ide/commands/claude/kit/sync-prompts-guide.md",
+          "op": "write",
+          "sha256": "04c1affbaff1d0cd203b9e0ab692fb32f66c121d8fa7bd67bc2095c4cde58f46"
+        },
+        {
+          "hostId": "agents",
+          "kind": "always_on",
+          "destRel": "AGENTS.md",
+          "sourceRel": "assets/ide/adapters/AGENTS.md.fragment.example",
+          "op": "write",
+          "sha256": "65d8ccaf62d1bba70e2ed46ce5ac3032489fbb421c88240a97934de2d258f5d0"
+        },
+        {
+          "hostId": "agents",
+          "kind": "skill",
+          "destRel": ".agents/skills/harness-00-delegate-only/SKILL.md",
+          "sourceRel": "assets/skills/harness-00-delegate-only/SKILL.md",
+          "op": "write",
+          "sha256": "948dd46e3b0358703c19a3e234e6bdffdf59e1d2f168d0efd4b82e5b58e83c76"
+        },
+        {
+          "hostId": "agents",
+          "kind": "skill",
+          "destRel": ".agents/skills/harness-10-spec/SKILL.md",
+          "sourceRel": "assets/skills/harness-10-spec/SKILL.md",
+          "op": "write",
+          "sha256": "30fe7e7a3bccd57ca2fbbb943dde00b43c949df106e2d7b21067edfaf7c40848"
+        },
+        {
+          "hostId": "agents",
+          "kind": "skill",
+          "destRel": ".agents/skills/harness-10-task/SKILL.md",
+          "sourceRel": "assets/skills/harness-10-task/SKILL.md",
+          "op": "write",
+          "sha256": "5d1b6844805a8e71886542adbe6c2cd7386c00a3edb6ae4da7a7c6825643d50e"
+        },
+        {
+          "hostId": "agents",
+          "kind": "skill",
+          "destRel": ".agents/skills/harness-20-spec-audit/SKILL.md",
+          "sourceRel": "assets/skills/harness-20-spec-audit/SKILL.md",
+          "op": "write",
+          "sha256": "c4947fac317d48628d03e9ab5bc66b80d17c91f8805857129383cbebf36166fe"
+        },
+        {
+          "hostId": "agents",
+          "kind": "skill",
+          "destRel": ".agents/skills/harness-20-task-audit/references/TEMPLATE_30_gate_stop.md",
+          "sourceRel": "assets/skills/harness-20-task-audit/references/TEMPLATE_30_gate_stop.md",
+          "op": "write",
+          "sha256": "c68c72d9795dfe8fadbf963162fc9cb431c94a0d5ad14044535a366c687990a6"
+        },
+        {
+          "hostId": "agents",
+          "kind": "skill",
+          "destRel": ".agents/skills/harness-20-task-audit/SKILL.md",
+          "sourceRel": "assets/skills/harness-20-task-audit/SKILL.md",
+          "op": "write",
+          "sha256": "dbdf84fc24eb726cdeb5d0073ee9964d47a2d741c2a6f082073d5a16f90f7c27"
+        },
+        {
+          "hostId": "agents",
+          "kind": "skill",
+          "destRel": ".agents/skills/harness-hat-reanchor/SKILL.md",
+          "sourceRel": "assets/skills/harness-hat-reanchor/SKILL.md",
+          "op": "write",
+          "sha256": "73c004e5092c94194d80863f30c492db36b13a673f6ae4105a72678c06a7bf33"
+        },
+        {
+          "hostId": "copilot",
+          "kind": "always_on",
+          "destRel": "AGENTS.md",
+          "sourceRel": "assets/ide/adapters/AGENTS.md.fragment.example",
+          "op": "write",
+          "sha256": "65d8ccaf62d1bba70e2ed46ce5ac3032489fbb421c88240a97934de2d258f5d0"
+        },
+        {
+          "hostId": "copilot",
+          "kind": "skill",
+          "destRel": ".github/skills/harness-00-delegate-only/SKILL.md",
+          "sourceRel": "assets/skills/harness-00-delegate-only/SKILL.md",
+          "op": "write",
+          "sha256": "948dd46e3b0358703c19a3e234e6bdffdf59e1d2f168d0efd4b82e5b58e83c76"
+        },
+        {
+          "hostId": "copilot",
+          "kind": "skill",
+          "destRel": ".github/skills/harness-10-spec/SKILL.md",
+          "sourceRel": "assets/skills/harness-10-spec/SKILL.md",
+          "op": "write",
+          "sha256": "30fe7e7a3bccd57ca2fbbb943dde00b43c949df106e2d7b21067edfaf7c40848"
+        },
+        {
+          "hostId": "copilot",
+          "kind": "skill",
+          "destRel": ".github/skills/harness-10-task/SKILL.md",
+          "sourceRel": "assets/skills/harness-10-task/SKILL.md",
+          "op": "write",
+          "sha256": "5d1b6844805a8e71886542adbe6c2cd7386c00a3edb6ae4da7a7c6825643d50e"
+        },
+        {
+          "hostId": "copilot",
+          "kind": "skill",
+          "destRel": ".github/skills/harness-20-spec-audit/SKILL.md",
+          "sourceRel": "assets/skills/harness-20-spec-audit/SKILL.md",
+          "op": "write",
+          "sha256": "c4947fac317d48628d03e9ab5bc66b80d17c91f8805857129383cbebf36166fe"
+        },
+        {
+          "hostId": "copilot",
+          "kind": "skill",
+          "destRel": ".github/skills/harness-20-task-audit/references/TEMPLATE_30_gate_stop.md",
+          "sourceRel": "assets/skills/harness-20-task-audit/references/TEMPLATE_30_gate_stop.md",
+          "op": "write",
+          "sha256": "c68c72d9795dfe8fadbf963162fc9cb431c94a0d5ad14044535a366c687990a6"
+        },
+        {
+          "hostId": "copilot",
+          "kind": "skill",
+          "destRel": ".github/skills/harness-20-task-audit/SKILL.md",
+          "sourceRel": "assets/skills/harness-20-task-audit/SKILL.md",
+          "op": "write",
+          "sha256": "dbdf84fc24eb726cdeb5d0073ee9964d47a2d741c2a6f082073d5a16f90f7c27"
+        },
+        {
+          "hostId": "copilot",
+          "kind": "skill",
+          "destRel": ".github/skills/harness-hat-reanchor/SKILL.md",
+          "sourceRel": "assets/skills/harness-hat-reanchor/SKILL.md",
+          "op": "write",
+          "sha256": "73c004e5092c94194d80863f30c492db36b13a673f6ae4105a72678c06a7bf33"
+        },
+        {
+          "hostId": "codex",
+          "kind": "always_on",
+          "destRel": "AGENTS.md",
+          "sourceRel": "assets/ide/adapters/AGENTS.md.fragment.example",
+          "op": "write",
+          "sha256": "65d8ccaf62d1bba70e2ed46ce5ac3032489fbb421c88240a97934de2d258f5d0"
+        },
+        {
+          "hostId": "codex",
+          "kind": "skill",
+          "destRel": ".agents/skills/harness-00-delegate-only/SKILL.md",
+          "sourceRel": "assets/skills/harness-00-delegate-only/SKILL.md",
+          "op": "write",
+          "sha256": "948dd46e3b0358703c19a3e234e6bdffdf59e1d2f168d0efd4b82e5b58e83c76"
+        },
+        {
+          "hostId": "codex",
+          "kind": "skill",
+          "destRel": ".agents/skills/harness-10-spec/SKILL.md",
+          "sourceRel": "assets/skills/harness-10-spec/SKILL.md",
+          "op": "write",
+          "sha256": "30fe7e7a3bccd57ca2fbbb943dde00b43c949df106e2d7b21067edfaf7c40848"
+        },
+        {
+          "hostId": "codex",
+          "kind": "skill",
+          "destRel": ".agents/skills/harness-10-task/SKILL.md",
+          "sourceRel": "assets/skills/harness-10-task/SKILL.md",
+          "op": "write",
+          "sha256": "5d1b6844805a8e71886542adbe6c2cd7386c00a3edb6ae4da7a7c6825643d50e"
+        },
+        {
+          "hostId": "codex",
+          "kind": "skill",
+          "destRel": ".agents/skills/harness-20-spec-audit/SKILL.md",
+          "sourceRel": "assets/skills/harness-20-spec-audit/SKILL.md",
+          "op": "write",
+          "sha256": "c4947fac317d48628d03e9ab5bc66b80d17c91f8805857129383cbebf36166fe"
+        },
+        {
+          "hostId": "codex",
+          "kind": "skill",
+          "destRel": ".agents/skills/harness-20-task-audit/references/TEMPLATE_30_gate_stop.md",
+          "sourceRel": "assets/skills/harness-20-task-audit/references/TEMPLATE_30_gate_stop.md",
+          "op": "write",
+          "sha256": "c68c72d9795dfe8fadbf963162fc9cb431c94a0d5ad14044535a366c687990a6"
+        },
+        {
+          "hostId": "codex",
+          "kind": "skill",
+          "destRel": ".agents/skills/harness-20-task-audit/SKILL.md",
+          "sourceRel": "assets/skills/harness-20-task-audit/SKILL.md",
+          "op": "write",
+          "sha256": "dbdf84fc24eb726cdeb5d0073ee9964d47a2d741c2a6f082073d5a16f90f7c27"
+        },
+        {
+          "hostId": "codex",
+          "kind": "skill",
+          "destRel": ".agents/skills/harness-hat-reanchor/SKILL.md",
+          "sourceRel": "assets/skills/harness-hat-reanchor/SKILL.md",
+          "op": "write",
+          "sha256": "73c004e5092c94194d80863f30c492db36b13a673f6ae4105a72678c06a7bf33"
+        },
+        {
+          "hostId": "windsurf",
+          "kind": "always_on",
+          "destRel": "AGENTS.md",
+          "sourceRel": "assets/ide/adapters/AGENTS.md.fragment.example",
+          "op": "write",
+          "sha256": "65d8ccaf62d1bba70e2ed46ce5ac3032489fbb421c88240a97934de2d258f5d0"
+        },
+        {
+          "hostId": "windsurf",
+          "kind": "skill",
+          "destRel": ".windsurf/skills/harness-00-delegate-only/SKILL.md",
+          "sourceRel": "assets/skills/harness-00-delegate-only/SKILL.md",
+          "op": "write",
+          "sha256": "948dd46e3b0358703c19a3e234e6bdffdf59e1d2f168d0efd4b82e5b58e83c76"
+        },
+        {
+          "hostId": "windsurf",
+          "kind": "skill",
+          "destRel": ".windsurf/skills/harness-10-spec/SKILL.md",
+          "sourceRel": "assets/skills/harness-10-spec/SKILL.md",
+          "op": "write",
+          "sha256": "30fe7e7a3bccd57ca2fbbb943dde00b43c949df106e2d7b21067edfaf7c40848"
+        },
+        {
+          "hostId": "windsurf",
+          "kind": "skill",
+          "destRel": ".windsurf/skills/harness-10-task/SKILL.md",
+          "sourceRel": "assets/skills/harness-10-task/SKILL.md",
+          "op": "write",
+          "sha256": "5d1b6844805a8e71886542adbe6c2cd7386c00a3edb6ae4da7a7c6825643d50e"
+        },
+        {
+          "hostId": "windsurf",
+          "kind": "skill",
+          "destRel": ".windsurf/skills/harness-20-spec-audit/SKILL.md",
+          "sourceRel": "assets/skills/harness-20-spec-audit/SKILL.md",
+          "op": "write",
+          "sha256": "c4947fac317d48628d03e9ab5bc66b80d17c91f8805857129383cbebf36166fe"
+        },
+        {
+          "hostId": "windsurf",
+          "kind": "skill",
+          "destRel": ".windsurf/skills/harness-20-task-audit/references/TEMPLATE_30_gate_stop.md",
+          "sourceRel": "assets/skills/harness-20-task-audit/references/TEMPLATE_30_gate_stop.md",
+          "op": "write",
+          "sha256": "c68c72d9795dfe8fadbf963162fc9cb431c94a0d5ad14044535a366c687990a6"
+        },
+        {
+          "hostId": "windsurf",
+          "kind": "skill",
+          "destRel": ".windsurf/skills/harness-20-task-audit/SKILL.md",
+          "sourceRel": "assets/skills/harness-20-task-audit/SKILL.md",
+          "op": "write",
+          "sha256": "dbdf84fc24eb726cdeb5d0073ee9964d47a2d741c2a6f082073d5a16f90f7c27"
+        },
+        {
+          "hostId": "windsurf",
+          "kind": "skill",
+          "destRel": ".windsurf/skills/harness-hat-reanchor/SKILL.md",
+          "sourceRel": "assets/skills/harness-hat-reanchor/SKILL.md",
+          "op": "write",
+          "sha256": "73c004e5092c94194d80863f30c492db36b13a673f6ae4105a72678c06a7bf33"
+        },
+        {
+          "hostId": "gemini",
+          "kind": "always_on",
+          "destRel": "GEMINI.md",
+          "sourceRel": "assets/ide/adapters/AGENTS.md.fragment.example",
+          "op": "write",
+          "sha256": "65d8ccaf62d1bba70e2ed46ce5ac3032489fbb421c88240a97934de2d258f5d0"
+        },
+        {
+          "hostId": "gemini",
+          "kind": "skill",
+          "destRel": ".gemini/skills/harness-00-delegate-only/SKILL.md",
+          "sourceRel": "assets/skills/harness-00-delegate-only/SKILL.md",
+          "op": "write",
+          "sha256": "948dd46e3b0358703c19a3e234e6bdffdf59e1d2f168d0efd4b82e5b58e83c76"
+        },
+        {
+          "hostId": "gemini",
+          "kind": "skill",
+          "destRel": ".gemini/skills/harness-10-spec/SKILL.md",
+          "sourceRel": "assets/skills/harness-10-spec/SKILL.md",
+          "op": "write",
+          "sha256": "30fe7e7a3bccd57ca2fbbb943dde00b43c949df106e2d7b21067edfaf7c40848"
+        },
+        {
+          "hostId": "gemini",
+          "kind": "skill",
+          "destRel": ".gemini/skills/harness-10-task/SKILL.md",
+          "sourceRel": "assets/skills/harness-10-task/SKILL.md",
+          "op": "write",
+          "sha256": "5d1b6844805a8e71886542adbe6c2cd7386c00a3edb6ae4da7a7c6825643d50e"
+        },
+        {
+          "hostId": "gemini",
+          "kind": "skill",
+          "destRel": ".gemini/skills/harness-20-spec-audit/SKILL.md",
+          "sourceRel": "assets/skills/harness-20-spec-audit/SKILL.md",
+          "op": "write",
+          "sha256": "c4947fac317d48628d03e9ab5bc66b80d17c91f8805857129383cbebf36166fe"
+        },
+        {
+          "hostId": "gemini",
+          "kind": "skill",
+          "destRel": ".gemini/skills/harness-20-task-audit/references/TEMPLATE_30_gate_stop.md",
+          "sourceRel": "assets/skills/harness-20-task-audit/references/TEMPLATE_30_gate_stop.md",
+          "op": "write",
+          "sha256": "c68c72d9795dfe8fadbf963162fc9cb431c94a0d5ad14044535a366c687990a6"
+        },
+        {
+          "hostId": "gemini",
+          "kind": "skill",
+          "destRel": ".gemini/skills/harness-20-task-audit/SKILL.md",
+          "sourceRel": "assets/skills/harness-20-task-audit/SKILL.md",
+          "op": "write",
+          "sha256": "dbdf84fc24eb726cdeb5d0073ee9964d47a2d741c2a6f082073d5a16f90f7c27"
+        },
+        {
+          "hostId": "gemini",
+          "kind": "skill",
+          "destRel": ".gemini/skills/harness-hat-reanchor/SKILL.md",
+          "sourceRel": "assets/skills/harness-hat-reanchor/SKILL.md",
+          "op": "write",
+          "sha256": "73c004e5092c94194d80863f30c492db36b13a673f6ae4105a72678c06a7bf33"
+        },
+        {
+          "hostId": "opencode",
+          "kind": "always_on",
+          "destRel": "AGENTS.md",
+          "sourceRel": "assets/ide/adapters/AGENTS.md.fragment.example",
+          "op": "write",
+          "sha256": "65d8ccaf62d1bba70e2ed46ce5ac3032489fbb421c88240a97934de2d258f5d0"
+        },
+        {
+          "hostId": "opencode",
+          "kind": "skill",
+          "destRel": ".agents/skills/harness-00-delegate-only/SKILL.md",
+          "sourceRel": "assets/skills/harness-00-delegate-only/SKILL.md",
+          "op": "write",
+          "sha256": "948dd46e3b0358703c19a3e234e6bdffdf59e1d2f168d0efd4b82e5b58e83c76"
+        },
+        {
+          "hostId": "opencode",
+          "kind": "skill",
+          "destRel": ".agents/skills/harness-10-spec/SKILL.md",
+          "sourceRel": "assets/skills/harness-10-spec/SKILL.md",
+          "op": "write",
+          "sha256": "30fe7e7a3bccd57ca2fbbb943dde00b43c949df106e2d7b21067edfaf7c40848"
+        },
+        {
+          "hostId": "opencode",
+          "kind": "skill",
+          "destRel": ".agents/skills/harness-10-task/SKILL.md",
+          "sourceRel": "assets/skills/harness-10-task/SKILL.md",
+          "op": "write",
+          "sha256": "5d1b6844805a8e71886542adbe6c2cd7386c00a3edb6ae4da7a7c6825643d50e"
+        },
+        {
+          "hostId": "opencode",
+          "kind": "skill",
+          "destRel": ".agents/skills/harness-20-spec-audit/SKILL.md",
+          "sourceRel": "assets/skills/harness-20-spec-audit/SKILL.md",
+          "op": "write",
+          "sha256": "c4947fac317d48628d03e9ab5bc66b80d17c91f8805857129383cbebf36166fe"
+        },
+        {
+          "hostId": "opencode",
+          "kind": "skill",
+          "destRel": ".agents/skills/harness-20-task-audit/references/TEMPLATE_30_gate_stop.md",
+          "sourceRel": "assets/skills/harness-20-task-audit/references/TEMPLATE_30_gate_stop.md",
+          "op": "write",
+          "sha256": "c68c72d9795dfe8fadbf963162fc9cb431c94a0d5ad14044535a366c687990a6"
+        },
+        {
+          "hostId": "opencode",
+          "kind": "skill",
+          "destRel": ".agents/skills/harness-20-task-audit/SKILL.md",
+          "sourceRel": "assets/skills/harness-20-task-audit/SKILL.md",
+          "op": "write",
+          "sha256": "dbdf84fc24eb726cdeb5d0073ee9964d47a2d741c2a6f082073d5a16f90f7c27"
+        },
+        {
+          "hostId": "opencode",
+          "kind": "skill",
+          "destRel": ".agents/skills/harness-hat-reanchor/SKILL.md",
+          "sourceRel": "assets/skills/harness-hat-reanchor/SKILL.md",
+          "op": "write",
+          "sha256": "73c004e5092c94194d80863f30c492db36b13a673f6ae4105a72678c06a7bf33"
+        },
+        {
+          "hostId": "roo",
+          "kind": "always_on",
+          "destRel": "AGENTS.md",
+          "sourceRel": "assets/ide/adapters/AGENTS.md.fragment.example",
+          "op": "write",
+          "sha256": "65d8ccaf62d1bba70e2ed46ce5ac3032489fbb421c88240a97934de2d258f5d0"
+        },
+        {
+          "hostId": "zed",
+          "kind": "always_on",
+          "destRel": "AGENTS.md",
+          "sourceRel": "assets/ide/adapters/AGENTS.md.fragment.example",
+          "op": "write",
+          "sha256": "65d8ccaf62d1bba70e2ed46ce5ac3032489fbb421c88240a97934de2d258f5d0"
+        },
+        {
+          "hostId": "zed",
+          "kind": "skill",
+          "destRel": ".agents/skills/harness-00-delegate-only/SKILL.md",
+          "sourceRel": "assets/skills/harness-00-delegate-only/SKILL.md",
+          "op": "write",
+          "sha256": "948dd46e3b0358703c19a3e234e6bdffdf59e1d2f168d0efd4b82e5b58e83c76"
+        },
+        {
+          "hostId": "zed",
+          "kind": "skill",
+          "destRel": ".agents/skills/harness-10-spec/SKILL.md",
+          "sourceRel": "assets/skills/harness-10-spec/SKILL.md",
+          "op": "write",
+          "sha256": "30fe7e7a3bccd57ca2fbbb943dde00b43c949df106e2d7b21067edfaf7c40848"
+        },
+        {
+          "hostId": "zed",
+          "kind": "skill",
+          "destRel": ".agents/skills/harness-10-task/SKILL.md",
+          "sourceRel": "assets/skills/harness-10-task/SKILL.md",
+          "op": "write",
+          "sha256": "5d1b6844805a8e71886542adbe6c2cd7386c00a3edb6ae4da7a7c6825643d50e"
+        },
+        {
+          "hostId": "zed",
+          "kind": "skill",
+          "destRel": ".agents/skills/harness-20-spec-audit/SKILL.md",
+          "sourceRel": "assets/skills/harness-20-spec-audit/SKILL.md",
+          "op": "write",
+          "sha256": "c4947fac317d48628d03e9ab5bc66b80d17c91f8805857129383cbebf36166fe"
+        },
+        {
+          "hostId": "zed",
+          "kind": "skill",
+          "destRel": ".agents/skills/harness-20-task-audit/references/TEMPLATE_30_gate_stop.md",
+          "sourceRel": "assets/skills/harness-20-task-audit/references/TEMPLATE_30_gate_stop.md",
+          "op": "write",
+          "sha256": "c68c72d9795dfe8fadbf963162fc9cb431c94a0d5ad14044535a366c687990a6"
+        },
+        {
+          "hostId": "zed",
+          "kind": "skill",
+          "destRel": ".agents/skills/harness-20-task-audit/SKILL.md",
+          "sourceRel": "assets/skills/harness-20-task-audit/SKILL.md",
+          "op": "write",
+          "sha256": "dbdf84fc24eb726cdeb5d0073ee9964d47a2d741c2a6f082073d5a16f90f7c27"
+        },
+        {
+          "hostId": "zed",
+          "kind": "skill",
+          "destRel": ".agents/skills/harness-hat-reanchor/SKILL.md",
+          "sourceRel": "assets/skills/harness-hat-reanchor/SKILL.md",
+          "op": "write",
+          "sha256": "73c004e5092c94194d80863f30c492db36b13a673f6ae4105a72678c06a7bf33"
+        },
+        {
+          "hostId": "cline",
+          "kind": "always_on",
+          "destRel": "AGENTS.md",
+          "sourceRel": "assets/ide/adapters/AGENTS.md.fragment.example",
+          "op": "write",
+          "sha256": "65d8ccaf62d1bba70e2ed46ce5ac3032489fbb421c88240a97934de2d258f5d0"
+        },
+        {
+          "hostId": "cline",
+          "kind": "skill",
+          "destRel": ".cline/skills/harness-00-delegate-only/SKILL.md",
+          "sourceRel": "assets/skills/harness-00-delegate-only/SKILL.md",
+          "op": "write",
+          "sha256": "948dd46e3b0358703c19a3e234e6bdffdf59e1d2f168d0efd4b82e5b58e83c76"
+        },
+        {
+          "hostId": "cline",
+          "kind": "skill",
+          "destRel": ".cline/skills/harness-10-spec/SKILL.md",
+          "sourceRel": "assets/skills/harness-10-spec/SKILL.md",
+          "op": "write",
+          "sha256": "30fe7e7a3bccd57ca2fbbb943dde00b43c949df106e2d7b21067edfaf7c40848"
+        },
+        {
+          "hostId": "cline",
+          "kind": "skill",
+          "destRel": ".cline/skills/harness-10-task/SKILL.md",
+          "sourceRel": "assets/skills/harness-10-task/SKILL.md",
+          "op": "write",
+          "sha256": "5d1b6844805a8e71886542adbe6c2cd7386c00a3edb6ae4da7a7c6825643d50e"
+        },
+        {
+          "hostId": "cline",
+          "kind": "skill",
+          "destRel": ".cline/skills/harness-20-spec-audit/SKILL.md",
+          "sourceRel": "assets/skills/harness-20-spec-audit/SKILL.md",
+          "op": "write",
+          "sha256": "c4947fac317d48628d03e9ab5bc66b80d17c91f8805857129383cbebf36166fe"
+        },
+        {
+          "hostId": "cline",
+          "kind": "skill",
+          "destRel": ".cline/skills/harness-20-task-audit/references/TEMPLATE_30_gate_stop.md",
+          "sourceRel": "assets/skills/harness-20-task-audit/references/TEMPLATE_30_gate_stop.md",
+          "op": "write",
+          "sha256": "c68c72d9795dfe8fadbf963162fc9cb431c94a0d5ad14044535a366c687990a6"
+        },
+        {
+          "hostId": "cline",
+          "kind": "skill",
+          "destRel": ".cline/skills/harness-20-task-audit/SKILL.md",
+          "sourceRel": "assets/skills/harness-20-task-audit/SKILL.md",
+          "op": "write",
+          "sha256": "dbdf84fc24eb726cdeb5d0073ee9964d47a2d741c2a6f082073d5a16f90f7c27"
+        },
+        {
+          "hostId": "cline",
+          "kind": "skill",
+          "destRel": ".cline/skills/harness-hat-reanchor/SKILL.md",
+          "sourceRel": "assets/skills/harness-hat-reanchor/SKILL.md",
+          "op": "write",
+          "sha256": "73c004e5092c94194d80863f30c492db36b13a673f6ae4105a72678c06a7bf33"
+        },
+        {
+          "hostId": "aider",
+          "kind": "always_on",
+          "destRel": "AGENTS.md",
+          "sourceRel": "assets/ide/adapters/AGENTS.md.fragment.example",
+          "op": "write",
+          "sha256": "65d8ccaf62d1bba70e2ed46ce5ac3032489fbb421c88240a97934de2d258f5d0"
+        }
+      ],
+      "s2": []
+    }
+  }
+}

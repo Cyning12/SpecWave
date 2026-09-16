@@ -12,7 +12,7 @@ import {
 import { evaluateHostContract } from '../host-contract.ts'
 import { yamlLoad } from '../yaml.ts'
 import { asHostRows, resolveValidateFile } from './table.ts'
-import { validateHostAdaptDoc } from './schema.ts'
+import { validateHostAdaptDocDispatch } from './schema.ts'
 import { loadHostToolsSticky, uniqueKeepOrder, writeHostToolsSticky } from './sticky.ts'
 import { assertHostProfile, findLegacyClaudeFlatCommands } from './commands.ts'
 import { commitPlannedWrites, planApply, remapUpdateConflicts } from './materialize.ts'
@@ -135,7 +135,7 @@ async function cmdHostValidate(args: string[]): Promise<void> {
     fail('', 2)
   }
 
-  const issues = validateHostAdaptDoc(data)
+  const issues = validateHostAdaptDocDispatch(data)
   if (issues.length > 0) {
     if (json) {
       printJson(base, {
@@ -231,7 +231,7 @@ async function cmdHostApply(args: string[]): Promise<void> {
     emitHostFail(json, 'host apply', target, { ...baseReport, errors: [{ path: '$', code: 'parse', message: msg }] }, [msg])
   }
 
-  const issues = validateHostAdaptDoc(data)
+  const issues = validateHostAdaptDocDispatch(data)
   if (issues.length > 0) {
     emitHostFail(
       json,
@@ -394,7 +394,7 @@ async function cmdHostUpdate(args: string[]): Promise<void> {
     ])
   }
 
-  const issues = validateHostAdaptDoc(data)
+  const issues = validateHostAdaptDocDispatch(data)
   if (issues.length > 0) {
     emitHostFail(
       json,

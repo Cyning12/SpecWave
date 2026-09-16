@@ -2,7 +2,7 @@ import { existsSync, readFileSync } from 'node:fs'
 import path from 'node:path'
 import { fail, kitLayoutJoin, packageRoot } from '../cli-shared.ts'
 import { yamlLoad } from '../yaml.ts'
-import { validateHostAdaptDoc } from './schema.ts'
+import { validateHostAdaptDocDispatch } from './schema.ts'
 
 const DEFAULT_EXAMPLE_REL = path.join('assets', 'ide', 'host-adapt', 'examples', 'mvp-hosts.yaml')
 
@@ -59,7 +59,7 @@ export function listKnownHostIds(fileArg?: string): string[] {
   } catch (err) {
     fail(`host 适配表 YAML 解析失败: ${(err as Error).message}`)
   }
-  const issues = validateHostAdaptDoc(data)
+  const issues = validateHostAdaptDocDispatch(data)
   if (issues.length > 0) {
     fail(
       `host 适配表无效:\n${issues.map((e) => `  - [${e.code}] ${e.path}: ${e.message}`).join('\n')}`,

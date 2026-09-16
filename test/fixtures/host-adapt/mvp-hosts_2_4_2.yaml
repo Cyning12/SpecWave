@@ -1,0 +1,219 @@
+# Host-adapt 声明式适配表 · 宿主（dsh / cursor / claude / agents / copilot / codex / windsurf / gemini / opencode / roo / zed / cline / aider）
+# 2.2 W6：copilot / codex / windsurf 原生读 AGENTS.md · always_on/skills 全量复用 agents 行资产（近零新资产）
+#   skills 原生落点：copilot=.github/skills · codex=.agents/skills（官方 repo 级扫描目录）· windsurf=.windsurf/skills
+# 2.3 W6：gemini / opencode / roo / zed / cline / aider（B4 · 落点逐宿主官方文档取证 @2026-09-13 · 见末尾六行注释）
+# 校验：npx spec-wave host validate [--file PATH]
+# 物化：npx spec-wave host apply --tools cursor,claude --profile core|expanded [--dry-run|--yes]
+# 刷新：npx spec-wave host update [--tools LIST] [--profile core|expanded] [--dry-run|--yes] [--force]
+# schema：../host-adapt.schema.json
+# skills 落点矩阵：../README.md
+version: "1"
+hosts:
+  - host_id: dsh
+    surfaces:
+      always_on: []
+      skills:
+        # 帽子六条（跳过 30/40）
+        - target_dir: .dsh/skills
+          from: assets/skills/*
+        # 编排五条（B-DSH-ORCH=B · /kit-* skill；上游无 .dsh/commands）
+        - target_dir: .dsh/skills
+          from: assets/ide/skills-orch/*
+      # DSH：slash 发现根 = .dsh/skills；commands 必须空
+      commands: []
+      verify:
+        kind: cli
+        bin: spec-wave
+        failClosed: true
+
+  - host_id: cursor
+    surfaces:
+      always_on:
+        - target: .cursor/rules/05-kit-starter.mdc
+          source: assets/ide/adapters/cursor-harness-starter.mdc.example
+      skills:
+        - target_dir: .cursor/skills
+          from: assets/skills/*
+      commands:
+        - target_dir: .cursor/commands
+          from: assets/ide/commands/cursor/*
+          profile: core
+        - target_dir: .cursor/commands
+          from: assets/ide/commands/cursor/*
+          profile: expanded
+      verify:
+        kind: cli
+        bin: spec-wave
+        failClosed: true
+
+  - host_id: claude
+    surfaces:
+      always_on:
+        - target: CLAUDE.md
+          source: assets/ide/adapters/CLAUDE.md.fragment.example
+      skills:
+        - target_dir: .claude/skills
+          from: assets/skills/*
+      commands:
+        - target_dir: .claude/commands/kit
+          from: assets/ide/commands/claude/kit/*
+          profile: core
+        - target_dir: .claude/commands/kit
+          from: assets/ide/commands/claude/kit/*
+          profile: expanded
+      verify:
+        kind: cli
+        bin: spec-wave
+        failClosed: true
+
+  - host_id: agents
+    surfaces:
+      always_on:
+        - target: AGENTS.md
+          source: assets/ide/adapters/AGENTS.md.fragment.example
+      skills:
+        - target_dir: .agents/skills
+          from: assets/skills/*
+      commands: []
+      verify:
+        kind: cli
+        bin: spec-wave
+        failClosed: true
+
+  # 2.2 W6 新增三宿主（B1）：均原生读 AGENTS.md · 资产面与 agents 行完全一致（仅 skills target_dir 按宿主原生目录）
+  - host_id: copilot
+    surfaces:
+      always_on:
+        - target: AGENTS.md
+          source: assets/ide/adapters/AGENTS.md.fragment.example
+      skills:
+        - target_dir: .github/skills
+          from: assets/skills/*
+      commands: []
+      verify:
+        kind: cli
+        bin: spec-wave
+        failClosed: true
+
+  - host_id: codex
+    surfaces:
+      always_on:
+        - target: AGENTS.md
+          source: assets/ide/adapters/AGENTS.md.fragment.example
+      skills:
+        - target_dir: .agents/skills
+          from: assets/skills/*
+      commands: []
+      verify:
+        kind: cli
+        bin: spec-wave
+        failClosed: true
+
+  - host_id: windsurf
+    surfaces:
+      always_on:
+        - target: AGENTS.md
+          source: assets/ide/adapters/AGENTS.md.fragment.example
+      skills:
+        - target_dir: .windsurf/skills
+          from: assets/skills/*
+      commands: []
+      verify:
+        kind: cli
+        bin: spec-wave
+        failClosed: true
+
+  # 2.3 W6 新增六宿主（B4）：always_on/skills 全量复用 agents 行资产（AGENTS.md 片段 + assets/skills/* · 零新资产 · marker merge 幂等）
+  # 落点逐宿主官方文档取证（2026-09-13 · 取证卡见 task_2_3_wiring_w6_host_completion）：
+  #   gemini：官方上下文文件=GEMINI.md（AGENTS.md 不在默认 context.fileName · 官方仓 issue #28227）→ always_on 落 GEMINI.md，
+  #     复用同一片段资产（内容宿主中立 Harness Starter）；skills 官方自动发现目录=.gemini/skills（gemini-cli 官方 creating-skills 文档）；
+  #     commands 官方为 .gemini/commands/*.toml 专属格式 → 本波 []（原生集成归 3.0 A3）
+  #   opencode：官方 Rules=AGENTS.md 项目根（opencode.ai/docs/rules/）；skills 官方 agent-compatible 目录=.agents/skills
+  #     （opencode.ai/docs/skills/ · 原生 .opencode/skills 并存，选 .agents/skills 复用 agents 资产面）
+  #   roo：AGENTS.md 由官方仓 merged PR #10446（2026-01-03）加载；原生约定=.roo/rules/ 目录（docs.roocode.com · 需专属资产本波不建）；
+  #     无官方 skills 目录约定 → skills 不物化（不强造目录 · SPEC §5.1）
+  #   zed：AGENTS.md 在官方兼容指令文件清单（zed-industries/zed 官方 ai/rules 文档）；skills 官方 project-local 目录=.agents/skills（同仓 ai/skills 文档）
+  #   cline：AGENTS.md 官方支持（docs.cline.bot cline-rules 页「Standard format for cross-tool compatibility」）；
+  #     skills 官方推荐 workspace 目录=.cline/skills（customization/skills）；原生 .clinerules/ 为替代约定（不建）
+  #   aider：**降级（如实标注）**——官方约定=CONVENTIONS.md 显式 --read 或 .aider.conf.yml read: 配置，无 AGENTS.md 自动加载
+  #     （aider.chat/docs/usage/conventions.html · issue #4363 open）；落 AGENTS.md 为跨工具注入层价值（同仓 AGENTS.md 系宿主共享），
+  #     aider 侧须用户自行 --read AGENTS.md 或配置 read: AGENTS.md；无官方 skills 约定 → 不物化
+  - host_id: gemini
+    surfaces:
+      always_on:
+        - target: GEMINI.md
+          source: assets/ide/adapters/AGENTS.md.fragment.example
+      skills:
+        - target_dir: .gemini/skills
+          from: assets/skills/*
+      commands: []
+      verify:
+        kind: cli
+        bin: spec-wave
+        failClosed: true
+
+  - host_id: opencode
+    surfaces:
+      always_on:
+        - target: AGENTS.md
+          source: assets/ide/adapters/AGENTS.md.fragment.example
+      skills:
+        - target_dir: .agents/skills
+          from: assets/skills/*
+      commands: []
+      verify:
+        kind: cli
+        bin: spec-wave
+        failClosed: true
+
+  - host_id: roo
+    surfaces:
+      always_on:
+        - target: AGENTS.md
+          source: assets/ide/adapters/AGENTS.md.fragment.example
+      skills: []
+      commands: []
+      verify:
+        kind: cli
+        bin: spec-wave
+        failClosed: true
+
+  - host_id: zed
+    surfaces:
+      always_on:
+        - target: AGENTS.md
+          source: assets/ide/adapters/AGENTS.md.fragment.example
+      skills:
+        - target_dir: .agents/skills
+          from: assets/skills/*
+      commands: []
+      verify:
+        kind: cli
+        bin: spec-wave
+        failClosed: true
+
+  - host_id: cline
+    surfaces:
+      always_on:
+        - target: AGENTS.md
+          source: assets/ide/adapters/AGENTS.md.fragment.example
+      skills:
+        - target_dir: .cline/skills
+          from: assets/skills/*
+      commands: []
+      verify:
+        kind: cli
+        bin: spec-wave
+        failClosed: true
+
+  - host_id: aider
+    surfaces:
+      always_on:
+        - target: AGENTS.md
+          source: assets/ide/adapters/AGENTS.md.fragment.example
+      skills: []
+      commands: []
+      verify:
+        kind: cli
+        bin: spec-wave
+        failClosed: true

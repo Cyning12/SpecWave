@@ -1,0 +1,10 @@
+# F-W1-03 负 fixture：schema_version 整数 >2 → fail-closed「未知 schema_version」（不得静默按旧格式解析）
+# 断言点：host validate exit 2 · 输出含「未知 schema_version」并点名 3（test/w1-schema-version-detect.test.ts）
+schema_version: 3
+version: "1"
+hosts:
+  - host_id: cursor
+    surfaces:
+      always_on: []
+      skills: []
+      commands: []

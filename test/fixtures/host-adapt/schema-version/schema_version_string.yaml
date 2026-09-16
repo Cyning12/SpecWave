@@ -1,0 +1,10 @@
+# F-W1-03 负 fixture：schema_version 非整数（字符串 "2"）→ schema 校验报红（须为整数）
+# 断言点：host validate exit 2 · 输出含「须为整数」（test/w1-schema-version-detect.test.ts）
+schema_version: "2"
+version: "1"
+hosts:
+  - host_id: cursor
+    surfaces:
+      always_on: []
+      skills: []
+      commands: []
