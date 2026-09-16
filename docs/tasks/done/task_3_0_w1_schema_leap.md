@@ -1,6 +1,6 @@
 # Task：3.0 W1 · 适配表 schema 跃迁 + 闸判定泛化（schema leap · **本次核心 · breaking**）
 
-> **状态**：`draft`（10-task 初稿 · HG-SCHEMA-CHANGE=**approved**（2026-09-16 00 代签 · 授权真值：维护者本窗「授权00代签」· W1 schema 签属请示答复）· HG-TASK-DRAFT=**approved**（2026-09-16 00 代签 · 同授权）· HG-AUDIT-R1=**approved**（2026-09-16 00 代签 · 同授权 · 依据 R1 审查文 PASS-with-issues）· **三闸全 approved**）  
+> **状态**：`done`（2026-09-16 30 实现棒 W1 五阶段收官 · HG-SCHEMA-CHANGE / HG-TASK-DRAFT / HG-AUDIT-R1 三闸 approved（2026-09-16 00 代签 · 授权真值：维护者本窗「授权00代签」）· 40 复核 PASS · 锁终态 667/130/666 pass/0 fail/1 skip · pins 17/17 · 验收 #1–#13 全勾）  
 > **SPEC 真值**：[`docs/spec/3_0-architecture-leap/02_w1_schema_leap_v1.md`](../../spec/3_0-architecture-leap/02_w1_schema_leap_v1.md)（signed · HG-SPEC-SIGNOFF=approved · 范围 ①–⑦ · 验收 1–9 · F-W1-01–07）  
 > **schema v2 设计真值**：[`docs/harness/reviews/w1_schema_change_review_20260916.md`](../../harness/reviews/w1_schema_change_review_20260916.md)（**已经 00 批准** · HG-SCHEMA-CHANGE 代签成立（2026-09-16 · 授权真值：维护者本窗「授权00代签」· W1 schema 签属请示答复）· 本闸行已同步翻转 approved）  
 > **上游 PLAN**：[`PLAN_3_0_architecture_leap_v1_zh.md`](../../roadmap/PLAN_3_0_architecture_leap_v1_zh.md) W1 节 + 硬约束 **3**（先评审文→闸→改码）/ **4**（向后兼容红线）/ **12**（接入面不依赖改包发版）/ **15**（闸不落表即虚设）  
@@ -223,7 +223,7 @@ v1 `surfaces.verify: {kind, bin, failClosed?}` **原样承接**进 v2 同位置�
 - [x] **#10 既有测试零改动全绿**：11 件 host 系测试（评审文 §5.2 表 · `test/host-adapt-*.test.ts` 全 11 件）+ gate 系既有断言（cli-p0 C5 / gate-semantics / cli-flags 等）**零改动全绿**；如因泛化渲染确需改动（F-W1-13）须逐条登记并限渲染字面
 - [x] **#11 command_sets 内建目录 fixture**（OQ-6）：断言 v1 兼容桥注入目录 = `verify, gate-status, init-guide, apply-standards, hat-reanchor` + `hat-00-delegate, hat-10-spec, hat-10-task, hat-20-spec-audit, hat-20-task-audit, graph-check, sync-prompts-guide` 逐字（5+7）
 - [x] **#12 结构闸**：`npx spec-wave task lint --file docs/tasks/active/task_3_0_w1_schema_leap.md` PASS
-- [ ] **#13 执行粒度**：提交逐文件显式 add（禁 `git add -A`）· 每 commit 独立可回退 · 每 commit 前后 npm test 同绿 · 未执行 tag/push/publish/deprecate · 波末 `npx spec-wave gate-check --task docs/tasks/active/task_3_0_w1_schema_leap.md` → exit 0 + `task close --yes` 闭环
+- [x] **#13 执行粒度**：提交逐文件显式 add（禁 `git add -A`）· 每 commit 独立可回退 · 每 commit 前后 npm test 同绿 · 未执行 tag/push/publish/deprecate · 波末 `npx spec-wave gate-check --task docs/tasks/active/task_3_0_w1_schema_leap.md` → exit 0 + `task close --yes` 闭环
 
 ---
 
