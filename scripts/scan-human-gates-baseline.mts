@@ -41,6 +41,8 @@ type RowVerdict = {
   shadowed: boolean
   /** 现行逻辑下该行是否翻转向 may_start_30=false（缺行即拒不计入行级 · 见文件级 verdict） */
   blocks_30_current: boolean
+  /** 3.0 W1 阶段四新增（A2 登记）：泛化声明式行谓词 = blocks_hats 含 30 且 status≠approved（新逻辑行级判定面） */
+  blocks_30_generic: boolean
   /** 判定理由（blocks_30_current=true 时 = evaluateMayStart30 reason 同形） */
   reason: string | null
 }
@@ -87,6 +89,8 @@ function verdictRow(row: HumanGate, gates: HumanGate[]): RowVerdict {
     matched_rule: matched,
     shadowed,
     blocks_30_current: blocks,
+    // A2（阶段四登记）：泛化行谓词直出 —— 有效锁为文件级 may_start_30 + 行键集，本字段仅供复核比对
+    blocks_30_generic: row.blocksHats.includes('30') && row.status !== 'approved',
     reason,
   }
 }
@@ -132,7 +136,9 @@ const snapshot = {
   meta: {
     generated_at: new Date().toISOString().slice(0, 10),
     generator: 'scripts/scan-human-gates-baseline.mts',
-    semantics: '现行白名单 3 闸逻辑（src/cli-shared.ts parseHumanGates + evaluateMayStart30 import 同口径）',
+    semantics:
+      '行 verdict = 白名单 3 闸逻辑复刻（blocks_30_current · 历史参照）+ 泛化声明式行谓词（blocks_30_generic · 阶段四 A2 新增）；' +
+      '文件级 may_start_30 = src/cli-shared.ts evaluateMayStart30 live import（重扫即新逻辑）',
     scan_dirs: SCAN_DIRS,
     criteria:
       '行 = GATE_ROW_RE 命中且 id 以 HG- 开头且不含 human_gate（parseHumanGates 采集口径 · 不含表头/分隔行）；' +
@@ -145,6 +151,10 @@ const snapshot = {
     distinct_gate_ids: [...gateIdSet].sort(),
     distinct_gate_id_count: gateIdSet.size,
     rows_blocking_30_current: blockingRows,
+    rows_blocking_30_generic: fileVerdicts.reduce(
+      (acc, f) => acc + f.rows.filter((r) => r.blocks_30_generic).length,
+      0,
+    ),
     rows_shadowed: shadowedRows,
     files_may_start_30_false: filesBlocked,
   },

@@ -51,11 +51,25 @@ export async function cmdCheck(args: string[], pkgVersion: string): Promise<void
   }
 }
 
+/**
+ * 3.0 W1 阶段四（S2.6 泛化渲染 · 验收 #6 · F-W1-13 三条红线保留：exit code 语义 / --json 键集 /
+ * 「→ 30 不可开工」文案语义）：渲染 = 既有三闸行（格式逐字保留 · 缺行占位不变）+ 全部白名单外
+ * blocks_hats 含 30 的命中行（声明序追加 · 不再只列 3 行）。阻断行：三闸既有文案逐字 + 泛化行
+ * `→ 30 不可开工: <ID> pending 且 blocks 30`（与 HG-TASK-DRAFT 同式）。
+ */
 export function formatGateCheck(taskFile: string, content: string): { text: string; blocked: boolean } {
   const gates = parseHumanGates(content)
   const draft = findGate(gates, 'HG-TASK-DRAFT')
   const audit = findGate(gates, 'HG-AUDIT-R1')
   const graph = findGate(gates, 'HG-GRAPH-MODULES')
+  // 白名单外 blocks-30 命中行（findGate 同口径前缀排除既有三闸 · 声明序）
+  const legacyMatch = (id: string): boolean => {
+    for (const prefix of ['HG-TASK-DRAFT', 'HG-AUDIT-R1', 'HG-GRAPH-MODULES']) {
+      if (id === prefix || id.startsWith(`${prefix}（`) || id.startsWith(`${prefix}(`)) return true
+    }
+    return false
+  }
+  const genericRows = gates.filter((g) => g.blocksHats.includes('30') && !legacyMatch(g.id))
   const lines: string[] = []
   lines.push(`task: ${path.basename(taskFile)}`)
   lines.push('| gate | status | blocks_30 | 30 影响 |')
@@ -74,6 +88,9 @@ export function formatGateCheck(taskFile: string, content: string): { text: stri
       `| HG-GRAPH-MODULES | ${graph.status} | — | ${graph.status === 'approved' ? '✅' : '❌ 若 pending 拒 30'} |`,
     )
   }
+  for (const g of genericRows) {
+    lines.push(`| ${g.id} | ${g.status} | ${g.blocksHats} | ${g.status === 'approved' ? '✅ 可 30' : '❌ 拒 30'} |`)
+  }
   lines.push('')
   const may = evaluateMayStart30(gates)
   let blocked = false
@@ -88,6 +105,12 @@ export function formatGateCheck(taskFile: string, content: string): { text: stri
   if (graph?.status === 'pending') {
     blocked = true
     lines.push('→ 30 不可开工: HG-GRAPH-MODULES pending')
+  }
+  for (const g of genericRows) {
+    if (g.status !== 'approved') {
+      blocked = true
+      lines.push(`→ 30 不可开工: ${g.id} pending 且 blocks 30`)
+    }
   }
   if (!blocked && !may.ok) {
     blocked = true

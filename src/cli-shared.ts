@@ -289,18 +289,23 @@ export function findGate(gates: HumanGate[], prefix: string): HumanGate | undefi
   return gates.find((g) => g.id === prefix || g.id.startsWith(`${prefix}（`) || g.id.startsWith(`${prefix}(`))
 }
 
+/**
+ * 3.0 W1 阶段四（S2.6 · HG-GENERIC · 评审文 §2.6）：白名单 3 闸 → 声明式全闸扫描 ——
+ * 任何 blocks_hats 含 30 且 status ≠ approved 的闸行 → 拒 30 并点名闸 ID（reason = `<ID> pending` 既有风格）。
+ * 保留 HG-AUDIT-R1 缺行即拒（fail-closed by absence · F-W1-05 · 缺行/非 approved 双通道）。
+ * reason 取舍口径（裁定 · fixture 钉死）：HG-AUDIT-R1 通道恒先（锚闸 · 存量最常见路径 reason 不变），
+ * 其后按声明序取首个未过的 blocks-30 闸；泛化对齐点：blocks_hats 判定一律以闸行自身 blocks 单元格为准
+ * （旧 HG-GRAPH-MODULES 特判不看 blocks 格 · 存量 232 行零此行形态 · 基线实证零误伤）。
+ */
 export function evaluateMayStart30(gates: HumanGate[]): MayStart {
   const audit = findGate(gates, 'HG-AUDIT-R1')
-  const draft = findGate(gates, 'HG-TASK-DRAFT')
-  const graph = findGate(gates, 'HG-GRAPH-MODULES')
   if (audit?.status !== 'approved') {
     return { ok: false, reason: 'HG-AUDIT-R1 pending' }
   }
-  if (draft && draft.status !== 'approved' && draft.blocksHats.includes('30')) {
-    return { ok: false, reason: 'HG-TASK-DRAFT pending' }
-  }
-  if (graph?.status === 'pending') {
-    return { ok: false, reason: 'HG-GRAPH-MODULES pending' }
+  for (const gate of gates) {
+    if (gate.blocksHats.includes('30') && gate.status !== 'approved') {
+      return { ok: false, reason: `${gate.id} pending` }
+    }
   }
   return { ok: true, reason: null }
 }
