@@ -7,6 +7,13 @@ import os from 'node:os'
 import path from 'node:path'
 import { describe, it } from 'node:test'
 import { fileURLToPath } from 'node:url'
+import { CliError } from '../src/cli-shared.ts'
+import { cmdStatus, cmdTimeline } from '../src/cli-status.ts'
+import { cmdLifecycle } from '../src/cli-lifecycle.ts'
+import { cmdGraph } from '../src/cli-graph.ts'
+import { cmdSync } from '../src/cli-sync.ts'
+import { cmdWiki } from '../src/cli-wiki.ts'
+import { cmdTaskCheck, cmdTaskLintDone, cmdTaskLintWikiDelta } from '../src/cli-task-extra.ts'
 
 const KIT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const CLI_TS = path.join(KIT, 'src', 'cli.ts')
@@ -39,6 +46,58 @@ function runCli(args: string[], cwd = KIT): RunResult {
     combined: `${stdout}\n${stderr}`,
   }
 }
+
+// E3（3.0 W0 第一批 · task_3_0_w0_refactor_prep）：spawn 型断言下沉 —— 进程内直调
+// 被测 cmd* 核心实现（零子进程），断言逐字保留。输出捕获与 exit 码映射对齐
+// bin/exitWithCliError 行为（CliError.exitCode → status · message → stderr）。
+// 标注「烟测」的用例保留 runCli spawn（bin→CLI 全链 · 每文件 ≤5 条）。
+function makeCore(fn: (args: string[]) => Promise<void>): (args: string[]) => Promise<RunResult> {
+  return async (args) => {
+    const out: string[] = []
+    const err: string[] = []
+    const origLog = console.log
+    const origError = console.error
+    const origWrite = process.stdout.write
+    console.log = (...a: unknown[]) => {
+      out.push(a.map(String).join(' '))
+    }
+    console.error = (...a: unknown[]) => {
+      err.push(a.map(String).join(' '))
+    }
+    process.stdout.write = ((chunk: unknown) => {
+      out.push(String(chunk).replace(/\n$/, ''))
+      return true
+    }) as typeof process.stdout.write
+    let status = 0
+    try {
+      await fn(args)
+    } catch (e) {
+      if (e instanceof CliError) {
+        status = e.exitCode
+        if (e.message) err.push(e.message)
+      } else {
+        throw e
+      }
+    } finally {
+      console.log = origLog
+      console.error = origError
+      process.stdout.write = origWrite
+    }
+    const stdout = out.length > 0 ? out.join('\n') + '\n' : ''
+    const stderr = err.length > 0 ? err.join('\n') + '\n' : ''
+    return { status, stdout, stderr, combined: `${stdout}\n${stderr}` }
+  }
+}
+
+const runStatus = makeCore(cmdStatus)
+const runTimeline = makeCore(cmdTimeline)
+const runLifecycle = makeCore(cmdLifecycle)
+const runGraph = makeCore(cmdGraph)
+const runSyncCmd = makeCore(cmdSync)
+const runWiki = makeCore(cmdWiki)
+const runTaskLintDone = makeCore(cmdTaskLintDone)
+const runTaskLintWikiDelta = makeCore(cmdTaskLintWikiDelta)
+const runTaskCheck = makeCore(cmdTaskCheck)
 
 async function withTemp(fn: (dir: string) => Promise<void>): Promise<void> {
   const dir = await mkdtemp(path.join(os.tmpdir(), 'dsh-ck-g1g7-'))
@@ -151,6 +210,7 @@ function listHgmFiles(dir: string): string[] {
 }
 
 describe('D1–D7 G1–G7 runtime', { concurrency: 1 }, () => {
+  // 烟测（bin→CLI 全链）
   it('D1 / G1: status --task 投影成功；--check 无 --task 非 0', async () => {
     await withTemp(async (dir) => {
       const rel = 'docs/tasks/active/task_status_ok_v1.md'
@@ -163,24 +223,26 @@ describe('D1–D7 G1–G7 runtime', { concurrency: 1 }, () => {
     })
   })
 
+  // 下沉（进程内直调 cmdTimeline）
   it('D1 / G1: timeline 无 --task 非 0；有 --task 打印时间线', async () => {
     await withTemp(async (dir) => {
       const rel = 'docs/tasks/active/task_tl_ok_v1.md'
       await writeRel(dir, rel, taskMd({ slug: 'tl_ok' }))
-      const miss = runCli(['timeline', '--target', dir])
+      const miss = await runTimeline(['--target', dir])
       assert.equal(miss.status, 1, miss.combined)
-      const ok = runCli(['timeline', '--task', rel, '--target', dir])
+      const ok = await runTimeline(['--task', rel, '--target', dir])
       assert.equal(ok.status, 0, ok.combined)
       assert.match(ok.combined, /tl_ok|timeline|events/)
     })
   })
 
+  // 下沉（进程内直调 cmdTimeline）
   it('D1b: timeline 无 --ingest 成功且不写盘', async () => {
     await withTemp(async (dir) => {
       const rel = 'docs/tasks/active/task_tl_nowrite_v1.md'
       await writeRel(dir, rel, taskMd({ slug: 'tl_nowrite' }))
       const before = listHgmFiles(dir)
-      const r = runCli(['timeline', '--task', rel, '--target', dir])
+      const r = await runTimeline(['--task', rel, '--target', dir])
       assert.equal(r.status, 0, r.combined)
       const after = listHgmFiles(dir)
       assert.deepEqual(after, before)
@@ -188,6 +250,7 @@ describe('D1–D7 G1–G7 runtime', { concurrency: 1 }, () => {
     })
   })
 
+  // 烟测（bin→CLI 全链）
   it('D2 / G2: lifecycle show / discipline show 成功；未知子命令非 0；dry-run 缺参 exit 1', () => {
     const life = runCli(['lifecycle', 'show', '--json'])
     assert.equal(life.status, 0, life.combined)
@@ -201,9 +264,9 @@ describe('D1–D7 G1–G7 runtime', { concurrency: 1 }, () => {
     assert.equal(missing.status, 1, missing.combined)
   })
 
-  it('D2b: lifecycle dry-run 合法 --transition/--from 成功 exit 0', () => {
-    const r = runCli([
-      'lifecycle',
+  // 下沉（进程内直调 cmdLifecycle）
+  it('D2b: lifecycle dry-run 合法 --transition/--from 成功 exit 0', async () => {
+    const r = await runLifecycle([
       'dry-run',
       '--transition',
       'to_00',
@@ -215,6 +278,7 @@ describe('D1–D7 G1–G7 runtime', { concurrency: 1 }, () => {
     assert.match(r.combined, /dry-run|to_00|structure_ok/)
   })
 
+  // 下沉（进程内直调 cmdLifecycle）
   it('DEF-019: lifecycle dry-run 支持 --target（--task 相对 target 解析）；缺省=cwd；未知旗标 fail-fast', async () => {
     await withTemp(async (dir) => {
       const rel = 'docs/tasks/active/task_lc_target_v1.md'
@@ -222,22 +286,22 @@ describe('D1–D7 G1–G7 runtime', { concurrency: 1 }, () => {
       // DEF-003 T3：reviews_retention 已真接线（缺 R<n> 审查文即 fail/blocked）· 补审查文保持本用例聚焦 --target 解析
       await writeRel(dir, 'docs/harness/reviews/task_lc_target_audit_R1_2026-08-20.md', '# R1 fixture\n\n## 结论\n\nPASS · 零内容阻塞（fixture）\n\n审查结论：fixture 全项合规，无阻塞遗留，准予关账。\n')
       // 带 --target：--task 相对 target 解析成功（cwd=KIT 下该相对路径不存在）
-      const withTarget = runCli([
-        'lifecycle', 'dry-run', '--transition', 'to_30', '--from', 'draft',
+      const withTarget = await runLifecycle([
+        'dry-run', '--transition', 'to_30', '--from', 'draft',
         '--task', rel, '--target', dir,
       ])
       assert.equal(withTarget.status, 0, withTarget.combined)
       assert.match(withTarget.combined, /HG-AUDIT-R1: pass/)
       // 不带 --target：cwd 下不存在该 task → 「--task 不可读」exit 1（现状语义保留）
-      const noTarget = runCli([
-        'lifecycle', 'dry-run', '--transition', 'to_30', '--from', 'draft',
+      const noTarget = await runLifecycle([
+        'dry-run', '--transition', 'to_30', '--from', 'draft',
         '--task', 'docs/tasks/active/task_lc_definitely_missing_v1.md',
       ])
       assert.equal(noTarget.status, 1, noTarget.combined)
       assert.match(noTarget.combined, /--task 不可读/)
       // 未知旗标仍 fail-fast（--target 接线不得破坏）
-      const bogus = runCli([
-        'lifecycle', 'dry-run', '--transition', 'to_30', '--from', 'draft', '--bogus',
+      const bogus = await runLifecycle([
+        'dry-run', '--transition', 'to_30', '--from', 'draft', '--bogus',
       ])
       assert.equal(bogus.status, 1, bogus.combined)
       assert.match(bogus.combined, /未知参数/)
@@ -245,6 +309,7 @@ describe('D1–D7 G1–G7 runtime', { concurrency: 1 }, () => {
     })
   })
 
+  // 烟测（bin→CLI 全链）
   it('D3 / G3: graph yaml compile/check/export；check 有 diff 非 0', async () => {
     await withTemp(async (dir) => {
       const input = path.join(dir, 'docs', '_tech_graph')
@@ -285,6 +350,7 @@ describe('D1–D7 G1–G7 runtime', { concurrency: 1 }, () => {
     })
   })
 
+  // 下沉（进程内直调 cmdGraph）
   it('D3 / G3: graph ingest --dry-run 不写盘；snapshot 写盘；axioms 可 PASS/FAIL', async () => {
     await withTemp(async (dir) => {
       await writeRel(
@@ -293,15 +359,15 @@ describe('D1–D7 G1–G7 runtime', { concurrency: 1 }, () => {
         `${JSON.stringify({ version: '1.12.1', preset: 'harness-only', ide: [], from_version: null, upgraded_at: '2026-08-16T00:00:00Z' }, null, 2)}\n`,
       )
       await writeRel(dir, 'docs/tasks/active/task_hgm_ok_v1.md', taskMd({ slug: 'hgm_ok' }))
-      const dry = runCli(['graph', 'ingest', '--target', dir, '--dry-run'])
+      const dry = await runGraph(['ingest', '--target', dir, '--dry-run'])
       assert.equal(dry.status, 0, dry.combined)
       assert.equal(existsSync(path.join(dir, '.coding-kit', 'events')), false)
 
-      const snapEmpty = runCli(['graph', 'snapshot', '--target', dir])
+      const snapEmpty = await runGraph(['snapshot', '--target', dir])
       assert.equal(snapEmpty.status, 0, snapEmpty.combined)
       assert.equal(existsSync(path.join(dir, '.coding-kit', 'graph', 'snapshot.json')), true)
 
-      const axPass = runCli(['graph', 'axioms', 'check', '--target', dir])
+      const axPass = await runGraph(['axioms', 'check', '--target', dir])
       assert.equal(axPass.status, 0, axPass.combined)
 
       await writeRel(
@@ -309,20 +375,21 @@ describe('D1–D7 G1–G7 runtime', { concurrency: 1 }, () => {
         'docs/tasks/active/task_hgm_fail_v1.md',
         taskMd({ slug: 'hgm_fail', audit: 'pending', status: 'draft' }),
       )
-      const ingest = runCli(['graph', 'ingest', '--target', dir])
+      const ingest = await runGraph(['ingest', '--target', dir])
       assert.equal(ingest.status, 0, ingest.combined)
-      const axFail = runCli(['graph', 'axioms', 'check', '--target', dir])
+      const axFail = await runGraph(['axioms', 'check', '--target', dir])
       assert.equal(axFail.status, 2, axFail.combined)
       assert.match(axFail.combined, /FAIL|violations|D2/)
     })
   })
 
+  // 下沉（进程内直调 cmdGraph / cmdTimeline）
   it('DEF-022: graph ingest 扫 harness 布局（docs/harness/tasks/active）；幂等不回归；timeline --ingest 同口径', async () => {
     // 布局一：仅 docs/harness/tasks/active 落 task（无 docs/tasks/active）
     await withTemp(async (dir) => {
       const rel = 'docs/harness/tasks/active/task_harness_ingest_v1.md'
       await writeRel(dir, rel, taskMd({ slug: 'harness_ingest' }))
-      const run1 = runCli(['graph', 'ingest', '--target', dir])
+      const run1 = await runGraph(['ingest', '--target', dir])
       assert.equal(run1.status, 0, run1.combined)
       const eventsDir = path.join(dir, '.coding-kit', 'events')
       assert.equal(existsSync(eventsDir), true, 'ingest 应写出事件轨')
@@ -337,14 +404,14 @@ describe('D1–D7 G1–G7 runtime', { concurrency: 1 }, () => {
       // 幂等回归（T4）：无变化重跑 → skipped 等于首次 count
       const count1 = Number(/新事件: (\d+)/.exec(run1.combined)?.[1] ?? -1)
       assert.ok(count1 >= 3, `首次应产生 TaskCreated + 2 道闸事件: ${run1.combined}`)
-      const run2 = runCli(['graph', 'ingest', '--target', dir])
+      const run2 = await runGraph(['ingest', '--target', dir])
       assert.equal(run2.status, 0, run2.combined)
       const skipped2 = Number(/跳过（已存在）: (\d+)/.exec(run2.combined)?.[1] ?? -1)
       assert.equal(skipped2, count1, `第二次应全量跳过: ${run2.combined}`)
       // 同 slug 撞名（§7-D2）：两目录同 task_slug → 先扫目录（docs/tasks/active）优先、后者跳过
       await writeRel(dir, 'docs/tasks/active/task_dup_slug_v1.md', taskMd({ slug: 'dup_slug' }))
       await writeRel(dir, 'docs/harness/tasks/active/task_dup_slug_v1.md', taskMd({ slug: 'dup_slug' }))
-      const run3 = runCli(['graph', 'ingest', '--target', dir])
+      const run3 = await runGraph(['ingest', '--target', dir])
       assert.equal(run3.status, 0, run3.combined)
       const jsonlAll = readdirSync(eventsDir)
         .filter((n) => n.endsWith('.jsonl'))
@@ -360,7 +427,7 @@ describe('D1–D7 G1–G7 runtime', { concurrency: 1 }, () => {
     await withTemp(async (dir) => {
       const rel = 'docs/harness/tasks/active/task_harness_tl_v1.md'
       await writeRel(dir, rel, taskMd({ slug: 'harness_tl' }))
-      const tl = runCli(['timeline', '--task', rel, '--target', dir, '--ingest', '--json'])
+      const tl = await runTimeline(['--task', rel, '--target', dir, '--ingest', '--json'])
       assert.equal(tl.status, 0, tl.combined)
       const payload = JSON.parse(tl.stdout) as {
         ingest: { count: number; skipped: number } | null
@@ -371,6 +438,7 @@ describe('D1–D7 G1–G7 runtime', { concurrency: 1 }, () => {
     })
   })
 
+  // 下沉（进程内直调 cmdSync）
   it('D4 / G4: sync index 写出 index；S2 哈希不变', async () => {
     await withTemp(async (dir) => {
       const hashes: Record<string, string> = {}
@@ -383,7 +451,7 @@ describe('D1–D7 G1–G7 runtime', { concurrency: 1 }, () => {
         'docs/harness/invokes/by-task/sync_ok/invoke_20260816_30_sync_ok.md',
         '# invoke fixture\n',
       )
-      const r = runCli(['sync', 'index', '--target', dir])
+      const r = await runSyncCmd(['index', '--target', dir])
       assert.equal(r.status, 0, r.combined)
       const indexPath = path.join(dir, '.coding-kit', 'invoke_index.json')
       assert.equal(existsSync(indexPath), true)
@@ -397,6 +465,7 @@ describe('D1–D7 G1–G7 runtime', { concurrency: 1 }, () => {
     })
   })
 
+  // 烟测（bin→CLI 全链）
   it('D5 / G5: skills check 无 drift → 0；人为 drift → exit 2；build 不写消费者 S2', async () => {
     const pass = runCli(['skills', 'check'])
     assert.equal(pass.status, 0, pass.combined)
@@ -429,6 +498,7 @@ describe('D1–D7 G1–G7 runtime', { concurrency: 1 }, () => {
     })
   })
 
+  // 烟测（bin→CLI 全链）
   it('D6 / G6: wiki export --json 成功；无根 exit 2；缺 --json exit 1', async () => {
     await withTemp(async (dir) => {
       await writeRel(dir, 'docs/coding_wiki/home.md', '# Home\n\nSee [[page]].\n')
@@ -445,10 +515,11 @@ describe('D1–D7 G1–G7 runtime', { concurrency: 1 }, () => {
     })
   })
 
+  // 下沉（进程内直调 cmdTaskLintDone / cmdTaskLintWikiDelta / cmdTaskCheck）
   it('D7 / G7: task lint-done / lint-wiki-delta / check 各一条 FAIL + PASS', async () => {
     await withTemp(async (dir) => {
       await writeRel(dir, 'docs/tasks/done/task_missing_invoke_v1.md', taskMd({ slug: 'missing_invoke' }))
-      const lintFail = runCli(['task', 'lint-done', '--target', dir])
+      const lintFail = await runTaskLintDone(['--target', dir])
       assert.equal(lintFail.status, 2, lintFail.combined)
       assert.match(lintFail.combined, /LINT-DONE: FAIL/)
 
@@ -460,14 +531,14 @@ describe('D1–D7 G1–G7 runtime', { concurrency: 1 }, () => {
       // 2.3-W4 帽级：default required=10,30,40 → 补 10/40 两帽才达 PASS
       await writeRel(dir, 'docs/harness/invokes/by-task/missing-invoke/invoke_20260815_10_x.md', '# invoke 10\n')
       await writeRel(dir, 'docs/harness/invokes/by-task/missing-invoke/invoke_20260817_40_x.md', '# invoke 40\n')
-      const lintPass = runCli(['task', 'lint-done', '--target', dir])
+      const lintPass = await runTaskLintDone(['--target', dir])
       assert.equal(lintPass.status, 0, lintPass.combined)
       assert.match(lintPass.combined, /LINT-DONE: PASS/)
     })
 
     await withTemp(async (dir) => {
       await writeRel(dir, 'docs/tasks/active/task_wiki_gap_v1.md', taskMd({ slug: 'wiki_gap' }))
-      const wikiFail = runCli(['task', 'lint-wiki-delta', '--target', dir])
+      const wikiFail = await runTaskLintWikiDelta(['--target', dir])
       assert.equal(wikiFail.status, 2, wikiFail.combined)
       assert.match(wikiFail.combined, /LINT-WIKI-DELTA: FAIL/)
 
@@ -477,7 +548,7 @@ describe('D1–D7 G1–G7 runtime', { concurrency: 1 }, () => {
         taskMd({ slug: 'wiki_ok', wikiDelta: 'none' }),
       )
       await rm(path.join(dir, 'docs/tasks/active/task_wiki_gap_v1.md'), { force: true })
-      const wikiPass = runCli(['task', 'lint-wiki-delta', '--target', dir])
+      const wikiPass = await runTaskLintWikiDelta(['--target', dir])
       assert.equal(wikiPass.status, 0, wikiPass.combined)
       assert.match(wikiPass.combined, /LINT-WIKI-DELTA: PASS/)
     })
@@ -497,18 +568,19 @@ describe('D1–D7 G1–G7 runtime', { concurrency: 1 }, () => {
         )}\n`,
         'utf8',
       )
-      const checkOk = runCli(['task', 'check', '--file', good])
+      const checkOk = await runTaskCheck(['--file', good])
       assert.equal(checkOk.status, 0, checkOk.combined)
       assert.match(checkOk.combined, /schema: OK/)
 
       const bad = path.join(dir, 'bad.harness.json')
       await writeFile(bad, `${JSON.stringify({ schema_version: '9' }, null, 2)}\n`, 'utf8')
-      const checkFail = runCli(['task', 'check', '--file', bad])
+      const checkFail = await runTaskCheck(['--file', bad])
       assert.notEqual(checkFail.status, 0, checkFail.combined)
       assert.match(checkFail.combined, /schema: FAIL/)
     })
   })
 
+  // 下沉（进程内直调 cmdTaskLintWikiDelta）
   it('G7-strict: wiki_delta 非法值 / 悬空 path 仅 --strict 档报缺口（DEF-021 完成态 A）', async () => {
     // 非法值（todo）：默认档 PASS（字段存在即过），--strict 档 exit 2 + wiki_delta_invalid
     await withTemp(async (dir) => {
@@ -517,9 +589,9 @@ describe('D1–D7 G1–G7 runtime', { concurrency: 1 }, () => {
         'docs/tasks/active/task_wiki_bad_value_v1.md',
         taskMd({ slug: 'wiki_bad_value', wikiDelta: 'todo' }),
       )
-      const def = runCli(['task', 'lint-wiki-delta', '--target', dir])
+      const def = await runTaskLintWikiDelta(['--target', dir])
       assert.equal(def.status, 0, def.combined)
-      const strict = runCli(['task', 'lint-wiki-delta', '--target', dir, '--strict'])
+      const strict = await runTaskLintWikiDelta(['--target', dir, '--strict'])
       assert.equal(strict.status, 2, strict.combined)
       assert.match(strict.combined, /wiki_delta_invalid/)
     })
@@ -531,9 +603,9 @@ describe('D1–D7 G1–G7 runtime', { concurrency: 1 }, () => {
         'docs/tasks/active/task_wiki_dangling_v1.md',
         taskMd({ slug: 'wiki_dangling', wikiDelta: 'docs/coding_wiki/not_here.md' }),
       )
-      const def = runCli(['task', 'lint-wiki-delta', '--target', dir])
+      const def = await runTaskLintWikiDelta(['--target', dir])
       assert.equal(def.status, 0, def.combined)
-      const strict = runCli(['task', 'lint-wiki-delta', '--target', dir, '--strict'])
+      const strict = await runTaskLintWikiDelta(['--target', dir, '--strict'])
       assert.equal(strict.status, 2, strict.combined)
       assert.match(strict.combined, /wiki_delta_path_missing/)
     })
@@ -556,7 +628,7 @@ describe('D1–D7 G1–G7 runtime', { concurrency: 1 }, () => {
         'docs/tasks/done/task_wiki_na_v1.md',
         taskMd({ slug: 'wiki_na_ok', wikiDelta: 'n/a' }),
       )
-      const strict = runCli(['task', 'lint-wiki-delta', '--target', dir, '--strict'])
+      const strict = await runTaskLintWikiDelta(['--target', dir, '--strict'])
       assert.equal(strict.status, 0, strict.combined)
       assert.match(strict.combined, /LINT-WIKI-DELTA: PASS/)
     })

@@ -6,6 +6,10 @@ import os from 'node:os'
 import path from 'node:path'
 import { describe, it } from 'node:test'
 import { fileURLToPath } from 'node:url'
+import { CliError } from '../src/cli-shared.ts'
+import { cmdRefreshIdeBlocks } from '../src/cli-refresh-ide-blocks.ts'
+import { cmdUpgrade } from '../src/cli/init.ts'
+import { readPkgVersion } from '../src/cli/usage.ts'
 
 // R-07：refresh-ide-blocks 子命令测试矩阵 M01–M19
 // SPEC: docs/spec/self-tech-graph/reference/POINTERS.md#R07
@@ -33,6 +37,51 @@ function runCli(args: string[], cwd: string): RunResult {
     combined: `${r.stdout ?? ''}\n${r.stderr ?? ''}`,
   }
 }
+
+// E3（3.0 W0 第一批 · task_3_0_w0_refactor_prep）：spawn 型断言下沉 —— 进程内直调
+// 被测 cmd* 核心实现（零子进程），断言逐字保留。输出捕获与 exit 码映射对齐
+// bin/exitWithCliError 行为（CliError.exitCode → status · message → stderr）。
+// 标注「烟测」的用例保留 runCli spawn（bin→CLI 全链 · 每文件 ≤5 条）。
+function makeCore(fn: (args: string[]) => Promise<void>): (args: string[]) => Promise<RunResult> {
+  return async (args) => {
+    const out: string[] = []
+    const err: string[] = []
+    const origLog = console.log
+    const origError = console.error
+    const origWrite = process.stdout.write
+    console.log = (...a: unknown[]) => {
+      out.push(a.map(String).join(' '))
+    }
+    console.error = (...a: unknown[]) => {
+      err.push(a.map(String).join(' '))
+    }
+    process.stdout.write = ((chunk: unknown) => {
+      out.push(String(chunk).replace(/\n$/, ''))
+      return true
+    }) as typeof process.stdout.write
+    let status = 0
+    try {
+      await fn(args)
+    } catch (e) {
+      if (e instanceof CliError) {
+        status = e.exitCode
+        if (e.message) err.push(e.message)
+      } else {
+        throw e
+      }
+    } finally {
+      console.log = origLog
+      console.error = origError
+      process.stdout.write = origWrite
+    }
+    const stdout = out.length > 0 ? out.join('\n') + '\n' : ''
+    const stderr = err.length > 0 ? err.join('\n') + '\n' : ''
+    return { status, stdout, stderr, combined: `${stdout}\n${stderr}` }
+  }
+}
+
+const runRefresh = makeCore(cmdRefreshIdeBlocks)
+const runUpgrade = makeCore(async (args) => cmdUpgrade(args, await readPkgVersion()))
 
 async function withTemp(fn: (dir: string) => Promise<void>): Promise<void> {
   const dir = await mkdtemp(path.join(os.tmpdir(), 'dsh-ck-r07-'))
@@ -82,6 +131,7 @@ const M01_BODY = [
 ].join('\n')
 
 describe('R-07 refresh-ide-blocks', { concurrency: 1 }, () => {
+  // 烟测（bin→CLI 全链）
   it('M01: 基本替换 — 块内 A1 归零、块外同字面字节不变', async () => {
     await withTemp(async (dir) => {
       await writeRel(dir, 'AGENTS.md', M01_BODY)
@@ -97,13 +147,14 @@ describe('R-07 refresh-ide-blocks', { concurrency: 1 }, () => {
     })
   })
 
+  // 下沉（进程内直调 cmdRefreshIdeBlocks）
   it('M02: 幂等重跑 — 第二次 files_written=0、字节不变、exit 0', async () => {
     await withTemp(async (dir) => {
       await writeRel(dir, 'AGENTS.md', M01_BODY)
-      const r1 = runCli(['refresh-ide-blocks', '--yes', '--target', dir], dir)
+      const r1 = await runRefresh(['--yes', '--target', dir])
       assert.equal(r1.status, 0, r1.combined)
       const after1 = await readFile(path.join(dir, 'AGENTS.md'), 'utf8')
-      const r2 = runCli(['refresh-ide-blocks', '--yes', '--json', '--target', dir], dir)
+      const r2 = await runRefresh(['--yes', '--json', '--target', dir])
       assert.equal(r2.status, 0, r2.combined)
       const report = parseJson(r2.stdout)
       const totals = report.totals as { files_written: number }
@@ -113,6 +164,7 @@ describe('R-07 refresh-ide-blocks', { concurrency: 1 }, () => {
     })
   })
 
+  // 烟测（bin→CLI 全链）
   it('M03: dry-run 默认 — 零写入、报告含计划、exit 0；显式 --dry-run 同效', async () => {
     await withTemp(async (dir) => {
       await writeRel(dir, 'AGENTS.md', M01_BODY)
@@ -128,20 +180,22 @@ describe('R-07 refresh-ide-blocks', { concurrency: 1 }, () => {
     })
   })
 
+  // 下沉（进程内直调 cmdRefreshIdeBlocks）
   it('M04: 旗标冲突 — --yes 与 --dry-run 同现 exit 1', async () => {
     await withTemp(async (dir) => {
       await writeRel(dir, 'AGENTS.md', M01_BODY)
-      const r = runCli(['refresh-ide-blocks', '--yes', '--dry-run', '--target', dir], dir)
+      const r = await runRefresh(['--yes', '--dry-run', '--target', dir])
       assert.equal(r.status, 1, r.combined)
       assert.equal(await readFile(path.join(dir, 'AGENTS.md'), 'utf8'), M01_BODY)
     })
   })
 
+  // 下沉（进程内直调 cmdRefreshIdeBlocks）
   it('M05: 无 marker 文件 — blocks=0、不写、exit 0', async () => {
     await withTemp(async (dir) => {
       const body = '# plain AGENTS\n无 marker。\n'
       await writeRel(dir, 'AGENTS.md', body)
-      const r = runCli(['refresh-ide-blocks', '--json', '--target', dir], dir)
+      const r = await runRefresh(['--json', '--target', dir])
       assert.equal(r.status, 0, r.combined)
       const report = parseJson(r.stdout)
       const files = report.files as Array<{ path: string; blocks: number }>
@@ -152,9 +206,10 @@ describe('R-07 refresh-ide-blocks', { concurrency: 1 }, () => {
     })
   })
 
+  // 下沉（进程内直调 cmdRefreshIdeBlocks）
   it('M06: 发现面为空 — files_scanned=0、exit 0', async () => {
     await withTemp(async (dir) => {
-      const r = runCli(['refresh-ide-blocks', '--json', '--target', dir], dir)
+      const r = await runRefresh(['--json', '--target', dir])
       assert.equal(r.status, 0, r.combined)
       const report = parseJson(r.stdout)
       const totals = report.totals as { files_scanned: number }
@@ -162,6 +217,7 @@ describe('R-07 refresh-ide-blocks', { concurrency: 1 }, () => {
     })
   })
 
+  // 下沉（进程内直调 cmdRefreshIdeBlocks）
   it('M07: 多块同文件 — 两个 product 块均处理、计数正确', async () => {
     await withTemp(async (dir) => {
       const body = [
@@ -175,13 +231,13 @@ describe('R-07 refresh-ide-blocks', { concurrency: 1 }, () => {
         '',
       ].join('\n')
       await writeRel(dir, 'AGENTS.md', body)
-      const r = runCli(['refresh-ide-blocks', '--json', '--target', dir], dir)
+      const r = await runRefresh(['--json', '--target', dir])
       assert.equal(r.status, 0, r.combined)
       const report = parseJson(r.stdout)
       const totals = report.totals as { product_blocks: number; rewrites: number }
       assert.equal(totals.product_blocks, 2, r.stdout)
       assert.equal(totals.rewrites, 2, r.stdout)
-      const ry = runCli(['refresh-ide-blocks', '--yes', '--target', dir], dir)
+      const ry = await runRefresh(['--yes', '--target', dir])
       assert.equal(ry.status, 0, ry.combined)
       const now = await readFile(path.join(dir, 'AGENTS.md'), 'utf8')
       assert.ok(now.includes('npx spec-wave verify') && now.includes('npx spec-wave audit'))
@@ -189,6 +245,7 @@ describe('R-07 refresh-ide-blocks', { concurrency: 1 }, () => {
     })
   })
 
+  // 烟测（bin→CLI 全链）
   it('M08: 畸形三子例 — 嵌套 begin / begin 无 end / end 无 begin → 整文件 MALFORMED', async () => {
     const cases: Array<[string, string]> = [
       ['nested_begin', [PB, 'a', PB, 'b', PE, ''].join('\n')],
@@ -209,6 +266,7 @@ describe('R-07 refresh-ide-blocks', { concurrency: 1 }, () => {
     }
   })
 
+  // 下沉（进程内直调 cmdRefreshIdeBlocks）
   it('M09: local 块跳过 — local 内旧字面不动、skipped_local_blocks=1', async () => {
     await withTemp(async (dir) => {
       const body = [
@@ -222,7 +280,7 @@ describe('R-07 refresh-ide-blocks', { concurrency: 1 }, () => {
         '',
       ].join('\n')
       await writeRel(dir, 'AGENTS.md', body)
-      const r = runCli(['refresh-ide-blocks', '--yes', '--json', '--target', dir], dir)
+      const r = await runRefresh(['--yes', '--json', '--target', dir])
       assert.equal(r.status, 0, r.combined)
       const report = parseJson(r.stdout)
       const files = report.files as Array<{ skipped_local_blocks: number }>
@@ -233,30 +291,33 @@ describe('R-07 refresh-ide-blocks', { concurrency: 1 }, () => {
     })
   })
 
+  // 下沉（进程内直调 cmdRefreshIdeBlocks）
   it('M10: local 嵌套在 product 块内 → MALFORMED、--yes exit 2 零写入', async () => {
     await withTemp(async (dir) => {
       const body = [PB, `- \`npx @cyning/harness verify\``, LB, 'x', LE, PE, ''].join('\n')
       await writeRel(dir, 'AGENTS.md', body)
-      const ry = runCli(['refresh-ide-blocks', '--yes', '--target', dir], dir)
+      const ry = await runRefresh(['--yes', '--target', dir])
       assert.equal(ry.status, 2, ry.combined)
       assert.equal(await readFile(path.join(dir, 'AGENTS.md'), 'utf8'), body, '零写入')
-      const rd = runCli(['refresh-ide-blocks', '--target', dir], dir)
+      const rd = await runRefresh(['--target', dir])
       assert.equal(rd.status, 0, rd.combined)
       assert.match(rd.combined, /malformed/i)
     })
   })
 
+  // 下沉（进程内直调 cmdRefreshIdeBlocks）
   it('M11: S2 断言闸 — --target 落在 docs/tasks 内 → exit 2、零写入', async () => {
     await withTemp(async (dir) => {
       const body = [PB, `- \`npx @cyning/harness verify\``, PE, ''].join('\n')
       await writeRel(dir, 'docs/tasks/x/AGENTS.md', body)
       const target = path.join(dir, 'docs', 'tasks', 'x')
-      const r = runCli(['refresh-ide-blocks', '--yes', '--target', target], dir)
+      const r = await runRefresh(['--yes', '--target', target])
       assert.equal(r.status, 2, r.combined)
       assert.equal(await readFile(path.join(target, 'AGENTS.md'), 'utf8'), body, '零写入')
     })
   })
 
+  // 烟测（bin→CLI 全链）
   it('M12: 脏树 fail-fast — git 仓 + 未提交变更 + --yes → exit 2、零写入、无备份', async () => {
     await withTemp(async (dir) => {
       await writeRel(dir, 'AGENTS.md', '# clean\n')
@@ -271,21 +332,23 @@ describe('R-07 refresh-ide-blocks', { concurrency: 1 }, () => {
     })
   })
 
+  // 下沉（进程内直调 cmdRefreshIdeBlocks）
   it('M13: 非 git target — --yes 可写、git=none、stdout 含警告行', async () => {
     await withTemp(async (dir) => {
       await writeRel(dir, 'AGENTS.md', M01_BODY)
-      const r = runCli(['refresh-ide-blocks', '--yes', '--target', dir], dir)
+      const r = await runRefresh(['--yes', '--target', dir])
       assert.equal(r.status, 0, r.combined)
       assert.match(r.combined, /非 git|git: none/i)
       const now = await readFile(path.join(dir, 'AGENTS.md'), 'utf8')
       assert.ok(now.includes('npx spec-wave verify'), '非 git 仓仍可写')
-      const rj = runCli(['refresh-ide-blocks', '--dry-run', '--json', '--target', dir], dir)
+      const rj = await runRefresh(['--dry-run', '--json', '--target', dir])
       assert.equal(rj.status, 0, rj.combined)
       const report = parseJson(rj.stdout)
       assert.equal(report.git, 'none', rj.stdout)
     })
   })
 
+  // 下沉（进程内直调 cmdRefreshIdeBlocks）
   it('M14: 多版本混杂 MIXED — --yes exit 2 零写入；dry-run exit 0 报告 mixed', async () => {
     await withTemp(async (dir) => {
       const body = [
@@ -296,10 +359,10 @@ describe('R-07 refresh-ide-blocks', { concurrency: 1 }, () => {
         '',
       ].join('\n')
       await writeRel(dir, 'AGENTS.md', body)
-      const ry = runCli(['refresh-ide-blocks', '--yes', '--target', dir], dir)
+      const ry = await runRefresh(['--yes', '--target', dir])
       assert.equal(ry.status, 2, ry.combined)
       assert.equal(await readFile(path.join(dir, 'AGENTS.md'), 'utf8'), body, '零写入')
-      const rd = runCli(['refresh-ide-blocks', '--json', '--target', dir], dir)
+      const rd = await runRefresh(['--json', '--target', dir])
       assert.equal(rd.status, 0, rd.combined)
       const report = parseJson(rd.stdout)
       const files = report.files as Array<{ status: string }>
@@ -307,6 +370,7 @@ describe('R-07 refresh-ide-blocks', { concurrency: 1 }, () => {
     })
   })
 
+  // 下沉（进程内直调 cmdRefreshIdeBlocks）
   it('M15: 多 IDE 文件 — AGENTS/CLAUDE/.mdc 同 target；.mdc 无块恒 no-op', async () => {
     await withTemp(async (dir) => {
       const block = [PB, `- \`npx @cyning/harness verify\``, PE, ''].join('\n')
@@ -314,7 +378,7 @@ describe('R-07 refresh-ide-blocks', { concurrency: 1 }, () => {
       await writeRel(dir, 'AGENTS.md', block)
       await writeRel(dir, 'CLAUDE.md', block)
       await writeRel(dir, '.cursor/rules/x.mdc', mdc)
-      const r = runCli(['refresh-ide-blocks', '--yes', '--json', '--target', dir], dir)
+      const r = await runRefresh(['--yes', '--json', '--target', dir])
       assert.equal(r.status, 0, r.combined)
       const report = parseJson(r.stdout)
       const totals = report.totals as { files_scanned: number; files_written: number }
@@ -326,6 +390,7 @@ describe('R-07 refresh-ide-blocks', { concurrency: 1 }, () => {
     })
   })
 
+  // 下沉（进程内直调 cmdRefreshIdeBlocks）
   it('M16: 映射表全覆盖 — A1–A4 全替换（A2/A3 丢钉版）、B1–B5 仅计数不替换', async () => {
     await withTemp(async (dir) => {
       const body = [
@@ -343,7 +408,7 @@ describe('R-07 refresh-ide-blocks', { concurrency: 1 }, () => {
         '',
       ].join('\n')
       await writeRel(dir, 'AGENTS.md', body)
-      const rd = runCli(['refresh-ide-blocks', '--dry-run', '--json', '--target', dir], dir)
+      const rd = await runRefresh(['--dry-run', '--json', '--target', dir])
       assert.equal(rd.status, 0, rd.combined)
       assert.equal(await readFile(path.join(dir, 'AGENTS.md'), 'utf8'), body, 'dry-run 零写入')
       const report = parseJson(rd.stdout)
@@ -361,7 +426,7 @@ describe('R-07 refresh-ide-blocks', { concurrency: 1 }, () => {
       assert.equal(rw.A4?.count, 1, rd.stdout)
       const ro = Object.fromEntries(f.report_only.map((x) => [x.rule, x.count]))
       for (const b of ['B1', 'B2', 'B3', 'B4', 'B5']) assert.ok((ro[b] ?? 0) >= 1, `${b} 须计数: ${rd.stdout}`)
-      const ry = runCli(['refresh-ide-blocks', '--yes', '--target', dir], dir)
+      const ry = await runRefresh(['--yes', '--target', dir])
       assert.equal(ry.status, 0, ry.combined)
       const now = await readFile(path.join(dir, 'AGENTS.md'), 'utf8')
       assert.ok(now.includes('npx spec-wave verify --target .'), 'A1 替换')
@@ -379,11 +444,12 @@ describe('R-07 refresh-ide-blocks', { concurrency: 1 }, () => {
     })
   })
 
+  // 下沉（进程内直调 cmdRefreshIdeBlocks）
   it('M17: A4 防二刷 — 已含 npx spec-wave skills build 不误命中', async () => {
     await withTemp(async (dir) => {
       const body = [PB, `- \`npx spec-wave skills build\``, PE, ''].join('\n')
       await writeRel(dir, 'AGENTS.md', body)
-      const r = runCli(['refresh-ide-blocks', '--yes', '--json', '--target', dir], dir)
+      const r = await runRefresh(['--yes', '--json', '--target', dir])
       assert.equal(r.status, 0, r.combined)
       const report = parseJson(r.stdout)
       const totals = report.totals as { rewrites: number; files_written: number }
@@ -393,6 +459,7 @@ describe('R-07 refresh-ide-blocks', { concurrency: 1 }, () => {
     })
   })
 
+  // 下沉（进程内直调 cmdRefreshIdeBlocks）
   it('M17b: B-REFRESH A5–A7 — npx dsh-coding-kit[@pin|/--yes] → npx spec-wave', async () => {
     await withTemp(async (dir) => {
       const body = [
@@ -404,7 +471,7 @@ describe('R-07 refresh-ide-blocks', { concurrency: 1 }, () => {
         '',
       ].join('\n')
       await writeRel(dir, 'AGENTS.md', body)
-      const rd = runCli(['refresh-ide-blocks', '--dry-run', '--json', '--target', dir], dir)
+      const rd = await runRefresh(['--dry-run', '--json', '--target', dir])
       assert.equal(rd.status, 0, rd.combined)
       const report = parseJson(rd.stdout)
       const f = (report.files as Array<{
@@ -417,7 +484,7 @@ describe('R-07 refresh-ide-blocks', { concurrency: 1 }, () => {
       assert.equal(rw.A6?.dropped_pin, true, rd.stdout)
       assert.equal(rw.A7?.count, 1, rd.stdout)
       assert.equal(rw.A7?.dropped_pin, true, rd.stdout)
-      const ry = runCli(['refresh-ide-blocks', '--yes', '--target', dir], dir)
+      const ry = await runRefresh(['--yes', '--target', dir])
       assert.equal(ry.status, 0, ry.combined)
       const now = await readFile(path.join(dir, 'AGENTS.md'), 'utf8')
       assert.ok(now.includes('npx spec-wave verify'), 'A5')
@@ -428,6 +495,7 @@ describe('R-07 refresh-ide-blocks', { concurrency: 1 }, () => {
     })
   })
 
+  // 下沉（进程内直调 cmdRefreshIdeBlocks）
   it('M17c: A8 — npx specgate[@pin|/--yes] → npx spec-wave（钉版丢弃）', async () => {
     await withTemp(async (dir) => {
       const body = [
@@ -439,7 +507,7 @@ describe('R-07 refresh-ide-blocks', { concurrency: 1 }, () => {
         '',
       ].join('\n')
       await writeRel(dir, 'AGENTS.md', body)
-      const rd = runCli(['refresh-ide-blocks', '--dry-run', '--json', '--target', dir], dir)
+      const rd = await runRefresh(['--dry-run', '--json', '--target', dir])
       assert.equal(rd.status, 0, rd.combined)
       const report = parseJson(rd.stdout)
       const f = (report.files as Array<{
@@ -449,7 +517,7 @@ describe('R-07 refresh-ide-blocks', { concurrency: 1 }, () => {
       const rw = Object.fromEntries(f.rewrites.map((x) => [x.rule, x]))
       assert.equal(rw.A8?.count, 3, rd.stdout)
       assert.equal(rw.A8?.dropped_pin, true, rd.stdout)
-      const ry = runCli(['refresh-ide-blocks', '--yes', '--target', dir], dir)
+      const ry = await runRefresh(['--yes', '--target', dir])
       assert.equal(ry.status, 0, ry.combined)
       const now = await readFile(path.join(dir, 'AGENTS.md'), 'utf8')
       assert.ok(now.includes('npx spec-wave verify'), 'A8 plain')
@@ -460,6 +528,7 @@ describe('R-07 refresh-ide-blocks', { concurrency: 1 }, () => {
     })
   })
 
+  // 烟测（bin→CLI 全链）
   it('M18: 报告与 exit 码 — 人类表字段齐全、--json 合 §5.4 schema', async () => {
     await withTemp(async (dir) => {
       await writeRel(dir, 'AGENTS.md', M01_BODY)
@@ -490,6 +559,7 @@ describe('R-07 refresh-ide-blocks', { concurrency: 1 }, () => {
     })
   })
 
+  // 下沉（进程内直调 cmdUpgrade）
   it('M19a: upgrade 内嵌提示 — stdout 含提示行、IDE 文件字节不变、exit 码不变', async () => {
     await withTemp(async (dir) => {
       await writeRel(
@@ -498,7 +568,7 @@ describe('R-07 refresh-ide-blocks', { concurrency: 1 }, () => {
         `${JSON.stringify({ version: '1.2.0', preset: 'harness-only', ide: [], from_version: null, upgraded_at: '2026-08-16T00:00:00Z' }, null, 2)}\n`,
       )
       await writeRel(dir, 'AGENTS.md', M01_BODY)
-      const r = runCli(['upgrade', '--yes', '--target', dir], dir)
+      const r = await runUpgrade(['--yes', '--target', dir])
       assert.equal(r.status, 0, r.combined)
       assert.match(r.combined, /refresh-ide-blocks --yes/, 'upgrade 后须含提示行')
       assert.match(r.combined, /检测到 \d+ 处 IDE 块内旧命令字面/)
@@ -508,13 +578,14 @@ describe('R-07 refresh-ide-blocks', { concurrency: 1 }, () => {
     })
   })
 
+  // 下沉（进程内直调 cmdRefreshIdeBlocks）
   it('M19b: 备份与回滚 — 备份字节等于改前、恢复后等于原始、保留 5 代', async () => {
     await withTemp(async (dir) => {
       await writeRel(dir, 'AGENTS.md', M01_BODY)
       const backupsRoot = path.join(dir, '.coding-kit', 'backups', 'refresh-ide-blocks')
       const blockLine = (n: number) => [PB, `- 第${n}轮 \`npx @cyning/harness verify\``, PE, ''].join('\n')
       // 首轮：M01_BODY → 备份须等于 M01_BODY
-      const r1 = runCli(['refresh-ide-blocks', '--yes', '--target', dir], dir)
+      const r1 = await runRefresh(['--yes', '--target', dir])
       assert.equal(r1.status, 0, r1.combined)
       let gens = readdirSync(backupsRoot)
       assert.equal(gens.length, 1, '须有一代备份')
@@ -526,7 +597,7 @@ describe('R-07 refresh-ide-blocks', { concurrency: 1 }, () => {
       // 5 代保留：再造 5 轮变更 → 总计 6 代 → 清理为 5
       for (let i = 0; i < 5; i++) {
         await writeRel(dir, 'AGENTS.md', blockLine(i))
-        const r = runCli(['refresh-ide-blocks', '--yes', '--target', dir], dir)
+        const r = await runRefresh(['--yes', '--target', dir])
         assert.equal(r.status, 0, r.combined)
       }
       gens = readdirSync(backupsRoot)
@@ -538,11 +609,12 @@ describe('R-07 refresh-ide-blocks', { concurrency: 1 }, () => {
 describe('DEF-029 无 marker 文件旧字面仅报告（plain_mentions · 只读扫描 · 绝不改写）', { concurrency: 1 }, () => {
   const PLAIN_BODY = '# 05-harness-starter\n\n- 运行 `npx @cyning/harness verify --target .`\n'
 
+  // 下沉（进程内直调 cmdRefreshIdeBlocks）
   it('D29-1: 无 marker .mdc 含 npx @cyning/harness → plain_mentions 命中 A1、schema 仍 @1、文件字节不变、exit 0', async () => {
     await withTemp(async (dir) => {
       const rel = '.cursor/rules/05-harness-starter.mdc'
       await writeRel(dir, rel, PLAIN_BODY)
-      const r = runCli(['refresh-ide-blocks', '--json', '--target', dir], dir)
+      const r = await runRefresh(['--json', '--target', dir])
       assert.equal(r.status, 0, r.combined)
       const report = parseJson(r.stdout)
       assert.equal(report.schema, 'dsh-coding-kit/refresh-ide-blocks-report@1', 'schema 保持 @1 向后兼容增量')
@@ -555,15 +627,16 @@ describe('DEF-029 无 marker 文件旧字面仅报告（plain_mentions · 只读
     })
   })
 
+  // 下沉（进程内直调 cmdRefreshIdeBlocks）
   it('D29-2: 人类报告含「无 marker 检出（仅报告，不刷写）」段；dry-run 与 --yes 均报告且零写入', async () => {
     await withTemp(async (dir) => {
       const rel = '.cursor/rules/05-harness-starter.mdc'
       await writeRel(dir, rel, PLAIN_BODY)
-      const rd = runCli(['refresh-ide-blocks', '--target', dir], dir)
+      const rd = await runRefresh(['--target', dir])
       assert.equal(rd.status, 0, rd.combined)
       assert.match(rd.combined, /无 marker 检出（仅报告，不刷写）/, rd.combined)
       assert.ok(rd.combined.includes(rel), rd.combined)
-      const ry = runCli(['refresh-ide-blocks', '--yes', '--target', dir], dir)
+      const ry = await runRefresh(['--yes', '--target', dir])
       assert.equal(ry.status, 0, ry.combined)
       assert.match(ry.combined, /无 marker 检出（仅报告，不刷写）/, ry.combined)
       assert.equal(await readFile(path.join(dir, rel), 'utf8'), PLAIN_BODY, '--yes 下无 marker 文件仍零写入')
@@ -571,11 +644,12 @@ describe('DEF-029 无 marker 文件旧字面仅报告（plain_mentions · 只读
     })
   })
 
+  // 下沉（进程内直调 cmdRefreshIdeBlocks）
   it('D29-3: A4 防二刷同适用 — 已迁移行 npx spec-wave skills check 不报；裸 harness skills build 报 A4', async () => {
     await withTemp(async (dir) => {
       await writeRel(dir, 'AGENTS.md', '# a\n\n- `npx spec-wave skills check`\n')
       await writeRel(dir, 'CLAUDE.md', '# c\n\n- `harness skills build`\n')
-      const r = runCli(['refresh-ide-blocks', '--json', '--target', dir], dir)
+      const r = await runRefresh(['--json', '--target', dir])
       assert.equal(r.status, 0, r.combined)
       const report = parseJson(r.stdout)
       const plains = report.plain_mentions as Array<{ path: string; rule: string; count: number }>
@@ -591,11 +665,12 @@ describe('DEF-029 无 marker 文件旧字面仅报告（plain_mentions · 只读
     })
   })
 
+  // 下沉（进程内直调 cmdRefreshIdeBlocks）
   it('D29-4: 有 product 块文件不进 plain_mentions（块扫描口径不变）；B5 散文引用命中仅报告', async () => {
     await withTemp(async (dir) => {
       await writeRel(dir, 'AGENTS.md', M01_BODY)
       await writeRel(dir, 'CLAUDE.md', '# c\n\n散文引用 @cyning/harness 包名。\n')
-      const r = runCli(['refresh-ide-blocks', '--json', '--target', dir], dir)
+      const r = await runRefresh(['--json', '--target', dir])
       assert.equal(r.status, 0, r.combined)
       const report = parseJson(r.stdout)
       const plains = report.plain_mentions as Array<{ path: string; rule: string; count: number }>
@@ -610,12 +685,13 @@ describe('DEF-029 无 marker 文件旧字面仅报告（plain_mentions · 只读
     })
   })
 
+  // 下沉（进程内直调 cmdRefreshIdeBlocks）
   it('D29-5: 仅报告不触发 preflight fail-fast — git 干净仓仅 plain 命中 --yes exit 0、零写入、零备份', async () => {
     await withTemp(async (dir) => {
       const rel = '.cursor/rules/05-harness-starter.mdc'
       await writeRel(dir, rel, PLAIN_BODY)
       await initGitRepo(dir)
-      const r = runCli(['refresh-ide-blocks', '--yes', '--target', dir], dir)
+      const r = await runRefresh(['--yes', '--target', dir])
       assert.equal(r.status, 0, r.combined)
       assert.match(r.combined, /无 marker 检出（仅报告，不刷写）/, r.combined)
       assert.equal(await readFile(path.join(dir, rel), 'utf8'), PLAIN_BODY, '零写入')
