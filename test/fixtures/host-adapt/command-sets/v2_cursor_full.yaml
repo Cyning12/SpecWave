@@ -1,0 +1,27 @@
+# v2 消费 e2e fixture：cursor 行 + 全量内建值 command_sets —— planned items 须与 v1 2.4.2 表 cursor 子集逐字一致
+version: "1"
+schema_version: 2
+command_sets:
+  core: [verify, gate-status, init-guide, apply-standards, hat-reanchor]
+  expanded: [hat-00-delegate, hat-10-spec, hat-10-task, hat-20-spec-audit, hat-20-task-audit, graph-check, sync-prompts-guide]
+  forbidden: [kit-30, kit-publish]
+hosts:
+  - host_id: cursor
+    surfaces:
+      always_on:
+        - target: .cursor/rules/05-kit-starter.mdc
+          source: assets/ide/adapters/cursor-harness-starter.mdc.example
+      skills:
+        - target_dir: .cursor/skills
+          from: assets/skills/*
+      commands:
+        - target_dir: .cursor/commands
+          from: assets/ide/commands/cursor/*
+          profile: core
+        - target_dir: .cursor/commands
+          from: assets/ide/commands/cursor/*
+          profile: expanded
+      verify:
+        kind: cli
+        bin: spec-wave
+        failClosed: true

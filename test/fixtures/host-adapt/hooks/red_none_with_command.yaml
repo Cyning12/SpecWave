@@ -1,0 +1,15 @@
+# hooks 红 fixture（F-W1-10 矛盾声明）：mechanism: none 带 command → 报红
+version: "1"
+schema_version: 2
+command_sets:
+  core: [verify]
+  expanded: [graph-check]
+hosts:
+  - host_id: a
+    surfaces:
+      always_on: []
+      skills: []
+      commands: []
+      hooks:
+        mechanism: none
+        command: "x"

@@ -1,0 +1,14 @@
+# hooks 绿 fixture：mechanism: none 显式降级（与 v1 缺省同语义 · 不带 triggers/command）
+version: "1"
+schema_version: 2
+command_sets:
+  core: [verify]
+  expanded: [graph-check]
+hosts:
+  - host_id: a
+    surfaces:
+      always_on: []
+      skills: []
+      commands: []
+      hooks:
+        mechanism: none

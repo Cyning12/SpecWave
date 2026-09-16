@@ -3,7 +3,7 @@ import path from 'node:path'
 import { fail, kitLayoutJoin, packageRoot } from '../cli-shared.ts'
 import { yamlLoad } from '../yaml.ts'
 import { probeHostAdaptSchemaVersion, validateHostAdaptDocDispatch } from './schema.ts'
-import { resolveV2Model } from './resolve.ts'
+import { builtinCommandSets, effectiveCommandSets, resolveV2Model, type CommandSets } from './resolve.ts'
 
 const DEFAULT_EXAMPLE_REL = path.join('assets', 'ide', 'host-adapt', 'examples', 'mvp-hosts.yaml')
 
@@ -58,6 +58,16 @@ export function resolvedHostRows(data: unknown): HostRow[] {
     )
   }
   return resolved.model.rows
+}
+
+/**
+ * 命令目录数据源（S2.5 · 阶段三）：v1 → 内建目录（resolve.ts builtinCommandSets · 原 constants 现值逐字）；
+ * v2 → 表根级 command_sets + forbidden 并集（F-W1-07 校验先行保证存在且合法）。
+ */
+export function commandSetsOf(data: unknown): CommandSets {
+  if (probeHostAdaptSchemaVersion(data).kind !== 'v2') return builtinCommandSets()
+  const root = data as { command_sets: CommandSets }
+  return effectiveCommandSets(root.command_sets)
 }
 
 export function resolveValidateFile(fileArg: string | undefined): string {

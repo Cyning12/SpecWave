@@ -1,0 +1,13 @@
+# command_sets 红 fixture（forbidden 并集语义）：core 含表声明自定义禁词 acme-cmd → 报红点名
+version: "1"
+schema_version: 2
+command_sets:
+  core: [acme-cmd]
+  expanded: [graph-check]
+  forbidden: [acme-cmd]
+hosts:
+  - host_id: a
+    surfaces:
+      always_on: []
+      skills: []
+      commands: []

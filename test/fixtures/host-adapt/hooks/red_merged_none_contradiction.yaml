@@ -1,0 +1,19 @@
+# hooks 红 fixture（F-W1-10 跨层矛盾）：defaults 给 mechanism: none · 行补 command → 合并后 none 带 command 报红
+version: "1"
+schema_version: 2
+command_sets:
+  core: [verify]
+  expanded: [graph-check]
+defaults:
+  surfaces:
+    always_on: []
+    skills: []
+    commands: []
+    hooks:
+      mechanism: none
+hosts:
+  - host_id: a
+    extends: defaults
+    surfaces:
+      hooks:
+        command: "x"

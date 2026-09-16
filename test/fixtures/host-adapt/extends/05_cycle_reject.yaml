@@ -6,3 +6,6 @@ hosts:
     extends: b
   - host_id: b
     extends: a
+command_sets:
+  core: [verify]
+  expanded: [graph-check]

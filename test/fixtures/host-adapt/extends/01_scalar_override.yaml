@@ -16,3 +16,6 @@ hosts:
     surfaces:
       verify:
         bin: child-bin
+command_sets:
+  core: [verify]
+  expanded: [graph-check]

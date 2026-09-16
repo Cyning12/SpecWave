@@ -23,3 +23,6 @@ hosts:
     extends: h8
   - host_id: h8
     extends: defaults
+command_sets:
+  core: [verify]
+  expanded: [graph-check]

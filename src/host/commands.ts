@@ -2,42 +2,24 @@ import { existsSync } from 'node:fs'
 import path from 'node:path'
 import { fail } from '../cli-shared.ts'
 
-/** core 五 verb：Cursor 扁平 kit-<verb>.md；Claude 子目录 <verb>.md */
-const CORE_COMMAND_VERBS = [
-  'verify',
-  'gate-status',
-  'init-guide',
-  'apply-standards',
-  'hat-reanchor',
-] as const
-
-type CoreCommandVerb = (typeof CORE_COMMAND_VERBS)[number]
-
 /**
- * expanded stems：Cursor = kit-<stem>.md；Claude kit/ = <stem>.md → /kit:<stem>
- * 至少五条 hat；另含 graph-check / sync-prompts-guide。禁 kit-30 / kit-publish。
+ * commands 动词名解析与 profile 行为逻辑（3.0 W1 阶段三 · S2.5 数据源入表后）。
+ * 数据（core/expanded/forbidden 目录）已迁移：v1 = src/host/resolve.ts 内建目录字面量（OQ-6 单锚）·
+ * v2 = 表根级 command_sets（F-W1-07 必填 · forbidden=kit-30/kit-publish 机检在 schema.ts validateCommandSets）。
+ * 本文件只保留行为逻辑（parse / profile 判定 / legacy 扁平落点探测）——动词列表一律由调用方传入。
  */
-const EXPANDED_COMMAND_STEMS = [
-  'hat-00-delegate',
-  'hat-10-spec',
-  'hat-10-task',
-  'hat-20-spec-audit',
-  'hat-20-task-audit',
-  'graph-check',
-  'sync-prompts-guide',
-] as const
 
-type ExpandedCommandStem = (typeof EXPANDED_COMMAND_STEMS)[number]
-
-function parseCoreCommandBasename(base: string): CoreCommandVerb | null {
-  for (const verb of CORE_COMMAND_VERBS) {
+/** core basename 解析：Cursor 扁平 kit-<verb>.md；Claude 子目录 <verb>.md */
+function parseCoreCommandBasename(base: string, verbs: readonly string[]): string | null {
+  for (const verb of verbs) {
     if (base === `kit-${verb}.md` || base === `${verb}.md`) return verb
   }
   return null
 }
 
-function parseExpandedCommandBasename(base: string): ExpandedCommandStem | null {
-  for (const stem of EXPANDED_COMMAND_STEMS) {
+/** expanded basename 解析：Cursor = kit-<stem>.md；Claude kit/ = <stem>.md → /kit:<stem> */
+function parseExpandedCommandBasename(base: string, stems: readonly string[]): string | null {
+  for (const stem of stems) {
     if (base === `kit-${stem}.md` || base === `${stem}.md`) return stem
   }
   return null
@@ -58,17 +40,15 @@ function assertHostProfile(profile: string, cmd: 'host apply' | 'host update', u
 }
 
 /** 旧 Claude 扁平落点（2.0）：.claude/commands/kit-<verb>.md */
-function legacyClaudeFlatCommandRels(): string[] {
-  return CORE_COMMAND_VERBS.map((v) => `.claude/commands/kit-${v}.md`)
+function legacyClaudeFlatCommandRels(verbs: readonly string[]): string[] {
+  return verbs.map((v) => `.claude/commands/kit-${v}.md`)
 }
 
-function findLegacyClaudeFlatCommands(target: string): string[] {
-  return legacyClaudeFlatCommandRels().filter((rel) => existsSync(path.join(target, rel)))
+function findLegacyClaudeFlatCommands(target: string, verbs: readonly string[]): string[] {
+  return legacyClaudeFlatCommandRels(verbs).filter((rel) => existsSync(path.join(target, rel)))
 }
 
 export {
-  CORE_COMMAND_VERBS,
-  EXPANDED_COMMAND_STEMS,
   parseCoreCommandBasename,
   parseExpandedCommandBasename,
   commandEntryApplies,
@@ -76,4 +56,3 @@ export {
   legacyClaudeFlatCommandRels,
   findLegacyClaudeFlatCommands,
 }
-export type { CoreCommandVerb, ExpandedCommandStem }

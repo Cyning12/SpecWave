@@ -1,0 +1,16 @@
+# hooks 红 fixture（F-W1-10）：非 none triggers 空数组 → 报红
+version: "1"
+schema_version: 2
+command_sets:
+  core: [verify]
+  expanded: [graph-check]
+hosts:
+  - host_id: a
+    surfaces:
+      always_on: []
+      skills: []
+      commands: []
+      hooks:
+        mechanism: shell-hook
+        triggers: []
+        command: "x"

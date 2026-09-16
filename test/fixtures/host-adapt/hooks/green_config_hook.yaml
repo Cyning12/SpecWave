@@ -1,0 +1,16 @@
+# hooks 绿 fixture：config-hook × pre-archive 合法
+version: "1"
+schema_version: 2
+command_sets:
+  core: [verify]
+  expanded: [graph-check]
+hosts:
+  - host_id: a
+    surfaces:
+      always_on: []
+      skills: []
+      commands: []
+      hooks:
+        mechanism: config-hook
+        triggers: [pre-archive]
+        command: "npx spec-wave verify --target ."

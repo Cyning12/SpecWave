@@ -1,0 +1,13 @@
+# command_sets 绿 fixture（S2.5）：core/expanded 合法 + 自定义 forbidden（并集语义 · 内建禁词永续）
+version: "1"
+schema_version: 2
+command_sets:
+  core: [verify, gate-status]
+  expanded: [graph-check]
+  forbidden: [acme-legacy]
+hosts:
+  - host_id: a
+    surfaces:
+      always_on: []
+      skills: []
+      commands: []

@@ -4,8 +4,10 @@ import { readFileSync } from 'node:fs'
 import path from 'node:path'
 import { describe, it } from 'node:test'
 import { fileURLToPath } from 'node:url'
-import { CORE_COMMAND_VERBS, EXPANDED_COMMAND_STEMS } from '../src/host/commands.ts'
 import {
+  BUILTIN_CORE_COMMANDS,
+  BUILTIN_EXPANDED_COMMANDS,
+  BUILTIN_FORBIDDEN_COMMANDS,
   builtinCommandSets,
   resolveV1CompatModel,
   V1_DEFAULT_HOOKS,
@@ -54,11 +56,17 @@ describe('3.0 W1 阶段一 · schema_version 探测树（S2.1 · 评审文 §3.1
     const valid = {
       version: '1',
       schema_version: 2,
+      command_sets: { core: ['verify'], expanded: ['graph-check'] },
       hosts: [{ host_id: 'cursor', surfaces: { always_on: [], skills: [], commands: [] } }],
     }
     assert.equal(probeHostAdaptSchemaVersion(valid).kind, 'v2')
     assert.deepEqual(validateHostAdaptDocDispatch(valid), [])
-    const invalid = { version: '1', schema_version: 2, hosts: [{ host_id: 'a', extends: 'ghost' }] }
+    const invalid = {
+      version: '1',
+      schema_version: 2,
+      command_sets: { core: ['verify'], expanded: ['graph-check'] },
+      hosts: [{ host_id: 'a', extends: 'ghost' }],
+    }
     const issues = validateHostAdaptDocDispatch(invalid)
     assert.equal(issues.length, 1)
     assert.equal(issues[0]!.path, '$.hosts[0].extends')
@@ -130,10 +138,23 @@ describe('3.0 W1 阶段一 · OQ-6 内建 command_sets 目录逐字锁（验收 
     })
   })
 
-  it('内建目录与 commands.ts 常量现值同源（删除常量前的双向漂移防护）', () => {
-    const sets = builtinCommandSets()
-    assert.deepEqual(sets.core, [...CORE_COMMAND_VERBS])
-    assert.deepEqual(sets.expanded, [...EXPANDED_COMMAND_STEMS])
+  it('内建目录为唯一真值锚（commands.ts 常量已删除 · OQ-6 单锚 · F-W1-08）：导出字面量 = 逐字值', () => {
+    assert.deepEqual([...BUILTIN_CORE_COMMANDS], ['verify', 'gate-status', 'init-guide', 'apply-standards', 'hat-reanchor'])
+    assert.deepEqual([...BUILTIN_EXPANDED_COMMANDS], [
+      'hat-00-delegate',
+      'hat-10-spec',
+      'hat-10-task',
+      'hat-20-spec-audit',
+      'hat-20-task-audit',
+      'graph-check',
+      'sync-prompts-guide',
+    ])
+    assert.deepEqual([...BUILTIN_FORBIDDEN_COMMANDS], ['kit-30', 'kit-publish'])
+    assert.deepEqual(builtinCommandSets(), {
+      core: [...BUILTIN_CORE_COMMANDS],
+      expanded: [...BUILTIN_EXPANDED_COMMANDS],
+      forbidden: [...BUILTIN_FORBIDDEN_COMMANDS],
+    })
   })
 })
 

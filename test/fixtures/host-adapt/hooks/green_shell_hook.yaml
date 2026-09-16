@@ -1,0 +1,16 @@
+# hooks 绿 fixture（验收 #3 · OQ-1）：shell-hook × pre-commit+pre-archive × command 全声明合法
+version: "1"
+schema_version: 2
+command_sets:
+  core: [verify]
+  expanded: [graph-check]
+hosts:
+  - host_id: a
+    surfaces:
+      always_on: []
+      skills: []
+      commands: []
+      hooks:
+        mechanism: shell-hook
+        triggers: [pre-commit, pre-archive]
+        command: "npx spec-wave verify --target ."

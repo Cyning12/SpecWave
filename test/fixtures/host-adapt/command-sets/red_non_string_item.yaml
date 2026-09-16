@@ -1,0 +1,12 @@
+# command_sets 红 fixture：core 含非字符串项 → 报红（逐项非空字符串约束）
+version: "1"
+schema_version: 2
+command_sets:
+  core: [verify, 123]
+  expanded: [graph-check]
+hosts:
+  - host_id: a
+    surfaces:
+      always_on: []
+      skills: []
+      commands: []

@@ -1,0 +1,15 @@
+# v2 消费 e2e fixture（表数据驱动正证）：core 缺 verify → planned core 命令恰 4 件且无 kit-verify.md（读表非读内建）
+version: "1"
+schema_version: 2
+command_sets:
+  core: [gate-status, init-guide, apply-standards, hat-reanchor]
+  expanded: [hat-00-delegate, hat-10-spec, hat-10-task, hat-20-spec-audit, hat-20-task-audit, graph-check, sync-prompts-guide]
+hosts:
+  - host_id: cursor
+    surfaces:
+      always_on: []
+      skills: []
+      commands:
+        - target_dir: .cursor/commands
+          from: assets/ide/commands/cursor/*
+          profile: core

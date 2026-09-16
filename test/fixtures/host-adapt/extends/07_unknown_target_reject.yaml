@@ -4,3 +4,6 @@ schema_version: 2
 hosts:
   - host_id: a
     extends: ghost
+command_sets:
+  core: [verify]
+  expanded: [graph-check]

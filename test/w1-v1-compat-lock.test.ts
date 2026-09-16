@@ -7,6 +7,7 @@ import path from 'node:path'
 import { describe, it } from 'node:test'
 import { fileURLToPath } from 'node:url'
 import { planApply } from '../src/host/materialize.ts'
+import { builtinCommandSets } from '../src/host/resolve.ts'
 import { validateHostAdaptDocDispatch } from '../src/host/schema.ts'
 import { asHostRows } from '../src/host/table.ts'
 import { yamlLoad } from '../src/yaml.ts'
@@ -57,6 +58,7 @@ function plannedProfile(rows: ReturnType<typeof asHostRows>, profile: string): S
       toolIds: rows.map((r) => r.host_id),
       profile,
       pkgRoot: KIT,
+      commandSets: builtinCommandSets(), // v1 路径 = 内建目录（S2.5 兼容桥 · 阶段三签名同步）
     })
     return {
       items: items.map((i) => ({

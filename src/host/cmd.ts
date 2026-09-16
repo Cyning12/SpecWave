@@ -11,7 +11,7 @@ import {
 } from '../cli-shared.ts'
 import { evaluateHostContract } from '../host-contract.ts'
 import { yamlLoad } from '../yaml.ts'
-import { resolveValidateFile, resolvedHostRows } from './table.ts'
+import { commandSetsOf, resolveValidateFile, resolvedHostRows } from './table.ts'
 import { validateHostAdaptDocDispatch } from './schema.ts'
 import { loadHostToolsSticky, uniqueKeepOrder, writeHostToolsSticky } from './sticky.ts'
 import { assertHostProfile, findLegacyClaudeFlatCommands } from './commands.ts'
@@ -257,12 +257,14 @@ async function cmdHostApply(args: string[]): Promise<void> {
     emitU01Degraded(json, 'host apply', target, baseReport, contract)
   }
 
+  const commandSets = commandSetsOf(data)
   const { items, s2 } = planApply({
     target,
     rows,
     toolIds,
     profile,
     pkgRoot: packageRoot(),
+    commandSets,
   })
   if (s2.length > 0) {
     const uniq = uniqueKeepOrder(s2)
@@ -286,7 +288,9 @@ async function cmdHostApply(args: string[]): Promise<void> {
   const skipped = items.filter((i) => i.op === 'skip_identical').map((i) => i.destRel)
   const conflict = items.filter((i) => i.op === 'conflict').map((i) => i.destRel)
   // Claude 在工具列表时：清除旧扁平 kit-*.md，禁止与 kit/<verb>.md 双份并存
-  const legacyRemove = toolIds.includes('claude') ? findLegacyClaudeFlatCommands(target) : []
+  const legacyRemove = toolIds.includes('claude')
+    ? findLegacyClaudeFlatCommands(target, commandSets.core)
+    : []
 
   let written: string[] = []
   let removed: string[] = []
@@ -433,12 +437,14 @@ async function cmdHostUpdate(args: string[]): Promise<void> {
     emitU01Degraded(json, 'host update', target, baseReport, contract)
   }
 
+  const commandSets = commandSetsOf(data)
   const { items, s2 } = planApply({
     target,
     rows,
     toolIds,
     profile,
     pkgRoot: packageRoot(),
+    commandSets,
   })
   remapUpdateConflicts(items, force)
   if (s2.length > 0) {
@@ -462,7 +468,9 @@ async function cmdHostUpdate(args: string[]): Promise<void> {
   const planned = items.filter((i) => i.op === 'write' || i.op === 'merge').map((i) => i.destRel)
   const skipped = items.filter((i) => i.op === 'skip_identical').map((i) => i.destRel)
   const conflict = items.filter((i) => i.op === 'conflict').map((i) => i.destRel)
-  const legacyRemove = toolIds.includes('claude') ? findLegacyClaudeFlatCommands(target) : []
+  const legacyRemove = toolIds.includes('claude')
+    ? findLegacyClaudeFlatCommands(target, commandSets.core)
+    : []
 
   let written: string[] = []
   let removed: string[] = []

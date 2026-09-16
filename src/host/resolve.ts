@@ -1,12 +1,12 @@
-import { CORE_COMMAND_VERBS, EXPANDED_COMMAND_STEMS } from './commands.ts'
 import type { HostValidateIssue } from './schema.ts'
 import type { AlwaysOnEntry, CommandsEntry, DirFromEntry, HostRow } from './table.ts'
 
 /**
  * 3.0 W1 · resolved 内部模型（S2.4/S2.5 · 评审文 §2.4/§3.2 · F-W1-11 一次性展开）。
- * v1 兼容桥（阶段一）+ v2 defaults/extends 解析器（阶段二）：校验后、消费前一次性展开为
- * 全量 resolved rows，下游（materialize/report/pins）只消费展开后行、零感知 extends/defaults。
- * 下游消费改造（materialize 改读表 command_sets · commands.ts 常量删除）归 W1 后续阶段。
+ * v1 兼容桥（阶段一）+ v2 defaults/extends 解析器（阶段二）+ hooks 合并与 command_sets 数据源
+ * （阶段三）：校验后、消费前一次性展开为全量 resolved rows，下游（materialize/report/pins）
+ * 只消费展开后行、零感知 extends/defaults。内建 command_sets 目录字面量锚定本文件（OQ-6 单锚 ·
+ * commands.ts 常量已删除 · F-W1-08）。
  */
 
 /** 根级 command_sets 形态（S2.5 · 评审文 §2.5）：core/expanded/forbidden 三节 */
@@ -21,9 +21,14 @@ export type CommandSets = {
  * 本阶段仅缺省形态 mechanism: none（评审文 §3.2 映射行④ · 与现状零行为差）；
  * shell-hook/config-hook 枚举校验归 hooks 阶段（v2 校验器扩展位）。
  */
-export type HooksDecl = {
-  mechanism: 'none'
-}
+export type HooksDecl =
+  | { mechanism: 'none' }
+  | {
+      mechanism: 'shell-hook' | 'config-hook'
+      /** OQ-1 定稿两值（pre-close 合并入 pre-archive · task S2.2 论证） */
+      triggers: ('pre-commit' | 'pre-archive')[]
+      command: string
+    }
 
 /** verify 声明（S2.3 · v1 原样承接进 v2 同位置 · 可入 defaults 参与深合并） */
 export type VerifyDecl = {
@@ -64,15 +69,50 @@ export const V1_DEFAULT_HOOKS: HooksDecl = { mechanism: 'none' }
 export const MAX_EXTENDS_DEPTH = 8
 
 /**
- * 内建 command_sets 目录 = commands.ts:6-28 常量现值（S2.5 v1 兼容桥注入面 · 评审文 §3.2 行⑤）。
- * forbidden = kit-30 / kit-publish（commands.ts:17-19 注释纪律的机检化形态）。
- * OQ-6/F-W1-08：常量删除后本目录即唯一真值 · 逐字 fixture 锁定（test/w1-schema-version-detect.test.ts）。
+ * 内建 command_sets 目录字面量（S2.5 v1 兼容桥注入面 · 评审文 §3.2 行⑤）。
+ * = 原 commands.ts:6-28 常量现值（3.0 W1 阶段三常量删除 · 本组字面量成为唯一真值锚）。
+ * forbidden = kit-30 / kit-publish（原 commands.ts:17-19 注释纪律的机检化 · 永不可被表声明移除）。
+ * OQ-6/F-W1-08：逐字 fixture 锁定（test/w1-schema-version-detect.test.ts）。
  */
+export const BUILTIN_CORE_COMMANDS = [
+  'verify',
+  'gate-status',
+  'init-guide',
+  'apply-standards',
+  'hat-reanchor',
+] as const
+
+export const BUILTIN_EXPANDED_COMMANDS = [
+  'hat-00-delegate',
+  'hat-10-spec',
+  'hat-10-task',
+  'hat-20-spec-audit',
+  'hat-20-task-audit',
+  'graph-check',
+  'sync-prompts-guide',
+] as const
+
+export const BUILTIN_FORBIDDEN_COMMANDS = ['kit-30', 'kit-publish'] as const
+
+/** 内建 command_sets 目录（v1 兼容桥注入面 · 逐字 = 原常量现值） */
 export function builtinCommandSets(): CommandSets {
   return {
-    core: [...CORE_COMMAND_VERBS],
-    expanded: [...EXPANDED_COMMAND_STEMS],
-    forbidden: ['kit-30', 'kit-publish'],
+    core: [...BUILTIN_CORE_COMMANDS],
+    expanded: [...BUILTIN_EXPANDED_COMMANDS],
+    forbidden: [...BUILTIN_FORBIDDEN_COMMANDS],
+  }
+}
+
+/**
+ * 有效 command_sets（S2.5）：v2 表声明值 + forbidden 并集语义 —— 内建禁词（kit-30/kit-publish）
+ * 永不可被表声明移除，表声明 forbidden 在其上追加自定义禁词。前置：声明已经 validateCommandSets 校验。
+ */
+export function effectiveCommandSets(declared: CommandSets | undefined): CommandSets {
+  if (!declared) return builtinCommandSets()
+  return {
+    core: [...declared.core],
+    expanded: [...declared.expanded],
+    forbidden: [...new Set([...BUILTIN_FORBIDDEN_COMMANDS, ...(declared.forbidden ?? [])])],
   }
 }
 
@@ -205,7 +245,8 @@ export function resolveV2Rows(data: unknown): ResolveV2Result {
     }
     rows.push({
       host_id: hostId,
-      surfaces: { ...acc, hooks: { ...V1_DEFAULT_HOOKS } } as ResolvedHostRow['surfaces'],
+      // hooks：声明（含 defaults/extends 深合并结果）保留 · 未声明注入 {mechanism:none} 缺省（评审文 §3.2 行④）
+      surfaces: { ...acc, hooks: acc.hooks ?? { ...V1_DEFAULT_HOOKS } } as ResolvedHostRow['surfaces'],
     })
   }
   if (issues.length > 0) return { ok: false, issues }
@@ -214,14 +255,14 @@ export function resolveV2Rows(data: unknown): ResolveV2Result {
 }
 
 /**
- * v2 适配表 → resolved 模型（S2.4/S2.5）：resolved rows 一次性展开 + 内建 command_sets 目录
- * （v2 表 command_sets 入表校验归下一阶段 · 本阶段模型层先以内建目录承载 · F-W1-07 机检随后接入）。
+ * v2 适配表 → resolved 模型（S2.4/S2.5）：resolved rows 一次性展开 + 表数据 command_sets
+ * （阶段三 · v2 表必含 command_sets（F-W1-07 校验保证）· forbidden 并集语义见 effectiveCommandSets）。
  * 前置：调用方已完成 validateHostAdaptDocV2 结构校验且零 issue。
  */
 export function resolveV2Model(
   data: unknown,
 ): { ok: true; model: ResolvedHostAdaptModel } | { ok: false; issues: HostValidateIssue[] } {
-  const root = data as { version: string }
+  const root = data as { version: string; command_sets: CommandSets }
   const resolved = resolveV2Rows(data)
   if (!resolved.ok) return { ok: false, issues: resolved.issues }
   return {
@@ -229,7 +270,7 @@ export function resolveV2Model(
     model: {
       schemaVersion: 2,
       version: root.version,
-      commandSets: builtinCommandSets(),
+      commandSets: effectiveCommandSets(root.command_sets),
       rows: resolved.rows,
     },
   }

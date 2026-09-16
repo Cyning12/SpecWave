@@ -1,5 +1,5 @@
 import { isS2RelPath } from '../cli-shared.ts'
-import { resolveV2Model } from './resolve.ts'
+import { BUILTIN_FORBIDDEN_COMMANDS, resolveV2Model } from './resolve.ts'
 
 export type HostValidateIssue = {
   path: string
@@ -136,13 +136,162 @@ function validateVerifyPartial(v: unknown, base: string, issues: HostValidateIss
  * 键白名单（always_on/skills/commands/verify · hooks 归后续阶段 · 出现即 未知字段 fail-closed）；
  * 出现的节按 v1 同口径校验形状（数组条目全量校验 · verify 走 partial）；三节必填在 resolved 展开后复核。
  */
+// ─── 3.0 W1 阶段三 · hooks 节（S2.2 · OQ-1 enum 定稿 · F-W1-10）+ command_sets（S2.5 · F-W1-07） ───
+
+const HOOK_MECHANISMS = ['shell-hook', 'config-hook', 'none'] as const
+const HOOK_TRIGGERS = ['pre-commit', 'pre-archive'] as const
+
+/**
+ * hooks 节校验（S2.2 · OQ-1 定稿：mechanism 三族 × triggers 两值 · F-W1-10 矛盾声明）：
+ * partial（defaults/extends merge 级）：键白名单 + 呈现键枚举/型别 + 本级 none 矛盾报红；
+ * complete（resolved 级）：partial 全项 + mechanism 必填（节出现即必填）+ 非 none triggers 必填非空 /
+ * command 必填非空。未知 mechanism / 未知 trigger 一律 enum fail-closed（不留扩展位 · 扩展走 v3 HG-SCHEMA-CHANGE）。
+ * W1 边界：只声明与校验 · 物化归 W2 · 运行时永不归 SpecWave。
+ */
+function validateHooks(
+  v: unknown,
+  base: string,
+  issues: HostValidateIssue[],
+  opts: { complete: boolean },
+): void {
+  if (!isPlainObject(v)) {
+    issues.push({ path: base, code: 'schema', message: '须为对象' })
+    return
+  }
+  const extra = Object.keys(v).filter((k) => !['mechanism', 'triggers', 'command'].includes(k))
+  if (extra.length > 0) {
+    issues.push({ path: base, code: 'schema', message: `未知字段: ${extra.join(', ')}` })
+  }
+  const mechanismValid =
+    typeof v.mechanism === 'string' && (HOOK_MECHANISMS as readonly string[]).includes(v.mechanism)
+  if (v.mechanism !== undefined && !mechanismValid) {
+    issues.push({
+      path: `${base}.mechanism`,
+      code: 'schema',
+      message: `mechanism 须为 shell-hook|config-hook|none（未知值 fail-closed · 收到: ${String(v.mechanism)}）`,
+    })
+  }
+  if (v.mechanism === undefined && opts.complete) {
+    issues.push({
+      path: `${base}.mechanism`,
+      code: 'schema',
+      message: '必填（hooks 节出现即必填 mechanism）',
+    })
+  }
+  if (v.mechanism === 'none') {
+    for (const banned of ['triggers', 'command'] as const) {
+      if (banned in v) {
+        issues.push({
+          path: `${base}.${banned}`,
+          code: 'schema',
+          message: 'mechanism 为 none 时禁声明 triggers/command（F-W1-10 矛盾声明）',
+        })
+      }
+    }
+  }
+  if (v.triggers !== undefined) {
+    if (!Array.isArray(v.triggers)) {
+      issues.push({ path: `${base}.triggers`, code: 'schema', message: '须为数组' })
+    } else {
+      v.triggers.forEach((t, i) => {
+        if (typeof t !== 'string' || !(HOOK_TRIGGERS as readonly string[]).includes(t)) {
+          issues.push({
+            path: `${base}.triggers[${i}]`,
+            code: 'schema',
+            message: `未知 trigger（fail-closed · 值域 pre-commit|pre-archive）: ${String(t)}`,
+          })
+        }
+      })
+    }
+  }
+  if (v.command !== undefined && (typeof v.command !== 'string' || v.command.trim().length < 1)) {
+    issues.push({ path: `${base}.command`, code: 'schema', message: '须为非空字符串' })
+  }
+  if (opts.complete && v.mechanism !== undefined && v.mechanism !== 'none' && mechanismValid) {
+    if (!('triggers' in v) || (Array.isArray(v.triggers) && v.triggers.length < 1)) {
+      issues.push({
+        path: `${base}.triggers`,
+        code: 'schema',
+        message: 'mechanism 非 none 时 triggers 必填且非空',
+      })
+    }
+    if (!('command' in v)) {
+      issues.push({
+        path: `${base}.command`,
+        code: 'schema',
+        message: 'mechanism 非 none 时 command 必填（非空字符串）',
+      })
+    }
+  }
+}
+
+/**
+ * command_sets 校验（S2.5 · F-W1-07）：core/expanded 必填非空数组逐项非空串 · forbidden 可选非空串数组；
+ * 禁词机检 = 内建禁词（kit-30/kit-publish · 注释纪律机检化 · 永不可被表声明移除）∪ 表声明 forbidden，
+ * 出现在 core/expanded 即报红点名。
+ */
+function validateCommandSets(v: unknown, base: string, issues: HostValidateIssue[]): void {
+  if (!isPlainObject(v)) {
+    issues.push({ path: base, code: 'schema', message: '须为对象' })
+    return
+  }
+  const extra = Object.keys(v).filter((k) => !['core', 'expanded', 'forbidden'].includes(k))
+  if (extra.length > 0) {
+    issues.push({ path: base, code: 'schema', message: `未知字段: ${extra.join(', ')}` })
+  }
+  const forbidden = new Set<string>(BUILTIN_FORBIDDEN_COMMANDS)
+  if (v.forbidden !== undefined) {
+    if (!Array.isArray(v.forbidden)) {
+      issues.push({ path: `${base}.forbidden`, code: 'schema', message: '须为数组' })
+    } else {
+      v.forbidden.forEach((item, i) => {
+        if (typeof item !== 'string' || item.trim().length < 1) {
+          issues.push({
+            path: `${base}.forbidden[${i}]`,
+            code: 'schema',
+            message: '逐项须为非空字符串',
+          })
+        } else {
+          forbidden.add(item)
+        }
+      })
+    }
+  }
+  for (const key of ['core', 'expanded'] as const) {
+    if (!(key in v)) {
+      issues.push({ path: `${base}.${key}`, code: 'schema', message: '必填（非空数组）' })
+      continue
+    }
+    const arr = v[key]
+    if (!Array.isArray(arr) || arr.length < 1) {
+      issues.push({ path: `${base}.${key}`, code: 'schema', message: '须为非空数组' })
+      continue
+    }
+    arr.forEach((item, i) => {
+      if (typeof item !== 'string' || item.trim().length < 1) {
+        issues.push({
+          path: `${base}.${key}[${i}]`,
+          code: 'schema',
+          message: '逐项须为非空字符串',
+        })
+      } else if (forbidden.has(item)) {
+        issues.push({
+          path: `${base}.${key}[${i}]`,
+          code: 'schema',
+          message: `command_sets 含 forbidden 条目（拒）: ${item}`,
+        })
+      }
+    })
+  }
+}
+
 function validateV2SurfacesLevel(surfaces: unknown, base: string, issues: HostValidateIssue[]): void {
   if (!isPlainObject(surfaces)) {
     issues.push({ path: base, code: 'schema', message: '须为对象' })
     return
   }
   const extra = Object.keys(surfaces).filter(
-    (k) => !['always_on', 'skills', 'commands', 'verify'].includes(k),
+    (k) => !['always_on', 'skills', 'commands', 'verify', 'hooks'].includes(k),
   )
   if (extra.length > 0) {
     issues.push({ path: base, code: 'schema', message: `未知字段: ${extra.join(', ')}` })
@@ -153,6 +302,7 @@ function validateV2SurfacesLevel(surfaces: unknown, base: string, issues: HostVa
     validateDirFrom(surfaces.commands, `${base}.commands`, issues, { allowProfile: true })
   }
   if ('verify' in surfaces) validateVerifyPartial(surfaces.verify, `${base}.verify`, issues)
+  if ('hooks' in surfaces) validateHooks(surfaces.hooks, `${base}.hooks`, issues, { complete: false })
 }
 
 /** 对照 host-adapt.schema.json 的手写校验 + S2 扫描 */
@@ -225,7 +375,7 @@ export function validateHostAdaptDocV2(data: unknown): HostValidateIssue[] {
     return issues
   }
   const extraRoot = Object.keys(data).filter(
-    (k) => !['version', 'schema_version', 'hosts', 'defaults'].includes(k),
+    (k) => !['version', 'schema_version', 'hosts', 'defaults', 'command_sets'].includes(k),
   )
   if (extraRoot.length > 0) {
     issues.push({ path: '$', code: 'schema', message: `未知字段: ${extraRoot.join(', ')}` })
@@ -233,6 +383,16 @@ export function validateHostAdaptDocV2(data: unknown): HostValidateIssue[] {
   requireString(data, 'version', '$', issues)
   if (data.schema_version !== 2) {
     issues.push({ path: '$.schema_version', code: 'schema', message: 'v2 表 schema_version 须为整数 2' })
+  }
+  // F-W1-07：v2 表缺 command_sets → fail-closed 点名 · 不回退硬编码默认
+  if (!('command_sets' in data)) {
+    issues.push({
+      path: '$.command_sets',
+      code: 'schema',
+      message: '必填（v2 表缺 command_sets · F-W1-07 fail-closed · 不回退硬编码默认）',
+    })
+  } else {
+    validateCommandSets(data.command_sets, '$.command_sets', issues)
   }
   if (data.defaults !== undefined) {
     if (!isPlainObject(data.defaults)) {
@@ -300,6 +460,7 @@ export function validateHostAdaptDocV2(data: unknown): HostValidateIssue[] {
       }
     }
     if (surfaces.verify !== undefined) validateVerify(surfaces.verify, `${p}.verify`, issues)
+    if (surfaces.hooks !== undefined) validateHooks(surfaces.hooks, `${p}.hooks`, issues, { complete: true })
   })
   return issues
 }

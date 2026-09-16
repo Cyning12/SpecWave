@@ -15,3 +15,6 @@ hosts:
     surfaces:
       verify:
         failClosed: false
+command_sets:
+  core: [verify]
+  expanded: [graph-check]

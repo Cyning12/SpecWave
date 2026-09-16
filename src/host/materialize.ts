@@ -10,14 +10,11 @@ import {
 } from '../cli-shared.ts'
 import { isExecuteHatSkipped } from '../cli-skills.ts'
 import {
-  CORE_COMMAND_VERBS,
-  EXPANDED_COMMAND_STEMS,
   commandEntryApplies,
   parseCoreCommandBasename,
   parseExpandedCommandBasename,
-  type CoreCommandVerb,
-  type ExpandedCommandStem,
 } from './commands.ts'
+import type { CommandSets } from './resolve.ts'
 import {
   atomicWrite,
   backupFile,
@@ -203,6 +200,8 @@ export function planApply(opts: {
   toolIds: string[]
   profile: string
   pkgRoot: string
+  /** 3.0 W1 阶段三（S2.5）：命令目录数据源 —— v1=内建目录（resolve.ts builtinCommandSets）· v2=表 command_sets */
+  commandSets: CommandSets
 }): { items: PlannedItem[]; s2: string[] } {
   const items: PlannedItem[] = []
   const s2: string[] = []
@@ -340,16 +339,16 @@ export function planApply(opts: {
       const matched = expandFromGlob(entry.from, opts.pkgRoot).filter((rel) => {
         const base = path.basename(rel)
         return band === 'core'
-          ? parseCoreCommandBasename(base) !== null
-          : parseExpandedCommandBasename(base) !== null
+          ? parseCoreCommandBasename(base, opts.commandSets.core) !== null
+          : parseExpandedCommandBasename(base, opts.commandSets.expanded) !== null
       })
       if (band === 'core') {
         const have = new Set(
           matched
-            .map((rel) => parseCoreCommandBasename(path.basename(rel)))
-            .filter((v): v is CoreCommandVerb => v !== null),
+            .map((rel) => parseCoreCommandBasename(path.basename(rel), opts.commandSets.core))
+            .filter((v): v is string => v !== null),
         )
-        const missing = CORE_COMMAND_VERBS.filter((v) => !have.has(v))
+        const missing = opts.commandSets.core.filter((v) => !have.has(v))
         if (missing.length > 0) {
           fail(
             `host apply 缺 core 命令资产（from=${entry.from}）: ${missing.map((v) => `${v}.md|kit-${v}.md`).join(', ')}`,
@@ -359,10 +358,10 @@ export function planApply(opts: {
       } else {
         const have = new Set(
           matched
-            .map((rel) => parseExpandedCommandBasename(path.basename(rel)))
-            .filter((v): v is ExpandedCommandStem => v !== null),
+            .map((rel) => parseExpandedCommandBasename(path.basename(rel), opts.commandSets.expanded))
+            .filter((v): v is string => v !== null),
         )
-        const missing = EXPANDED_COMMAND_STEMS.filter((v) => !have.has(v))
+        const missing = opts.commandSets.expanded.filter((v) => !have.has(v))
         if (missing.length > 0) {
           fail(
             `host apply 缺 expanded 命令资产（from=${entry.from}）: ${missing.map((v) => `${v}.md|kit-${v}.md`).join(', ')}`,

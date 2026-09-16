@@ -1,0 +1,20 @@
+# hooks 绿 fixture：hooks 入 defaults 参与深合并（与 verify 同规则）—— defaults 给 mechanism/triggers · 行补 command
+version: "1"
+schema_version: 2
+command_sets:
+  core: [verify]
+  expanded: [graph-check]
+defaults:
+  surfaces:
+    always_on: []
+    skills: []
+    commands: []
+    hooks:
+      mechanism: shell-hook
+      triggers: [pre-commit]
+hosts:
+  - host_id: a
+    extends: defaults
+    surfaces:
+      hooks:
+        command: "npx spec-wave verify --target ."

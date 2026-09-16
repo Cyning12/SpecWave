@@ -15,3 +15,6 @@ hosts:
     extends: base
     surfaces:
       always_on: []
+command_sets:
+  core: [verify]
+  expanded: [graph-check]

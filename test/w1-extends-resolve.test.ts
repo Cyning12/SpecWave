@@ -7,7 +7,7 @@ import path from 'node:path'
 import { describe, it } from 'node:test'
 import { fileURLToPath } from 'node:url'
 import { planApply } from '../src/host/materialize.ts'
-import { MAX_EXTENDS_DEPTH, mergeSurfaces, resolveV2Model } from '../src/host/resolve.ts'
+import { builtinCommandSets, MAX_EXTENDS_DEPTH, mergeSurfaces, resolveV2Model } from '../src/host/resolve.ts'
 import { validateHostAdaptDocDispatch, validateHostAdaptDocV2 } from '../src/host/schema.ts'
 import { resolvedHostRows } from '../src/host/table.ts'
 import { yamlLoad } from '../src/yaml.ts'
@@ -137,6 +137,7 @@ describe('3.0 W1 阶段二 · resolved rows 一次性展开 · 下游零感知�
     const literal = resolvedHostRows({
       version: '1',
       schema_version: 2,
+      command_sets: { core: ['verify'], expanded: ['graph-check'] },
       hosts: [
         {
           host_id: 'child',
@@ -152,7 +153,14 @@ describe('3.0 W1 阶段二 · resolved rows 一次性展开 · 下游零感知�
     const fingerprint = (rows: typeof viaExtends) => {
       const target = mkdtempSync(path.join(os.tmpdir(), 'w1-extends-equiv-'))
       try {
-        const { items, s2 } = planApply({ target, rows, toolIds: ['child'], profile: 'core', pkgRoot: KIT })
+        const { items, s2 } = planApply({
+          target,
+          rows,
+          toolIds: ['child'],
+          profile: 'core',
+          pkgRoot: KIT,
+          commandSets: builtinCommandSets(),
+        })
         assert.deepEqual(s2, [])
         return items.map((i) => ({
           hostId: i.hostId,
@@ -177,8 +185,9 @@ describe('3.0 W1 阶段二 · verify 承接（S2.3）与 resolved 完备性', { 
     const bad = {
       version: '1',
       schema_version: 2,
-      defaults: { surfaces: { verify: { kind: 'cli' } } } // 缺 bin · partial 级合法
-      ,hosts: [{ host_id: 'a', extends: 'defaults', surfaces: { always_on: [], skills: [], commands: [] } }],
+      command_sets: { core: ['verify'], expanded: ['graph-check'] },
+      defaults: { surfaces: { verify: { kind: 'cli' } } }, // 缺 bin · partial 级合法
+      hosts: [{ host_id: 'a', extends: 'defaults', surfaces: { always_on: [], skills: [], commands: [] } }],
     }
     const issues = validateHostAdaptDocV2(bad)
     assert.ok(issues.some((e) => e.path === '$.hosts[0].surfaces.verify.bin'), JSON.stringify(issues))
@@ -188,6 +197,7 @@ describe('3.0 W1 阶段二 · verify 承接（S2.3）与 resolved 完备性', { 
     const bad = {
       version: '1',
       schema_version: 2,
+      command_sets: { core: ['verify'], expanded: ['graph-check'] },
       hosts: [{ host_id: 'a', surfaces: { always_on: [], skills: [], commands: [], verify: { failClosed: true } } }],
     }
     const issues = validateHostAdaptDocV2(bad)
@@ -199,6 +209,7 @@ describe('3.0 W1 阶段二 · verify 承接（S2.3）与 resolved 完备性', { 
     const bad = {
       version: '1',
       schema_version: 2,
+      command_sets: { core: ['verify'], expanded: ['graph-check'] },
       hosts: [{ host_id: 'a', surfaces: { always_on: [], skills: [] } }],
     }
     const issues = validateHostAdaptDocV2(bad)
@@ -212,6 +223,7 @@ describe('3.0 W1 阶段二 · verify 承接（S2.3）与 resolved 完备性', { 
     const bad = {
       version: '1',
       schema_version: 2,
+      command_sets: { core: ['verify'], expanded: ['graph-check'] },
       hosts: [
         { host_id: 'a', surfaces: { always_on: [], skills: [], commands: [] } },
         { host_id: 'a', surfaces: { always_on: [], skills: [], commands: [] } },

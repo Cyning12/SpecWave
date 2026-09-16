@@ -25,3 +25,6 @@ hosts:
     extends: h9
   - host_id: h9
     extends: defaults
+command_sets:
+  core: [verify]
+  expanded: [graph-check]

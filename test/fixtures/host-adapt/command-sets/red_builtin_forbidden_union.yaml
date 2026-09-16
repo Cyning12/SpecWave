@@ -1,0 +1,13 @@
+# command_sets 红 fixture（并集语义对偶）：声明自定义 forbidden 后内建禁词 kit-30 仍永禁 → 报红点名
+version: "1"
+schema_version: 2
+command_sets:
+  core: [kit-30]
+  expanded: [graph-check]
+  forbidden: [acme-cmd]
+hosts:
+  - host_id: a
+    surfaces:
+      always_on: []
+      skills: []
+      commands: []

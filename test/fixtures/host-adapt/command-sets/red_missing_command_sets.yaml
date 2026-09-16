@@ -1,0 +1,9 @@
+# command_sets 红 fixture（F-W1-07）：v2 表缺 command_sets → fail-closed 点名 · 不回退硬编码默认
+version: "1"
+schema_version: 2
+hosts:
+  - host_id: a
+    surfaces:
+      always_on: []
+      skills: []
+      commands: []

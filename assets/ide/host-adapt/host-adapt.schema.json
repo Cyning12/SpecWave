@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/Cyning12/SpecWave/assets/ide/host-adapt/host-adapt.schema.json",
   "title": "DSH host-adapt table",
-  "description": "Declarative host adaptation table (F6 / 2.x W1 · 3.0 W1 schema_version=2 additive). Surfaces: always_on, skills, commands; optional verify. v2 adds optional schema_version / defaults / host-level extends (defaults+extends resolution: scalar override, object deep-merge, array replace; cycles/unknown targets/depth>8 rejected). hooks/command_sets keys land in a later wave stage (rejected as unknown until then). target / target_dir must not hit S2_TRUTH_PREFIXES. AUTHORITATIVE validation is the handwritten CLI validator (src/host/schema.ts, npx spec-wave host validate); this JSON schema tracks it best-effort (v1 rows with extends / v1 root defaults are also rejected by the CLI even where this file cannot express the version gating).",
+  "description": "Declarative host adaptation table (F6 / 2.x W1 · 3.0 W1 schema_version=2 additive). Surfaces: always_on, skills, commands; optional verify + hooks (3.0 W1: declaration only, materialization lands in W2). v2 adds schema_version / defaults / host-level extends (scalar override, object deep-merge, array replace; cycles/unknown targets/depth>8 rejected) and REQUIRES root command_sets (F-W1-07 fail-closed; forbidden entries kit-30/kit-publish always rejected in core/expanded, table-declared forbidden unions on top). hooks enums: mechanism shell-hook|config-hook|none; triggers pre-commit|pre-archive (none must not carry triggers/command; non-none requires both — enforced on resolved rows). target / target_dir must not hit S2_TRUTH_PREFIXES. AUTHORITATIVE validation is the handwritten CLI validator (src/host/schema.ts, npx spec-wave host validate); this JSON schema tracks it best-effort (merge-level partials and resolved-row completeness cannot be fully expressed here).",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -25,6 +25,9 @@
     "defaults": {
       "$ref": "#/$defs/Defaults"
     },
+    "command_sets": {
+      "$ref": "#/$defs/CommandSets"
+    },
     "hosts": {
       "type": "array",
       "minItems": 1,
@@ -33,21 +36,47 @@
       }
     }
   },
-  "if": {
-    "not": {
-      "required": [
-        "schema_version"
-      ]
-    }
-  },
-  "then": {
-    "not": {
-      "required": [
-        "defaults"
-      ]
+  "allOf": [
+    {
+      "if": {
+        "not": {
+          "required": [
+            "schema_version"
+          ]
+        }
+      },
+      "then": {
+        "not": {
+          "anyOf": [
+            {
+              "required": [
+                "defaults"
+              ]
+            },
+            {
+              "required": [
+                "command_sets"
+              ]
+            }
+          ]
+        },
+        "description": "v1 tables (no schema_version key) must not declare v2-only defaults / command_sets (handwritten validator rejects extends on v1 rows likewise)."
+      }
     },
-    "description": "v1 tables (no schema_version key) must not declare v2-only defaults (handwritten validator rejects extends on v1 rows likewise)."
-  },
+    {
+      "if": {
+        "required": [
+          "schema_version"
+        ]
+      },
+      "then": {
+        "required": [
+          "command_sets"
+        ],
+        "description": "v2 tables must declare command_sets (F-W1-07 fail-closed · no hardcoded fallback)."
+      }
+    }
+  ],
   "$defs": {
     "HostRow": {
       "type": "object",
@@ -56,8 +85,16 @@
         "host_id"
       ],
       "anyOf": [
-        { "required": ["extends"] },
-        { "required": ["surfaces"] }
+        {
+          "required": [
+            "extends"
+          ]
+        },
+        {
+          "required": [
+            "surfaces"
+          ]
+        }
       ],
       "properties": {
         "host_id": {
@@ -82,6 +119,40 @@
       "properties": {
         "surfaces": {
           "$ref": "#/$defs/SurfacesPartial"
+        }
+      }
+    },
+    "CommandSets": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "core",
+        "expanded"
+      ],
+      "description": "v2 only (F-W1-07 required): command verb catalog replacing hardcoded lists. forbidden unions with builtin kit-30/kit-publish (always rejected in core/expanded — enforced by the CLI validator).",
+      "properties": {
+        "core": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "expanded": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "forbidden": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
         }
       }
     },
@@ -114,6 +185,9 @@
         },
         "verify": {
           "$ref": "#/$defs/VerifyEntry"
+        },
+        "hooks": {
+          "$ref": "#/$defs/HooksEntry"
         }
       }
     },
@@ -142,6 +216,38 @@
         },
         "verify": {
           "$ref": "#/$defs/VerifyEntryPartial"
+        },
+        "hooks": {
+          "$ref": "#/$defs/HooksEntry"
+        }
+      }
+    },
+    "HooksEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "3.0 W1 declaration-only hooks (materialization lands in W2). mechanism enum fail-closed; mechanism none must not carry triggers/command; non-none requires triggers (non-empty) + command — enforced on resolved rows by the CLI validator (merge levels may be partial).",
+      "properties": {
+        "mechanism": {
+          "type": "string",
+          "enum": [
+            "shell-hook",
+            "config-hook",
+            "none"
+          ]
+        },
+        "triggers": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "pre-commit",
+              "pre-archive"
+            ]
+          }
+        },
+        "command": {
+          "type": "string",
+          "minLength": 1
         }
       }
     },

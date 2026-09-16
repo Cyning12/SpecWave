@@ -15,3 +15,6 @@ defaults:
 hosts:
   - host_id: child
     extends: defaults
+command_sets:
+  core: [verify]
+  expanded: [graph-check]

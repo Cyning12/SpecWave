@@ -13,3 +13,6 @@ hosts:
       always_on: []
       skills: []
       commands: []
+command_sets:
+  core: [verify]
+  expanded: [graph-check]

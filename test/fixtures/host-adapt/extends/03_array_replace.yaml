@@ -17,3 +17,6 @@ hosts:
       skills:
         - target_dir: .child/skills
           from: assets/skills/*
+command_sets:
+  core: [verify]
+  expanded: [graph-check]

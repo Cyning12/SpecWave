@@ -1,0 +1,16 @@
+# hooks 红 fixture（验收 #3）：未知 mechanism → enum fail-closed 报红
+version: "1"
+schema_version: 2
+command_sets:
+  core: [verify]
+  expanded: [graph-check]
+hosts:
+  - host_id: a
+    surfaces:
+      always_on: []
+      skills: []
+      commands: []
+      hooks:
+        mechanism: git-hook
+        triggers: [pre-commit]
+        command: "x"
