@@ -123,6 +123,33 @@ DEPRECATED: use dsh-coding-kit instead. See https://github.com/Cyning12/SpecWave
 
 ---
 
+## 2.4.2 → 3.0.0（breaking）· 适配表 schema 跃迁（草案）
+
+> **状态：草案** —— W7 定稿前置 · 真实 2.4.1 仓演练后转正（3.0 W1 · 评审文 [`docs/harness/reviews/w1_schema_change_review_20260916.md`](docs/harness/reviews/w1_schema_change_review_20260916.md) §4 素材落地）。
+> 适用范围：host-adapt 适配表（`assets/ide/host-adapt/examples/mvp-hosts.yaml` 及 `--file` 自定义表）的 schema v1 → v2 跃迁 + 闸判定泛化。
+
+### ① 默认路径：什么都不用做
+
+- 仅用内置 13 宿主的消费者：升级 `spec-wave` 3.0.0 后 `host validate / host apply / host update` 行为不变（v1 表面逐字锁 = 既有 11 件宿主测试 + 2.4.2 表 planned writes 快照逐字一致断言）。
+- 旧格式适配表（含 `--file` 自定义表）**零改动继续可读**：无 `schema_version` 键即按 v1 旧扁平语义解析（缺省 = v1 · 语义等价映射入新内部模型：注入内建 command_sets 目录（= 2.4.2 常量现值逐字）+ hooks 缺省 `{mechanism: none}`）。
+
+### ② 自定义表作者：可选迁移（欲用新能力时）
+
+1. 表首加 `schema_version: 2`（**整数** · 不复用 `version` 字符串字段 · 非整数/未知整数 fail-closed）。
+2. **可选**：把多行重复的 `verify` / `skills` 等提入根级 `defaults`，或改用行级 `extends: <host_id | "defaults">` 消重复（合并语义：标量子覆盖父 · 对象逐键深合并 · **数组整体替换**；循环继承/未知目标/链深 >8 拒绝）。
+3. **必做**：声明根级 `command_sets`（v2 表缺此节 fail-closed · 不回退硬编码默认；`core` / `expanded` 非空数组 · `forbidden` 可选追加自定义禁词）。
+4. **可选**：声明 `surfaces.hooks`（`mechanism: shell-hook | config-hook | none` + `triggers: [pre-commit | pre-archive]` + `command`）。**注意**：W1 只做声明与校验 —— hooks/verify 的**物化与运行时归后续波次（W2）**，当前声明不产生任何钩子行为。
+
+### ③ 禁止事项
+
+- 不要手写 `schema_version` > 2（fail-closed 拒 · 「未知 schema_version」点名 · 不会静默按旧格式解析）。
+- 不要在 `command_sets.core` / `expanded` 中含 `kit-30` / `kit-publish`（内建禁词机检拒 · 表声明不可移除该纪律）。
+
+### ④ 落点不变
+
+- 13 宿主既有物化路径全部不变（本波不碰任何 `.cursor/` / `.claude/` / `.dsh/` 等落点）；`hosts` 保持数组形态且每行带 `host_id`（pin-17 提取前提）。
+
+---
 ## 修订记录
 
 | 日期 | 摘要 |
@@ -136,3 +163,4 @@ DEPRECATED: use dsh-coding-kit instead. See https://github.com/Cyning12/SpecWave
 | 2026-09-10 | **`2.0.0` published**（F6 宿主适配）；归档 `ACCEPTANCE_2x_host_adapt_2_0_0_zh.md`；拟发 `2.0.1` docs patch |
 | 2026-09-10 | **`2.1.0` published**（多平台技能+编排）；当时消费者钉 `dsh-coding-kit@2.1.0`（史实；现已 deprecate） |
 | 2026-09-10 | **W1 收口**：终点改 SpecWave；`spec-wave` 非过渡 bin；醒目声明 `dsh-coding-kit` deprecated；钉点仅推荐 `spec-wave` |
+| 2026-09-16 | **3.0 W1 草案节**：增「2.4.2 → 3.0.0（breaking）」适配表 schema 跃迁迁移节（草案 · W7 定稿 + 真实 2.4.1 仓演练后转正）· 只追加不动既有行（pin-14 钉点行未触） |

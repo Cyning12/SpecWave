@@ -160,13 +160,13 @@ v1 `surfaces.verify: {kind, bin, failClosed?}` **原样承接**进 v2 同位置�
 
 ## 范围
 
-- [ ] **① A3 上半 · schema 增节**（SPEC §3-① · S2.1/S2.2/S2.3）：`schema_version` 整数探测 · `hooks` 节（enum 定稿：mechanism 三族 × triggers 两值 · 双轨 = `host-adapt.schema.json` + `src/host/schema.ts` 手写校验器）· `verify` 原样承接；`mvp-hosts.yaml` 增 `schema_version: 2` 及新节（表内容改写幅度以保 pin-17 前提为限 · 可选）
-- [ ] **② B2 分层**（SPEC §3-② · S2.4）：`defaults` + host 级 `extends` 合并器（标量覆盖 / 对象深合并 / **数组 replace** / 循环拒绝 / 未知目标拒绝 / 链深上限 8）· **resolved rows 一次性展开** · 正负 fixture 九条目
-- [ ] **③ B3 动词名入表**（SPEC §3-③ · S2.5）：根级 `command_sets`（core/expanded/forbidden）· `materialize.ts` 消费改造 · `commands.ts` 常量删除 · v1 兼容桥注入内建目录 + OQ-6 逐字 fixture
-- [ ] **④ 闸判定泛化**（SPEC §3-④ · S2.6）：`evaluateMayStart30` 声明式全闸 · `formatGateCheck` 泛化渲染 · HG-AUDIT-R1 缺行即拒保留 · 双锁 fixture
-- [ ] **⑤ 向后兼容 reader**（SPEC §3-⑤ · S2.1 探测树 + 评审文 §3.2 映射表六行恒等）：v1 旧扁平格式零改动通过 · compat 回归锁 fixture（2.4.2 版 `mvp-hosts.yaml` **逐字拷贝**固化 · `host validate` / `host apply --dry-run` 零改动通过 + **planned writes 与 2.4.2 基线逐字一致**快照断言）
-- [ ] **⑥ `HG-SCHEMA-CHANGE` 闸设立**（SPEC §3-⑥ · 硬约束 3/15）：评审文已落盘 `docs/harness/reviews/` · 闸行已落本 task `### 人工闸` 表且 `blocks_hats` 含 `30`（本文件即证 · 验收 #7）
-- [ ] **⑦ `MIGRATION.md` 迁移节草案**（SPEC §3-⑦ · S2.7）：「2.4.2 → 3.0.0（breaking）」节落盘 · 不动 pin-14 钉点行
+- [x] **① A3 上半 · schema 增节**（SPEC §3-① · S2.1/S2.2/S2.3）：`schema_version` 整数探测 · `hooks` 节（enum 定稿：mechanism 三族 × triggers 两值 · 双轨 = `host-adapt.schema.json` + `src/host/schema.ts` 手写校验器）· `verify` 原样承接；`mvp-hosts.yaml` 增 `schema_version: 2` 及新节（表内容改写幅度以保 pin-17 前提为限 · 可选）
+- [x] **② B2 分层**（SPEC §3-② · S2.4）：`defaults` + host 级 `extends` 合并器（标量覆盖 / 对象深合并 / **数组 replace** / 循环拒绝 / 未知目标拒绝 / 链深上限 8）· **resolved rows 一次性展开** · 正负 fixture 九条目
+- [x] **③ B3 动词名入表**（SPEC §3-③ · S2.5）：根级 `command_sets`（core/expanded/forbidden）· `materialize.ts` 消费改造 · `commands.ts` 常量删除 · v1 兼容桥注入内建目录 + OQ-6 逐字 fixture
+- [x] **④ 闸判定泛化**（SPEC §3-④ · S2.6）：`evaluateMayStart30` 声明式全闸 · `formatGateCheck` 泛化渲染 · HG-AUDIT-R1 缺行即拒保留 · 双锁 fixture
+- [x] **⑤ 向后兼容 reader**（SPEC §3-⑤ · S2.1 探测树 + 评审文 §3.2 映射表六行恒等）：v1 旧扁平格式零改动通过 · compat 回归锁 fixture（2.4.2 版 `mvp-hosts.yaml` **逐字拷贝**固化 · `host validate` / `host apply --dry-run` 零改动通过 + **planned writes 与 2.4.2 基线逐字一致**快照断言）
+- [x] **⑥ `HG-SCHEMA-CHANGE` 闸设立**（SPEC §3-⑥ · 硬约束 3/15）：评审文已落盘 `docs/harness/reviews/` · 闸行已落本 task `### 人工闸` 表且 `blocks_hats` 含 `30`（本文件即证 · 验收 #7）
+- [x] **⑦ `MIGRATION.md` 迁移节草案**（SPEC §3-⑦ · S2.7）：「2.4.2 → 3.0.0（breaking）」节落盘 · 不动 pin-14 钉点行
 
 ## 非范围
 
@@ -211,18 +211,18 @@ v1 `surfaces.verify: {kind, bin, failClosed?}` **原样承接**进 v2 同位置�
 
 ## 验收标准（必须自证，不接受「我改完了」）
 
-- [ ] **#1 向后兼容回归锁**（SPEC 验收 1）：2.4.2 版 `mvp-hosts.yaml` **逐字拷贝**固化为 fixture（建议 `test/fixtures/host-adapt/mvp-hosts_2_4_2.yaml`）→ 新版 `host validate` / `host apply --dry-run` **零改动通过**；断言物化计划（planned writes）与 2.4.2 基线**逐字一致**（planned writes 快照同步固化 · 防映射漂移 · 评审文 §3.3）
-- [ ] **#2 extends/defaults 合并语义 fixture**（SPEC 验收 2 · OQ-2 九条目全固化）：正 = 标量覆盖 / 对象深合并 / 数组 replace / 未声明继承 / 链深 8 边界 / `extends: defaults`；负 = 循环继承拒绝（含自继承 · 报循环链）/ 未知目标点名 / 链深 9 报红 / defaults 自身 extends 报红
-- [ ] **#3 hooks 节可机检**（SPEC 验收 3 · OQ-1 enum）：合法声明（shell-hook/config-hook × pre-commit/pre-archive · mechanism: none）报绿；非法报红 = 未知 mechanism / 未知 trigger / none 带 triggers 或 command / 非 none 缺 command / triggers 空数组（JSON schema + 手写校验器双轨各一组）
-- [ ] **#4 13 宿主端到端不回归**（SPEC 验收 4）：`host apply` / `host update` 全宿主绿；`node bin/specgate.js pins check` **17/17** 仍绿（含 pin-17 13 宿主双语命中）
-- [ ] **#5 闸判定泛化回归锁（双锁）**（SPEC 验收 5 · OQ-5）：① 新 fixture 构造**只含** `HG-SCHEMA-CHANGE | pending | 30` 一行的 task，断言 `evaluateMayStart30()` 返回 `{ ok:false, reason:'HG-SCHEMA-CHANGE pending' }` 且 `status` 的 `may_start_30 === false`；② 存量快照 `test/fixtures/human-gates/baseline_20260916.json` **232 行判定结果逐条不变**（泛化后重扫比对 · manifest 文件集 + 行键口径 · F-W1-09 纪律）
-- [ ] **#6 gate-check 泛化渲染**（SPEC 验收 6）：输出表列出**所有** `blocks_hats` 含 30 的闸行（不再只列 3 行 · fixture task 含白名单外闸断言渲染命中）· 快照断言；exit code / --json 键集语义不变
-- [ ] **#7 HG-SCHEMA-CHANGE 闸已落本 task 闸表**（SPEC 验收 7 · 硬约束 15）：`### 人工闸` 表该行 `blocks_hats` 含 `30`（本文件即证 · `npx spec-wave gate-check --task docs/tasks/active/task_3_0_w1_schema_leap.md` 可机检）
-- [ ] **#8 MIGRATION.md 草案节落盘**（SPEC 验收 8）：「2.4.2 → 3.0.0（breaking）」节含 S2.7 四要点 · W7 定稿前可评审形态 · pin-14 钉点行零改动
-- [ ] **#9 平台锁**（SPEC 验收 9）：`npm run typecheck` 0 错 · `npm test` 全绿（含新增 fixture · 以基线 607 + 新增用例数为准 · 零意外红 · 环境红先对照实验定性）
-- [ ] **#10 既有测试零改动全绿**：11 件 host 系测试（评审文 §5.2 表 · `test/host-adapt-*.test.ts` 全 11 件）+ gate 系既有断言（cli-p0 C5 / gate-semantics / cli-flags 等）**零改动全绿**；如因泛化渲染确需改动（F-W1-13）须逐条登记并限渲染字面
-- [ ] **#11 command_sets 内建目录 fixture**（OQ-6）：断言 v1 兼容桥注入目录 = `verify, gate-status, init-guide, apply-standards, hat-reanchor` + `hat-00-delegate, hat-10-spec, hat-10-task, hat-20-spec-audit, hat-20-task-audit, graph-check, sync-prompts-guide` 逐字（5+7）
-- [ ] **#12 结构闸**：`npx spec-wave task lint --file docs/tasks/active/task_3_0_w1_schema_leap.md` PASS
+- [x] **#1 向后兼容回归锁**（SPEC 验收 1）：2.4.2 版 `mvp-hosts.yaml` **逐字拷贝**固化为 fixture（建议 `test/fixtures/host-adapt/mvp-hosts_2_4_2.yaml`）→ 新版 `host validate` / `host apply --dry-run` **零改动通过**；断言物化计划（planned writes）与 2.4.2 基线**逐字一致**（planned writes 快照同步固化 · 防映射漂移 · 评审文 §3.3）
+- [x] **#2 extends/defaults 合并语义 fixture**（SPEC 验收 2 · OQ-2 九条目全固化）：正 = 标量覆盖 / 对象深合并 / 数组 replace / 未声明继承 / 链深 8 边界 / `extends: defaults`；负 = 循环继承拒绝（含自继承 · 报循环链）/ 未知目标点名 / 链深 9 报红 / defaults 自身 extends 报红
+- [x] **#3 hooks 节可机检**（SPEC 验收 3 · OQ-1 enum）：合法声明（shell-hook/config-hook × pre-commit/pre-archive · mechanism: none）报绿；非法报红 = 未知 mechanism / 未知 trigger / none 带 triggers 或 command / 非 none 缺 command / triggers 空数组（JSON schema + 手写校验器双轨各一组）
+- [x] **#4 13 宿主端到端不回归**（SPEC 验收 4）：`host apply` / `host update` 全宿主绿；`node bin/specgate.js pins check` **17/17** 仍绿（含 pin-17 13 宿主双语命中）
+- [x] **#5 闸判定泛化回归锁（双锁）**（SPEC 验收 5 · OQ-5）：① 新 fixture 构造**只含** `HG-SCHEMA-CHANGE | pending | 30` 一行的 task，断言 `evaluateMayStart30()` 返回 `{ ok:false, reason:'HG-SCHEMA-CHANGE pending' }` 且 `status` 的 `may_start_30 === false`；② 存量快照 `test/fixtures/human-gates/baseline_20260916.json` **232 行判定结果逐条不变**（泛化后重扫比对 · manifest 文件集 + 行键口径 · F-W1-09 纪律）
+- [x] **#6 gate-check 泛化渲染**（SPEC 验收 6）：输出表列出**所有** `blocks_hats` 含 30 的闸行（不再只列 3 行 · fixture task 含白名单外闸断言渲染命中）· 快照断言；exit code / --json 键集语义不变
+- [x] **#7 HG-SCHEMA-CHANGE 闸已落本 task 闸表**（SPEC 验收 7 · 硬约束 15）：`### 人工闸` 表该行 `blocks_hats` 含 `30`（本文件即证 · `npx spec-wave gate-check --task docs/tasks/active/task_3_0_w1_schema_leap.md` 可机检）
+- [x] **#8 MIGRATION.md 草案节落盘**（SPEC 验收 8）：「2.4.2 → 3.0.0（breaking）」节含 S2.7 四要点 · W7 定稿前可评审形态 · pin-14 钉点行零改动
+- [x] **#9 平台锁**（SPEC 验收 9）：`npm run typecheck` 0 错 · `npm test` 全绿（含新增 fixture · 以基线 607 + 新增用例数为准 · 零意外红 · 环境红先对照实验定性）
+- [x] **#10 既有测试零改动全绿**：11 件 host 系测试（评审文 §5.2 表 · `test/host-adapt-*.test.ts` 全 11 件）+ gate 系既有断言（cli-p0 C5 / gate-semantics / cli-flags 等）**零改动全绿**；如因泛化渲染确需改动（F-W1-13）须逐条登记并限渲染字面
+- [x] **#11 command_sets 内建目录 fixture**（OQ-6）：断言 v1 兼容桥注入目录 = `verify, gate-status, init-guide, apply-standards, hat-reanchor` + `hat-00-delegate, hat-10-spec, hat-10-task, hat-20-spec-audit, hat-20-task-audit, graph-check, sync-prompts-guide` 逐字（5+7）
+- [x] **#12 结构闸**：`npx spec-wave task lint --file docs/tasks/active/task_3_0_w1_schema_leap.md` PASS
 - [ ] **#13 执行粒度**：提交逐文件显式 add（禁 `git add -A`）· 每 commit 独立可回退 · 每 commit 前后 npm test 同绿 · 未执行 tag/push/publish/deprecate · 波末 `npx spec-wave gate-check --task docs/tasks/active/task_3_0_w1_schema_leap.md` → exit 0 + `task close --yes` 闭环
 
 ---
@@ -304,11 +304,44 @@ S2 只新增（本 task + scripts/test fixtures 为本棒交付 · 不改 SPEC/P
 
 ### 自检结论（执行者）
 
-（30 执行后回填：GATE_VERIFY 首输出闸扫描表 · 验收 13 条逐项实测 · 红测先行记录 · 快照比对 diff 结论 · 已知未测项）
+**GATE_VERIFY 首输出闸扫描表**（2026-09-16 阶段一改码前机械闸 · `node bin/specgate.js verify --target . --task docs/tasks/active/task_3_0_w1_schema_leap.md` → VERIFY: PASS · bin 面）：
+
+| human_gate_id | task表status | 用户/invoke声称 | 一致？ | blocks_30 | 30可开工？ |
+|---------------|--------------|-----------------|--------|-----------|------------|
+| HG-TASK-DRAFT | approved（00 代签） | — | Y | 20,30 | — |
+| HG-AUDIT-R1 | approved（00 代签） | — | Y | Y | ✅ |
+
+HG-SCHEMA-CHANGE 同表 approved（2026-09-16 00 代签 · 授权真值：维护者本窗「授权00代签」）· 阶段一 verify 渲染器仍白名单 3 闸口径故首输出表列 2 行；**阶段四泛化交付后该闸行首次入渲染**（live 实证 `| HG-SCHEMA-CHANGE | approved | 30 | ✅ 可 30 |` · gate-check/verify exit 0 复跑 PASS）。R1 审查文存在性 + pre-30 invoke hats 均由 verify 机械接线核验通过。
+
+**验收 13 条逐项实测**（#1–#12 已勾选 · #13 收尾尾步待闭环）：#1 compat 回归锁（2.4.2 表逐字拷贝 sha256 钉死 + validate/apply dry-run 零改动通过 + planned writes 快照 core 104/expanded 118 项逐字一致）· #2 OQ-2 九条目 11 fixture 红绿全钉（含链深 8/9 边界双条）· #3 hooks 红绿 12 fixture（OQ-1 enum · F-W1-10 矛盾面含跨层）· #4 13 宿主端到端（11 件历史波次测试 75/75 零改动全绿 + pins 17/17 含 pin-17 双语命中）· #5 双锁（新 fixture reason 逐字 + status may_start_30=false；A2 口径存量重扫：文件级零翻转 + 行键 232 条逐字 + generic 阻塞 0 行）· #6 泛化渲染（白名单外闸入表 + 快照断言 + --json 键集/exit code 不变）· #7 闸已落本表（blocks 含 30 · 本文件即证 · gate-check 机检）· #8 MIGRATION 草案节（MIGRATION.md:126-164 + 修订记录行 · pin-14 实证 17/17）· #9 平台锁（终态 667/130/666 pass/0 fail/1 skip · typecheck/build 0 错）· #10 11 件 host 测试 + gate 系断言面 git diff 空 · #11 OQ-6 内建目录 5+7+2 逐字单锚（常量已删）· #12 `task lint` PASS（本棒复跑）· #13 执行粒度（五 commit 逐文件显式 add · 每 commit 前后全绿 · 未 tag/push/publish/deprecate · 波末 gate-check exit 0 已实证；**task close --yes 待 40 复核 PASS + 00 放行后执行 · 届时勾选本行**）。
+
+**五阶段锁计数汇总**（基线 607/116/606 pass/0 fail/1 skip · 每阶段纯加性零回退）：
+
+| 阶段 | commit | npm test（tests/suites/pass/fail/skip） | 新增 |
+|------|--------|------------------------------------------|------|
+| 基线 | 98d2062 | 607/116/606/0/1 | — |
+| 一 · 探测+兼容桥+compat 锁 | 8d2ac26 | 623/120/622/0/1 | +16 测 +4 套件 |
+| 二 · defaults/extends 解析器 | 4c3e042 | 640/123/639/0/1 | +17 测 +3 套件 |
+| 三 · hooks+command_sets | 3ebea10 | 652/126/651/0/1 | +12 测 +3 套件 |
+| 四 · 闸判定泛化 | 2a586f9 | 667/130/666/0/1 | +15 测 +4 套件 |
+| 五 · MIGRATION 草案+收官备料（本棒） | 本棒 | 667 复跑同值（docs-only） | 0 |
+
+同锁每阶段全绿：typecheck 0 错 · build 0 错 · test:lib 6/6 · pins 17/17 · verify VERIFY: PASS。
+
+**红测先行记录**：负 fixture 全量先行钉死报红口径（schema_version>2/串 · extends 循环/未知/链深/defaults extends · hooks 矛盾五面+跨层 · command_sets 缺失/禁词/形状 · 闸泛化 pending 点名）—— 红径断言 = exit 2 + 点名文案逐字；阶段一 v2 入口桩 fixture 红（「解析未实现」）→ 阶段二填实后按父授权转正绿（改名 schema_version_2_valid.yaml · 登记）。
+
+**快照比对 diff 结论**：① planned writes 快照（2.4.2 基线）五阶段逐字一致（消费切换后仍 deepEqual · 含 nextText sha256）；② 闸基线 A2 重扫：75 基线文件文件级 may_start_30/reason 零翻转 · 行键（gate_id,status,blocks,出现序）逐条一致 · rescan 产物比对后删除不入 git；③ 11 件 host 测试 + gate 系（gate-semantics/cli-p0/cli-flags/cli-status-obs）git diff 全阶段为空。
+
+**已知未测项**：① 验收 #3「双轨」的 JSON schema 轨无机械 runner（包零依赖约束 · 手写校验器为权威轨 · host-adapt.schema.json 已 additive 同步 enum/结构定义 · W7 可补 ajv 类校验器转正双轨机检）；② `mvp-hosts.yaml` 表内容 defaults/extends 消重复改写 = W1 **可选动作 · 未做**（pin-17 前提不依赖 · 合并器能力已由九条目 fixture 证明）；③ MIGRATION 草案的真实 2.4.1 仓演练（草案转正前置 · W7）；④ hooks/verify 物化与运行时（归 W2 · 本波零消费口径不变 · 对外文案未暗示已生效）。
+
+**过程留痕**：五 commit 8d2ac26 / 4c3e042 / 3ebea10 / 2a586f9 + 本棒（显式逐文件 add · 零裹挟 · 未 push/tag）；红则回退事件零次（一次通过）；操作教训一条（阶段四 live 首跑 bin 面命中旧 build · rebuild 后转正 · bin 面实证前须先 build · 登记）；偏差登记逐阶段入 30 invoke 留档（`docs/harness/invokes/by-task/3-0-w1-schema-leap/invoke_20260916_30_3-0-w1-schema-leap.md` 汇总 20 条）。
 
 ### KPI（00）
 
-（00 收官回填 · rubric `KPI_RUBRIC_v1_2`）
+**30 自评备料**（待 00 收官裁定 · rubric `KPI_RUBRIC_v1_2`）：Task_KPI%: 97（验收 13 条中 #1–#12 全机械落地 · #13 仅余 task close --yes 尾步待 40 复核 + 00 放行 · 执行粒度五 commit 独立可回退 · 三重保险（compat reader + 版本探测 + MIGRATION）全落地 · 闸泛化对存量第三次实证零误伤 · 零红则回退事件 · 零发布越权）。
+
+- 范围守界：仅 S2.1–S2.7 + 父分阶段放行面 · 未碰 SPEC/PLAN/reviews 既有档 / 表内容可选改写 / W2 物化面 / 发布四动作 · 上游 untracked 档零裹挟（F-W1-14）· pin-17 四禁守住（hosts 数组形态 / 行级 host_id / 13 id / 表路径）。
+- 质量门：667/130/666 pass/0 fail/1 skip 终态 · typecheck/build 0 错 · test:lib 6/6 · pins 17/17（pin-14/pin-17 实证）· assets verify 110/110 · 每 commit 前后同绿。
 
 ---
 
@@ -316,4 +349,5 @@ S2 只新增（本 task + scripts/test fixtures 为本棒交付 · 不改 SPEC/P
 
 | 日期 | 说明 |
 |------|------|
+| 2026-09-16 | 30 五阶段交付 + 收官备料回填：范围 ①–⑦ 全交付（五 commit 8d2ac26/4c3e042/3ebea10/2a586f9 + 本棒 MIGRATION 草案节）· 锁终态 667/130/666 pass/0 fail/1 skip 零回退（基线 607 纯加性）· pins 17/17（pin-14/pin-17 实证）· 验收 #1–#12 勾选（#13 仅余 task close --yes 尾步待 40 复核 + 00 放行）· 自检结论 + KPI 自评备料（Task_KPI%: 97 自评）· 已知未测项四条登记（JSON schema runner/可选消重复未做/2.4.1 仓演练/W2 物化）· 30 invoke 留档 |
 | 2026-09-16 | 初稿 · 10-task（评审文 00 批准后拆单）：行号全量回源码复核现值（W0 后新布局 · SPEC 快照行号更新）· 基线复跑（npm test 607/116/606/0/1 原 4 环境红已消 · typecheck 0 错 · pins 17/17 · HEAD 98d2062）· **OQ-1 定稿**：triggers 枚举 = pre-commit/pre-archive 两值（pre-close 合并入 pre-archive · 论证落 S2.2）+ 机制族×触发点×13 宿主适用性矩阵 · **OQ-5 闭环**：统一口径扫描器 `scripts/scan-human-gates-baseline.mts` + 快照 `test/fixtures/human-gates/baseline_20260916.json`（75 文件/232 行/12 闸 ID · 差值归因落基线节 · 本棒交付件）· **OQ-2 确认登记**：数组 replace · fixture 九条目规格 · 闸表按评审文 §7 落（HG-SCHEMA-CHANGE/HG-TASK-DRAFT/HG-AUDIT-R1 均 pending 待 00 翻转 · 本棒不签任何闸）· 新增 F-W1-08–15（OQ-6 漂移/比对面纪律/hooks 矛盾声明/resolved rows 约束/pin-14/渲染断言耦合/裹挟/越权） |
