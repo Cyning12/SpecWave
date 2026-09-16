@@ -95,9 +95,17 @@ function verdictRow(row: HumanGate, gates: HumanGate[]): RowVerdict {
   }
 }
 
+// 3.0 W1 hotfix（CI run 35066550895）：空目录不被 git 跟踪 ⇒ 新鲜 checkout 可无此目录；
+// 缺失 = 零文件处理（不崩 · 无 active task 即零采集 · 语义正确）+ skipped-missing 双通道诊断。
+// 守卫只影响「目录缺失」分支 · 有目录时零行为差（F-HOT-01 · 照 cli-status.ts:35 先例 existsSync→continue）
+const skippedMissingDirs: string[] = []
 const files: string[] = []
 for (const dir of SCAN_DIRS) {
   const abs = path.join(REPO_ROOT, dir)
+  if (!existsSync(abs)) {
+    skippedMissingDirs.push(dir)
+    continue
+  }
   for (const name of readdirSync(abs).filter((n) => n.endsWith('.md')).sort()) {
     files.push(path.join(dir, name))
   }
@@ -143,6 +151,9 @@ const snapshot = {
     criteria:
       '行 = GATE_ROW_RE 命中且 id 以 HG- 开头且不含 human_gate（parseHumanGates 采集口径 · 不含表头/分隔行）；' +
       'blocks_30_current = 该行在现行 evaluateMayStart30 下是否致 may_start_30=false（缺行即拒为文件级 · 不计入行级）',
+    // 3.0 W1 hotfix 加性键（仅在有缺失目录时出现 · 有目录时 meta 与修复前零差异）：
+    // 缺失扫描目录清单（按零文件处理 · existsSync 守卫 skipped · F-HOT-03 可诊断口径）
+    ...(skippedMissingDirs.length > 0 ? { skipped_missing_dirs: skippedMissingDirs } : {}),
   },
   summary: {
     files_scanned: files.length,
@@ -178,6 +189,9 @@ mkdirSync(path.dirname(outAbs), { recursive: true })
 writeFileSync(outAbs, JSON.stringify(snapshot, null, 2) + '\n')
 
 console.log('扫描目录:', SCAN_DIRS.join(' + '))
+if (skippedMissingDirs.length > 0) {
+  console.log('skipped-missing 目录（缺失按零文件处理）:', skippedMissingDirs.join(' + '))
+}
 console.log('文件数:', files.length, '· 含闸节文件:', filesWithSection)
 console.log('闸行总数（统一口径）:', totalRows)
 console.log('闸 ID 种数:', gateIdSet.size)
