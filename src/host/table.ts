@@ -2,7 +2,8 @@ import { existsSync, readFileSync } from 'node:fs'
 import path from 'node:path'
 import { fail, kitLayoutJoin, packageRoot } from '../cli-shared.ts'
 import { yamlLoad } from '../yaml.ts'
-import { validateHostAdaptDocDispatch } from './schema.ts'
+import { probeHostAdaptSchemaVersion, validateHostAdaptDocDispatch } from './schema.ts'
+import { resolveV2Model } from './resolve.ts'
 
 const DEFAULT_EXAMPLE_REL = path.join('assets', 'ide', 'host-adapt', 'examples', 'mvp-hosts.yaml')
 
@@ -40,6 +41,23 @@ export function kitPackageSemver(): string | undefined {
 export function asHostRows(data: unknown): HostRow[] {
   const root = data as { hosts: HostRow[] }
   return root.hosts
+}
+
+/**
+ * 消费面行提取（F-W1-11 · resolved rows 一次性展开）：v1 → asHostRows 恒等（评审文 §3.2 行② ·
+ * v1 行为逐字不变）；v2 → defaults/extends 全量展开后的行（materialize/report 只消费展开后行 ·
+ * 零感知 extends/defaults）。前置：调用方已经 validateHostAdaptDocDispatch 校验零 issue。
+ */
+export function resolvedHostRows(data: unknown): HostRow[] {
+  if (probeHostAdaptSchemaVersion(data).kind !== 'v2') return asHostRows(data)
+  const resolved = resolveV2Model(data)
+  // 防御不可达：装载路径先经 dispatch 校验（同口径）· 校验零 issue 则解析必 ok
+  if (!resolved.ok) {
+    fail(
+      `host 适配表 v2 解析失败（内部不一致 · 应先经 host validate 拦截）:\n${resolved.issues.map((e) => `  - [${e.code}] ${e.path}: ${e.message}`).join('\n')}`,
+    )
+  }
+  return resolved.model.rows
 }
 
 export function resolveValidateFile(fileArg: string | undefined): string {

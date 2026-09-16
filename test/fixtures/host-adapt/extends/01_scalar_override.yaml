@@ -1,0 +1,18 @@
+# OQ-2 条目①（绿）：标量覆盖 —— 子 verify.bin 覆盖父 · kind/failClosed 继承（S2.4 合并语义 · 验收 #2）
+version: "1"
+schema_version: 2
+hosts:
+  - host_id: base
+    surfaces:
+      always_on: []
+      skills: []
+      commands: []
+      verify:
+        kind: cli
+        bin: spec-wave
+        failClosed: true
+  - host_id: child
+    extends: base
+    surfaces:
+      verify:
+        bin: child-bin

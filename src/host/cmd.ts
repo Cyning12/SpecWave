@@ -11,7 +11,7 @@ import {
 } from '../cli-shared.ts'
 import { evaluateHostContract } from '../host-contract.ts'
 import { yamlLoad } from '../yaml.ts'
-import { asHostRows, resolveValidateFile } from './table.ts'
+import { resolveValidateFile, resolvedHostRows } from './table.ts'
 import { validateHostAdaptDocDispatch } from './schema.ts'
 import { loadHostToolsSticky, uniqueKeepOrder, writeHostToolsSticky } from './sticky.ts'
 import { assertHostProfile, findLegacyClaudeFlatCommands } from './commands.ts'
@@ -242,7 +242,7 @@ async function cmdHostApply(args: string[]): Promise<void> {
     )
   }
 
-  const rows = asHostRows(data)
+  const rows = resolvedHostRows(data)
   const knownIds = rows.map((r) => r.host_id)
   const known = new Set(knownIds)
   const toolIds = resolveToolsList(toolsArg ?? '', knownIds, 'host apply', APPLY_USAGE)
@@ -405,7 +405,7 @@ async function cmdHostUpdate(args: string[]): Promise<void> {
     )
   }
 
-  const rows = asHostRows(data)
+  const rows = resolvedHostRows(data)
   const knownIds = rows.map((r) => r.host_id)
   const known = new Set(knownIds)
   // W2 方案 A：CLI `--tools` → 粘性 host_ids → 否则 exit 1（相对 2.1.0 全表为 BREAKING 小）

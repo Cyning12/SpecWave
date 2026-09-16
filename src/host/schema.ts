@@ -1,4 +1,5 @@
 import { isS2RelPath } from '../cli-shared.ts'
+import { resolveV2Model } from './resolve.ts'
 
 export type HostValidateIssue = {
   path: string
@@ -108,6 +109,52 @@ function validateVerify(v: unknown, base: string, issues: HostValidateIssue[]): 
   }
 }
 
+/**
+ * v2 partial 级 verify 校验（S2.3/S2.4 · 深合并中间层）：键白名单 + 呈现键型别；
+ * 完备性（kind 必为 "cli" · bin 必填）在 resolved 展开后由 validateVerify 全量复核。
+ */
+function validateVerifyPartial(v: unknown, base: string, issues: HostValidateIssue[]): void {
+  if (!isPlainObject(v)) {
+    issues.push({ path: base, code: 'schema', message: '须为对象' })
+    return
+  }
+  const extra = Object.keys(v).filter((k) => !['kind', 'bin', 'failClosed'].includes(k))
+  if (extra.length > 0) {
+    issues.push({ path: base, code: 'schema', message: `未知字段: ${extra.join(', ')}` })
+  }
+  if (v.kind !== undefined && v.kind !== 'cli') {
+    issues.push({ path: `${base}.kind`, code: 'schema', message: `须为 "cli"` })
+  }
+  if (v.bin !== undefined) requireString(v, 'bin', base, issues)
+  if (v.failClosed !== undefined && typeof v.failClosed !== 'boolean') {
+    issues.push({ path: `${base}.failClosed`, code: 'schema', message: '须为 boolean' })
+  }
+}
+
+/**
+ * v2 单级 surfaces partial 校验（defaults.surfaces / 带 extends 的 host 行 · S2.4）：
+ * 键白名单（always_on/skills/commands/verify · hooks 归后续阶段 · 出现即 未知字段 fail-closed）；
+ * 出现的节按 v1 同口径校验形状（数组条目全量校验 · verify 走 partial）；三节必填在 resolved 展开后复核。
+ */
+function validateV2SurfacesLevel(surfaces: unknown, base: string, issues: HostValidateIssue[]): void {
+  if (!isPlainObject(surfaces)) {
+    issues.push({ path: base, code: 'schema', message: '须为对象' })
+    return
+  }
+  const extra = Object.keys(surfaces).filter(
+    (k) => !['always_on', 'skills', 'commands', 'verify'].includes(k),
+  )
+  if (extra.length > 0) {
+    issues.push({ path: base, code: 'schema', message: `未知字段: ${extra.join(', ')}` })
+  }
+  if ('always_on' in surfaces) validateAlwaysOn(surfaces.always_on, `${base}.always_on`, issues)
+  if ('skills' in surfaces) validateDirFrom(surfaces.skills, `${base}.skills`, issues)
+  if ('commands' in surfaces) {
+    validateDirFrom(surfaces.commands, `${base}.commands`, issues, { allowProfile: true })
+  }
+  if ('verify' in surfaces) validateVerifyPartial(surfaces.verify, `${base}.verify`, issues)
+}
+
 /** 对照 host-adapt.schema.json 的手写校验 + S2 扫描 */
 export function validateHostAdaptDoc(data: unknown): HostValidateIssue[] {
   const issues: HostValidateIssue[] = []
@@ -163,6 +210,100 @@ export function validateHostAdaptDoc(data: unknown): HostValidateIssue[] {
   return issues
 }
 
+/**
+ * v2 完整校验（S2.1 v2 路径 · S2.3 verify 承接 · S2.4 defaults/extends · 阶段二填实入口桩）：
+ * ① 结构级：根/defaults/行键白名单 + 各级 surfaces partial 形状校验（出现节按 v1 同口径 · verify 走 partial）；
+ * ② extends 解析：循环报链（含自继承）· 未知目标点名 · 链深 >8 · host_id 重复（resolveV2Model 同口径）；
+ * ③ resolved 完备性：三节必填（展开后仍缺即报红）+ verify 全量校验（validateVerify 语义保留承接）。
+ * hooks/command_sets 校验归后续阶段：surfaces 白名单暂不含 hooks · 根白名单暂不含 command_sets
+ * （出现即 未知字段 fail-closed · F-W1-07 机检随 command_sets 阶段接入）。
+ */
+export function validateHostAdaptDocV2(data: unknown): HostValidateIssue[] {
+  const issues: HostValidateIssue[] = []
+  if (!isPlainObject(data)) {
+    issues.push({ path: '$', code: 'schema', message: '根须为对象' })
+    return issues
+  }
+  const extraRoot = Object.keys(data).filter(
+    (k) => !['version', 'schema_version', 'hosts', 'defaults'].includes(k),
+  )
+  if (extraRoot.length > 0) {
+    issues.push({ path: '$', code: 'schema', message: `未知字段: ${extraRoot.join(', ')}` })
+  }
+  requireString(data, 'version', '$', issues)
+  if (data.schema_version !== 2) {
+    issues.push({ path: '$.schema_version', code: 'schema', message: 'v2 表 schema_version 须为整数 2' })
+  }
+  if (data.defaults !== undefined) {
+    if (!isPlainObject(data.defaults)) {
+      issues.push({ path: '$.defaults', code: 'schema', message: '须为对象' })
+    } else {
+      if ('extends' in data.defaults) {
+        issues.push({
+          path: '$.defaults.extends',
+          code: 'schema',
+          message: 'defaults 自身不得 extends（拒）',
+        })
+      }
+      const extraDefaults = Object.keys(data.defaults).filter((k) => k !== 'surfaces' && k !== 'extends')
+      if (extraDefaults.length > 0) {
+        issues.push({
+          path: '$.defaults',
+          code: 'schema',
+          message: `未知字段: ${extraDefaults.join(', ')}`,
+        })
+      }
+      if ('surfaces' in data.defaults) {
+        validateV2SurfacesLevel(data.defaults.surfaces, '$.defaults.surfaces', issues)
+      }
+    }
+  }
+  if (!Array.isArray(data.hosts) || data.hosts.length < 1) {
+    issues.push({ path: '$.hosts', code: 'schema', message: '须为非空数组' })
+    return issues
+  }
+  data.hosts.forEach((row, i) => {
+    const p = `$.hosts[${i}]`
+    if (!isPlainObject(row)) {
+      issues.push({ path: p, code: 'schema', message: '须为对象' })
+      return
+    }
+    const extra = Object.keys(row).filter((k) => !['host_id', 'surfaces', 'extends'].includes(k))
+    if (extra.length > 0) {
+      issues.push({ path: p, code: 'schema', message: `未知字段: ${extra.join(', ')}` })
+    }
+    requireString(row, 'host_id', p, issues)
+    if (row.extends !== undefined && (typeof row.extends !== 'string' || row.extends.trim().length < 1)) {
+      issues.push({
+        path: `${p}.extends`,
+        code: 'schema',
+        message: '须为非空字符串（host_id 或 "defaults"）',
+      })
+    }
+    if ('surfaces' in row) validateV2SurfacesLevel(row.surfaces, `${p}.surfaces`, issues)
+  })
+  if (issues.length > 0) return issues
+  // ② extends 解析（拒绝面同 S2.4 · resolveV2Model 单口径）
+  const resolved = resolveV2Model(data)
+  if (!resolved.ok) return resolved.issues
+  // ③ resolved 完备性（resolved rows 与 hosts 声明序一一对应 · resolveV2Rows 输出序 = 声明序）
+  resolved.model.rows.forEach((row, i) => {
+    const p = `$.hosts[${i}].surfaces`
+    const surfaces = row.surfaces as Record<string, unknown>
+    for (const req of ['always_on', 'skills', 'commands'] as const) {
+      if (!(req in surfaces)) {
+        issues.push({
+          path: `${p}.${req}`,
+          code: 'schema',
+          message: '必填（defaults/extends 展开后仍缺失）',
+        })
+      }
+    }
+    if (surfaces.verify !== undefined) validateVerify(surfaces.verify, `${p}.verify`, issues)
+  })
+  return issues
+}
+
 // ─── 3.0 W1 阶段一 · schema_version 探测树（S2.1 · 评审文 §2.1/§3.1 · F-W1-03） ───
 
 /** schema_version 探测结果（S2.1 探测树三分支） */
@@ -209,21 +350,12 @@ export function probeHostAdaptSchemaVersion(data: unknown): HostAdaptSchemaProbe
 
 /**
  * 探测分派校验（S2.1 · 装载路径统一入口）：v1 → validateHostAdaptDoc 语义原样（逐字不变）；
- * v2 → 入口桩 fail-closed（全新校验 + defaults/extends 解析归 W1 后续阶段 · 不静默放行）；
+ * v2 → validateHostAdaptDocV2 完整校验（结构级 + extends 解析 + resolved 完备性 · 阶段二填实）；
  * invalid → 探测 issue（F-W1-03）。
  */
 export function validateHostAdaptDocDispatch(data: unknown): HostValidateIssue[] {
   const probe = probeHostAdaptSchemaVersion(data)
   if (probe.kind === 'invalid') return probe.issues
-  if (probe.kind === 'v2') {
-    return [
-      {
-        path: '$.schema_version',
-        code: 'schema',
-        message:
-          'schema_version 2 解析未实现（3.0 W1 后续阶段填充 · 本阶段仅探测树 + v1 兼容桥 · fail-closed 不静默）',
-      },
-    ]
-  }
+  if (probe.kind === 'v2') return validateHostAdaptDocV2(data) // v2 完整校验（阶段二填实 · S2.3/S2.4）
   return validateHostAdaptDoc(data)
 }

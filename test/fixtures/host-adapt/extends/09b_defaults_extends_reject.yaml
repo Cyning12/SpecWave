@@ -1,0 +1,15 @@
+# OQ-2 条目⑨b（红）：defaults 自身 extends 拒绝（语义闭环 · 断言「defaults 自身不得 extends」）
+version: "1"
+schema_version: 2
+defaults:
+  extends: base
+  surfaces:
+    always_on: []
+    skills: []
+    commands: []
+hosts:
+  - host_id: base
+    surfaces:
+      always_on: []
+      skills: []
+      commands: []

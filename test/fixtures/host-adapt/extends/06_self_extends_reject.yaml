@@ -1,0 +1,6 @@
+# OQ-2 条目⑥（红）：自继承拒绝 —— a→a（循环继承特例 · 断言「a → a」点名）
+version: "1"
+schema_version: 2
+hosts:
+  - host_id: a
+    extends: a

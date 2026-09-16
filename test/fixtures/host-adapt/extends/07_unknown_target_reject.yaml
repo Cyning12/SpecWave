@@ -1,0 +1,6 @@
+# OQ-2 条目⑦（红）：未知 extend 目标拒绝并点名 —— ghost（fail-closed · 断言点名 ghost）
+version: "1"
+schema_version: 2
+hosts:
+  - host_id: a
+    extends: ghost

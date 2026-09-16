@@ -1,0 +1,27 @@
+# OQ-2 条目⑧b（红 · 边界）：链深 9 报红 —— h1→…→h9→defaults 共 9 跳超限（断言「9 > 8」· 与 08a 成边界双条）
+version: "1"
+schema_version: 2
+defaults:
+  surfaces:
+    always_on: []
+    skills: []
+    commands: []
+hosts:
+  - host_id: h1
+    extends: h2
+  - host_id: h2
+    extends: h3
+  - host_id: h3
+    extends: h4
+  - host_id: h4
+    extends: h5
+  - host_id: h5
+    extends: h6
+  - host_id: h6
+    extends: h7
+  - host_id: h7
+    extends: h8
+  - host_id: h8
+    extends: h9
+  - host_id: h9
+    extends: defaults

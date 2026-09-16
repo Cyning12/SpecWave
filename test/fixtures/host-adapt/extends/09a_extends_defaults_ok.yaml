@@ -1,0 +1,17 @@
+# OQ-2 条目⑨a（绿）：extends: defaults 合法 —— defaults 伪节点承载公共面（含 verify 承接 · 行未写 surfaces 亦可）
+version: "1"
+schema_version: 2
+defaults:
+  surfaces:
+    always_on: []
+    skills:
+      - target_dir: .agents/skills
+        from: assets/skills/*
+    commands: []
+    verify:
+      kind: cli
+      bin: spec-wave
+      failClosed: true
+hosts:
+  - host_id: child
+    extends: defaults

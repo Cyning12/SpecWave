@@ -1,0 +1,17 @@
+# OQ-2 条目④（绿）：数组未声明则继承 —— 子只写 always_on · skills/commands 继承父（replace 语义的对偶面）
+version: "1"
+schema_version: 2
+hosts:
+  - host_id: base
+    surfaces:
+      always_on:
+        - target: AGENTS.md
+          source: assets/ide/adapters/AGENTS.md.fragment.example
+      skills:
+        - target_dir: .agents/skills
+          from: assets/skills/*
+      commands: []
+  - host_id: child
+    extends: base
+    surfaces:
+      always_on: []

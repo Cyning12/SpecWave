@@ -1,0 +1,10 @@
+# S2.1 探测树 fixture：schema_version 整数 2 → v2 解析路径（阶段二已填实 · 合法 v2 文档通过）
+# 断言点：host validate exit 0 · HOST VALIDATE: PASS（test/w1-schema-version-detect.test.ts）
+schema_version: 2
+version: "1"
+hosts:
+  - host_id: cursor
+    surfaces:
+      always_on: []
+      skills: []
+      commands: []

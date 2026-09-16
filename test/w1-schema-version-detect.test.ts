@@ -50,13 +50,20 @@ describe('3.0 W1 阶段一 · schema_version 探测树（S2.1 · 评审文 §3.1
     assert.equal(probeHostAdaptSchemaVersion('not-an-object').kind, 'v1') // 根非对象仍走 v1 报「根须为对象」
   })
 
-  it('整数 2 → v2 入口桩 fail-closed（本阶段未实现 · 不静默放行）', () => {
-    const doc = { version: '1', schema_version: 2, hosts: [] }
-    assert.equal(probeHostAdaptSchemaVersion(doc).kind, 'v2')
-    const issues = validateHostAdaptDocDispatch(doc)
+  it('整数 2 → v2 解析路径（阶段二填实）：合法 v2 零 issue · 非法（extends 未知目标）点名报红', () => {
+    const valid = {
+      version: '1',
+      schema_version: 2,
+      hosts: [{ host_id: 'cursor', surfaces: { always_on: [], skills: [], commands: [] } }],
+    }
+    assert.equal(probeHostAdaptSchemaVersion(valid).kind, 'v2')
+    assert.deepEqual(validateHostAdaptDocDispatch(valid), [])
+    const invalid = { version: '1', schema_version: 2, hosts: [{ host_id: 'a', extends: 'ghost' }] }
+    const issues = validateHostAdaptDocDispatch(invalid)
     assert.equal(issues.length, 1)
-    assert.equal(issues[0]!.path, '$.schema_version')
-    assert.match(issues[0]!.message, /解析未实现/)
+    assert.equal(issues[0]!.path, '$.hosts[0].extends')
+    assert.match(issues[0]!.message, /未知目标/)
+    assert.match(issues[0]!.message, /ghost/)
   })
 
   it('整数 >2（3）→ fail-closed「未知 schema_version」点名 · 整数 1 同口径（保守 · 不得静默按旧格式解析）', () => {
@@ -92,10 +99,10 @@ describe('3.0 W1 阶段一 · schema_version 探测树（S2.1 · 评审文 §3.1
     assert.match(r.combined, /须为整数/)
   })
 
-  it('探测树 fixture：schema_version: 2 → host validate exit 2 入口桩 fail-closed「解析未实现」', () => {
-    const r = runCli(['host', 'validate', '--file', path.join(SV_DIR, 'schema_version_2_stub.yaml')])
-    assert.equal(r.status, 2, r.combined)
-    assert.match(r.combined, /解析未实现/)
+  it('探测树 fixture：schema_version: 2 → host validate exit 0（v2 路径已填实 · 合法文档通过 · 阶段一入口桩语义转正登记）', () => {
+    const r = runCli(['host', 'validate', '--file', path.join(SV_DIR, 'schema_version_2_valid.yaml')])
+    assert.equal(r.status, 0, r.combined)
+    assert.match(r.combined, /HOST VALIDATE:\s*PASS/i)
   })
 
   it('现行包内表仍为 v1（无 schema_version 键）· 探测分派零 issue（表内容本阶段不动）', () => {

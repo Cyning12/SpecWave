@@ -1,0 +1,8 @@
+# OQ-2 条目⑤（红）：循环继承拒绝并报循环链 —— a→b→a（F-W1-02 · 断言「a → b → a」点名）
+version: "1"
+schema_version: 2
+hosts:
+  - host_id: a
+    extends: b
+  - host_id: b
+    extends: a

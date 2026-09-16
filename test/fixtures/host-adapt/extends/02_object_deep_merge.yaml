@@ -1,0 +1,17 @@
+# OQ-2 条目②（绿）：对象逐键深合并 —— 子只写 failClosed · 继承父 kind/bin（verify 深合并 · S2.3 承接参与）
+version: "1"
+schema_version: 2
+hosts:
+  - host_id: base
+    surfaces:
+      always_on: []
+      skills: []
+      commands: []
+      verify:
+        kind: cli
+        bin: spec-wave
+  - host_id: child
+    extends: base
+    surfaces:
+      verify:
+        failClosed: false

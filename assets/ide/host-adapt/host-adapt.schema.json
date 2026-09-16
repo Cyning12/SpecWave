@@ -2,95 +2,248 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/Cyning12/SpecWave/assets/ide/host-adapt/host-adapt.schema.json",
   "title": "DSH host-adapt table",
-  "description": "Declarative host adaptation table (F6 / 2.x W1). Surfaces: always_on, skills, commands; optional verify. target / target_dir must not hit S2_TRUTH_PREFIXES (validated by CLI, not this schema alone).",
+  "description": "Declarative host adaptation table (F6 / 2.x W1 · 3.0 W1 schema_version=2 additive). Surfaces: always_on, skills, commands; optional verify. v2 adds optional schema_version / defaults / host-level extends (defaults+extends resolution: scalar override, object deep-merge, array replace; cycles/unknown targets/depth>8 rejected). hooks/command_sets keys land in a later wave stage (rejected as unknown until then). target / target_dir must not hit S2_TRUTH_PREFIXES. AUTHORITATIVE validation is the handwritten CLI validator (src/host/schema.ts, npx spec-wave host validate); this JSON schema tracks it best-effort (v1 rows with extends / v1 root defaults are also rejected by the CLI even where this file cannot express the version gating).",
   "type": "object",
   "additionalProperties": false,
-  "required": ["version", "hosts"],
+  "required": [
+    "version",
+    "hosts"
+  ],
   "properties": {
     "version": {
       "type": "string",
       "minLength": 1,
-      "description": "Table schema version (string, e.g. \"1\")."
+      "description": "Table content version string (unchanged, e.g. \"1\"). Not the schema probe key."
+    },
+    "schema_version": {
+      "type": "integer",
+      "enum": [
+        2
+      ],
+      "description": "3.0 W1 schema probe key (integer). Absent = v1 legacy flat semantics; 2 = v2 (defaults/extends resolution). Values >2 fail-closed."
+    },
+    "defaults": {
+      "$ref": "#/$defs/Defaults"
     },
     "hosts": {
       "type": "array",
       "minItems": 1,
-      "items": { "$ref": "#/$defs/HostRow" }
+      "items": {
+        "$ref": "#/$defs/HostRow"
+      }
     }
+  },
+  "if": {
+    "not": {
+      "required": [
+        "schema_version"
+      ]
+    }
+  },
+  "then": {
+    "not": {
+      "required": [
+        "defaults"
+      ]
+    },
+    "description": "v1 tables (no schema_version key) must not declare v2-only defaults (handwritten validator rejects extends on v1 rows likewise)."
   },
   "$defs": {
     "HostRow": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["host_id", "surfaces"],
+      "required": [
+        "host_id"
+      ],
+      "anyOf": [
+        { "required": ["extends"] },
+        { "required": ["surfaces"] }
+      ],
       "properties": {
         "host_id": {
           "type": "string",
           "minLength": 1,
-          "description": "Host identifier (e.g. dsh, cursor, claude)."
+          "description": "Host identifier (e.g. dsh, cursor, claude). Unique per table in v2 (extends target ambiguity is rejected by the CLI validator)."
         },
-        "surfaces": { "$ref": "#/$defs/Surfaces" }
+        "extends": {
+          "type": "string",
+          "minLength": 1,
+          "description": "v2 only: inherit another host_id or \"defaults\" (topological resolution; cycles/unknown targets rejected)."
+        },
+        "surfaces": {
+          "$ref": "#/$defs/Surfaces"
+        }
+      }
+    },
+    "Defaults": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "v2 only: pseudo-node for shared partial surfaces (referenced via extends: \"defaults\"). Defaults itself must not extends.",
+      "properties": {
+        "surfaces": {
+          "$ref": "#/$defs/SurfacesPartial"
+        }
       }
     },
     "Surfaces": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["always_on", "skills", "commands"],
+      "required": [
+        "always_on",
+        "skills",
+        "commands"
+      ],
       "properties": {
         "always_on": {
           "type": "array",
-          "items": { "$ref": "#/$defs/AlwaysOnEntry" }
+          "items": {
+            "$ref": "#/$defs/AlwaysOnEntry"
+          }
         },
         "skills": {
           "type": "array",
-          "items": { "$ref": "#/$defs/DirFromEntry" }
+          "items": {
+            "$ref": "#/$defs/DirFromEntry"
+          }
         },
         "commands": {
           "type": "array",
-          "items": { "$ref": "#/$defs/CommandsEntry" }
+          "items": {
+            "$ref": "#/$defs/CommandsEntry"
+          }
         },
-        "verify": { "$ref": "#/$defs/VerifyEntry" }
+        "verify": {
+          "$ref": "#/$defs/VerifyEntry"
+        }
+      }
+    },
+    "SurfacesPartial": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "v2 partial surfaces (defaults / rows with extends): any subset of sections; completeness is checked on resolved rows by the CLI validator.",
+      "properties": {
+        "always_on": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/AlwaysOnEntry"
+          }
+        },
+        "skills": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/DirFromEntry"
+          }
+        },
+        "commands": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/CommandsEntry"
+          }
+        },
+        "verify": {
+          "$ref": "#/$defs/VerifyEntryPartial"
+        }
       }
     },
     "AlwaysOnEntry": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["target", "source"],
+      "required": [
+        "target",
+        "source"
+      ],
       "properties": {
-        "target": { "type": "string", "minLength": 1 },
-        "source": { "type": "string", "minLength": 1 }
+        "target": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source": {
+          "type": "string",
+          "minLength": 1
+        }
       }
     },
     "DirFromEntry": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["target_dir", "from"],
+      "required": [
+        "target_dir",
+        "from"
+      ],
       "properties": {
-        "target_dir": { "type": "string", "minLength": 1 },
-        "from": { "type": "string", "minLength": 1 }
+        "target_dir": {
+          "type": "string",
+          "minLength": 1
+        },
+        "from": {
+          "type": "string",
+          "minLength": 1
+        }
       }
     },
     "CommandsEntry": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["target_dir", "from"],
+      "required": [
+        "target_dir",
+        "from"
+      ],
       "properties": {
-        "target_dir": { "type": "string", "minLength": 1 },
-        "from": { "type": "string", "minLength": 1 },
+        "target_dir": {
+          "type": "string",
+          "minLength": 1
+        },
+        "from": {
+          "type": "string",
+          "minLength": 1
+        },
         "profile": {
           "type": "string",
-          "enum": ["core", "expanded", "custom"]
+          "enum": [
+            "core",
+            "expanded",
+            "custom"
+          ]
         }
       }
     },
     "VerifyEntry": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["kind", "bin"],
+      "required": [
+        "kind",
+        "bin"
+      ],
       "properties": {
-        "kind": { "type": "string", "const": "cli" },
-        "bin": { "type": "string", "minLength": 1 },
-        "failClosed": { "type": "boolean" }
+        "kind": {
+          "type": "string",
+          "const": "cli"
+        },
+        "bin": {
+          "type": "string",
+          "minLength": 1
+        },
+        "failClosed": {
+          "type": "boolean"
+        }
+      }
+    },
+    "VerifyEntryPartial": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "v2 partial verify for merge levels (deep-merge per key); kind/bin completeness checked on resolved rows.",
+      "properties": {
+        "kind": {
+          "type": "string",
+          "const": "cli"
+        },
+        "bin": {
+          "type": "string",
+          "minLength": 1
+        },
+        "failClosed": {
+          "type": "boolean"
+        }
       }
     }
   }

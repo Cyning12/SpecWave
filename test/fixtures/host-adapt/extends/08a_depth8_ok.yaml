@@ -1,0 +1,25 @@
+# OQ-2 条目⑧a（绿 · 边界）：链深 8 合法 —— h1→h2→…→h8→defaults 恰 8 跳（链深 = extends 跳数 · ≤8 合法）
+version: "1"
+schema_version: 2
+defaults:
+  surfaces:
+    always_on: []
+    skills: []
+    commands: []
+hosts:
+  - host_id: h1
+    extends: h2
+  - host_id: h2
+    extends: h3
+  - host_id: h3
+    extends: h4
+  - host_id: h4
+    extends: h5
+  - host_id: h5
+    extends: h6
+  - host_id: h6
+    extends: h7
+  - host_id: h7
+    extends: h8
+  - host_id: h8
+    extends: defaults

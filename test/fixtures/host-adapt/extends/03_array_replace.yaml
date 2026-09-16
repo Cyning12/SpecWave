@@ -1,0 +1,19 @@
+# OQ-2 条目③（绿）：数组整体替换 —— 子声明 skills 即以子数组为准（OQ-2 裁定 replace · 不逐元素合并）
+version: "1"
+schema_version: 2
+hosts:
+  - host_id: base
+    surfaces:
+      always_on: []
+      skills:
+        - target_dir: .base/skills-a
+          from: assets/skills/*
+        - target_dir: .base/skills-b
+          from: assets/ide/skills-orch/*
+      commands: []
+  - host_id: child
+    extends: base
+    surfaces:
+      skills:
+        - target_dir: .child/skills
+          from: assets/skills/*
