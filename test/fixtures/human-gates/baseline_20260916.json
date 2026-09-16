@@ -1,0 +1,2939 @@
+{
+  "meta": {
+    "generated_at": "2026-09-16",
+    "generator": "scripts/scan-human-gates-baseline.mts",
+    "semantics": "现行白名单 3 闸逻辑（src/cli-shared.ts parseHumanGates + evaluateMayStart30 import 同口径）",
+    "scan_dirs": [
+      "docs/tasks/active",
+      "docs/tasks/done"
+    ],
+    "criteria": "行 = GATE_ROW_RE 命中且 id 以 HG- 开头且不含 human_gate（parseHumanGates 采集口径 · 不含表头/分隔行）；blocks_30_current = 该行在现行 evaluateMayStart30 下是否致 may_start_30=false（缺行即拒为文件级 · 不计入行级）"
+  },
+  "summary": {
+    "files_scanned": 75,
+    "files_with_gate_section": 64,
+    "total_gate_rows": 232,
+    "distinct_gate_ids": [
+      "HG-AUDIT-R1",
+      "HG-DEPRECATE",
+      "HG-DEPRECATE-HARNESS",
+      "HG-EOS-DATE",
+      "HG-GRAPH-MODULES",
+      "HG-NEXT-211",
+      "HG-NEXT-212",
+      "HG-NEXT-PLAN",
+      "HG-PUBLISH",
+      "HG-RENAME",
+      "HG-SPEC-SIGNOFF",
+      "HG-TASK-DRAFT"
+    ],
+    "distinct_gate_id_count": 12,
+    "rows_blocking_30_current": 0,
+    "rows_shadowed": 0,
+    "files_may_start_30_false": 11
+  },
+  "files": [
+    {
+      "file": "docs/tasks/done/README.md",
+      "has_gate_section": false,
+      "audit_r1_row_present": false,
+      "may_start_30": {
+        "ok": false,
+        "reason": "HG-AUDIT-R1 pending"
+      },
+      "rows": []
+    },
+    {
+      "file": "docs/tasks/done/task_00_default_behavior_kit_1_7_1.md",
+      "has_gate_section": true,
+      "audit_r1_row_present": true,
+      "may_start_30": {
+        "ok": true,
+        "reason": null
+      },
+      "rows": [
+        {
+          "gate_id": "HG-TASK-DRAFT",
+          "status": "approved",
+          "blocks_hats": "22-R1, 30",
+          "matched_rule": "HG-TASK-DRAFT",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-AUDIT-R1",
+          "status": "approved",
+          "blocks_hats": "30",
+          "matched_rule": "HG-AUDIT-R1",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        }
+      ]
+    },
+    {
+      "file": "docs/tasks/done/task_1x_closeout_w1_ci_dogfood.md",
+      "has_gate_section": false,
+      "audit_r1_row_present": false,
+      "may_start_30": {
+        "ok": false,
+        "reason": "HG-AUDIT-R1 pending"
+      },
+      "rows": []
+    },
+    {
+      "file": "docs/tasks/done/task_1x_closeout_w2_eos_calendar.md",
+      "has_gate_section": false,
+      "audit_r1_row_present": false,
+      "may_start_30": {
+        "ok": false,
+        "reason": "HG-AUDIT-R1 pending"
+      },
+      "rows": []
+    },
+    {
+      "file": "docs/tasks/done/task_1x_closeout_w3_ontology_shallow.md",
+      "has_gate_section": false,
+      "audit_r1_row_present": false,
+      "may_start_30": {
+        "ok": false,
+        "reason": "HG-AUDIT-R1 pending"
+      },
+      "rows": []
+    },
+    {
+      "file": "docs/tasks/done/task_1x_closeout_w4_p6_prep_docs.md",
+      "has_gate_section": false,
+      "audit_r1_row_present": false,
+      "may_start_30": {
+        "ok": false,
+        "reason": "HG-AUDIT-R1 pending"
+      },
+      "rows": []
+    },
+    {
+      "file": "docs/tasks/done/task_1x_mvp_w1_s2_truth.md",
+      "has_gate_section": true,
+      "audit_r1_row_present": true,
+      "may_start_30": {
+        "ok": true,
+        "reason": null
+      },
+      "rows": [
+        {
+          "gate_id": "HG-SPEC-SIGNOFF",
+          "status": "approved",
+          "blocks_hats": "10-task, 30",
+          "matched_rule": null,
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-TASK-DRAFT",
+          "status": "approved",
+          "blocks_hats": "22-R1, 30",
+          "matched_rule": "HG-TASK-DRAFT",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-AUDIT-R1",
+          "status": "approved",
+          "blocks_hats": "30",
+          "matched_rule": "HG-AUDIT-R1",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        }
+      ]
+    },
+    {
+      "file": "docs/tasks/done/task_1x_mvp_w2_gate_semantics.md",
+      "has_gate_section": true,
+      "audit_r1_row_present": true,
+      "may_start_30": {
+        "ok": true,
+        "reason": null
+      },
+      "rows": [
+        {
+          "gate_id": "HG-SPEC-SIGNOFF",
+          "status": "approved",
+          "blocks_hats": "10,30",
+          "matched_rule": null,
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-TASK-DRAFT",
+          "status": "approved",
+          "blocks_hats": "22-R1,30",
+          "matched_rule": "HG-TASK-DRAFT",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-AUDIT-R1",
+          "status": "approved",
+          "blocks_hats": "30",
+          "matched_rule": "HG-AUDIT-R1",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        }
+      ]
+    },
+    {
+      "file": "docs/tasks/done/task_1x_mvp_w3_layout_migration.md",
+      "has_gate_section": true,
+      "audit_r1_row_present": true,
+      "may_start_30": {
+        "ok": true,
+        "reason": null
+      },
+      "rows": [
+        {
+          "gate_id": "HG-SPEC-SIGNOFF",
+          "status": "approved",
+          "blocks_hats": "10,30",
+          "matched_rule": null,
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-TASK-DRAFT",
+          "status": "approved",
+          "blocks_hats": "22-R1,30",
+          "matched_rule": "HG-TASK-DRAFT",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-AUDIT-R1",
+          "status": "approved",
+          "blocks_hats": "30",
+          "matched_rule": "HG-AUDIT-R1",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-EOS-DATE",
+          "status": "pending",
+          "blocks_hats": "deprecate 实操",
+          "matched_rule": null,
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-PUBLISH",
+          "status": "pending",
+          "blocks_hats": "publish",
+          "matched_rule": null,
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        }
+      ]
+    },
+    {
+      "file": "docs/tasks/done/task_1x_mvp_w4_spec_version_pin.md",
+      "has_gate_section": false,
+      "audit_r1_row_present": false,
+      "may_start_30": {
+        "ok": false,
+        "reason": "HG-AUDIT-R1 pending"
+      },
+      "rows": []
+    },
+    {
+      "file": "docs/tasks/done/task_2_1_1_host_tools_ux_w0_planning.md",
+      "has_gate_section": false,
+      "audit_r1_row_present": false,
+      "may_start_30": {
+        "ok": false,
+        "reason": "HG-AUDIT-R1 pending"
+      },
+      "rows": []
+    },
+    {
+      "file": "docs/tasks/done/task_2_1_1_host_tools_ux_w1_sticky.md",
+      "has_gate_section": true,
+      "audit_r1_row_present": true,
+      "may_start_30": {
+        "ok": true,
+        "reason": null
+      },
+      "rows": [
+        {
+          "gate_id": "HG-NEXT-211",
+          "status": "approved",
+          "blocks_hats": "—",
+          "matched_rule": null,
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-SPEC-SIGNOFF",
+          "status": "approved",
+          "blocks_hats": "—",
+          "matched_rule": null,
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-TASK-DRAFT",
+          "status": "approved",
+          "blocks_hats": "22, 30",
+          "matched_rule": "HG-TASK-DRAFT",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-AUDIT-R1",
+          "status": "approved",
+          "blocks_hats": "30",
+          "matched_rule": "HG-AUDIT-R1",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        }
+      ]
+    },
+    {
+      "file": "docs/tasks/done/task_2_1_1_host_tools_ux_w2_update_default.md",
+      "has_gate_section": true,
+      "audit_r1_row_present": true,
+      "may_start_30": {
+        "ok": true,
+        "reason": null
+      },
+      "rows": [
+        {
+          "gate_id": "HG-NEXT-211",
+          "status": "approved",
+          "blocks_hats": "—",
+          "matched_rule": null,
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-SPEC-SIGNOFF",
+          "status": "approved",
+          "blocks_hats": "—",
+          "matched_rule": null,
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-TASK-DRAFT",
+          "status": "approved",
+          "blocks_hats": "22, 30",
+          "matched_rule": "HG-TASK-DRAFT",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-AUDIT-R1",
+          "status": "approved",
+          "blocks_hats": "30",
+          "matched_rule": "HG-AUDIT-R1",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        }
+      ]
+    },
+    {
+      "file": "docs/tasks/done/task_2_1_1_host_tools_ux_w3_init_tools.md",
+      "has_gate_section": true,
+      "audit_r1_row_present": true,
+      "may_start_30": {
+        "ok": true,
+        "reason": null
+      },
+      "rows": [
+        {
+          "gate_id": "HG-NEXT-211",
+          "status": "approved",
+          "blocks_hats": "—",
+          "matched_rule": null,
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-SPEC-SIGNOFF",
+          "status": "approved",
+          "blocks_hats": "—",
+          "matched_rule": null,
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-TASK-DRAFT",
+          "status": "approved",
+          "blocks_hats": "22, 30",
+          "matched_rule": "HG-TASK-DRAFT",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-AUDIT-R1",
+          "status": "approved",
+          "blocks_hats": "30",
+          "matched_rule": "HG-AUDIT-R1",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        }
+      ]
+    },
+    {
+      "file": "docs/tasks/done/task_2_1_1_host_tools_ux_w4_docs_release.md",
+      "has_gate_section": true,
+      "audit_r1_row_present": true,
+      "may_start_30": {
+        "ok": true,
+        "reason": null
+      },
+      "rows": [
+        {
+          "gate_id": "HG-NEXT-211",
+          "status": "approved",
+          "blocks_hats": "—",
+          "matched_rule": null,
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-SPEC-SIGNOFF",
+          "status": "approved",
+          "blocks_hats": "—",
+          "matched_rule": null,
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-TASK-DRAFT",
+          "status": "approved",
+          "blocks_hats": "22, 30",
+          "matched_rule": "HG-TASK-DRAFT",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-AUDIT-R1",
+          "status": "approved",
+          "blocks_hats": "30",
+          "matched_rule": "HG-AUDIT-R1",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-PUBLISH",
+          "status": "approved",
+          "blocks_hats": "publish",
+          "matched_rule": null,
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        }
+      ]
+    },
+    {
+      "file": "docs/tasks/done/task_2_1_2_rename_closeout_w0_planning.md",
+      "has_gate_section": false,
+      "audit_r1_row_present": false,
+      "may_start_30": {
+        "ok": false,
+        "reason": "HG-AUDIT-R1 pending"
+      },
+      "rows": []
+    },
+    {
+      "file": "docs/tasks/done/task_2_1_2_rename_closeout_w1_identity_docs.md",
+      "has_gate_section": true,
+      "audit_r1_row_present": true,
+      "may_start_30": {
+        "ok": true,
+        "reason": null
+      },
+      "rows": [
+        {
+          "gate_id": "HG-NEXT-212",
+          "status": "approved",
+          "blocks_hats": "—",
+          "matched_rule": null,
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-SPEC-SIGNOFF",
+          "status": "approved",
+          "blocks_hats": "—",
+          "matched_rule": null,
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-TASK-DRAFT",
+          "status": "approved",
+          "blocks_hats": "22, 30",
+          "matched_rule": "HG-TASK-DRAFT",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-AUDIT-R1",
+          "status": "approved",
+          "blocks_hats": "30",
+          "matched_rule": "HG-AUDIT-R1",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        }
+      ]
+    },
+    {
+      "file": "docs/tasks/done/task_2_1_2_rename_closeout_w2_assets_copy.md",
+      "has_gate_section": true,
+      "audit_r1_row_present": true,
+      "may_start_30": {
+        "ok": true,
+        "reason": null
+      },
+      "rows": [
+        {
+          "gate_id": "HG-NEXT-212",
+          "status": "approved",
+          "blocks_hats": "—",
+          "matched_rule": null,
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-SPEC-SIGNOFF",
+          "status": "approved",
+          "blocks_hats": "—",
+          "matched_rule": null,
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-TASK-DRAFT",
+          "status": "approved",
+          "blocks_hats": "22, 30",
+          "matched_rule": "HG-TASK-DRAFT",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-AUDIT-R1",
+          "status": "approved",
+          "blocks_hats": "30",
+          "matched_rule": "HG-AUDIT-R1",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        }
+      ]
+    },
+    {
+      "file": "docs/tasks/done/task_2_1_2_rename_closeout_w3_init_yes.md",
+      "has_gate_section": true,
+      "audit_r1_row_present": true,
+      "may_start_30": {
+        "ok": true,
+        "reason": null
+      },
+      "rows": [
+        {
+          "gate_id": "HG-NEXT-212",
+          "status": "approved",
+          "blocks_hats": "—",
+          "matched_rule": null,
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-SPEC-SIGNOFF",
+          "status": "approved",
+          "blocks_hats": "—",
+          "matched_rule": null,
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-TASK-DRAFT",
+          "status": "approved",
+          "blocks_hats": "22, 30",
+          "matched_rule": "HG-TASK-DRAFT",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-AUDIT-R1",
+          "status": "approved",
+          "blocks_hats": "30",
+          "matched_rule": "HG-AUDIT-R1",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        }
+      ]
+    },
+    {
+      "file": "docs/tasks/done/task_2_1_2_rename_closeout_w4_release.md",
+      "has_gate_section": true,
+      "audit_r1_row_present": true,
+      "may_start_30": {
+        "ok": true,
+        "reason": null
+      },
+      "rows": [
+        {
+          "gate_id": "HG-NEXT-212",
+          "status": "approved",
+          "blocks_hats": "—",
+          "matched_rule": null,
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-SPEC-SIGNOFF",
+          "status": "approved",
+          "blocks_hats": "—",
+          "matched_rule": null,
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-TASK-DRAFT",
+          "status": "approved",
+          "blocks_hats": "22, 30",
+          "matched_rule": "HG-TASK-DRAFT",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-AUDIT-R1",
+          "status": "approved",
+          "blocks_hats": "30",
+          "matched_rule": "HG-AUDIT-R1",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-PUBLISH",
+          "status": "approved",
+          "blocks_hats": "—",
+          "matched_rule": null,
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-DEPRECATE-HARNESS",
+          "status": "approved",
+          "blocks_hats": "—",
+          "matched_rule": null,
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        }
+      ]
+    },
+    {
+      "file": "docs/tasks/done/task_2_1_skills_orch_w0_planning.md",
+      "has_gate_section": false,
+      "audit_r1_row_present": false,
+      "may_start_30": {
+        "ok": false,
+        "reason": "HG-AUDIT-R1 pending"
+      },
+      "rows": []
+    },
+    {
+      "file": "docs/tasks/done/task_2_1_skills_orch_w1_skills_parity.md",
+      "has_gate_section": true,
+      "audit_r1_row_present": true,
+      "may_start_30": {
+        "ok": true,
+        "reason": null
+      },
+      "rows": [
+        {
+          "gate_id": "HG-SPEC-SIGNOFF",
+          "status": "approved",
+          "blocks_hats": "—",
+          "matched_rule": null,
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-TASK-DRAFT",
+          "status": "approved",
+          "blocks_hats": "22, 30",
+          "matched_rule": "HG-TASK-DRAFT",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-AUDIT-R1",
+          "status": "approved",
+          "blocks_hats": "30",
+          "matched_rule": "HG-AUDIT-R1",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        }
+      ]
+    },
+    {
+      "file": "docs/tasks/done/task_2_1_skills_orch_w2_commands_ux.md",
+      "has_gate_section": true,
+      "audit_r1_row_present": true,
+      "may_start_30": {
+        "ok": true,
+        "reason": null
+      },
+      "rows": [
+        {
+          "gate_id": "HG-SPEC-SIGNOFF",
+          "status": "approved",
+          "blocks_hats": "—",
+          "matched_rule": null,
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-TASK-DRAFT",
+          "status": "approved",
+          "blocks_hats": "22, 30",
+          "matched_rule": "HG-TASK-DRAFT",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-AUDIT-R1",
+          "status": "approved",
+          "blocks_hats": "30",
+          "matched_rule": "HG-AUDIT-R1",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        }
+      ]
+    },
+    {
+      "file": "docs/tasks/done/task_2_1_skills_orch_w3_dsh_orch.md",
+      "has_gate_section": true,
+      "audit_r1_row_present": true,
+      "may_start_30": {
+        "ok": true,
+        "reason": null
+      },
+      "rows": [
+        {
+          "gate_id": "HG-SPEC-SIGNOFF",
+          "status": "approved",
+          "blocks_hats": "—",
+          "matched_rule": null,
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-TASK-DRAFT",
+          "status": "approved",
+          "blocks_hats": "22, 30",
+          "matched_rule": "HG-TASK-DRAFT",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-AUDIT-R1",
+          "status": "approved",
+          "blocks_hats": "30",
+          "matched_rule": "HG-AUDIT-R1",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        }
+      ]
+    },
+    {
+      "file": "docs/tasks/done/task_2_1_skills_orch_w4_expanded.md",
+      "has_gate_section": true,
+      "audit_r1_row_present": true,
+      "may_start_30": {
+        "ok": true,
+        "reason": null
+      },
+      "rows": [
+        {
+          "gate_id": "HG-SPEC-SIGNOFF",
+          "status": "approved",
+          "blocks_hats": "—",
+          "matched_rule": null,
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-TASK-DRAFT",
+          "status": "approved",
+          "blocks_hats": "22, 30",
+          "matched_rule": "HG-TASK-DRAFT",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-AUDIT-R1",
+          "status": "approved",
+          "blocks_hats": "30",
+          "matched_rule": "HG-AUDIT-R1",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        }
+      ]
+    },
+    {
+      "file": "docs/tasks/done/task_2_1_skills_orch_w5_release.md",
+      "has_gate_section": true,
+      "audit_r1_row_present": true,
+      "may_start_30": {
+        "ok": true,
+        "reason": null
+      },
+      "rows": [
+        {
+          "gate_id": "HG-SPEC-SIGNOFF",
+          "status": "approved",
+          "blocks_hats": "—",
+          "matched_rule": null,
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-TASK-DRAFT",
+          "status": "approved",
+          "blocks_hats": "22, 30",
+          "matched_rule": "HG-TASK-DRAFT",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-AUDIT-R1",
+          "status": "approved",
+          "blocks_hats": "30",
+          "matched_rule": "HG-AUDIT-R1",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-PUBLISH",
+          "status": "approved",
+          "blocks_hats": "publish",
+          "matched_rule": null,
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        }
+      ]
+    },
+    {
+      "file": "docs/tasks/done/task_2_2_1_patch.md",
+      "has_gate_section": true,
+      "audit_r1_row_present": true,
+      "may_start_30": {
+        "ok": true,
+        "reason": null
+      },
+      "rows": [
+        {
+          "gate_id": "HG-TASK-DRAFT",
+          "status": "approved",
+          "blocks_hats": "20, 30",
+          "matched_rule": "HG-TASK-DRAFT",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-AUDIT-R1",
+          "status": "approved",
+          "blocks_hats": "30",
+          "matched_rule": "HG-AUDIT-R1",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        }
+      ]
+    },
+    {
+      "file": "docs/tasks/done/task_2_2_closed_loop_w1_release_pins.md",
+      "has_gate_section": true,
+      "audit_r1_row_present": true,
+      "may_start_30": {
+        "ok": true,
+        "reason": null
+      },
+      "rows": [
+        {
+          "gate_id": "HG-NEXT-PLAN",
+          "status": "approved",
+          "blocks_hats": "—",
+          "matched_rule": null,
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-SPEC-SIGNOFF",
+          "status": "approved",
+          "blocks_hats": "—",
+          "matched_rule": null,
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-TASK-DRAFT",
+          "status": "approved",
+          "blocks_hats": "22, 30",
+          "matched_rule": "HG-TASK-DRAFT",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-AUDIT-R1",
+          "status": "approved",
+          "blocks_hats": "30",
+          "matched_rule": "HG-AUDIT-R1",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        }
+      ]
+    },
+    {
+      "file": "docs/tasks/done/task_2_2_closed_loop_w2_security_closure.md",
+      "has_gate_section": true,
+      "audit_r1_row_present": true,
+      "may_start_30": {
+        "ok": true,
+        "reason": null
+      },
+      "rows": [
+        {
+          "gate_id": "HG-SPEC-SIGNOFF",
+          "status": "approved",
+          "blocks_hats": "—",
+          "matched_rule": null,
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-NEXT-PLAN",
+          "status": "approved",
+          "blocks_hats": "—",
+          "matched_rule": null,
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-TASK-DRAFT",
+          "status": "approved",
+          "blocks_hats": "20, 30",
+          "matched_rule": "HG-TASK-DRAFT",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-AUDIT-R1",
+          "status": "approved",
+          "blocks_hats": "~~30~~",
+          "matched_rule": "HG-AUDIT-R1",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        }
+      ]
+    },
+    {
+      "file": "docs/tasks/done/task_2_2_closed_loop_w3_verify_json_fields.md",
+      "has_gate_section": true,
+      "audit_r1_row_present": true,
+      "may_start_30": {
+        "ok": true,
+        "reason": null
+      },
+      "rows": [
+        {
+          "gate_id": "HG-SPEC-SIGNOFF",
+          "status": "approved",
+          "blocks_hats": "—",
+          "matched_rule": null,
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-NEXT-PLAN",
+          "status": "approved",
+          "blocks_hats": "—",
+          "matched_rule": null,
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-TASK-DRAFT",
+          "status": "approved",
+          "blocks_hats": "20, 30",
+          "matched_rule": "HG-TASK-DRAFT",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-AUDIT-R1",
+          "status": "approved",
+          "blocks_hats": "~~30~~",
+          "matched_rule": "HG-AUDIT-R1",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        }
+      ]
+    },
+    {
+      "file": "docs/tasks/done/task_2_2_closed_loop_w4_dx_onboarding.md",
+      "has_gate_section": true,
+      "audit_r1_row_present": true,
+      "may_start_30": {
+        "ok": true,
+        "reason": null
+      },
+      "rows": [
+        {
+          "gate_id": "HG-SPEC-SIGNOFF",
+          "status": "approved",
+          "blocks_hats": "—",
+          "matched_rule": null,
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-NEXT-PLAN",
+          "status": "approved",
+          "blocks_hats": "—",
+          "matched_rule": null,
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-TASK-DRAFT",
+          "status": "approved",
+          "blocks_hats": "20, 30",
+          "matched_rule": "HG-TASK-DRAFT",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-AUDIT-R1",
+          "status": "approved",
+          "blocks_hats": "~~30~~",
+          "matched_rule": "HG-AUDIT-R1",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        }
+      ]
+    },
+    {
+      "file": "docs/tasks/done/task_2_2_closed_loop_w5_glossary.md",
+      "has_gate_section": true,
+      "audit_r1_row_present": true,
+      "may_start_30": {
+        "ok": true,
+        "reason": null
+      },
+      "rows": [
+        {
+          "gate_id": "HG-SPEC-SIGNOFF",
+          "status": "approved",
+          "blocks_hats": "—",
+          "matched_rule": null,
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-NEXT-PLAN",
+          "status": "approved",
+          "blocks_hats": "—",
+          "matched_rule": null,
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-TASK-DRAFT",
+          "status": "approved",
+          "blocks_hats": "20, 30",
+          "matched_rule": "HG-TASK-DRAFT",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-AUDIT-R1",
+          "status": "approved",
+          "blocks_hats": "~~30~~",
+          "matched_rule": "HG-AUDIT-R1",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        }
+      ]
+    },
+    {
+      "file": "docs/tasks/done/task_2_2_closed_loop_w6_host_expansion.md",
+      "has_gate_section": true,
+      "audit_r1_row_present": true,
+      "may_start_30": {
+        "ok": true,
+        "reason": null
+      },
+      "rows": [
+        {
+          "gate_id": "HG-SPEC-SIGNOFF",
+          "status": "approved",
+          "blocks_hats": "—",
+          "matched_rule": null,
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-NEXT-PLAN",
+          "status": "approved",
+          "blocks_hats": "—",
+          "matched_rule": null,
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-TASK-DRAFT",
+          "status": "approved",
+          "blocks_hats": "20, 30",
+          "matched_rule": "HG-TASK-DRAFT",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-AUDIT-R1",
+          "status": "approved",
+          "blocks_hats": "~~30~~",
+          "matched_rule": "HG-AUDIT-R1",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        }
+      ]
+    },
+    {
+      "file": "docs/tasks/done/task_2_2_closed_loop_w7_hygiene.md",
+      "has_gate_section": true,
+      "audit_r1_row_present": true,
+      "may_start_30": {
+        "ok": true,
+        "reason": null
+      },
+      "rows": [
+        {
+          "gate_id": "HG-SPEC-SIGNOFF",
+          "status": "approved",
+          "blocks_hats": "—",
+          "matched_rule": null,
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-NEXT-PLAN",
+          "status": "approved",
+          "blocks_hats": "—",
+          "matched_rule": null,
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-TASK-DRAFT",
+          "status": "approved",
+          "blocks_hats": "20, 30",
+          "matched_rule": "HG-TASK-DRAFT",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-AUDIT-R1",
+          "status": "approved",
+          "blocks_hats": "~~30~~",
+          "matched_rule": "HG-AUDIT-R1",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        }
+      ]
+    },
+    {
+      "file": "docs/tasks/done/task_2_2_closed_loop_w8_release_prep.md",
+      "has_gate_section": true,
+      "audit_r1_row_present": true,
+      "may_start_30": {
+        "ok": true,
+        "reason": null
+      },
+      "rows": [
+        {
+          "gate_id": "HG-SPEC-SIGNOFF",
+          "status": "approved",
+          "blocks_hats": "—",
+          "matched_rule": null,
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-NEXT-PLAN",
+          "status": "approved",
+          "blocks_hats": "—",
+          "matched_rule": null,
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-TASK-DRAFT",
+          "status": "approved",
+          "blocks_hats": "20, 30",
+          "matched_rule": "HG-TASK-DRAFT",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-AUDIT-R1",
+          "status": "approved",
+          "blocks_hats": "~~30~~",
+          "matched_rule": "HG-AUDIT-R1",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        }
+      ]
+    },
+    {
+      "file": "docs/tasks/done/task_2_3_1_patch.md",
+      "has_gate_section": true,
+      "audit_r1_row_present": true,
+      "may_start_30": {
+        "ok": true,
+        "reason": null
+      },
+      "rows": [
+        {
+          "gate_id": "HG-TASK-DRAFT",
+          "status": "approved",
+          "blocks_hats": "20, 30",
+          "matched_rule": "HG-TASK-DRAFT",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-AUDIT-R1",
+          "status": "approved",
+          "blocks_hats": "30",
+          "matched_rule": "HG-AUDIT-R1",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        }
+      ]
+    },
+    {
+      "file": "docs/tasks/done/task_2_3_wiring_release.md",
+      "has_gate_section": true,
+      "audit_r1_row_present": true,
+      "may_start_30": {
+        "ok": true,
+        "reason": null
+      },
+      "rows": [
+        {
+          "gate_id": "HG-SPEC-SIGNOFF",
+          "status": "approved",
+          "blocks_hats": "—",
+          "matched_rule": null,
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-NEXT-PLAN",
+          "status": "approved",
+          "blocks_hats": "—",
+          "matched_rule": null,
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-TASK-DRAFT",
+          "status": "approved",
+          "blocks_hats": "20, 30",
+          "matched_rule": "HG-TASK-DRAFT",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-AUDIT-R1",
+          "status": "approved",
+          "blocks_hats": "~~30~~",
+          "matched_rule": "HG-AUDIT-R1",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        }
+      ]
+    },
+    {
+      "file": "docs/tasks/done/task_2_3_wiring_w1_pins_hardening.md",
+      "has_gate_section": true,
+      "audit_r1_row_present": true,
+      "may_start_30": {
+        "ok": true,
+        "reason": null
+      },
+      "rows": [
+        {
+          "gate_id": "HG-NEXT-PLAN",
+          "status": "approved",
+          "blocks_hats": "—",
+          "matched_rule": null,
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-SPEC-SIGNOFF",
+          "status": "approved",
+          "blocks_hats": "—",
+          "matched_rule": null,
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-TASK-DRAFT",
+          "status": "approved",
+          "blocks_hats": "22, 30",
+          "matched_rule": "HG-TASK-DRAFT",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-AUDIT-R1",
+          "status": "approved",
+          "blocks_hats": "30",
+          "matched_rule": "HG-AUDIT-R1",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        }
+      ]
+    },
+    {
+      "file": "docs/tasks/done/task_2_3_wiring_w2_pin_dimensions.md",
+      "has_gate_section": true,
+      "audit_r1_row_present": true,
+      "may_start_30": {
+        "ok": true,
+        "reason": null
+      },
+      "rows": [
+        {
+          "gate_id": "HG-NEXT-PLAN",
+          "status": "approved",
+          "blocks_hats": "—",
+          "matched_rule": null,
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-SPEC-SIGNOFF",
+          "status": "approved",
+          "blocks_hats": "—",
+          "matched_rule": null,
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-TASK-DRAFT",
+          "status": "approved",
+          "blocks_hats": "22, 30",
+          "matched_rule": "HG-TASK-DRAFT",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-AUDIT-R1",
+          "status": "approved",
+          "blocks_hats": "30",
+          "matched_rule": "HG-AUDIT-R1",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        }
+      ]
+    },
+    {
+      "file": "docs/tasks/done/task_2_3_wiring_w3_security_observability.md",
+      "has_gate_section": true,
+      "audit_r1_row_present": true,
+      "may_start_30": {
+        "ok": true,
+        "reason": null
+      },
+      "rows": [
+        {
+          "gate_id": "HG-NEXT-PLAN",
+          "status": "approved",
+          "blocks_hats": "—",
+          "matched_rule": null,
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-SPEC-SIGNOFF",
+          "status": "approved",
+          "blocks_hats": "—",
+          "matched_rule": null,
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-TASK-DRAFT",
+          "status": "approved",
+          "blocks_hats": "22, 30",
+          "matched_rule": "HG-TASK-DRAFT",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-AUDIT-R1",
+          "status": "approved",
+          "blocks_hats": "30",
+          "matched_rule": "HG-AUDIT-R1",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        }
+      ]
+    },
+    {
+      "file": "docs/tasks/done/task_2_3_wiring_w4_gate_wiring.md",
+      "has_gate_section": true,
+      "audit_r1_row_present": true,
+      "may_start_30": {
+        "ok": true,
+        "reason": null
+      },
+      "rows": [
+        {
+          "gate_id": "HG-NEXT-PLAN",
+          "status": "approved",
+          "blocks_hats": "—",
+          "matched_rule": null,
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-SPEC-SIGNOFF",
+          "status": "approved",
+          "blocks_hats": "—",
+          "matched_rule": null,
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-TASK-DRAFT",
+          "status": "approved",
+          "blocks_hats": "22, 30",
+          "matched_rule": "HG-TASK-DRAFT",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-AUDIT-R1",
+          "status": "approved",
+          "blocks_hats": "30",
+          "matched_rule": "HG-AUDIT-R1",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        }
+      ]
+    },
+    {
+      "file": "docs/tasks/done/task_2_3_wiring_w5_assets_integrity.md",
+      "has_gate_section": true,
+      "audit_r1_row_present": true,
+      "may_start_30": {
+        "ok": true,
+        "reason": null
+      },
+      "rows": [
+        {
+          "gate_id": "HG-NEXT-PLAN",
+          "status": "approved",
+          "blocks_hats": "—",
+          "matched_rule": null,
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-SPEC-SIGNOFF",
+          "status": "approved",
+          "blocks_hats": "—",
+          "matched_rule": null,
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-TASK-DRAFT",
+          "status": "approved",
+          "blocks_hats": "22, 30",
+          "matched_rule": "HG-TASK-DRAFT",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-AUDIT-R1",
+          "status": "approved",
+          "blocks_hats": "30",
+          "matched_rule": "HG-AUDIT-R1",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        }
+      ]
+    },
+    {
+      "file": "docs/tasks/done/task_2_3_wiring_w6_host_completion.md",
+      "has_gate_section": true,
+      "audit_r1_row_present": true,
+      "may_start_30": {
+        "ok": true,
+        "reason": null
+      },
+      "rows": [
+        {
+          "gate_id": "HG-NEXT-PLAN",
+          "status": "approved",
+          "blocks_hats": "—",
+          "matched_rule": null,
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-SPEC-SIGNOFF",
+          "status": "approved",
+          "blocks_hats": "—",
+          "matched_rule": null,
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-TASK-DRAFT",
+          "status": "approved",
+          "blocks_hats": "22, 30",
+          "matched_rule": "HG-TASK-DRAFT",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-AUDIT-R1",
+          "status": "approved",
+          "blocks_hats": "~~30~~",
+          "matched_rule": "HG-AUDIT-R1",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        }
+      ]
+    },
+    {
+      "file": "docs/tasks/done/task_2_3_wiring_w7_dx_health.md",
+      "has_gate_section": true,
+      "audit_r1_row_present": true,
+      "may_start_30": {
+        "ok": true,
+        "reason": null
+      },
+      "rows": [
+        {
+          "gate_id": "HG-NEXT-PLAN",
+          "status": "approved",
+          "blocks_hats": "—",
+          "matched_rule": null,
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-SPEC-SIGNOFF",
+          "status": "approved",
+          "blocks_hats": "—",
+          "matched_rule": null,
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-TASK-DRAFT",
+          "status": "approved",
+          "blocks_hats": "22, 30",
+          "matched_rule": "HG-TASK-DRAFT",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-AUDIT-R1",
+          "status": "approved",
+          "blocks_hats": "~~30~~",
+          "matched_rule": "HG-AUDIT-R1",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        }
+      ]
+    },
+    {
+      "file": "docs/tasks/done/task_2_4_1_patch.md",
+      "has_gate_section": true,
+      "audit_r1_row_present": true,
+      "may_start_30": {
+        "ok": true,
+        "reason": null
+      },
+      "rows": [
+        {
+          "gate_id": "HG-NEXT-PLAN",
+          "status": "approved",
+          "blocks_hats": "—",
+          "matched_rule": null,
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-SPEC-SIGNOFF",
+          "status": "N/A",
+          "blocks_hats": "—",
+          "matched_rule": null,
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-TASK-DRAFT",
+          "status": "approved",
+          "blocks_hats": "20, 30",
+          "matched_rule": "HG-TASK-DRAFT",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-AUDIT-R1",
+          "status": "approved",
+          "blocks_hats": "30",
+          "matched_rule": "HG-AUDIT-R1",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        }
+      ]
+    },
+    {
+      "file": "docs/tasks/done/task_2_4_2_patch.md",
+      "has_gate_section": true,
+      "audit_r1_row_present": true,
+      "may_start_30": {
+        "ok": true,
+        "reason": null
+      },
+      "rows": [
+        {
+          "gate_id": "HG-NEXT-PLAN",
+          "status": "approved",
+          "blocks_hats": "—",
+          "matched_rule": null,
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-SPEC-SIGNOFF",
+          "status": "N/A",
+          "blocks_hats": "—",
+          "matched_rule": null,
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-TASK-DRAFT",
+          "status": "approved",
+          "blocks_hats": "20, 30",
+          "matched_rule": "HG-TASK-DRAFT",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-AUDIT-R1",
+          "status": "approved",
+          "blocks_hats": "30",
+          "matched_rule": "HG-AUDIT-R1",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        }
+      ]
+    },
+    {
+      "file": "docs/tasks/done/task_2_4_gate_strength_w1_pins_extract.md",
+      "has_gate_section": true,
+      "audit_r1_row_present": true,
+      "may_start_30": {
+        "ok": true,
+        "reason": null
+      },
+      "rows": [
+        {
+          "gate_id": "HG-NEXT-PLAN",
+          "status": "approved",
+          "blocks_hats": "—",
+          "matched_rule": null,
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-SPEC-SIGNOFF",
+          "status": "approved",
+          "blocks_hats": "—",
+          "matched_rule": null,
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-TASK-DRAFT",
+          "status": "approved",
+          "blocks_hats": "22, 30",
+          "matched_rule": "HG-TASK-DRAFT",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-AUDIT-R1",
+          "status": "approved",
+          "blocks_hats": "30",
+          "matched_rule": "HG-AUDIT-R1",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        }
+      ]
+    },
+    {
+      "file": "docs/tasks/done/task_2_4_gate_strength_w2_conclusion_gate.md",
+      "has_gate_section": true,
+      "audit_r1_row_present": true,
+      "may_start_30": {
+        "ok": true,
+        "reason": null
+      },
+      "rows": [
+        {
+          "gate_id": "HG-NEXT-PLAN",
+          "status": "approved",
+          "blocks_hats": "—",
+          "matched_rule": null,
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-SPEC-SIGNOFF",
+          "status": "approved",
+          "blocks_hats": "—",
+          "matched_rule": null,
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-TASK-DRAFT",
+          "status": "approved",
+          "blocks_hats": "22, 30",
+          "matched_rule": "HG-TASK-DRAFT",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-AUDIT-R1",
+          "status": "approved",
+          "blocks_hats": "30",
+          "matched_rule": "HG-AUDIT-R1",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        }
+      ]
+    },
+    {
+      "file": "docs/tasks/done/task_2_4_gate_strength_w3_output_rel.md",
+      "has_gate_section": true,
+      "audit_r1_row_present": true,
+      "may_start_30": {
+        "ok": true,
+        "reason": null
+      },
+      "rows": [
+        {
+          "gate_id": "HG-NEXT-PLAN",
+          "status": "approved",
+          "blocks_hats": "—",
+          "matched_rule": null,
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-SPEC-SIGNOFF",
+          "status": "approved",
+          "blocks_hats": "—",
+          "matched_rule": null,
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-TASK-DRAFT",
+          "status": "approved",
+          "blocks_hats": "22, 30",
+          "matched_rule": "HG-TASK-DRAFT",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-AUDIT-R1",
+          "status": "approved",
+          "blocks_hats": "30",
+          "matched_rule": "HG-AUDIT-R1",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        }
+      ]
+    },
+    {
+      "file": "docs/tasks/done/task_2_4_gate_strength_w4_assets_observability.md",
+      "has_gate_section": true,
+      "audit_r1_row_present": true,
+      "may_start_30": {
+        "ok": true,
+        "reason": null
+      },
+      "rows": [
+        {
+          "gate_id": "HG-NEXT-PLAN",
+          "status": "approved",
+          "blocks_hats": "—",
+          "matched_rule": null,
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-SPEC-SIGNOFF",
+          "status": "approved",
+          "blocks_hats": "—",
+          "matched_rule": null,
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-TASK-DRAFT",
+          "status": "approved",
+          "blocks_hats": "22, 30",
+          "matched_rule": "HG-TASK-DRAFT",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-AUDIT-R1",
+          "status": "approved",
+          "blocks_hats": "30",
+          "matched_rule": "HG-AUDIT-R1",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        }
+      ]
+    },
+    {
+      "file": "docs/tasks/done/task_2_4_gate_strength_w5_materials_messaging.md",
+      "has_gate_section": true,
+      "audit_r1_row_present": true,
+      "may_start_30": {
+        "ok": true,
+        "reason": null
+      },
+      "rows": [
+        {
+          "gate_id": "HG-NEXT-PLAN",
+          "status": "approved",
+          "blocks_hats": "—",
+          "matched_rule": null,
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-SPEC-SIGNOFF",
+          "status": "approved",
+          "blocks_hats": "—",
+          "matched_rule": null,
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-TASK-DRAFT",
+          "status": "approved",
+          "blocks_hats": "22, 30",
+          "matched_rule": "HG-TASK-DRAFT",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-AUDIT-R1",
+          "status": "approved",
+          "blocks_hats": "30",
+          "matched_rule": "HG-AUDIT-R1",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        }
+      ]
+    },
+    {
+      "file": "docs/tasks/done/task_2_4_gate_strength_w6_p3_cleanup.md",
+      "has_gate_section": true,
+      "audit_r1_row_present": true,
+      "may_start_30": {
+        "ok": true,
+        "reason": null
+      },
+      "rows": [
+        {
+          "gate_id": "HG-NEXT-PLAN",
+          "status": "approved",
+          "blocks_hats": "—",
+          "matched_rule": null,
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-SPEC-SIGNOFF",
+          "status": "approved",
+          "blocks_hats": "—",
+          "matched_rule": null,
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-TASK-DRAFT",
+          "status": "approved",
+          "blocks_hats": "22, 30",
+          "matched_rule": "HG-TASK-DRAFT",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-AUDIT-R1",
+          "status": "approved",
+          "blocks_hats": "30",
+          "matched_rule": "HG-AUDIT-R1",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        }
+      ]
+    },
+    {
+      "file": "docs/tasks/done/task_2x_host_adapt_w0_signoff.md",
+      "has_gate_section": false,
+      "audit_r1_row_present": false,
+      "may_start_30": {
+        "ok": false,
+        "reason": "HG-AUDIT-R1 pending"
+      },
+      "rows": []
+    },
+    {
+      "file": "docs/tasks/done/task_2x_host_adapt_w1_schema.md",
+      "has_gate_section": true,
+      "audit_r1_row_present": true,
+      "may_start_30": {
+        "ok": true,
+        "reason": null
+      },
+      "rows": [
+        {
+          "gate_id": "HG-SPEC-SIGNOFF",
+          "status": "approved",
+          "blocks_hats": "—",
+          "matched_rule": null,
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-TASK-DRAFT",
+          "status": "approved",
+          "blocks_hats": "22, 30",
+          "matched_rule": "HG-TASK-DRAFT",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-AUDIT-R1",
+          "status": "approved",
+          "blocks_hats": "30",
+          "matched_rule": "HG-AUDIT-R1",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        }
+      ]
+    },
+    {
+      "file": "docs/tasks/done/task_2x_host_adapt_w2_cursor_claude.md",
+      "has_gate_section": true,
+      "audit_r1_row_present": true,
+      "may_start_30": {
+        "ok": true,
+        "reason": null
+      },
+      "rows": [
+        {
+          "gate_id": "HG-SPEC-SIGNOFF",
+          "status": "approved",
+          "blocks_hats": "—",
+          "matched_rule": null,
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-TASK-DRAFT",
+          "status": "approved",
+          "blocks_hats": "22, 30",
+          "matched_rule": "HG-TASK-DRAFT",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-AUDIT-R1",
+          "status": "approved",
+          "blocks_hats": "30",
+          "matched_rule": "HG-AUDIT-R1",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        }
+      ]
+    },
+    {
+      "file": "docs/tasks/done/task_2x_host_adapt_w3_skills_update.md",
+      "has_gate_section": true,
+      "audit_r1_row_present": true,
+      "may_start_30": {
+        "ok": true,
+        "reason": null
+      },
+      "rows": [
+        {
+          "gate_id": "HG-SPEC-SIGNOFF",
+          "status": "approved",
+          "blocks_hats": "—",
+          "matched_rule": null,
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-TASK-DRAFT",
+          "status": "approved",
+          "blocks_hats": "22, 30",
+          "matched_rule": "HG-TASK-DRAFT",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-AUDIT-R1",
+          "status": "approved",
+          "blocks_hats": "30",
+          "matched_rule": "HG-AUDIT-R1",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        }
+      ]
+    },
+    {
+      "file": "docs/tasks/done/task_2x_host_adapt_w4_dsh_u01.md",
+      "has_gate_section": true,
+      "audit_r1_row_present": true,
+      "may_start_30": {
+        "ok": true,
+        "reason": null
+      },
+      "rows": [
+        {
+          "gate_id": "HG-SPEC-SIGNOFF",
+          "status": "approved",
+          "blocks_hats": "—",
+          "matched_rule": null,
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-TASK-DRAFT",
+          "status": "approved",
+          "blocks_hats": "22, 30",
+          "matched_rule": "HG-TASK-DRAFT",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-AUDIT-R1",
+          "status": "approved",
+          "blocks_hats": "30",
+          "matched_rule": "HG-AUDIT-R1",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        }
+      ]
+    },
+    {
+      "file": "docs/tasks/done/task_2x_host_adapt_w5_release.md",
+      "has_gate_section": true,
+      "audit_r1_row_present": true,
+      "may_start_30": {
+        "ok": true,
+        "reason": null
+      },
+      "rows": [
+        {
+          "gate_id": "HG-SPEC-SIGNOFF",
+          "status": "approved",
+          "blocks_hats": "—",
+          "matched_rule": null,
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-TASK-DRAFT",
+          "status": "approved",
+          "blocks_hats": "22, 30",
+          "matched_rule": "HG-TASK-DRAFT",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-AUDIT-R1",
+          "status": "approved",
+          "blocks_hats": "30",
+          "matched_rule": "HG-AUDIT-R1",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-PUBLISH",
+          "status": "approved",
+          "blocks_hats": "publish",
+          "matched_rule": null,
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        }
+      ]
+    },
+    {
+      "file": "docs/tasks/done/task_3_0_w0_refactor_prep.md",
+      "has_gate_section": true,
+      "audit_r1_row_present": true,
+      "may_start_30": {
+        "ok": true,
+        "reason": null
+      },
+      "rows": [
+        {
+          "gate_id": "HG-NEXT-PLAN",
+          "status": "approved",
+          "blocks_hats": "—",
+          "matched_rule": null,
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-SPEC-SIGNOFF",
+          "status": "approved",
+          "blocks_hats": "—",
+          "matched_rule": null,
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-TASK-DRAFT",
+          "status": "approved",
+          "blocks_hats": "20, 30",
+          "matched_rule": "HG-TASK-DRAFT",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-AUDIT-R1",
+          "status": "approved",
+          "blocks_hats": "30",
+          "matched_rule": "HG-AUDIT-R1",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        }
+      ]
+    },
+    {
+      "file": "docs/tasks/done/task_close_done_snapshot.md",
+      "has_gate_section": true,
+      "audit_r1_row_present": true,
+      "may_start_30": {
+        "ok": true,
+        "reason": null
+      },
+      "rows": [
+        {
+          "gate_id": "HG-TASK-DRAFT",
+          "status": "approved",
+          "blocks_hats": "22-R1, 30",
+          "matched_rule": "HG-TASK-DRAFT",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-AUDIT-R1",
+          "status": "approved",
+          "blocks_hats": "30",
+          "matched_rule": "HG-AUDIT-R1",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        }
+      ]
+    },
+    {
+      "file": "docs/tasks/done/task_doc_health_close_binding.md",
+      "has_gate_section": true,
+      "audit_r1_row_present": true,
+      "may_start_30": {
+        "ok": true,
+        "reason": null
+      },
+      "rows": [
+        {
+          "gate_id": "HG-TASK-DRAFT",
+          "status": "approved",
+          "blocks_hats": "22-R1, 30",
+          "matched_rule": "HG-TASK-DRAFT",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-AUDIT-R1",
+          "status": "approved",
+          "blocks_hats": "30",
+          "matched_rule": "HG-AUDIT-R1",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        }
+      ]
+    },
+    {
+      "file": "docs/tasks/done/task_prompts_ci_alignment.md",
+      "has_gate_section": true,
+      "audit_r1_row_present": true,
+      "may_start_30": {
+        "ok": true,
+        "reason": null
+      },
+      "rows": [
+        {
+          "gate_id": "HG-TASK-DRAFT",
+          "status": "approved",
+          "blocks_hats": "22-R1, 30",
+          "matched_rule": "HG-TASK-DRAFT",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-AUDIT-R1",
+          "status": "approved",
+          "blocks_hats": "30",
+          "matched_rule": "HG-AUDIT-R1",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        }
+      ]
+    },
+    {
+      "file": "docs/tasks/done/task_rename_specgate_w0_planning.md",
+      "has_gate_section": false,
+      "audit_r1_row_present": false,
+      "may_start_30": {
+        "ok": false,
+        "reason": "HG-AUDIT-R1 pending"
+      },
+      "rows": []
+    },
+    {
+      "file": "docs/tasks/done/task_rename_specgate_w1_package_identity.md",
+      "has_gate_section": true,
+      "audit_r1_row_present": true,
+      "may_start_30": {
+        "ok": true,
+        "reason": null
+      },
+      "rows": [
+        {
+          "gate_id": "HG-RENAME",
+          "status": "approved",
+          "blocks_hats": "—",
+          "matched_rule": null,
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-SPEC-SIGNOFF",
+          "status": "approved",
+          "blocks_hats": "—",
+          "matched_rule": null,
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-TASK-DRAFT",
+          "status": "approved",
+          "blocks_hats": "22, 30",
+          "matched_rule": "HG-TASK-DRAFT",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-AUDIT-R1",
+          "status": "approved",
+          "blocks_hats": "30",
+          "matched_rule": "HG-AUDIT-R1",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        }
+      ]
+    },
+    {
+      "file": "docs/tasks/done/task_rename_specgate_w2_docs_assets.md",
+      "has_gate_section": true,
+      "audit_r1_row_present": true,
+      "may_start_30": {
+        "ok": true,
+        "reason": null
+      },
+      "rows": [
+        {
+          "gate_id": "HG-RENAME",
+          "status": "approved",
+          "blocks_hats": "—",
+          "matched_rule": null,
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-SPEC-SIGNOFF",
+          "status": "approved",
+          "blocks_hats": "—",
+          "matched_rule": null,
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-TASK-DRAFT",
+          "status": "approved",
+          "blocks_hats": "22, 30",
+          "matched_rule": "HG-TASK-DRAFT",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-AUDIT-R1",
+          "status": "approved",
+          "blocks_hats": "30",
+          "matched_rule": "HG-AUDIT-R1",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        }
+      ]
+    },
+    {
+      "file": "docs/tasks/done/task_rename_specgate_w3_github_rename.md",
+      "has_gate_section": true,
+      "audit_r1_row_present": true,
+      "may_start_30": {
+        "ok": true,
+        "reason": null
+      },
+      "rows": [
+        {
+          "gate_id": "HG-RENAME",
+          "status": "approved",
+          "blocks_hats": "—",
+          "matched_rule": null,
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-SPEC-SIGNOFF",
+          "status": "approved",
+          "blocks_hats": "—",
+          "matched_rule": null,
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-TASK-DRAFT",
+          "status": "approved",
+          "blocks_hats": "22, 30",
+          "matched_rule": "HG-TASK-DRAFT",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-AUDIT-R1",
+          "status": "approved",
+          "blocks_hats": "30",
+          "matched_rule": "HG-AUDIT-R1",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        }
+      ]
+    },
+    {
+      "file": "docs/tasks/done/task_rename_specgate_w4_publish_deprecate.md",
+      "has_gate_section": true,
+      "audit_r1_row_present": true,
+      "may_start_30": {
+        "ok": true,
+        "reason": null
+      },
+      "rows": [
+        {
+          "gate_id": "HG-RENAME",
+          "status": "approved",
+          "blocks_hats": "—",
+          "matched_rule": null,
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-SPEC-SIGNOFF",
+          "status": "approved",
+          "blocks_hats": "—",
+          "matched_rule": null,
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-TASK-DRAFT",
+          "status": "approved",
+          "blocks_hats": "22, 30",
+          "matched_rule": "HG-TASK-DRAFT",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-AUDIT-R1",
+          "status": "approved",
+          "blocks_hats": "30",
+          "matched_rule": "HG-AUDIT-R1",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-PUBLISH",
+          "status": "approved",
+          "blocks_hats": "publish",
+          "matched_rule": null,
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-DEPRECATE",
+          "status": "approved",
+          "blocks_hats": "deprecate",
+          "matched_rule": null,
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        }
+      ]
+    },
+    {
+      "file": "docs/tasks/done/task_self_tech_graph_w0_inventory.md",
+      "has_gate_section": true,
+      "audit_r1_row_present": true,
+      "may_start_30": {
+        "ok": true,
+        "reason": null
+      },
+      "rows": [
+        {
+          "gate_id": "HG-SPEC-SIGNOFF",
+          "status": "approved",
+          "blocks_hats": "10-task, 30",
+          "matched_rule": null,
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-TASK-DRAFT",
+          "status": "approved",
+          "blocks_hats": "22-R1, 30",
+          "matched_rule": "HG-TASK-DRAFT",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-AUDIT-R1",
+          "status": "approved",
+          "blocks_hats": "30",
+          "matched_rule": "HG-AUDIT-R1",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        }
+      ]
+    },
+    {
+      "file": "docs/tasks/done/task_self_tech_graph_w1_struct.md",
+      "has_gate_section": true,
+      "audit_r1_row_present": true,
+      "may_start_30": {
+        "ok": true,
+        "reason": null
+      },
+      "rows": [
+        {
+          "gate_id": "HG-SPEC-SIGNOFF",
+          "status": "approved",
+          "blocks_hats": "10-task, 30",
+          "matched_rule": null,
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-TASK-DRAFT",
+          "status": "approved",
+          "blocks_hats": "22-R1, 30",
+          "matched_rule": "HG-TASK-DRAFT",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-AUDIT-R1",
+          "status": "approved",
+          "blocks_hats": "30",
+          "matched_rule": "HG-AUDIT-R1",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        }
+      ]
+    },
+    {
+      "file": "docs/tasks/done/task_self_tech_graph_w2_yaml.md",
+      "has_gate_section": true,
+      "audit_r1_row_present": true,
+      "may_start_30": {
+        "ok": true,
+        "reason": null
+      },
+      "rows": [
+        {
+          "gate_id": "HG-SPEC-SIGNOFF",
+          "status": "approved",
+          "blocks_hats": "10-task, 30",
+          "matched_rule": null,
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-GRAPH-MODULES",
+          "status": "approved",
+          "blocks_hats": "30（构图）",
+          "matched_rule": "HG-GRAPH-MODULES",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-TASK-DRAFT",
+          "status": "approved",
+          "blocks_hats": "22-R1, 30",
+          "matched_rule": "HG-TASK-DRAFT",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-AUDIT-R1",
+          "status": "approved",
+          "blocks_hats": "30",
+          "matched_rule": "HG-AUDIT-R1",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        }
+      ]
+    },
+    {
+      "file": "docs/tasks/done/task_self_tech_graph_w3_ci_migrate.md",
+      "has_gate_section": true,
+      "audit_r1_row_present": true,
+      "may_start_30": {
+        "ok": true,
+        "reason": null
+      },
+      "rows": [
+        {
+          "gate_id": "HG-SPEC-SIGNOFF",
+          "status": "approved",
+          "blocks_hats": "10-task, 30",
+          "matched_rule": null,
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-GRAPH-MODULES",
+          "status": "approved",
+          "blocks_hats": "30（构图/改码）",
+          "matched_rule": "HG-GRAPH-MODULES",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-TASK-DRAFT",
+          "status": "approved",
+          "blocks_hats": "22-R1, 30",
+          "matched_rule": "HG-TASK-DRAFT",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-AUDIT-R1",
+          "status": "approved",
+          "blocks_hats": "30",
+          "matched_rule": "HG-AUDIT-R1",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        }
+      ]
+    },
+    {
+      "file": "docs/tasks/done/task_self_tech_graph_w4_closeout.md",
+      "has_gate_section": true,
+      "audit_r1_row_present": true,
+      "may_start_30": {
+        "ok": true,
+        "reason": null
+      },
+      "rows": [
+        {
+          "gate_id": "HG-SPEC-SIGNOFF",
+          "status": "approved",
+          "blocks_hats": "10-task, 30",
+          "matched_rule": null,
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-GRAPH-MODULES",
+          "status": "approved",
+          "blocks_hats": "30（构图/改码）",
+          "matched_rule": "HG-GRAPH-MODULES",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-TASK-DRAFT",
+          "status": "approved",
+          "blocks_hats": "22-R1, 30",
+          "matched_rule": "HG-TASK-DRAFT",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-AUDIT-R1",
+          "status": "approved",
+          "blocks_hats": "30",
+          "matched_rule": "HG-AUDIT-R1",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        }
+      ]
+    },
+    {
+      "file": "docs/tasks/done/task_sync_prompts.md",
+      "has_gate_section": true,
+      "audit_r1_row_present": true,
+      "may_start_30": {
+        "ok": true,
+        "reason": null
+      },
+      "rows": [
+        {
+          "gate_id": "HG-TASK-DRAFT",
+          "status": "approved",
+          "blocks_hats": "22-R1, 30",
+          "matched_rule": "HG-TASK-DRAFT",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-AUDIT-R1",
+          "status": "approved",
+          "blocks_hats": "30",
+          "matched_rule": "HG-AUDIT-R1",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        }
+      ]
+    },
+    {
+      "file": "docs/tasks/done/task_verify_with_wiki_lint.md",
+      "has_gate_section": true,
+      "audit_r1_row_present": true,
+      "may_start_30": {
+        "ok": true,
+        "reason": null
+      },
+      "rows": [
+        {
+          "gate_id": "HG-TASK-DRAFT",
+          "status": "approved",
+          "blocks_hats": "22-R1, 30",
+          "matched_rule": "HG-TASK-DRAFT",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-AUDIT-R1",
+          "status": "approved",
+          "blocks_hats": "30",
+          "matched_rule": "HG-AUDIT-R1",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        }
+      ]
+    },
+    {
+      "file": "docs/tasks/done/task_wiki_delta_section_diagnostics.md",
+      "has_gate_section": true,
+      "audit_r1_row_present": true,
+      "may_start_30": {
+        "ok": true,
+        "reason": null
+      },
+      "rows": [
+        {
+          "gate_id": "HG-TASK-DRAFT",
+          "status": "approved",
+          "blocks_hats": "22-R1, 30",
+          "matched_rule": "HG-TASK-DRAFT",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        },
+        {
+          "gate_id": "HG-AUDIT-R1",
+          "status": "approved",
+          "blocks_hats": "30",
+          "matched_rule": "HG-AUDIT-R1",
+          "shadowed": false,
+          "blocks_30_current": false,
+          "reason": null
+        }
+      ]
+    }
+  ]
+}
