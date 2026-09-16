@@ -1,0 +1,22 @@
+# 3.0 W2 阶段四 · acme-bot --file 路径 fixture（验收 #5 路① · 与 user-home 版同宿主 · source 相对包根解析）
+version: "1"
+schema_version: 2
+command_sets:
+  core: [verify]
+  expanded: [graph-check]
+hosts:
+  - host_id: acme-bot
+    surfaces:
+      always_on:
+        - target: ACME.md
+          source: test/fixtures/host-adapt/user-home/.spec-wave/hosts/acme-assets/ACME.md.fragment.example
+      skills: []
+      commands: []
+      verify:
+        kind: cli
+        bin: spec-wave
+        failClosed: true
+      hooks:
+        mechanism: shell-hook
+        triggers: [pre-commit]
+        command: "npx spec-wave verify --target ."

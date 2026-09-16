@@ -61,6 +61,13 @@ export function checkPlannedItem(item: PlannedItem): HostVerifyCheck {
           : '落点无法读取（F-W2-04 fail-closed 按红处理）',
     }
   }
+  // shell-hook 落点（独立 hook 脚本）→ 全文件管理逐字比对（S3.4 形态① · 验收 #10）
+  if (item.kind === 'hook' && item.hookMechanism === 'shell-hook') {
+    if (got.text === item.nextText) {
+      return { ...base, status: 'ok', detail: 'shell-hook 脚本逐字一致' }
+    }
+    return { ...base, status: 'mismatch', detail: 'shell-hook 脚本内容与声明不符（篡改或未物化）' }
+  }
   // 形态③：JSON 合并落点（hooks 声明）→ 包含性比对
   if (item.kind === 'hook') {
     const triggers = item.hooksTriggers ?? []

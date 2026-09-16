@@ -1,3 +1,4 @@
+import path from 'node:path'
 import { isPlainObject } from './schema.ts'
 
 /**
@@ -164,6 +165,37 @@ export function mergeHookConfig(
   }
   parent[eventKey] = arr
   return { ok: true, next: nextRoot }
+}
+
+
+// ─── 3.0 W2 阶段四 · shell-hook 族物化（S3.3 · S3.1 族×触发表 · F-W2-11 · 验收 #10） ───
+
+/** 本包管理 git hook 识别 marker（F-W2-11：无 marker 的既有 hook = 用户资产 · conflict 不覆写） */
+export const SHELL_HOOK_MARKER = 'spec-wave-managed'
+
+/** shell-hook 落点（git 层宿主中立 · 相对 target） */
+export const SHELL_HOOK_PRE_COMMIT_REL = path.join('.git', 'hooks', 'pre-commit')
+
+/**
+ * pre-commit 脚本（注入 hook-guard 调用 · pre-archive 不物化降级留痕 = 脚本头注记 ·
+ * S3.1 族×触发表：无宿主原生事件锚点 · 不静默）。
+ */
+export function buildShellHookScript(triggers: ConfigHookTrigger[]): string {
+  const lines = [
+    '#!/bin/sh',
+    `# ${SHELL_HOOK_MARKER}: pre-commit hook（3.0 W2 · 门禁随包物化 · 勿手改 · host apply/update 幂等管理）`,
+  ]
+  if (triggers.includes('pre-archive')) {
+    lines.push(
+      '# pre-archive: not-materialized（无宿主原生事件锚点 · spec-wave 降级留痕 · S3.1 族×触发表）',
+    )
+  }
+  lines.push('exec npx spec-wave hook-guard --trigger pre-commit', '')
+  return lines.join('\n')
+}
+
+export function isShellHookManaged(text: string): boolean {
+  return text.includes(SHELL_HOOK_MARKER)
 }
 
 export type HookContainResult = { ok: true } | { ok: false; missing: ConfigHookTrigger[]; reason?: string }

@@ -1,4 +1,4 @@
-import { existsSync, readFileSync, readdirSync, statSync, unlinkSync } from 'node:fs'
+import { chmodSync, existsSync, readFileSync, readdirSync, statSync, unlinkSync } from 'node:fs'
 import path from 'node:path'
 import {
   assertNotS2Abs,
@@ -22,7 +22,13 @@ import {
   pruneBackups,
   type BackupFamily,
 } from './backup.ts'
-import { configHookSpecOf, mergeHookConfig } from './hooks.ts'
+import {
+  buildShellHookScript,
+  configHookSpecOf,
+  isShellHookManaged,
+  mergeHookConfig,
+  SHELL_HOOK_PRE_COMMIT_REL,
+} from './hooks.ts'
 import type { HostRow } from './table.ts'
 
 const PRODUCT_BEGIN = '<!-- cyning-harness:begin -->'
@@ -42,8 +48,12 @@ export type PlannedItem = {
   sourceAbs: string
   op: PlannedOp
   nextText: string
-  /** kind='hook' 专用：声明 triggers（host verify 包含性比对锚点 · S3.4 形态③） */
+  /** kind='hook' 专用：声明 triggers（host verify 比对锚点 · S3.4 形态③/逐字） */
   hooksTriggers?: ('pre-commit' | 'pre-archive')[]
+  /** kind='hook' 专用：机制族（config-hook=JSON 包含性比对 · shell-hook=逐字比对 · S3.4 分派） */
+  hookMechanism?: 'shell-hook' | 'config-hook'
+  /** shell-hook 落点须可执行（.git/hooks/* · commitPlannedWrites 写后 chmod 0755） */
+  executable?: boolean
 }
 
 type SkillSource = { sourceRel: string; innerRel: string }
@@ -200,6 +210,7 @@ export function commitPlannedWrites(
   for (const item of toWrite) {
     if (genDir && existsSync(item.destAbs)) backupFile(target, genDir, item.destRel)
     atomicWrite(item.destAbs, item.nextText)
+    if (item.executable) chmodSync(item.destAbs, 0o755) // shell-hook git 钩子须可执行（验收 #10）
     written.push(item.destRel)
   }
   const removed: string[] = []
@@ -441,10 +452,54 @@ export function planApply(opts: {
       }
     }
 
-    // hooks（3.0 W2 阶段二 · S3.3）：config-hook 族物化 JSON 合并落点（深合并保用户键 ·
-    // 结构性冲突 conflict 点名不覆写 · F-W2-10）；none 零落点（降级留痕归报告面 S3.5）；
-    // shell-hook 本棒零落点（物化归 ⑦ 阶段棒 · 内置表无此声明 · 零行为面）。
+    // hooks（3.0 W2 · S3.3）：config-hook 族物化 JSON 合并落点（深合并保用户键 ·
+    // 结构性冲突 conflict 点名不覆写 · F-W2-10）；shell-hook 族物化 .git/hooks/pre-commit
+    //（阶段四 · 验收 #10 · F-W2-11 非本包 hook conflict 不覆写）；none 零落点（降级留痕归报告面 S3.5）。
     const hooksDecl = (row.surfaces as { hooks?: HooksDecl }).hooks
+    if (hooksDecl && hooksDecl.mechanism === 'shell-hook') {
+      // S3.1 族×触发表：shell-hook 仅 pre-commit 物化（git 层宿主中立）· pre-archive 不物化
+      //（降级留痕 = 脚本头 not-materialized 注记 · 不静默）；仅声明 pre-archive → 零落点。
+      // 30 裁决：target 非 git 仓（无 .git）→ 不创 .git · 零落点（apply/verify 同口径 · 无红）。
+      if (hooksDecl.triggers.includes('pre-commit') && existsSync(path.join(opts.target, '.git'))) {
+        const destAbs = path.resolve(opts.target, SHELL_HOOK_PRE_COMMIT_REL)
+        const destRel = pushDest(toRel(opts.target, destAbs), destAbs)
+        const script = buildShellHookScript(hooksDecl.triggers)
+        const exists = existsSync(destAbs)
+        const existingText = readDestText(destAbs)
+        if (exists && existingText !== null && !isShellHookManaged(existingText)) {
+          // F-W2-11：非本包管理 git hook → conflict skip 点名（不得静默覆盖用户既有 hook）
+          items.push({
+            hostId,
+            kind: 'hook',
+            destRel,
+            destAbs,
+            sourceRel: 'surfaces.hooks',
+            sourceAbs: '',
+            op: 'conflict',
+            nextText: existingText,
+            hooksTriggers: [...hooksDecl.triggers],
+            hookMechanism: 'shell-hook',
+            executable: true,
+          })
+        } else {
+          let op: PlannedOp = exists ? 'merge' : 'write'
+          if (existingText !== null && existingText === script) op = 'skip_identical'
+          items.push({
+            hostId,
+            kind: 'hook',
+            destRel,
+            destAbs,
+            sourceRel: 'surfaces.hooks',
+            sourceAbs: '',
+            op,
+            nextText: script,
+            hooksTriggers: [...hooksDecl.triggers],
+            hookMechanism: 'shell-hook',
+            executable: true,
+          })
+        }
+      }
+    }
     if (hooksDecl && hooksDecl.mechanism === 'config-hook') {
       const spec = configHookSpecOf(hostId)
       if (!spec) {
@@ -466,6 +521,7 @@ export function planApply(opts: {
           op: 'conflict',
           nextText: existingText ?? '',
           hooksTriggers: [...hooksDecl.triggers],
+          hookMechanism: 'config-hook',
         })
       } else {
         const nextText = `${JSON.stringify(merged.next, null, 2)}\n`
@@ -481,6 +537,7 @@ export function planApply(opts: {
           op,
           nextText,
           hooksTriggers: [...hooksDecl.triggers],
+          hookMechanism: 'config-hook',
         })
       }
     }

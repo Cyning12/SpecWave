@@ -175,6 +175,29 @@ describe('3.0 W2 阶段三 · B5 合并铁律（验收 #3 · 三面 fixture）',
     })
   })
 
+  it('验收 #5 路①：acme-bot --file 路径（整表替换）→ apply 物化 + verify 绿 → 篡改红（双路齐 · 硬约束 12 闭环 · 阶段四补）', async () => {
+    const ACME_FILE_TABLE = path.join(KIT, 'test', 'fixtures', 'host-adapt', 'acme-hosts-file.yaml')
+    await withTemp(async (target) => {
+      // validate → apply → verify 绿（source 相对包根解析 · --file 语义逐字现状）
+      const val = runCli(['host', 'validate', '--file', ACME_FILE_TABLE])
+      assert.equal(val.status, 0, val.combined)
+      const r = runCli(['host', 'apply', '--tools', 'acme-bot', '--file', ACME_FILE_TABLE, '--target', target, '--yes', '--json'])
+      assert.equal(r.status, 0, r.combined)
+      const parsed = JSON.parse(r.stdout) as { written: string[] }
+      assert.ok(parsed.written.includes('ACME.md'), JSON.stringify(parsed.written))
+      const okV = runCli(['host', 'verify', '--tools', 'acme-bot', '--file', ACME_FILE_TABLE, '--target', target, '--json'])
+      assert.equal(okV.status, 0, okV.combined)
+      assert.equal((JSON.parse(okV.stdout) as { verdict: string }).verdict, 'PASS')
+      const acmeAbs = path.join(target, 'ACME.md')
+      const body = await readFile(acmeAbs, 'utf8')
+      await writeFile(acmeAbs, body + '\nTAMPERED\n')
+      const redV = runCli(['host', 'verify', '--tools', 'acme-bot', '--file', ACME_FILE_TABLE, '--target', target, '--json'])
+      assert.equal(redV.status, 2, redV.combined)
+      const redObj = JSON.parse(redV.stdout) as { checks: { target: string; status: string }[] }
+      assert.ok(redObj.checks.some((c) => c.target === 'ACME.md' && c.status === 'mismatch'))
+    })
+  })
+
   it('--file = 当次整表替换（现状逐字）：用户目录 acme 在场 · --file 2.4.2 表 → acme-bot 未知 host_id exit 1（合并不参与）', async () => {
     await withAcmeHome(async (home) => {
       await withTemp(async (target) => {
