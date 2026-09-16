@@ -588,11 +588,25 @@ edges:
   it('CLI 源码不把闸命令注册为 ctx.tools', async () => {
     const cliSrc = await readFile(CLI_TS, 'utf8')
     assert.equal(cliSrc.includes('ctx.tools.register'), false)
-    const names = await readdir(path.join(KIT, 'src'))
-    for (const name of names) {
-      if (!name.startsWith('cli')) continue
-      const body = await readFile(path.join(KIT, 'src', name), 'utf8')
-      assert.equal(body.includes('ctx.tools.register'), false, name)
+    // 3.0 W0 布局适配（readdir 静态扫描 × src/cli/ 目录布局 · task_3_0_w0_refactor_prep）：
+    // withFileTypes + 递归下探 cli 前缀目录（禁跳过目录 —— src/cli/*.ts 不得逃出扫描面）；
+    // 扫描面 = src/ 顶层全部 cli* 文件 + cli* 目录内全部 .ts，断言意图与覆盖不缩（00 裁决条件 1）。
+    const scanCliSources = async (dir: string, topLevel: boolean): Promise<string[]> => {
+      const entries = await readdir(dir, { withFileTypes: true })
+      const out: string[] = []
+      for (const ent of entries) {
+        const full = path.join(dir, ent.name)
+        if (ent.isDirectory()) {
+          if (topLevel && ent.name.startsWith('cli')) out.push(...(await scanCliSources(full, false)))
+          continue
+        }
+        if (topLevel ? ent.name.startsWith('cli') : ent.name.endsWith('.ts')) out.push(full)
+      }
+      return out
+    }
+    for (const file of await scanCliSources(path.join(KIT, 'src'), true)) {
+      const body = await readFile(file, 'utf8')
+      assert.equal(body.includes('ctx.tools.register'), false, file)
     }
   })
 })
