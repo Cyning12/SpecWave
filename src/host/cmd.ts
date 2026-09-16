@@ -1,4 +1,5 @@
 import { existsSync, readFileSync, statSync } from 'node:fs'
+import os from 'node:os'
 import path from 'node:path'
 import {
   fail,
@@ -24,6 +25,15 @@ import { commitPlannedWrites, planApply, remapUpdateConflicts } from './material
 import { checkPlannedItem, isVerifyRed, type HostVerifyCheck } from './verify.ts'
 import type { ResolvedHostRow } from './resolve.ts'
 import {
+  listUserTableFiles,
+  loadUserCatalog,
+  mergeUserHostTables,
+  sha256OfFile,
+  userHostsDirOf,
+  type MergedHostTables,
+} from './load.ts'
+import { asHostRows } from './table.ts'
+import {
   emitHostFail,
   emitU01Degraded,
   printHostHuman,
@@ -32,7 +42,7 @@ import {
 } from './report.ts'
 
 const HOST_USAGE =
-  'host validate [--file PATH] [--target PATH] [--json]\n  host apply --tools LIST|all [--profile core|expanded] [--target PATH] [--file PATH] [--json] [--dry-run|--yes]\n  host update [--tools LIST|all] [--profile core|expanded] [--target PATH] [--file PATH] [--json] [--dry-run|--yes] [--force]\n  host verify [--tools LIST|all] [--profile core|expanded] [--target PATH] [--file PATH] [--json]'
+  'host validate [--file PATH] [--target PATH] [--json]\n  host apply --tools LIST|all [--profile core|expanded] [--target PATH] [--file PATH] [--json] [--dry-run|--yes]\n  host update [--tools LIST|all] [--profile core|expanded] [--target PATH] [--file PATH] [--json] [--dry-run|--yes] [--force]\n  host verify [--tools LIST|all] [--profile core|expanded] [--target PATH] [--file PATH] [--json]\n  host catalog list [--target PATH] [--json]'
 
 const APPLY_USAGE =
   'host apply --tools cursor,claude|all [--profile core|expanded] [--target PATH] [--file PATH] [--json] [--dry-run|--yes]'
@@ -42,6 +52,26 @@ const UPDATE_USAGE =
 
 const VERIFY_USAGE =
   'host verify [--tools LIST|all] [--profile core|expanded] [--target PATH] [--file PATH] [--json]'
+
+const CATALOG_USAGE = 'host catalog list [--target PATH] [--json]'
+
+/**
+ * 合并装载（3.0 W2 阶段三 · B5 · S3.6）：--file → 当次整表替换（单表语义逐字现状）；
+ * 无 --file → 内置恒基底 + 用户目录合并（mergeUserHostTables · 失败 exit 2 零写入 · 目录缺失零行为差）。
+ */
+function loadMergedTables(data: unknown, fileArg: string | undefined): MergedHostTables {
+  if (fileArg !== undefined) {
+    return {
+      rows: resolvedHostRows(data),
+      commandSets: commandSetsOf(data),
+      explicitHooksHostIds: explicitHooksHostIdsOf(data),
+      sourceRootOf: () => packageRoot(),
+      userTables: [],
+      catalog: null,
+    }
+  }
+  return mergeUserHostTables({ baseData: data, homeDir: os.homedir(), pkgRoot: packageRoot() })
+}
 
 /**
  * 解析 --tools LIST|all（`none` 仅 init，apply/update 拒）。
@@ -269,12 +299,13 @@ async function cmdHostApply(args: string[]): Promise<void> {
     )
   }
 
-  const rows = resolvedHostRows(data)
+  const merged = loadMergedTables(data, fileArg)
+  const rows = merged.rows
   const knownIds = rows.map((r) => r.host_id)
   const known = new Set(knownIds)
   const toolIds = resolveToolsList(toolsArg ?? '', knownIds, 'host apply', APPLY_USAGE)
   baseReport.hosts = toolIds
-  baseReport.degraded_none = degradedNoneHosts(toolIds, rows, explicitHooksHostIdsOf(data))
+  baseReport.degraded_none = degradedNoneHosts(toolIds, rows, merged.explicitHooksHostIds)
   const unknown = toolIds.filter((id) => !known.has(id))
   if (unknown.length > 0) {
     fail(`host apply 未知 host_id: ${unknown.join(', ')}\n用法: ${APPLY_USAGE}`)
@@ -285,7 +316,7 @@ async function cmdHostApply(args: string[]): Promise<void> {
     emitU01Degraded(json, 'host apply', target, baseReport, contract)
   }
 
-  const commandSets = commandSetsOf(data)
+  const commandSets = merged.commandSets
   const { items, s2 } = planApply({
     target,
     rows,
@@ -293,6 +324,7 @@ async function cmdHostApply(args: string[]): Promise<void> {
     profile,
     pkgRoot: packageRoot(),
     commandSets,
+    sourceRootOf: merged.sourceRootOf,
   })
   if (s2.length > 0) {
     const uniq = uniqueKeepOrder(s2)
@@ -439,7 +471,8 @@ async function cmdHostUpdate(args: string[]): Promise<void> {
     )
   }
 
-  const rows = resolvedHostRows(data)
+  const merged = loadMergedTables(data, fileArg)
+  const rows = merged.rows
   const knownIds = rows.map((r) => r.host_id)
   const known = new Set(knownIds)
   // W2 方案 A：CLI `--tools` → 粘性 host_ids → 否则 exit 1（相对 2.1.0 全表为 BREAKING 小）
@@ -461,14 +494,14 @@ async function cmdHostUpdate(args: string[]): Promise<void> {
     fail(`host update 未知 host_id: ${unknown.join(', ')}\n用法: ${UPDATE_USAGE}`)
   }
   baseReport.hosts = toolIds
-  baseReport.degraded_none = degradedNoneHosts(toolIds, rows, explicitHooksHostIdsOf(data))
+  baseReport.degraded_none = degradedNoneHosts(toolIds, rows, merged.explicitHooksHostIds)
 
   const contract = evaluateHostContract(tableVersionOf(data))
   if (contract.status === 'degraded') {
     emitU01Degraded(json, 'host update', target, baseReport, contract)
   }
 
-  const commandSets = commandSetsOf(data)
+  const commandSets = merged.commandSets
   const { items, s2 } = planApply({
     target,
     rows,
@@ -476,6 +509,7 @@ async function cmdHostUpdate(args: string[]): Promise<void> {
     profile,
     pkgRoot: packageRoot(),
     commandSets,
+    sourceRootOf: merged.sourceRootOf,
   })
   remapUpdateConflicts(items, force)
   if (s2.length > 0) {
@@ -615,7 +649,8 @@ async function cmdHostVerify(args: string[]): Promise<void> {
     )
   }
 
-  const rows = resolvedHostRows(data)
+  const merged = loadMergedTables(data, fileArg)
+  const rows = merged.rows
   const knownIds = rows.map((r) => r.host_id)
   const known = new Set(knownIds)
   const sticky = loadHostToolsSticky(target)
@@ -636,7 +671,7 @@ async function cmdHostVerify(args: string[]): Promise<void> {
   const profile = profileArg ?? sticky?.profile ?? 'core'
   assertHostProfile(profile, 'host verify', VERIFY_USAGE)
 
-  const commandSets = commandSetsOf(data)
+  const commandSets = merged.commandSets
   const { items, s2 } = planApply({
     target,
     rows,
@@ -644,6 +679,7 @@ async function cmdHostVerify(args: string[]): Promise<void> {
     profile,
     pkgRoot: packageRoot(),
     commandSets,
+    sourceRootOf: merged.sourceRootOf,
     // F-W2-04 fail-closed：落点无法读取不在计划层崩溃（exit 1）· 由比对层按 unreadable 报红点名 exit 2
     tolerateUnreadableDest: true,
   })
@@ -652,7 +688,7 @@ async function cmdHostVerify(args: string[]): Promise<void> {
   }
 
   const byId = new Map(rows.map((r) => [r.host_id, r]))
-  const explicit = new Set(explicitHooksHostIdsOf(data))
+  const explicit = new Set(merged.explicitHooksHostIds)
   const itemChecks = items.map((item) => checkPlannedItem(item))
   const checks: HostVerifyCheck[] = []
   for (const id of toolIds) {
@@ -706,6 +742,156 @@ async function cmdHostVerify(args: string[]): Promise<void> {
   if (verdict === 'FAIL') fail('', 2)
 }
 
+/**
+ * host catalog list（3.0 W2 阶段三 · B5 catalog · S3.6-4/5 · 验收 #11 · F-W2-09）：
+ * 列内置 13（origin builtin）+ 用户表（source/integrity 状态）· sha256 呈现即强制
+ *（不符 → mismatch 红 + verdict FAIL exit 2 点名）· catalog 缺失照载标 integrity: none · 未登记标 uncataloged。
+ * --json 顶层键集钉死 = {command, target, catalog, tables, verdict}（30 定稿 · 测试钉死）。
+ */
+type CatalogTableEntry = {
+  file: string
+  origin: 'builtin' | 'user'
+  hosts: number
+  host_ids?: string[]
+  source: string
+  integrity: 'ok' | 'none' | 'uncataloged' | 'mismatch'
+  status: 'ok' | 'error'
+  detail?: string
+}
+
+async function cmdHostCatalogList(args: string[]): Promise<void> {
+  if (args.includes('--help') || args.includes('-h')) {
+    console.log(`用法: npx spec-wave ${CATALOG_USAGE}`)
+    return
+  }
+  const json = args.includes('--json')
+  let rest = args.filter((a) => a !== '--json')
+  const { value: targetArg, rest: r1 } = takeOption(rest, '--target')
+  rest = r1
+  if (rest.length > 0) fail(`host catalog list 未知参数: ${rest.join(' ')}\n用法: ${CATALOG_USAGE}`)
+  const target = resolveTarget(process.cwd(), targetArg)
+
+  const homeDir = os.homedir()
+  const dir = userHostsDirOf(homeDir)
+  const catalog = loadUserCatalog(dir) // 缺失 → null · 坏 → exit 2 点名（fail-closed）
+  const files = listUserTableFiles(homeDir)
+  const catalogByFile = new Map((catalog?.tables ?? []).map((t) => [t.file, t]))
+
+  const builtinAbs = resolveValidateFile(undefined)
+  let builtinHosts = 0
+  try {
+    builtinHosts = asHostRows(yamlLoad(readFileSync(builtinAbs, 'utf8'))).length
+  } catch {
+    builtinHosts = 0
+  }
+  const tables: CatalogTableEntry[] = [
+    {
+      file: toRel(packageRoot(), builtinAbs), // 包内资产锚定包根相对形（稳定自描述 · 不随 target 走 ../ 上溯）
+      origin: 'builtin',
+      hosts: builtinHosts,
+      source: 'package',
+      integrity: 'ok', // 内置完整性由 assets sha256.manifest 守护（W5 面）
+      status: 'ok',
+    },
+  ]
+  let failFlag = false
+  for (const name of files) {
+    const abs = path.join(dir, name)
+    const entry = catalogByFile.get(name)
+    let integrity: CatalogTableEntry['integrity']
+    let detail: string | undefined
+    if (entry?.sha256 !== undefined) {
+      const actual = sha256OfFile(abs)
+      if (actual !== entry.sha256) {
+        integrity = 'mismatch'
+        detail = `sha256 不符（F-W2-09）: 声明 ${entry.sha256} ≠ 实测 ${actual}`
+        failFlag = true
+      } else {
+        integrity = 'ok'
+      }
+    } else if (catalog === null) {
+      integrity = 'none'
+    } else if (entry) {
+      integrity = 'none'
+    } else {
+      integrity = 'uncataloged'
+    }
+    let status: CatalogTableEntry['status'] = 'ok'
+    let hostIds: string[] = []
+    try {
+      const data = yamlLoad(readFileSync(abs, 'utf8'))
+      const issues = validateHostAdaptDocDispatch(data)
+      if (issues.length > 0) {
+        status = 'error'
+        detail = [detail, `schema 非法: ${issues[0]!.path}: ${issues[0]!.message}`].filter(Boolean).join(' · ')
+        failFlag = true
+      } else {
+        hostIds = asHostRows(data).map((r) => r.host_id)
+      }
+    } catch (err) {
+      status = 'error'
+      detail = [detail, `YAML 解析失败: ${(err as Error).message}`].filter(Boolean).join(' · ')
+      failFlag = true
+    }
+    tables.push({
+      file: name,
+      origin: 'user',
+      hosts: hostIds.length,
+      host_ids: hostIds,
+      source: entry?.source ?? '（未标注）',
+      integrity,
+      status,
+      ...(detail !== undefined ? { detail } : {}),
+    })
+  }
+
+  const verdict: 'PASS' | 'FAIL' = failFlag ? 'FAIL' : 'PASS'
+  if (json) {
+    printJson(target, {
+      command: 'host catalog list',
+      target,
+      catalog: catalog
+        ? { present: true, file: 'catalog.yaml', version: catalog.version }
+        : { present: false },
+      tables,
+      verdict,
+    })
+  } else {
+    console.log('HOST CATALOG')
+    const b = tables[0]!
+    console.log(`builtin: ${b.file} · hosts ${b.hosts} · origin builtin · integrity ok（assets manifest 守护）`)
+    console.log(
+      catalog
+        ? `catalog: catalog.yaml · version "${catalog.version}"`
+        : 'catalog: （无 · 用户表 integrity 均为 none）',
+    )
+    const users = tables.slice(1)
+    console.log(`user tables (${users.length}):`)
+    if (users.length === 0) console.log('  (无)')
+    for (const t of users) {
+      console.log(
+        `  ${t.file} · hosts ${t.hosts}${t.host_ids && t.host_ids.length > 0 ? `（${t.host_ids.join(', ')}）` : ''} · source ${t.source} · integrity ${t.integrity}${t.status === 'error' ? ' · status error' : ''}${t.detail ? ` · ${t.detail}` : ''}`,
+      )
+    }
+    console.log(`HOST CATALOG: ${verdict}`)
+  }
+  if (verdict === 'FAIL') fail('', 2)
+}
+
+async function cmdHostCatalog(args: string[]): Promise<void> {
+  const [sub, ...rest] = args
+  if (sub === '--help' || sub === '-h') {
+    console.log(`用法: npx spec-wave ${CATALOG_USAGE}`)
+    return
+  }
+  if (!sub) fail(`host catalog 子命令未知: (空)\n用法: ${CATALOG_USAGE}`)
+  if (sub === 'list') {
+    await cmdHostCatalogList(rest)
+    return
+  }
+  fail(`host catalog 子命令未知: ${sub}\n用法: ${CATALOG_USAGE}`)
+}
+
 export async function cmdHost(args: string[]): Promise<void> {
   const [sub, ...rest] = args
   if (sub === '--help' || sub === '-h') {
@@ -727,6 +913,10 @@ export async function cmdHost(args: string[]): Promise<void> {
   }
   if (sub === 'verify') {
     await cmdHostVerify(rest)
+    return
+  }
+  if (sub === 'catalog') {
+    await cmdHostCatalog(rest)
     return
   }
   fail(`host 子命令未知: ${sub}\n用法: ${HOST_USAGE}`)

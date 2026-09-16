@@ -1,0 +1,23 @@
+# 3.0 W2 阶段三 · B5 第三方自定义 agent fixture（acme-bot · 非内置 13 · 硬约束 12 预演 · 验收 #5 自动化面）
+# 用户级目录加载（~/.spec-wave/hosts/）· 资产相对表文件所在目录解析（acme-assets/）
+version: "1"
+schema_version: 2
+command_sets:
+  core: [verify]
+  expanded: [graph-check]
+hosts:
+  - host_id: acme-bot
+    surfaces:
+      always_on:
+        - target: ACME.md
+          source: acme-assets/ACME.md.fragment.example
+      skills: []
+      commands: []
+      verify:
+        kind: cli
+        bin: spec-wave
+        failClosed: true
+      hooks:
+        mechanism: shell-hook
+        triggers: [pre-commit]
+        command: "npx spec-wave verify --target ."

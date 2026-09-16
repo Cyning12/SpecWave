@@ -233,6 +233,11 @@ export function planApply(opts: {
    * 本开关（缺省 false · 抛错行为逐字不变 · compat 零影响）。
    */
   tolerateUnreadableDest?: boolean
+  /**
+   * B5 用户表资产根（3.0 W2 阶段三 · S3.6 裁决②）：宿主 → 资产解析根
+   * （内置 → pkgRoot · 用户表宿主 → 表文件所在目录 · 缺省 = 全量 pkgRoot 逐字现状 · compat 零影响）。
+   */
+  sourceRootOf?: (hostId: string) => string
 }): { items: PlannedItem[]; s2: string[] } {
   const items: PlannedItem[] = []
   const s2: string[] = []
@@ -258,9 +263,11 @@ export function planApply(opts: {
   for (const hostId of opts.toolIds) {
     const row = rowById.get(hostId)
     if (!row) continue
+    // B5：资产解析根（内置 = pkgRoot · 用户表宿主 = 表文件所在目录 · 缺省 pkgRoot 逐字现状）
+    const srcRoot = opts.sourceRootOf?.(hostId) ?? opts.pkgRoot
     for (const entry of row.surfaces.always_on) {
       const sourceRel = normalizeSlashPath(entry.source)
-      const sourceAbs = path.join(opts.pkgRoot, sourceRel)
+      const sourceAbs = path.join(srcRoot, sourceRel)
       const destAbs = path.resolve(opts.target, entry.target)
       const destRel = pushDest(toRel(opts.target, destAbs), destAbs)
       if (!existsSync(sourceAbs)) {
@@ -352,9 +359,9 @@ export function planApply(opts: {
 
     // skills：与表一致物化；跳过 30/40（isExecuteHatSkipped）
     for (const entry of row.surfaces.skills ?? []) {
-      const sources = expandSkillSources(entry.from, opts.pkgRoot)
+      const sources = expandSkillSources(entry.from, srcRoot)
       for (const src of sources) {
-        const sourceAbs = path.join(opts.pkgRoot, src.sourceRel)
+        const sourceAbs = path.join(srcRoot, src.sourceRel)
         const destAbs = path.resolve(opts.target, entry.target_dir, src.innerRel)
         const destRel = pushDest(toRel(opts.target, destAbs), destAbs)
         const sourceBody = readFileSync(sourceAbs, 'utf8')
@@ -378,7 +385,7 @@ export function planApply(opts: {
     for (const entry of row.surfaces.commands) {
       if (!commandEntryApplies(entry.profile, opts.profile)) continue
       const band: 'core' | 'expanded' = entry.profile === 'expanded' ? 'expanded' : 'core'
-      const matched = expandFromGlob(entry.from, opts.pkgRoot).filter((rel) => {
+      const matched = expandFromGlob(entry.from, srcRoot).filter((rel) => {
         const base = path.basename(rel)
         return band === 'core'
           ? parseCoreCommandBasename(base, opts.commandSets.core) !== null
@@ -413,7 +420,7 @@ export function planApply(opts: {
       }
       for (const sourceRelRaw of matched) {
         const sourceRel = normalizeSlashPath(sourceRelRaw)
-        const sourceAbs = path.join(opts.pkgRoot, sourceRel)
+        const sourceAbs = path.join(srcRoot, sourceRel)
         const destAbs = path.resolve(opts.target, entry.target_dir, path.basename(sourceRel))
         const destRel = pushDest(toRel(opts.target, destAbs), destAbs)
         const sourceBody = readFileSync(sourceAbs, 'utf8')

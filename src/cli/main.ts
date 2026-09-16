@@ -15,6 +15,7 @@ import { cmdInit, cmdUpgrade } from './init.ts'
 import { cmdAudit, cmdCheck, cmdGateCheck } from './gates.ts'
 import { cmdVerify } from './verify.ts'
 import { cmdTask } from './task-cmd.ts'
+import { cmdHookGuard } from '../host/hookguard.ts'
 
 export async function runCli(argv: string[]): Promise<void> {
   const pkgVersion = await readPkgVersion()
@@ -81,6 +82,10 @@ export async function runCli(argv: string[]): Promise<void> {
   }
   if (cmd === 'host') {
     await cmdHost(rest)
+    return
+  }
+  if (cmd === 'hook-guard') {
+    await cmdHookGuard(rest)
     return
   }
   if (cmd === 'sync') {
