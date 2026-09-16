@@ -11,11 +11,18 @@ import {
 } from '../cli-shared.ts'
 import { evaluateHostContract } from '../host-contract.ts'
 import { yamlLoad } from '../yaml.ts'
-import { commandSetsOf, resolveValidateFile, resolvedHostRows } from './table.ts'
+import {
+  commandSetsOf,
+  explicitHooksHostIdsOf,
+  resolveValidateFile,
+  resolvedHostRows,
+} from './table.ts'
 import { validateHostAdaptDocDispatch } from './schema.ts'
 import { loadHostToolsSticky, uniqueKeepOrder, writeHostToolsSticky } from './sticky.ts'
 import { assertHostProfile, findLegacyClaudeFlatCommands } from './commands.ts'
 import { commitPlannedWrites, planApply, remapUpdateConflicts } from './materialize.ts'
+import { checkPlannedItem, isVerifyRed, type HostVerifyCheck } from './verify.ts'
+import type { ResolvedHostRow } from './resolve.ts'
 import {
   emitHostFail,
   emitU01Degraded,
@@ -25,13 +32,16 @@ import {
 } from './report.ts'
 
 const HOST_USAGE =
-  'host validate [--file PATH] [--target PATH] [--json]\n  host apply --tools LIST|all [--profile core|expanded] [--target PATH] [--file PATH] [--json] [--dry-run|--yes]\n  host update [--tools LIST|all] [--profile core|expanded] [--target PATH] [--file PATH] [--json] [--dry-run|--yes] [--force]'
+  'host validate [--file PATH] [--target PATH] [--json]\n  host apply --tools LIST|all [--profile core|expanded] [--target PATH] [--file PATH] [--json] [--dry-run|--yes]\n  host update [--tools LIST|all] [--profile core|expanded] [--target PATH] [--file PATH] [--json] [--dry-run|--yes] [--force]\n  host verify [--tools LIST|all] [--profile core|expanded] [--target PATH] [--file PATH] [--json]'
 
 const APPLY_USAGE =
   'host apply --tools cursor,claude|all [--profile core|expanded] [--target PATH] [--file PATH] [--json] [--dry-run|--yes]'
 
 const UPDATE_USAGE =
   'host update [--tools LIST|all] [--profile core|expanded] [--target PATH] [--file PATH] [--json] [--dry-run|--yes] [--force]'
+
+const VERIFY_USAGE =
+  'host verify [--tools LIST|all] [--profile core|expanded] [--target PATH] [--file PATH] [--json]'
 
 /**
  * 解析 --tools LIST|all（`none` 仅 init，apply/update 拒）。
@@ -40,7 +50,7 @@ const UPDATE_USAGE =
 function resolveToolsList(
   toolsArg: string,
   knownIds: string[],
-  cmd: 'host apply' | 'host update',
+  cmd: string,
   usage: string,
 ): string[] {
   const tokens = uniqueKeepOrder(
@@ -62,6 +72,22 @@ function resolveToolsList(
     return uniqueKeepOrder(knownIds)
   }
   return tokens
+}
+
+/**
+ * 显式降级宿主（3.0 W2 阶段二 · S3.5 验收 #6）：toolIds 中显式声明 hooks {mechanism:none} 者。
+ * v1/外部表未声明缺省 none 不在此列（explicitHooksHostIdsOf = [] ⇒ 静默零行为变化 · 30 裁决④）。
+ */
+function degradedNoneHosts(
+  toolIds: string[],
+  rows: ResolvedHostRow[],
+  explicitIds: string[],
+): string[] {
+  const explicit = new Set(explicitIds)
+  const byId = new Map(rows.map((r) => [r.host_id, r]))
+  return toolIds.filter(
+    (id) => explicit.has(id) && byId.get(id)?.surfaces.hooks.mechanism === 'none',
+  )
 }
 
 function takeOptionalFlag(
@@ -221,6 +247,7 @@ async function cmdHostApply(args: string[]): Promise<void> {
     conflict: [] as string[],
     removed: [] as string[],
     backup: null as string | null,
+    degraded_none: [] as string[],
   }
 
   let data: unknown
@@ -247,6 +274,7 @@ async function cmdHostApply(args: string[]): Promise<void> {
   const known = new Set(knownIds)
   const toolIds = resolveToolsList(toolsArg ?? '', knownIds, 'host apply', APPLY_USAGE)
   baseReport.hosts = toolIds
+  baseReport.degraded_none = degradedNoneHosts(toolIds, rows, explicitHooksHostIdsOf(data))
   const unknown = toolIds.filter((id) => !known.has(id))
   if (unknown.length > 0) {
     fail(`host apply 未知 host_id: ${unknown.join(', ')}\n用法: ${APPLY_USAGE}`)
@@ -313,6 +341,7 @@ async function cmdHostApply(args: string[]): Promise<void> {
     conflict,
     removed: yes ? removed : legacyRemove,
     backup,
+    degraded_none: baseReport.degraded_none,
     contract,
     ok: true,
     verdict: 'PASS',
@@ -386,6 +415,7 @@ async function cmdHostUpdate(args: string[]): Promise<void> {
     conflict: [] as string[],
     removed: [] as string[],
     backup: null as string | null,
+    degraded_none: [] as string[],
   }
 
   let data: unknown
@@ -431,6 +461,7 @@ async function cmdHostUpdate(args: string[]): Promise<void> {
     fail(`host update 未知 host_id: ${unknown.join(', ')}\n用法: ${UPDATE_USAGE}`)
   }
   baseReport.hosts = toolIds
+  baseReport.degraded_none = degradedNoneHosts(toolIds, rows, explicitHooksHostIdsOf(data))
 
   const contract = evaluateHostContract(tableVersionOf(data))
   if (contract.status === 'degraded') {
@@ -493,12 +524,186 @@ async function cmdHostUpdate(args: string[]): Promise<void> {
     conflict,
     removed: yes ? removed : legacyRemove,
     backup,
+    degraded_none: baseReport.degraded_none,
     contract,
     ok: true,
     verdict: 'PASS',
   }
   if (json) printJson(target, report)
   else printHostHuman(report)
+}
+
+/**
+ * host verify 物化校验（3.0 W2 阶段二 · S3.4 · 验收 #2 · F-W2-04）：
+ * 比对三分形态（逐字 / marker 产品块 / JSON 包含性 · checkPlannedItem 分派）·
+ * --tools 缺省 = 粘性 host_ids（与 host update 方案 A 同口径 · 无粘性且无 --tools → exit 1）·
+ * 30 裁决②：--profile 缺省 = 粘性 profile → 否则 core（与 apply 缺省兼容 · 贴合实取物化态）；
+ * 30 裁决③：verify 节消费呈现 = 每宿主一条 kind:'verify' check（kind/bin/failClosed 随报告输出）；
+ * mechanism none 宿主输出 degraded-none 状态行（S3.5 · 不计红绿）· exit 0（全绿）/ 2（任一红）。
+ */
+function emitVerifyFail(json: boolean, target: string, message: string): never {
+  if (json) {
+    printJson(target, {
+      command: 'host verify',
+      target,
+      hosts: [],
+      checks: [],
+      verdict: 'FAIL',
+      errors: [message],
+    })
+  } else {
+    console.error(message)
+    console.log('HOST VERIFY: FAIL')
+  }
+  fail('', 2)
+}
+
+async function cmdHostVerify(args: string[]): Promise<void> {
+  if (args.includes('--help') || args.includes('-h')) {
+    console.log(`用法: npx spec-wave ${VERIFY_USAGE}`)
+    return
+  }
+  const json = args.includes('--json')
+  let rest = args.filter((a) => a !== '--json')
+  let toolsArg: string | undefined
+  if (rest.includes('--tools')) {
+    const toolsIdx = rest.indexOf('--tools')
+    if (toolsIdx + 1 >= rest.length || rest[toolsIdx + 1]!.startsWith('-')) {
+      fail(`host verify 须 --tools LIST|all\n用法: ${VERIFY_USAGE}`)
+    }
+    const taken = takeOption(rest, '--tools')
+    toolsArg = taken.value
+    rest = taken.rest
+  }
+  const { value: profileArg, rest: rProfile } = takeOptionalFlag(
+    rest,
+    '--profile',
+    VERIFY_USAGE,
+    'host verify',
+  )
+  rest = rProfile
+  const { value: targetArg, rest: rTarget } = takeOptionalFlag(
+    rest,
+    '--target',
+    VERIFY_USAGE,
+    'host verify',
+  )
+  rest = rTarget
+  const { value: fileArg, rest: rFile } = takeOptionalFlag(rest, '--file', VERIFY_USAGE, 'host verify')
+  rest = rFile
+  if (rest.length > 0) fail(`host verify 未知参数: ${rest.join(' ')}\n用法: ${VERIFY_USAGE}`)
+
+  const target = resolveTarget(process.cwd(), targetArg)
+  if (!existsSync(target) || !statSync(target).isDirectory()) {
+    fail(`host verify target 不存在或不是目录: ${target}`)
+  }
+  const fileAbs = resolveValidateFile(fileArg)
+  if (!existsSync(fileAbs)) fail(`host verify 文件不存在: ${fileAbs}`)
+
+  let data: unknown
+  try {
+    data = yamlLoad(readFileSync(fileAbs, 'utf8'))
+  } catch (err) {
+    emitVerifyFail(json, target, `YAML 解析失败: ${(err as Error).message}`)
+  }
+  const issues = validateHostAdaptDocDispatch(data)
+  if (issues.length > 0) {
+    emitVerifyFail(
+      json,
+      target,
+      issues.map((e) => `  - [${e.code}] ${e.path}: ${e.message}`).join('\n'),
+    )
+  }
+
+  const rows = resolvedHostRows(data)
+  const knownIds = rows.map((r) => r.host_id)
+  const known = new Set(knownIds)
+  const sticky = loadHostToolsSticky(target)
+  let toolIds: string[]
+  if (toolsArg !== undefined) {
+    toolIds = resolveToolsList(toolsArg, knownIds, 'host verify', VERIFY_USAGE)
+  } else if (sticky !== null && sticky.host_ids.length >= 1) {
+    toolIds = uniqueKeepOrder(sticky.host_ids)
+  } else {
+    fail(
+      `host verify 无粘性且未传 --tools：请先 host apply / init，或传 --tools LIST / --tools all\n用法: ${VERIFY_USAGE}`,
+    )
+  }
+  const unknown = toolIds.filter((id) => !known.has(id))
+  if (unknown.length > 0) {
+    fail(`host verify 未知 host_id: ${unknown.join(', ')}\n用法: ${VERIFY_USAGE}`)
+  }
+  const profile = profileArg ?? sticky?.profile ?? 'core'
+  assertHostProfile(profile, 'host verify', VERIFY_USAGE)
+
+  const commandSets = commandSetsOf(data)
+  const { items, s2 } = planApply({
+    target,
+    rows,
+    toolIds,
+    profile,
+    pkgRoot: packageRoot(),
+    commandSets,
+    // F-W2-04 fail-closed：落点无法读取不在计划层崩溃（exit 1）· 由比对层按 unreadable 报红点名 exit 2
+    tolerateUnreadableDest: true,
+  })
+  if (s2.length > 0) {
+    emitVerifyFail(json, target, uniqueKeepOrder(s2).map((p) => `  - [s2] ${p}`).join('\n'))
+  }
+
+  const byId = new Map(rows.map((r) => [r.host_id, r]))
+  const explicit = new Set(explicitHooksHostIdsOf(data))
+  const itemChecks = items.map((item) => checkPlannedItem(item))
+  const checks: HostVerifyCheck[] = []
+  for (const id of toolIds) {
+    const row = byId.get(id)!
+    const v = row.surfaces.verify
+    checks.push({
+      host_id: id,
+      target: 'surfaces.verify',
+      kind: 'verify',
+      status: 'ok',
+      detail: v
+        ? `kind=${v.kind} bin=${v.bin} failClosed=${v.failClosed === true}（声明已消费）`
+        : '未声明（可选节）',
+    })
+    if (explicit.has(id) && row.surfaces.hooks.mechanism === 'none') {
+      checks.push({
+        host_id: id,
+        target: 'hooks',
+        kind: 'hooks',
+        status: 'degraded-none',
+        detail: 'L1+L2 · 宿主无 hook 机制 · 门禁仅 CLI 侧',
+      })
+    }
+    for (const c of itemChecks) {
+      if (c.host_id === id) checks.push(c)
+    }
+  }
+
+  const verdict: 'PASS' | 'FAIL' = checks.some((c) => isVerifyRed(c.status)) ? 'FAIL' : 'PASS'
+  if (json) {
+    // --json 顶层键集钉死 = {command, target, hosts, checks, verdict}（30 裁决① · cli-flags 键集 fixture 口径）
+    printJson(target, { command: 'host verify', target, hosts: toolIds, checks, verdict })
+  } else {
+    console.log('HOST VERIFY')
+    console.log(`hosts: ${toolIds.join(', ')}`)
+    for (const id of toolIds) {
+      console.log(`host ${id}:`)
+      for (const c of checks.filter((x) => x.host_id === id)) {
+        if (c.status === 'ok') {
+          console.log(`  [ok] ${c.target} · ${c.kind}${c.detail ? `（${c.detail}）` : ''}`)
+        } else if (c.status === 'degraded-none') {
+          // S3.5 规范行形（与 apply/update 降级行同一字面 · 快照断言锚点）
+          console.log(`  ${c.target}: degraded-none（${c.detail ?? ''}）`)
+        } else {
+          console.log(`  [FAIL] ${c.target} · ${c.status}${c.detail ? `（${c.detail}）` : ''}`)
+        }
+      }
+    }
+    console.log(`HOST VERIFY: ${verdict}`)
+  }
+  if (verdict === 'FAIL') fail('', 2)
 }
 
 export async function cmdHost(args: string[]): Promise<void> {
@@ -518,6 +723,10 @@ export async function cmdHost(args: string[]): Promise<void> {
   }
   if (sub === 'update') {
     await cmdHostUpdate(rest)
+    return
+  }
+  if (sub === 'verify') {
+    await cmdHostVerify(rest)
     return
   }
   fail(`host 子命令未知: ${sub}\n用法: ${HOST_USAGE}`)

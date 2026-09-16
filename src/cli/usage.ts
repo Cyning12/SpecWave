@@ -80,6 +80,7 @@ export function usage(version: string): void {
   npx spec-wave host validate [--file PATH] [--json]
   npx spec-wave host apply --tools LIST [--profile core] [--target PATH] [--file PATH] [--json] [--dry-run|--yes]
   npx spec-wave host update [--tools LIST] [--profile core] [--target PATH] [--file PATH] [--json] [--dry-run|--yes] [--force]
+  npx spec-wave host verify [--tools LIST|all] [--profile core|expanded] [--target PATH] [--file PATH] [--json]  （物化校验 · 篡改报红 exit 2 · fail-closed）
   npx spec-wave wiki export --json [--target PATH]
   npx spec-wave pins check [--target PATH] [--json]
   npx spec-wave pins fix [--target PATH] [--yes]  （默认 dry-run · S2 机械拒写）

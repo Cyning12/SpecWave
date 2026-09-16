@@ -60,6 +60,12 @@ export type ResolvedHostAdaptModel = {
   version: string
   commandSets: CommandSets
   rows: ResolvedHostRow[]
+  /**
+   * 显式 hooks 声明宿主（3.0 W2 阶段二 · S3.5 降级留痕锚点）：v2 表 hooks 键来自声明
+   * （行级或经 defaults/extends 合并）的 host_id 集；v1 = []（未声明缺省注入 · 与显式 none 可区分 ·
+   * 30 裁决：degraded 注记仅显式声明 none 留痕 · v1/外部表静默零行为变化）。
+   */
+  explicitHooksHostIds: string[]
 }
 
 /** v1/v2 兼容桥缺省 hooks（评审文 §3.2 行④：无 hooks 键 → {mechanism: none} · 未声明缺省） */
@@ -131,6 +137,7 @@ export function resolveV1CompatModel(data: unknown): ResolvedHostAdaptModel {
       ...row,
       surfaces: { ...row.surfaces, hooks: { ...V1_DEFAULT_HOOKS } },
     })),
+    explicitHooksHostIds: [], // v1 白名单不含 hooks ⇒ 必为未声明缺省（S3.5 静默口径）
   }
 }
 
@@ -163,7 +170,7 @@ export function mergeSurfaces(
 
 /** v2 解析结果：resolved rows 或解析 issue（循环/未知目标/链深/host_id 重复） */
 export type ResolveV2Result =
-  | { ok: true; rows: ResolvedHostRow[] }
+  | { ok: true; rows: ResolvedHostRow[]; explicitHooksHostIds: string[] }
   | { ok: false; issues: HostValidateIssue[] }
 
 type RawV2Row = { host_id: string; extends?: string; surfaces?: Record<string, unknown> }
@@ -195,6 +202,7 @@ export function resolveV2Rows(data: unknown): ResolveV2Result {
 
   const defaultsSurfaces: Record<string, unknown> = root.defaults?.surfaces ?? {}
   const rows: ResolvedHostRow[] = []
+  const explicitHooksHostIds: string[] = []
   for (const [hostId, { index, row }] of byId) {
     // 自 host 起沿 extends 边走链：chain = [起始 host, …祖先…]（末节点可为 defaults 伪节点）
     const chain: string[] = []
@@ -243,6 +251,8 @@ export function resolveV2Rows(data: unknown): ResolveV2Result {
         nodeId === 'defaults' ? defaultsSurfaces : (byId.get(nodeId)!.row.surfaces ?? {})
       acc = mergeSurfaces(acc, surfaces)
     }
+    // 显式声明判定（S3.5）：合并结果含 hooks 键 = 声明来自行级或 defaults/extends 链（显式）
+    if ('hooks' in acc) explicitHooksHostIds.push(hostId)
     rows.push({
       host_id: hostId,
       // hooks：声明（含 defaults/extends 深合并结果）保留 · 未声明注入 {mechanism:none} 缺省（评审文 §3.2 行④）
@@ -251,7 +261,7 @@ export function resolveV2Rows(data: unknown): ResolveV2Result {
   }
   if (issues.length > 0) return { ok: false, issues }
   // 输出序 = 表声明序（byId 按首次声明插入 · 与 v1 asHostRows 行序同口径）
-  return { ok: true, rows }
+  return { ok: true, rows, explicitHooksHostIds }
 }
 
 /**
@@ -272,6 +282,7 @@ export function resolveV2Model(
       version: root.version,
       commandSets: effectiveCommandSets(root.command_sets),
       rows: resolved.rows,
+      explicitHooksHostIds: resolved.explicitHooksHostIds,
     },
   }
 }

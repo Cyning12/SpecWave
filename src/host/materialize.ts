@@ -14,7 +14,7 @@ import {
   parseCoreCommandBasename,
   parseExpandedCommandBasename,
 } from './commands.ts'
-import type { CommandSets } from './resolve.ts'
+import type { CommandSets, HooksDecl } from './resolve.ts'
 import {
   atomicWrite,
   backupFile,
@@ -22,6 +22,7 @@ import {
   pruneBackups,
   type BackupFamily,
 } from './backup.ts'
+import { configHookSpecOf, mergeHookConfig } from './hooks.ts'
 import type { HostRow } from './table.ts'
 
 const PRODUCT_BEGIN = '<!-- cyning-harness:begin -->'
@@ -31,20 +32,24 @@ const LOCAL_END = '<!-- cyning-harness-local:end -->'
 
 type PlannedOp = 'write' | 'merge' | 'skip_identical' | 'conflict'
 
-type PlannedItem = {
+/** 3.0 W2 阶段二：kind 增 'hook'（config-hook JSON 合并落点 · S3.3 · 导出供 host verify 比对分派） */
+export type PlannedItem = {
   hostId: string
-  kind: 'always_on' | 'command' | 'skill'
+  kind: 'always_on' | 'command' | 'skill' | 'hook'
   destRel: string
   destAbs: string
   sourceRel: string
   sourceAbs: string
   op: PlannedOp
   nextText: string
+  /** kind='hook' 专用：声明 triggers（host verify 包含性比对锚点 · S3.4 形态③） */
+  hooksTriggers?: ('pre-commit' | 'pre-archive')[]
 }
 
 type SkillSource = { sourceRel: string; innerRel: string }
 
-function isMarkdownMergeTarget(destRel: string): boolean {
+/** 3.0 W2 阶段二：导出供 host verify marker 产品块比对分派（S3.4 形态②） */
+export function isMarkdownMergeTarget(destRel: string): boolean {
   const base = path.basename(destRel)
   // 2.3-W6：GEMINI.md 入 marker-merge 白名单（gemini 官方上下文文件 · 取证卡 D-23-W6-REUSE）——
   // 与 AGENTS.md/CLAUDE.md 同语义：产品块 marker 包裹 + local 块保留；否则 gemini 行always_on 退化为
@@ -80,6 +85,26 @@ function productSpanHasLocal(text: string): boolean {
   if (b === -1 || e === -1 || e < b) return false
   const span = text.slice(b, e + PRODUCT_END.length)
   return span.includes(LOCAL_BEGIN) || span.includes(LOCAL_END)
+}
+
+/**
+ * host verify marker 产品块比对（3.0 W2 阶段二 · S3.4 形态② · 验收 #9）：
+ * 产品块（cyning-harness:begin/end 包裹段）逐字比对 —— 用户 local 块（块内）与块外内容**不计篡改**
+ * （local span 剔除后比对产品 inner）；产品块缺失/被改 → false（报红）。
+ */
+export function verifyMarkdownProductBlock(existing: string, sourceBody: string): boolean {
+  const text = existing.replace(/\r\n/g, '\n')
+  const b = text.indexOf(PRODUCT_BEGIN)
+  const e = text.indexOf(PRODUCT_END)
+  if (b === -1 || e === -1 || e < b) return false
+  let inner = text.slice(b + PRODUCT_BEGIN.length, e)
+  const lb = inner.indexOf(LOCAL_BEGIN)
+  if (lb !== -1) {
+    const le = inner.indexOf(LOCAL_END, lb + LOCAL_BEGIN.length)
+    if (le !== -1) inner = inner.slice(0, lb) + inner.slice(le + LOCAL_END.length)
+  }
+  const norm = (s: string): string => s.replace(/^\n+/, '').replace(/\s+$/, '')
+  return norm(inner) === norm(extractProductInner(sourceBody))
 }
 
 function mergeMarkdownAlwaysOn(existing: string | null, sourceBody: string): string {
@@ -202,6 +227,12 @@ export function planApply(opts: {
   pkgRoot: string
   /** 3.0 W1 阶段三（S2.5）：命令目录数据源 —— v1=内建目录（resolve.ts builtinCommandSets）· v2=表 command_sets */
   commandSets: CommandSets
+  /**
+   * host verify 专用（3.0 W2 阶段二 · S3.4 · F-W2-04）：目标侧落点读取容错 —— 无法读取按 null
+   * 计划（op 退化），由 verify 比对层 readForVerify 按 unreadable 报红点名；apply/update 不传
+   * 本开关（缺省 false · 抛错行为逐字不变 · compat 零影响）。
+   */
+  tolerateUnreadableDest?: boolean
 }): { items: PlannedItem[]; s2: string[] } {
   const items: PlannedItem[] = []
   const s2: string[] = []
@@ -211,6 +242,17 @@ export function planApply(opts: {
     const destRel = normalizeSlashPath(destRelRaw)
     if (isS2RelPath(destRel) || isS2AbsPath(destAbs)) s2.push(destRel)
     return destRel
+  }
+
+  // 目标侧落点读取（缺省抛错逐字不变 · tolerateUnreadableDest 时无法读取按 null 计划 → verify 层报红）
+  const readDestText = (abs: string): string | null => {
+    if (!existsSync(abs)) return null
+    if (!opts.tolerateUnreadableDest) return readFileSync(abs, 'utf8')
+    try {
+      return readFileSync(abs, 'utf8')
+    } catch {
+      return null
+    }
   }
 
   for (const hostId of opts.toolIds) {
@@ -226,7 +268,7 @@ export function planApply(opts: {
       }
       const sourceBody = readFileSync(sourceAbs, 'utf8')
       const exists = existsSync(destAbs)
-      const existing = exists ? readFileSync(destAbs, 'utf8') : null
+      const existing = readDestText(destAbs)
       if (isMarkdownMergeTarget(destRel)) {
         if (existing && productSpanHasLocal(existing)) {
           items.push({
@@ -317,7 +359,7 @@ export function planApply(opts: {
         const destRel = pushDest(toRel(opts.target, destAbs), destAbs)
         const sourceBody = readFileSync(sourceAbs, 'utf8')
         const exists = existsSync(destAbs)
-        const existing = exists ? readFileSync(destAbs, 'utf8') : null
+        const existing = readDestText(destAbs)
         let op: PlannedOp = 'write'
         if (exists && existing === sourceBody) op = 'skip_identical'
         items.push({
@@ -376,7 +418,7 @@ export function planApply(opts: {
         const destRel = pushDest(toRel(opts.target, destAbs), destAbs)
         const sourceBody = readFileSync(sourceAbs, 'utf8')
         const exists = existsSync(destAbs)
-        const existing = exists ? readFileSync(destAbs, 'utf8') : null
+        const existing = readDestText(destAbs)
         let op: PlannedOp = 'write'
         if (exists && existing === sourceBody) op = 'skip_identical'
         items.push({
@@ -388,6 +430,50 @@ export function planApply(opts: {
           sourceAbs,
           op,
           nextText: sourceBody,
+        })
+      }
+    }
+
+    // hooks（3.0 W2 阶段二 · S3.3）：config-hook 族物化 JSON 合并落点（深合并保用户键 ·
+    // 结构性冲突 conflict 点名不覆写 · F-W2-10）；none 零落点（降级留痕归报告面 S3.5）；
+    // shell-hook 本棒零落点（物化归 ⑦ 阶段棒 · 内置表无此声明 · 零行为面）。
+    const hooksDecl = (row.surfaces as { hooks?: HooksDecl }).hooks
+    if (hooksDecl && hooksDecl.mechanism === 'config-hook') {
+      const spec = configHookSpecOf(hostId)
+      if (!spec) {
+        fail(`host apply: config-hook 宿主无物化落点映射: ${hostId}（族映射表外宿主 fail-closed · 不静默）`, 2)
+      }
+      const destAbs = path.resolve(opts.target, spec.destRel)
+      const destRel = pushDest(toRel(opts.target, destAbs), destAbs)
+      const exists = existsSync(destAbs)
+      const existingText = readDestText(destAbs)
+      const merged = mergeHookConfig(existingText, hostId, hooksDecl.triggers)
+      if (!merged.ok) {
+        items.push({
+          hostId,
+          kind: 'hook',
+          destRel,
+          destAbs,
+          sourceRel: 'surfaces.hooks',
+          sourceAbs: '',
+          op: 'conflict',
+          nextText: existingText ?? '',
+          hooksTriggers: [...hooksDecl.triggers],
+        })
+      } else {
+        const nextText = `${JSON.stringify(merged.next, null, 2)}\n`
+        let op: PlannedOp = exists ? 'merge' : 'write'
+        if (existingText !== null && existingText === nextText) op = 'skip_identical'
+        items.push({
+          hostId,
+          kind: 'hook',
+          destRel,
+          destAbs,
+          sourceRel: 'surfaces.hooks',
+          sourceAbs: '',
+          op,
+          nextText,
+          hooksTriggers: [...hooksDecl.triggers],
         })
       }
     }

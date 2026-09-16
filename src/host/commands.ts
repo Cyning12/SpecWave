@@ -33,7 +33,7 @@ function commandEntryApplies(entryProfile: string | undefined, requested: string
   return false
 }
 
-function assertHostProfile(profile: string, cmd: 'host apply' | 'host update', usage: string): void {
+function assertHostProfile(profile: string, cmd: string, usage: string): void {
   if (profile !== 'core' && profile !== 'expanded') {
     fail(`${cmd} 仅支持 --profile core|expanded（收到: ${profile}）\n用法: ${usage}`)
   }

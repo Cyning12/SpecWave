@@ -13,6 +13,12 @@ export type HostWriteReport = {
   /** 旧 Claude 扁平 kit-*.md 将删/已删（备份后清除，禁新旧双份） */
   removed: string[]
   backup: string | null
+  /**
+   * 显式降级宿主（3.0 W2 阶段二 · S3.5 验收 #6）：显式声明 hooks {mechanism:none} 的宿主
+   * （human 与 --json 同键呈现 · L1+L2 可区分 · 不得暗示 L3 · 硬约束 9）；
+   * v1/外部表未声明缺省 none 不在此列（30 裁决：静默零行为变化）。
+   */
+  degraded_none: string[]
   contract?: HostContractResult
   ok: boolean
   verdict: 'PASS' | 'FAIL'
@@ -39,6 +45,13 @@ export function printHostHuman(report: HostWriteReport): void {
     console.log(`${label} (${items.length}):`)
     if (items.length === 0) console.log('  (无)')
     else for (const p of items) console.log(`  ${p}`)
+  }
+  // S3.5 降级留痕（验收 #6）：显式 none 宿主输出可区分降级行 · 不含 L3 暗示（硬约束 9）
+  if (report.degraded_none.length > 0) {
+    console.log(`degraded-none (${report.degraded_none.length}):`)
+    for (const id of report.degraded_none) {
+      console.log(`  ${id} · hooks: degraded-none（L1+L2 · 宿主无 hook 机制 · 门禁仅 CLI 侧）`)
+    }
   }
   if (report.backup) console.log(`backup: ${report.backup}`)
   console.log(`${banner}: ${report.verdict}`)

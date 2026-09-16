@@ -3,7 +3,14 @@ import path from 'node:path'
 import { fail, kitLayoutJoin, packageRoot } from '../cli-shared.ts'
 import { yamlLoad } from '../yaml.ts'
 import { probeHostAdaptSchemaVersion, validateHostAdaptDocDispatch } from './schema.ts'
-import { builtinCommandSets, effectiveCommandSets, resolveV2Model, type CommandSets } from './resolve.ts'
+import {
+  builtinCommandSets,
+  effectiveCommandSets,
+  resolveV2Model,
+  V1_DEFAULT_HOOKS,
+  type CommandSets,
+  type ResolvedHostRow,
+} from './resolve.ts'
 
 const DEFAULT_EXAMPLE_REL = path.join('assets', 'ide', 'host-adapt', 'examples', 'mvp-hosts.yaml')
 
@@ -48,8 +55,15 @@ export function asHostRows(data: unknown): HostRow[] {
  * v1 行为逐字不变）；v2 → defaults/extends 全量展开后的行（materialize/report 只消费展开后行 ·
  * 零感知 extends/defaults）。前置：调用方已经 validateHostAdaptDocDispatch 校验零 issue。
  */
-export function resolvedHostRows(data: unknown): HostRow[] {
-  if (probeHostAdaptSchemaVersion(data).kind !== 'v2') return asHostRows(data)
+export function resolvedHostRows(data: unknown): ResolvedHostRow[] {
+  // v1：原行 + hooks 缺省注入（评审文 §3.2 行④ · 3.0 W2 阶段二类型转正 ResolvedHostRow ·
+  // 注入 {mechanism:none} 对物化零行为差 · 显式/未声明区分走 explicitHooksHostIdsOf）
+  if (probeHostAdaptSchemaVersion(data).kind !== 'v2') {
+    return asHostRows(data).map((row) => ({
+      ...row,
+      surfaces: { ...row.surfaces, hooks: { ...V1_DEFAULT_HOOKS } },
+    }))
+  }
   const resolved = resolveV2Model(data)
   // 防御不可达：装载路径先经 dispatch 校验（同口径）· 校验零 issue 则解析必 ok
   if (!resolved.ok) {
@@ -68,6 +82,18 @@ export function commandSetsOf(data: unknown): CommandSets {
   if (probeHostAdaptSchemaVersion(data).kind !== 'v2') return builtinCommandSets()
   const root = data as { command_sets: CommandSets }
   return effectiveCommandSets(root.command_sets)
+}
+
+/**
+ * 显式 hooks 声明宿主集（3.0 W2 阶段二 · S3.5 降级留痕锚点）：v1 → []（未声明缺省 · 静默口径）；
+ * v2 → resolved 模型 explicitHooksHostIds（声明来自行级或 defaults/extends 合并）。
+ * 前置：调用方已经 validateHostAdaptDocDispatch 校验零 issue。
+ */
+export function explicitHooksHostIdsOf(data: unknown): string[] {
+  if (probeHostAdaptSchemaVersion(data).kind !== 'v2') return []
+  const resolved = resolveV2Model(data)
+  if (!resolved.ok) return [] // 防御不可达（装载路径先经 dispatch 校验）
+  return resolved.model.explicitHooksHostIds
 }
 
 export function resolveValidateFile(fileArg: string | undefined): string {

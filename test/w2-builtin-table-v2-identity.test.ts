@@ -90,14 +90,19 @@ function plannedDigest(
       commandSets,
     })
     return {
-      items: items.map((i) => ({
-        hostId: i.hostId,
-        kind: i.kind,
-        destRel: i.destRel,
-        sourceRel: i.sourceRel,
-        op: i.op,
-        sha256: createHash('sha256').update(i.nextText).digest('hex'),
-      })),
+      // 3.0 W2 阶段二（hooks 物化落地）处置登记（00 放行裁定）：恒等锁保持「声明面恒等」语义 ——
+      // 比对剔除 kind='hook' 物化条目（v1 无 hooks 声明 vs v2 有声明的物化面差异为规格内新增），
+      // 物化面差异由本文件「hooks 物化面差异登记」测试独立钉死（三宿主增 hooks 落点 · 十宿主不变）。
+      items: items
+        .filter((i) => i.kind !== 'hook')
+        .map((i) => ({
+          hostId: i.hostId,
+          kind: i.kind,
+          destRel: i.destRel,
+          sourceRel: i.sourceRel,
+          op: i.op,
+          sha256: createHash('sha256').update(i.nextText).digest('hex'),
+        })),
       s2,
     }
   } finally {
@@ -171,7 +176,7 @@ describe('3.0 W2 阶段一 · 内置表 v2 化恒等锁（验收 #8 · S3.2 · F
     assert.deepEqual(liveSets, fixtureSets)
   })
 
-  it('planned writes 恒等：core + expanded 全 13 宿主逐字 deepEqual（hooks 仅声明不物化 ⇒ 零漂移）', () => {
+  it('planned writes 恒等（声明面）：core + expanded 全 13 宿主非 hook 落点逐字 deepEqual', () => {
     const v1Rows = resolvedHostRows(loadDoc(PRE_V2_FIXTURE))
     const v2Rows = resolvedHostRows(loadDoc(LIVE_TABLE))
     for (const profile of ['core', 'expanded'] as const) {
@@ -179,6 +184,43 @@ describe('3.0 W2 阶段一 · 内置表 v2 化恒等锁（验收 #8 · S3.2 · F
       const fromV2 = plannedDigest(v2Rows, profile, commandSetsOf(loadDoc(LIVE_TABLE)))
       assert.deepEqual(fromV2, fromV1, `profile=${profile} planned writes 漂移（物化面被误触）`)
       assert.ok(fromV2.items.length > 0)
+    }
+  })
+
+  it('hooks 物化面差异登记（阶段二新增断言）：v2 三宿主各增 1 个 hook 落点 · 十宿主零 hook 落点 · v1 全表零 hook 落点', () => {
+    const v1Rows = resolvedHostRows(loadDoc(PRE_V2_FIXTURE))
+    const v2Rows = resolvedHostRows(loadDoc(LIVE_TABLE))
+    const hookItemsOf = (rows: ReturnType<typeof resolvedHostRows>, profile: string) => {
+      const target = mkdtempSync(path.join(os.tmpdir(), 'w2-identity-hook-delta-'))
+      try {
+        const { items } = planApply({
+          target,
+          rows,
+          toolIds: rows.map((r) => r.host_id),
+          profile,
+          pkgRoot: KIT,
+          commandSets: commandSetsOf(loadDoc(LIVE_TABLE)),
+        })
+        return items.filter((i) => i.kind === 'hook')
+      } finally {
+        rmSync(target, { recursive: true, force: true })
+      }
+    }
+    for (const profile of ['core', 'expanded'] as const) {
+      assert.deepEqual(hookItemsOf(v1Rows, profile), [], `profile=${profile} v1 不得有 hook 落点`)
+      const v2Hooks = hookItemsOf(v2Rows, profile)
+      assert.deepEqual(
+        v2Hooks.map((i) => ({ hostId: i.hostId, destRel: i.destRel, op: i.op })),
+        [
+          { hostId: 'cursor', destRel: '.cursor/hooks.json', op: 'write' },
+          { hostId: 'claude', destRel: '.claude/settings.json', op: 'write' },
+          { hostId: 'gemini', destRel: '.gemini/settings.json', op: 'write' },
+        ],
+        `profile=${profile} hooks 物化面差异须恰为三宿主落点`,
+      )
+      // hook 落点 host 集 ⊆ config-hook 三宿主（十 none 宿主零落点）
+      const hookHosts = new Set(v2Hooks.map((i) => i.hostId))
+      for (const id of NONE_HOSTS) assert.ok(!hookHosts.has(id), `${id} 不得有 hook 落点`)
     }
   })
 })
