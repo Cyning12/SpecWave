@@ -311,7 +311,27 @@ S2 只新增（本 task 文件 + 30 执行留档 + 豁免清单 6 条数据行 �
 
 ### 自检结论（执行者）
 
-（30 执行期回填：GATE_VERIFY 首输出闸扫描表 · 阶段锁计数汇总 · 验收 13 条逐项实测 · 存量波及复跑数字与评审文 §7 基线核对 · F-W2-13 同式登记 · 已知未测项/挂账 · 过程留痕）
+**30 阶段一（NEW-5 档 M + NEW-11 词表 + 6 件豁免 · 验收 #1/#2/#3 对应面）回填 · 2026-09-17 · HEAD 0eb6cd7 工作区**
+
+**GATE_VERIFY**：HG-TASK-DRAFT approved · HG-AUDIT-R1 approved · VERIFY: PASS（exit 0 · 双闸真值以本表为准）。
+
+**锁逐项（全绿）**：typecheck 0 错 · build exit 0 · npm test **782/147/781 pass/0 fail/1 skip**（基线 773/145/772/0/1 + 新增 9 测试/2 套件 · 零意外红）· test:lib **6/6**（S2 真仓裸 verify smoke ✓）· pins **17/17** · 裸 verify 真仓 exit 0（豁免留痕 24=18 旧+6 新）· verify --task 复跑 PASS · 依赖零新增。
+
+**验收 #1（NEW-5 档 M 负向 fixture 红转绿）**：红测先行 —— 修复前 7 红全呈「VERIFY: PASS · 0!==2」真红漏网（① 通过。+16 填充 substance=31 · ② 本审查通过+填充 =34 · ③ 闸词+approved+通过+填充 =49 · NEW-11 四类 14 形态 substance 41–90）；修复后 9/9 绿（①③ exit 2 点名缺 SUBJ · ② 点名缺 OBJ∨GATE · 五类全点名含否定结论词）· ④ 诚实边界成段合规构造 PASS（R-① 职责边界固化）· ⑤「通过\n」仍内容量不足 FAIL（substance≥20 地板保留零回退）。
+
+**验收 #2（存量波及复跑 + 豁免留痕 · A3 口径）**：探针分母 = **88 件基线集**（git ls-tree 9c895db）· 第 89/90 件单列（评审文自身非 findLatestReview 消费形态 · R1 审查文新判据下 PASS）。复跑（真 src 实现）：**PASS 57 · FAIL 31 = 25 旧 + 6 新** —— FAIL 25 旧集 detail 分布 15/3/7 与现口径逐字一致（判据单调加严旧 FAIL 不可能翻绿）· **误伤恰为评审文 §2.3/§7 枚举 6 件（全「缺 SUBJ」）· 无第 7 件意外误伤**。6 条豁免入 legacy-gate-exempt.yaml reviews 节（四字段齐 · reason 引评审文 §2.3/§7+形态句 · date 2026-09-17 · authorized_by 过 A1 三元判实测）· loader 收编 reviews 18→24 · invalid 0 · 裸 verify 该 6 件由 gap 转 **exempted** 留痕 ✓。
+
+**验收 #3（正例零回退 · 本棒对应两面）**：① 63 份现口径合规文除 6 件枚举豁免外全部直接 PASS（57/63 ✓ 探针实测）· ② NEW-11 词表对 63 份合规结论节误伤 **0/63**（6 件新 FAIL 全为缺 SUBJ · 旧否定命中仍 3 件不增 ✓）。③④⑤（pin-17 26/26 · pin-08 15/15 · exempt 34/34）归后续阶段验收面，本阶段 pins 17/17 兜住未动面。
+
+**验收 #7（判据两分防御）**：`git diff -- src/ test/ | grep -i kpi` **零命中** · close_kpi/close-guards 零变更 ✓。
+
+**F-W2-13 既有面登记清单**：① 对照 fixture 重锚 30 处/15 文件（标准合规 fixture 补 OBJ 锚词「范围与验收」· 档 M 下原形态 OBJ∨GATE 双缺必挡）；② 阈值边界探针恰 20 侧重锚语义合规等长文本（cli-w4-gate-wiring :524 区 · 恰 19 侧不动）；③ review-gates.ts 否定 detail 括注扩列 + 词集注释增 NEW-11 句（R-5 句 :129 零触碰）；④ K 断言 :693-701 本阶段不动（归阶段二）。
+
+**偏差登记（3 条 · 详见 30 invoke）**：fixture ③ 闸例 HG-AUDIT-R1→HG-SPEC-SIGNOFF（AUDIT 词素 i 旗标下命中 SUBJ 集 · 判定意图不变）；NEW-11 'does not pass' 系 2.4.2 R-2 既有覆盖非红转绿面；NEG_RE 初版笔误 `doesn['’]\s*pass` 漏 t 被红测咬住即修。
+
+**挂账（后续阶段）**：范围② R-5 跨行封堵 + K 断言翻向（S5.2）· ④ pin-17（S5.4）· ⑤ pin-08（S5.5 · advisory A2 同 commit 登记）· ⑥ NEW-10 A1+U1（S5.6 · advisory A1 四处豁免 fixture 重锚同 commit）· ⑦ N5（S5.7）· 验收 #4/#5/#6/#8–#13 全量终验 · 波末 gate-check + task close（待 40 复核后 00 口径）。
+
+**过程留痕**：`docs/harness/invokes/by-task/3-0-w4-semantic-criteria/invoke_20260917_30_3-0-w4-semantic-criteria.md`。
 
 ### KPI（00）
 
