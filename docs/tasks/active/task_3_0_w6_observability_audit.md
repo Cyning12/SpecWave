@@ -275,7 +275,35 @@ S2 只新增（本 task 文件 + 30 执行留档）· **审计轨永不入 S2 �
 
 ### 自检结论（执行者）
 
-（待 30 回填）
+**GATE_VERIFY 首输出**（FRAGMENT_30 纪律 · 三阶段开工前各跑一次 · 真值 = task 人工闸表）：`node bin/specgate.js verify --target . --task docs/tasks/active/task_3_0_w6_observability_audit.md` → 双闸 approved · VERIFY: PASS · exit 0（三跑三中）。
+
+**三阶段锁计数（纯加性 · 既有零回退 · 每 commit 前后 npm test 同绿）**：
+
+| 阶段 | commit | tests/suites/pass/fail/skip | 增量 |
+|------|--------|------------------------------|------|
+| 基线（W5 终态复跑） | `b461b34` | 810/154/809/0/1 | — |
+| 阶段一 C6 审计落盘 + F4 discipline check | `cd65eb9` | 825/156/824/0/1 | +15 用例 |
+| 阶段二 G2 回归锁 + G4 failClosed | `fde1fe6` | 835/158/834/0/1 | +10 用例 |
+| 阶段三 N2-C + G7 + coverage 收官 | 本阶段 | 841/160/840/0/1 | +7 新增 −1 登记移出（cli-flags --allow-lint-fail 拒绝用例） |
+
+各阶段同绿锁：typecheck 0 错 · build ✓ · test:lib 6/6 · pins 17/17 · assets verify 111/111（yaml 回写随单 manifest rebuild）· 依赖零新增（dependencies 仍仅 js-yaml）· duration ≈98s（基线 ≈96s · 加性克制达成）。
+
+**验收逐项**：#1 ✓ schema 快照断言（assertEventSchema · Object.keys 键序逐产出点钉死 + 必填五键 + event 枚举 + append-only 首行逐字不变 · test/w6-audit-log.test.ts）· #2 ✓ 三产出点 + hook_guard（cmdAudit/verify --task/task close 三态/hook_guard 各落事件 · 同一 appendAuditEvent）· #3 ✓ F-W6-01 降级 fixture（落点目录被文件占据 · PASS/BLOCKED 双对照 exit 零变更 + stderr 降级 warn）· #4 ✓ F-W6-02 S2 三域逐一拒写点名 exit 2 零落盘 + F-W6-07 仓外拒 exit 1 · #5 ✓ G2 回归锁三例（verify 存在级/close close_review/结论级 · test/w6-g2-g4-gates.test.ts）· #6 ✓ G4 红转绿（接线前 warn-only 实证 = cli-w4-gate-wiring W5–W7 在案 · 接线后 active BLOCKED 点名三向 + done warn 对照 + 无节豁免 + 正向齐备）· #7 ✓ N2-C 逃逸率（下段硬数字）· #8 ✓ G7 fixture（hook_guard 事件 exit_code 吻合 + close warn 对照正/负/诚实边界三例 · test/w6-n2c-g7.test.ts）· #9 ✓ coverage 回写（C1/C2/D3→mechanical · N2-C→closed · A5/B2→partial（warn-only 档不虚标）· gaps G7 保持 deferred · G6 未动 · discipline show 计数快照一致 not_wired=0 · discipline check 10/10 全绿含 unreachable 分档不误报）· #10 ✓ 落点否定断言（isS2RelPath 逐前缀）· #11 ✓ 平台锁（上表）· #12 登记项逐条：verify.ts 链插 lint/G4 两步 + C6 旁路 · gates.ts/task-cmd.ts/hookguard.ts 落盘点 · cli-lifecycle.ts discipline check · checks/lint.ts helper 抽出（文案零 diff）· checks/close-guards.ts evalCloseExecEvidence · checks/discipline-check.ts 新模块 · cli-checks.ts 重导出 · 既有 fixture 补 wiki_delta 六文件（cli-flags/cli-p0/cli-security-closure/cli-verify-invoke-hats/cli-verify-observability/cli-verify-review/cli-w4-gate-wiring/cli-verify-with-wiki-lint · E8 lint-clean 化）· cli-flags 拒绝清单移出 --allow-lint-fail · C1 notes 措辞（DEF-003 词表闸误伤处置）· verify --help 行补两旗标 · discipline-check 测试断言随回写翻（9→10 条）· .gitignore 一行 · 此外既有断言零改动全绿 · #13 ✓ task lint PASS · #14 ✓ 逐文件显式 add（三 commit 均无 -A）· 未 tag/push/publish/deprecate · 波末 gate-check + task close 待 40 复核后 00 节奏另行。
+
+**N2-C 逃逸率硬判据（验收 #7 · 不降不得完成 · 同脚本同语料 · scripts/w6-lint-escape-rate.mjs · 命令：`node --experimental-strip-types scripts/w6-lint-escape-rate.mjs`）**：
+
+- **前基线**：语料 81 件 · lint FAIL **27 件（33.3%）**（与基线节 27/80=33.8% 同 27 件逐文件一致 · 分母时点差 = advisory A1 口径）· 逃逸率 **100%**（27/27 全逃逸 · lint 不在链）。
+- **后测**（影子仓 · 中性化 D5/review/invoke/gate-check · 只观两新步）：active 投影面 27/27 全被 lint 步 `VERIFY: BLOCKED · task lint FAIL` 点名拦截（上游闸先拦 0 · 穿透 exit 0 = **0 件**）→ **穿透率 100% → 0.0% · 硬判据达成**；done 原位 79 件复跑 **零新增 BLOCKED**（done 面 warn 降级硬条达成）。
+- **存量 27 件处置**：全在 done 面 · 不追溯（硬约束 7）· 走 warn 降级逐条枚举（脚本输出在案 · 未入 legacy-gate-exempt —— warn 不挡无需豁免条目）。
+- **warn 面枚举口径**：done 复跑 warn 共 29 件 = 思考轮缺口 14 件（阶段二枚举）+ lint-FAIL 18 件（其中 3 件与思考轮缺口交集：task_1x_mvp_w1/w2/w3 双缺口）· 余 9 件 lint-FAIL 为 legacy 3 列闸表形态（gate-check 先拦 · 门禁面零穿透 · 投影中性化后实证 27/27 lint 步点名）。
+
+**G7 落地档（00 裁定诚实口径）**：warn-only · A5/B2 升 partial · gaps G7 不回写 closed（SPEC ⑦ 字面偏差登记在案 · 升 failClosed 归后续 SPEC 明文裁决）。
+
+**已知未测项/边界**：消费仓 npm 安装态 $CLI 走 lib/cli.js 分支（逻辑在案 · 未实装验证）· G7 合规率未知（warn-only 理由本身）· 审计轨消费端仅有 readAuditEvents 逐行容错（无查询 CLI · 非范围）· hook-guard 不接 --audit-file（内部命令面）。
+
+**偏差登记汇总（三阶段 · 全留痕）**：① READY 映射 verdict=PASS+detail 点名（枚举冻结面）② hook-guard 无 --audit-file ③ A3 gitignore 只覆盖本仓 ④ N2-C trigger 挂 A9（无专属 statement）⑤ DEF-003 词表闸误伤处置（C1 notes 措辞）⑥ G4 done 面不增 exempt 新节（schema 越权回避 · waived[] 即通道）⑦ lint W5–W7 文案零 diff（failClosed 在 verify 链）⑧ legacy 9 件上游闸先拦归因 + 投影中性化设计 ⑨ G7 warn-only（00 裁定）⑩ task 自检结论于阶段三回填（S2 节奏）⑪ D3 trigger 随 G4 落地翻 expect=2 后收官翻 mechanical。
+
+**KPI 备料（待 00 裁定）**：锁计数四行表在上 · 测试数 810→841（+31 纯加性）· 新增文件 src×2 + test×3 + scripts×1 · 回写 statements 5（C1/C2/D3/A5/B2）+ A9 trigger + gaps 2（N2-C closed / G7 注记）· 偏差 11 条全登记 · 逃逸率 100%→0% 硬判据达成 · duration +2s。
 
 ### KPI（00）
 
