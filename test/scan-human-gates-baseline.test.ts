@@ -17,6 +17,7 @@ import os from 'node:os'
 import path from 'node:path'
 import { describe, it } from 'node:test'
 import { fileURLToPath } from 'node:url'
+import { plainEnv } from './_helpers/plain-env.ts'
 
 const KIT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const SCANNER = path.join(KIT, 'scripts', 'scan-human-gates-baseline.mts')
@@ -43,7 +44,8 @@ function runScanner(root: string, out: string): { status: number | null; stdout:
   const r = spawnSync(
     process.execPath,
     ['--experimental-strip-types', path.join(root, 'scripts', 'scan-human-gates-baseline.mts'), `--out=${out}`],
-    { encoding: 'utf8', cwd: root },
+    // 3.0 W7 hotfix（F-TC-01）：spawn 边界钉死 env，不继承 ambient FORCE_COLOR（TTY 发布链注入）。
+    { encoding: 'utf8', cwd: root, env: plainEnv() },
   )
   return { status: r.status, stdout: r.stdout ?? '', stderr: r.stderr ?? '' }
 }

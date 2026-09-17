@@ -5,6 +5,7 @@ import path from 'node:path'
 import { describe, it } from 'node:test'
 import { fileURLToPath } from 'node:url'
 import { load as yamlLoad } from 'js-yaml'
+import { plainEnv } from './_helpers/plain-env.ts'
 
 const KIT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const YAML = path.join(KIT, 'assets', 'harness', 'discipline-coverage.yaml')
@@ -42,7 +43,8 @@ function runCli(args: string[]): { status: number | null; out: string } {
   const r = spawnSync(process.execPath, ['--experimental-strip-types', CLI_TS, ...args], {
     encoding: 'utf8',
     cwd: KIT,
-    env: { ...process.env },
+    // 3.0 W7 hotfix（F-TC-01）：spawn 边界钉死 env（原 { ...process.env } 继承 ambient FORCE_COLOR）。
+    env: plainEnv(),
   })
   return { status: r.status, out: `${r.stdout ?? ''}\n${r.stderr ?? ''}` }
 }
