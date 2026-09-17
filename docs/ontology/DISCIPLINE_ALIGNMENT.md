@@ -11,14 +11,14 @@
 
 ## 关键对齐句
 
-1. **discipline「wired / mechanical」≠ ontology 被 CLI 全量校验。**  
-   `status: mechanical` 只说明对应闸在 `src/` 有锚点；**不**表示存在独立的 `ontology-check` 子命令。
+1. **discipline「wired / mechanical」≠ ontology 校验覆盖该闸语义。**  
+   `status: mechanical` 只说明对应闸在 `src/` 有锚点；`graph ontology check`（3.0-W3 起已接线）校验的是本文件词汇完整性，**不**逐条评估闸机制。
 2. **ontology 现行消费面（1.12 浅落地）**：  
    - 钉点测：`product_semver` ↔ `package.json`（及 README / discipline `as_of_package_version`）  
    - 浅结构测：`test/ontology-shallow.test.ts`  
    - 人读投影：`docs/ontology/CURRENT_CAPABILITY.md`（**非**第二钉点）
 3. **`npx dsh-coding-kit graph axioms check`** 校验的是 **HGM 图谱公理**，**不是** `assets/ontology.yaml` 全文。  
-4. **独立 `ontology-check` CLI**：仍 **未接线**；若要做，须另开 SPEC（非 1.12 范围）。
+4. **独立 `ontology-check` CLI**：1.12 阶段未交付该命令面（仅有钉点测）；**3.0-W3 起已接线**为 `npx spec-wave graph ontology check`（SHACL 语义子集 · CWA 引用完整性 + 五形状 · 研究文 §8.4 落地口径）。
 
 ## 误读反例
 

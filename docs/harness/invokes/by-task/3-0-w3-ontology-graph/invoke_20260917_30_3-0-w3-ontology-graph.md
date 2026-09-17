@@ -174,6 +174,69 @@ stderr 新增 7 条 `[warning]`（00_main triggers×4 · 10_flow_task_close ×2 
 - commit 5（本批）feat(3.0-W3): F1 受限统一 —— src/cli-graph-yaml.ts · src/cli-graph-ontology.ts · src/cli-graph.ts ·
   assets/tech-graph-vocab.yaml（新档）· assets/sha256.manifest · test/f1-unify.test.ts · 本 invoke 追加
 
+## 阶段四（ONTO-OPEN 文案 + 验收 #5/#12 + TraceArtifact 挂起登记 + 收官备料 · 00 放行）
+
+GATE_VERIFY 复跑：双闸 approved · VERIFY: PASS。
+
+### ONTO-OPEN 不开放登记（已批准裁决兑现 · S4.6）
+
+- **README.md + README.zh-CN.md 双入口**（dogfood 段后登记段 · pin-05/06 钉版本串行零触碰）：图能力已开放
+  （graph yaml compile|check|export 消费者自建图可用 · graph ontology check [--file] 校验器开放）vs 本体层不开放
+  **分述** —— 「**不提供自定义本体能力**」（SpecWave 自用元模型 · 校验器开放 ≠ 本体内容开放）+ 复议触发三条件
+  （真实消费者请求 / ontology-check 面稳定一个 minor 后重估 / B5 后生态拉取）指向研究文 §7.3 · HG-SCHEMA-CHANGE 式人闸。
+  命令表同步：lifecycle/discipline show [--target PATH] · graph ontology check 行（阶段二/三命令面文案追平）。
+- **assets/ontology.yaml 头注释登记行**：自用元模型定位 + 不开放 + 复议触发指向（裸文件名防 def009 路径 token 拦截）。
+- **docs/ontology 两件陈旧自述清退**（阶段一偏差①清偿）：CURRENT_CAPABILITY.md 机器校验节改现行命令面
+  （graph ontology check / --hgm）· DISCIPLINE_ALIGNMENT.md 两条失真叙述更新（mechanical≠ontology 校验语义 ·
+  ontology-check 已接线史）· 「未接线」字样零残留（ontology-shallow 钉锚 /F5=B|第二钉点/ · /ontology.yaml/ 保留不破）。
+
+### 文案机检（test/onto-open-docs.test.ts 6/6 · 词表+否定语境守卫+路径豁免清单）
+
+- 正向：README 双文件登记句/开放句/分述句/复议闸指向 · ontology.yaml 头注释登记行 —— 全在案。
+- 负向 ①（#5 暗示词）：可扩展本体/extensible ontology/custom ontology/自定义本体（须否定语境）/自定义 schema ——
+  扫描面（README*/docs 非豁免区/src/assets）零命中。
+- 负向 ②（#12 W3C）：扫描面零命中（全仓 W3C 命中仅限豁免清单 = 研究文/SPEC/PLAN/task/reviews/invokes 否决与边界
+  叙述 + .workbuddy 本地工作区 + 本机检文件自引用）· src/cli-graph-ontology.ts 零 W3C 字样实证。
+- 负向 ③（#12 · S4.4-C2 挂账清偿）：无「axioms check 保护 S2」叙事 —— 唯一命中为 hgm 码注释的**禁止性登记行**
+  （「不得声称…」· 否定语境守卫放行）· 对外文案零残留旧判据叙事。
+
+### TraceArtifact 挂起登记（00 裁定口径 · F-W3-08）
+
+维护者 2026-09-17 答复对账问法：「**倾向 b 但对 Artifact 不明确 · 后续再考虑**」—— 答非三态确态（a/b/c 未定）
+→ 00 裁定挂起登记：**produces→TraceArtifact 挂起 · 倾向 (b) 改指既有 Artifact 类 · 待私仓对账确认 · 归 3.x**。
+ontology.yaml 本体不动（不写声明不写豁免）· **机械锁维持 Violation × 1 不得翻 0**（test/ontology-check.test.ts
+登记项钉死）· 探针与校验器同值 1 · 登记落点 = task 自检结论 #3 行 + 本节（硬约束 14 留痕即清偿）。
+
+### 收官备料
+
+task 自检结论回填（GATE_VERIFY 首输出闸扫描表 + 四阶段锁计数 726→737→754→767→773 纯加性 + 验收 14 条逐项
+（#2/#3 挂起勾注）+ 登记项逐条 + 已知未测项五条）· KPI 自评备料（Task_KPI%: 95 自评 · 待 00 裁定）·
+范围 ①–⑦ 与验收 #1–#14 勾选（挂起项按既定分支勾注）· task lint PASS（回填后复跑）。
+
+### 锁逐项（阶段四）
+
+| 锁 | 结果 |
+|----|------|
+| npm test | 773/145/772 pass/0 fail/1 skip（767 + 新增 6 · 零回退） |
+| typecheck / build / test:lib | 0 错 · PASS · 6/6 |
+| pins / verify / task lint | 17/17 · VERIFY: PASS · LINT: PASS |
+| assets verify | 111/111（ontology.yaml 头注释 rebuild 后） |
+| 文案机检 | 6/6（正负 grep 输出见上节） |
+
+### 偏差登记（阶段四）
+
+1. 文案机检初版三红均为扫描面设计修正（非真违规）：.workbuddy 本地工作区豁免（gitignored 非发布面）·
+   机检文件自引用豁免 · axioms-S2 词表增否定语境守卫（禁止性登记行非叙事声称）—— 修正后词表形态入测试注释在案。
+2. README 命令表更新（show --target / ontology check 行）超 task S4.6 字面落点（登记句+头注释）—— 属阶段二/三
+   命令面的对外文案追平（R-TRUTH-1 口径一致）· pin-05/06 钉版本串行零触碰实证 · 备 20/40 复核。
+3. task 自检结论/KPI/勾选回填 = 00 阶段四棒令明示授权面（S2 既有档改写的唯一例外 · 收官备料工序）。
+
+### 提交（阶段四 · 一笔 · 逐文件显式 add · 不 push 不 tag）
+
+- commit 6（本批）docs(3.0-W3): ONTO-OPEN 不开放登记 + 文案机检 + TraceArtifact 挂起登记 + 30 invoke（W3 收官备料）——
+  README.md · README.zh-CN.md · assets/ontology.yaml · assets/sha256.manifest · docs/ontology/CURRENT_CAPABILITY.md ·
+  docs/ontology/DISCIPLINE_ALIGNMENT.md · test/onto-open-docs.test.ts · docs/tasks/active/task_3_0_w3_ontology_graph.md · 本 invoke
+
 ## 修订记录
 
 | 日期 | 说明 |
@@ -181,3 +244,4 @@ stderr 新增 7 条 `[warning]`（00_main triggers×4 · 10_flow_task_close ×2 
 | 2026-09-17 | 30 阶段一落档：A4 接线 + 引用完整性补声明（TraceArtifact 待答挂起登记）· 锁逐项实测 · A4 断言登记 diff |
 | 2026-09-17 | 30 阶段二追加：F2 真口径 + 判据加固六项 · 附录 A 修复前后复跑留证 · 既有面盘点零自改 · 偏差三条登记 |
 | 2026-09-17 | 30 阶段三追加：F1 受限统一（HGM 适配 + tech-graph 浅登记 + 单源断言）· 恒等三方逐字等 · A3 双硬拷贝同迁 · 偏差五条登记 |
+| 2026-09-17 | 30 阶段四追加：ONTO-OPEN 登记 + #5/#12 机检 + TraceArtifact 挂起登记（维护者答「倾向 b 但 Artifact 不明确」）+ 收官备料 · 偏差三条登记 |

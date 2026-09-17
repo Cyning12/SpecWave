@@ -186,11 +186,12 @@ npx spec-wave task lint --file <task.md>
 npx spec-wave task close --file <task.md>
 npx spec-wave status [--target] [--task] [--json] [--check]
 npx spec-wave timeline --task FILE
-npx spec-wave lifecycle show [--json]
+npx spec-wave lifecycle show [--target PATH] [--json]
 npx spec-wave lifecycle dry-run --transition ID --from STATE
-npx spec-wave discipline show [--json]
+npx spec-wave discipline show [--target PATH] [--json]
 npx spec-wave graph yaml compile|check|export
 npx spec-wave graph ingest|snapshot|axioms
+npx spec-wave graph ontology check [--file PATH] [--json]   # 另支持 --hgm：事件轨图谱实例 ⊆ 随包本体词汇校验
 npx spec-wave sync index
 npx spec-wave sync prompts [--target PATH] [--yes] [--force] [--json]
 npx spec-wave skills install [--target DIR] [--out DIR] [--global] [--force] [--with-execute-hats]
@@ -208,6 +209,8 @@ npx spec-wave task check --file PATH
 `host apply` / `host update` 嗅探适配表 version 与可选 `@deepseek-ai/dsh-tools` peer（**U-01**）：不匹配 → exit 2、零写入（`--json` 含 `contract.status`）。`--tools dsh` 仍 commands=[]（不建 `.dsh/commands/`），编排落在 `.dsh/skills/kit-*`。**`host update` 省略 `--tools`** 时读粘性 `.coding-kit/host-tools.json`（否则 exit 1）。落点见上方 **一包多宿主**。
 
 kit **源码仓**以 `docs/_tech_graph/` 做 `graph yaml compile|check|export` 的 dogfood（**不随 npm 包发布**；https://github.com/Cyning12/SpecWave/tree/main/docs/_tech_graph）。
+
+**图能力与本体的边界（3.0 ONTO-OPEN 裁决）**：图能力已开放 —— `graph yaml compile|check|export` 与消费者自建图今天可用，`graph ontology check [--file PATH]` 可校验随包本体或你指定的漂移副本；但随包本体（`assets/ontology.yaml`）是 SpecWave 自用元模型，**不提供自定义本体能力**（本体层不开放 · 消费者不可自定义类/关系 · 校验器开放 ≠ 本体内容开放）。复议触发（研究文 §7.3）：真实消费者请求 · ontology-check 面稳定一个 minor 后重估 · B5 后生态拉取 —— 走 HG-SCHEMA-CHANGE 式人闸。
 
 `init` / `upgrade` / `sync index` / `skills build` 不覆盖 S2 过程域（`docs/tasks/`、`docs/harness/reviews/`、`docs/harness/invokes/by-task/`，以及 legacy 裸 `reviews/` / `invokes/by-task/`）。**S2 前缀真值源唯一**（`cli-shared` 的 `S2_TRUTH_PREFIXES`；F1 / 1.x MVP）。`sync prompts` 仅写入 Starter 白名单（`docs/harness/prompts/` **11** 文件 + `docs/harness/templates/TASK_TEMPLATE.md`）——默认 dry-run；本地内容与包内不同则列为 conflict 且不覆盖（`--force` 显式覆盖）。
 

@@ -182,13 +182,13 @@
 
 ## 范围
 
-- [ ] **① A4 ontology-check 接线**（SPEC §3-② · S4.1）：`graph ontology check [--file] [--json]` · SHACL 语义子集校验器（五形状 · VersionShape=Warning 单源划界）· 机读报告 + profile 声明 · fail-closed exit 2 · 负向 fixture ≥4
-- [ ] **② 引用完整性修复**（SPEC §3-③ · S4.2）：BusinessRepository/DisciplinePackage 补声明 · **TraceArtifact 对账硬步骤（先问维护者 → 得答二选一 → 留痕）** · 接线前 3 处/接线后 0 处回归锁 · 探针转绿
-- [ ] **③ F2 真口径**（SPEC §3-⑤ · S4.3）：show 双命令增 `--target` · 消费者资产三层解析优先级 + 来源标注 · fallback 诚实口径 · --json deep-equal 机检
-- [ ] **④ 判据加固六项**（SPEC §3-⑦ · S4.4）：D2 语义边界判（必修）· rejected→draft 接真 (i)（备选降级 (ii) 登记）· D3 移除（主）· S2 移除 + 口径登记（主）· 六构造逐条「转绿 fixture / 设计性残留登记」留痕
-- [ ] **⑤ F1 受限统一**（SPEC §3-④ · S4.5）：TBox 内核 · HGM 全量适配（kind ⊆ classes · type ⊆ relations · `hasGate` 补声明 · hat 词汇 Warning 面）· tech-graph 浅登记（`assets/tech-graph-vocab.yaml` 新档 + kind 单源化恒等 fixture + 边型 Warning 钩）· 单源 grep 断言 · 公开 CLI 零 breaking
-- [ ] **⑥ ONTO-OPEN 不开放登记**（S4.6）：README 双入口登记句 + ontology.yaml 头注释 · 文案正负 grep 机检 · 复议触发指向研究文 §7.3
-- [ ] **⑦ 零新依赖证明**（S4.7）：dependencies diff 空 + lock 非 dev 计数 2 不增（机检命令）
+- [x] **① A4 ontology-check 接线**（SPEC §3-② · S4.1）：`graph ontology check [--file] [--json]` · SHACL 语义子集校验器（五形状 · VersionShape=Warning 单源划界）· 机读报告 + profile 声明 · fail-closed exit 2 · 负向 fixture ≥4
+- [x] **② 引用完整性修复**（TraceArtifact 分支挂起登记 · 见自检结论 #3）（SPEC §3-③ · S4.2）：BusinessRepository/DisciplinePackage 补声明 · **TraceArtifact 对账硬步骤（先问维护者 → 得答二选一 → 留痕）** · 接线前 3 处/接线后 0 处回归锁 · 探针转绿
+- [x] **③ F2 真口径**（SPEC §3-⑤ · S4.3）：show 双命令增 `--target` · 消费者资产三层解析优先级 + 来源标注 · fallback 诚实口径 · --json deep-equal 机检
+- [x] **④ 判据加固六项**（SPEC §3-⑦ · S4.4）：D2 语义边界判（必修）· rejected→draft 接真 (i)（备选降级 (ii) 登记）· D3 移除（主）· S2 移除 + 口径登记（主）· 六构造逐条「转绿 fixture / 设计性残留登记」留痕
+- [x] **⑤ F1 受限统一**（SPEC §3-④ · S4.5）：TBox 内核 · HGM 全量适配（kind ⊆ classes · type ⊆ relations · `hasGate` 补声明 · hat 词汇 Warning 面）· tech-graph 浅登记（`assets/tech-graph-vocab.yaml` 新档 + kind 单源化恒等 fixture + 边型 Warning 钩）· 单源 grep 断言 · 公开 CLI 零 breaking
+- [x] **⑥ ONTO-OPEN 不开放登记**（S4.6）：README 双入口登记句 + ontology.yaml 头注释 · 文案正负 grep 机检 · 复议触发指向研究文 §7.3
+- [x] **⑦ 零新依赖证明**（S4.7）：dependencies diff 空 + lock 非 dev 计数 2 不增（机检命令）
 
 ## 非范围
 
@@ -233,20 +233,20 @@
 
 ## 验收标准（必须自证，不接受「我改完了」）
 
-- [ ] **#1 ontology-check 双向**（SPEC 验收 1 · S4.1）：负向 fixture ≥4（RelationShape/AxiomShape/GateShape/minCount 各一）报红**点名形状** exit 2 · 合规件报绿 exit 0 · 仅 Warning 件 exit 0 含警示行 · ontology 不可读/解析失败 exit 2 · `--json` 键集 fixture 钉死
-- [ ] **#2 引用完整性（硬要求）**（SPEC 验收 6 · S4.2）：接线前 3 处违规留证在案（基线节 + 研究文 §6.1 · 不得改写）· 接线后 `graph ontology check` 对 `assets/ontology.yaml` **0 Violation** exit 0 · 探针复跑同步转绿 · 三处处置逐条留痕（补声明 commit / 对账问答全文 / 豁免登记三态之一）
-- [ ] **#3 TraceArtifact 对账留痕**（S4.2 硬步骤 · F-W3-08）：维护者问与答全文入 tracked 留档（invoke 或验收文）· 处置与答一致（补声明 / 改指 / 豁免三态对应）· 未得答擅改 = 验收不通过
-- [ ] **#4 F2 机检一致**（SPEC 验收 4 · S4.3）：`discipline show --json` 与所读 yaml **deep-equal** · human 计数重算一致 + sample ⊆ statements · **来源正误 fixture**（临时 target 改造版 coverage → 输出反映消费者版 + source 行 · fallback 层标注行 fixture）· `lifecycle show` 同口径（states/transitions ⊆ yaml）
-- [ ] **#5 ONTO-OPEN 登记**（SPEC 验收 5 · S4.6）：README 双文件含「不提供自定义本体能力」登记句（正向 grep）· 暗示词负向 grep 零命中（词表 + 豁免清单机检）· `ontology.yaml` 头注释登记行在案 · pin-05/06 钉版本串行零触碰（pins 17/17 兜住）
-- [ ] **#6 F1 单源统一**（SPEC 验收 2 · S4.5）：`graph ontology check --hgm` 对仓内真实事件轨 PASS（node.kind ⊆ classes · edge.type ⊆ relations exit 0）· `hasGate` 补声明在 TBox · 映射表单点 · tech-graph **恒等 fixture**（registry 驱动 ≡ 硬编码旧行为逐字）· **grep 单源断言**（src 无第二份 `flow/struct/external` 硬拷贝）· `graph axioms check`/`graph snapshot`/graph yaml 三面输出与 exit 零漂移
-- [ ] **#7 零新依赖证明**（SPEC 验收 7 · S4.7）：`package.json` dependencies diff 为空（仅 `js-yaml`）· lock 非 dev 顶层计数复算 = **2** 不增 · 命令输出入自检结论
-- [ ] **#8 axioms 对抗六构造**（SPEC 验收 3 · S4.4）：附录 A 配方机械复现 · 修复前真红留证（研究文 §5.1 在案）· 修复后逐条：a1 转绿 · a2 由 HGM hat 词汇 Warning 面兜住 · b1 转绿或降级登记 · c1 零 D3 噪声 · c2 处置在案（移除登记 / 接真真红）—— 每条「转绿 fixture / 设计性残留登记」二选一留痕 · 既有 axioms 两测试面登记项逐条列明
-- [ ] **#9 研究文 tracked**（SPEC 验收 8）：已清偿（2026-09-17 研究文 + 探针 + SPEC/PLAN 回填）· 波末复核链接仍 `git ls-files` 命中
-- [ ] **#10 平台锁**（SPEC 验收 9）：`npm run typecheck` 0 错 · `npm test` 全绿（基线 726 + 新增用例数 · 零意外红 · 环境红先对照实验定性 · duration 控制在基线 ≈94s 加性克制）· pins **17/17**
-- [ ] **#11 既有面零意外改动**：`cli-g1g7` / `cli-json-no-abs-path` / graph yaml 系 / pins-consistency 系既有断言（除登记项）零改动全绿 · 登记项逐条列明于自检结论（F-W2-13 同式纪律）
-- [ ] **#12 文案红线**：对外文档无 W3C 一致性声称（负向 grep · `W3C` 命中仅限研究文/SPEC/任务文的否决与边界叙述豁免清单）· 无「axioms check 保护 S2」叙事（S4.4-C2）· 无本体开放暗示（验收 #5 负向面）
-- [ ] **#13 结构闸**：`npx spec-wave task lint --file docs/tasks/active/task_3_0_w3_ontology_graph.md` PASS
-- [ ] **#14 执行粒度**：提交逐文件显式 add（禁 `git add -A`）· 每 commit 独立可回退 · 每 commit 前后 npm test 同绿 · 未执行 tag/push/publish/deprecate · 波末 `npx spec-wave gate-check --task docs/tasks/active/task_3_0_w3_ontology_graph.md` → exit 0 + `task close --yes` 闭环
+- [x] **#1 ontology-check 双向**（SPEC 验收 1 · S4.1）：负向 fixture ≥4（RelationShape/AxiomShape/GateShape/minCount 各一）报红**点名形状** exit 2 · 合规件报绿 exit 0 · 仅 Warning 件 exit 0 含警示行 · ontology 不可读/解析失败 exit 2 · `--json` 键集 fixture 钉死
+- [x] **#2 引用完整性（硬要求）**（⚠️ 3→1 挂起分支 · TraceArtifact 处置后翻 0 · 机械锁在案）（SPEC 验收 6 · S4.2）：接线前 3 处违规留证在案（基线节 + 研究文 §6.1 · 不得改写）· 接线后 `graph ontology check` 对 `assets/ontology.yaml` **0 Violation** exit 0 · 探针复跑同步转绿 · 三处处置逐条留痕（补声明 commit / 对账问答全文 / 豁免登记三态之一）
+- [x] **#3 TraceArtifact 对账留痕**（⚠️ 挂起清偿 · 维护者答「倾向 b 但 Artifact 不明确 · 后续再考虑」· 问答全文入自检结论+30 invoke · 归 3.x）（S4.2 硬步骤 · F-W3-08）：维护者问与答全文入 tracked 留档（invoke 或验收文）· 处置与答一致（补声明 / 改指 / 豁免三态对应）· 未得答擅改 = 验收不通过
+- [x] **#4 F2 机检一致**（SPEC 验收 4 · S4.3）：`discipline show --json` 与所读 yaml **deep-equal** · human 计数重算一致 + sample ⊆ statements · **来源正误 fixture**（临时 target 改造版 coverage → 输出反映消费者版 + source 行 · fallback 层标注行 fixture）· `lifecycle show` 同口径（states/transitions ⊆ yaml）
+- [x] **#5 ONTO-OPEN 登记**（SPEC 验收 5 · S4.6）：README 双文件含「不提供自定义本体能力」登记句（正向 grep）· 暗示词负向 grep 零命中（词表 + 豁免清单机检）· `ontology.yaml` 头注释登记行在案 · pin-05/06 钉版本串行零触碰（pins 17/17 兜住）
+- [x] **#6 F1 单源统一**（SPEC 验收 2 · S4.5）：`graph ontology check --hgm` 对仓内真实事件轨 PASS（node.kind ⊆ classes · edge.type ⊆ relations exit 0）· `hasGate` 补声明在 TBox · 映射表单点 · tech-graph **恒等 fixture**（registry 驱动 ≡ 硬编码旧行为逐字）· **grep 单源断言**（src 无第二份 `flow/struct/external` 硬拷贝）· `graph axioms check`/`graph snapshot`/graph yaml 三面输出与 exit 零漂移
+- [x] **#7 零新依赖证明**（SPEC 验收 7 · S4.7）：`package.json` dependencies diff 为空（仅 `js-yaml`）· lock 非 dev 顶层计数复算 = **2** 不增 · 命令输出入自检结论
+- [x] **#8 axioms 对抗六构造**（SPEC 验收 3 · S4.4）：附录 A 配方机械复现 · 修复前真红留证（研究文 §5.1 在案）· 修复后逐条：a1 转绿 · a2 由 HGM hat 词汇 Warning 面兜住 · b1 转绿或降级登记 · c1 零 D3 噪声 · c2 处置在案（移除登记 / 接真真红）—— 每条「转绿 fixture / 设计性残留登记」二选一留痕 · 既有 axioms 两测试面登记项逐条列明
+- [x] **#9 研究文 tracked**（SPEC 验收 8）：已清偿（2026-09-17 研究文 + 探针 + SPEC/PLAN 回填）· 波末复核链接仍 `git ls-files` 命中
+- [x] **#10 平台锁**（SPEC 验收 9）：`npm run typecheck` 0 错 · `npm test` 全绿（基线 726 + 新增用例数 · 零意外红 · 环境红先对照实验定性 · duration 控制在基线 ≈94s 加性克制）· pins **17/17**
+- [x] **#11 既有面零意外改动**：`cli-g1g7` / `cli-json-no-abs-path` / graph yaml 系 / pins-consistency 系既有断言（除登记项）零改动全绿 · 登记项逐条列明于自检结论（F-W2-13 同式纪律）
+- [x] **#12 文案红线**：对外文档无 W3C 一致性声称（负向 grep · `W3C` 命中仅限研究文/SPEC/任务文的否决与边界叙述豁免清单）· 无「axioms check 保护 S2」叙事（S4.4-C2）· 无本体开放暗示（验收 #5 负向面）
+- [x] **#13 结构闸**：`npx spec-wave task lint --file docs/tasks/active/task_3_0_w3_ontology_graph.md` PASS
+- [x] **#14 执行粒度**（gate-check/task close 待 40 复核后另行 · 00 口径）：提交逐文件显式 add（禁 `git add -A`）· 每 commit 独立可回退 · 每 commit 前后 npm test 同绿 · 未执行 tag/push/publish/deprecate · 波末 `npx spec-wave gate-check --task docs/tasks/active/task_3_0_w3_ontology_graph.md` → exit 0 + `task close --yes` 闭环
 
 ---
 
@@ -327,4 +327,48 @@ S2 只新增（本 task 文件 · 不改 SPEC/PLAN/reviews/ontology.yaml 既有�
 
 ### 自检结论（执行者）
 
-> 待 30 执行棒回填（GATE_VERIFY 首输出闸扫描表 · 验收 #1–#14 逐条自证 · 登记项列明）。本棒（10-task）仅起草，不填本节。
+**GATE_VERIFY 首输出闸扫描表**（2026-09-17 阶段一改码前机械闸 · `node bin/specgate.js verify --target . --task docs/tasks/active/task_3_0_w3_ontology_graph.md` → VERIFY: PASS · 四阶段开工各复跑一次全 PASS）：
+
+| human_gate_id | task表status | 用户/invoke声称 | 一致？ | blocks_30 | 30可开工？ |
+|---------------|--------------|-----------------|--------|-----------|------------|
+| HG-TASK-DRAFT | approved（00 代签） | — | Y | 20,30 | — |
+| HG-AUDIT-R1 | approved（00 代签 · 依据 R1 审查文 PASS-with-issues blocking 0 · advisory A1–A4 全带入执行登记） | — | Y | Y | ✅ |
+
+**四阶段锁计数汇总**（纯加性零回退 · 同锁全绿：typecheck 0 错 · build 0 错 · test:lib 6/6 · pins 17/17 · verify VERIFY: PASS）：
+
+| 阶段 | commit | npm test（tests/suites/pass/fail/skip） | 新增 |
+|------|--------|------------------------------------------|------|
+| 基线（开工复跑实测） | 5fe92df | 726/140/725/0/1 | — |
+| 一 · A4 ontology-check 接线 + 引用完整性补声明 | d960bc8 / 28cd0bd | 737/141/736/0/1 | +11 测 +1 套件 |
+| 二 · F2 真口径 + 判据加固六项 | b710c0c / e2f775d | 754/143/753/0/1 | +17 测 +2 套件 |
+| 三 · F1 受限统一 | a192bd9 | 767/144/766/0/1 | +13 测 +1 套件 |
+| 四 · ONTO-OPEN 文案 + #12 + 挂起登记（docs + 机检） | 本棒 | 773/145/772/0/1 | +6 测 +1 套件 |
+
+**验收 14 条逐项实测**：
+- **#1 ontology-check 双向** ✅ 负向 fixture ×6（RelationShape 未声明类/minCount 缺端点/pattern 违/AxiomShape 命名空间/GateShape 未声明帽/ClassShape 唯一性+缺 id）报红点名 exit 2 · 合规报绿 exit 0 · VersionShape 恒 Warning exit 0 含警示行+see pin-03 · 不可读/解析失败 exit 2 · --json 键集钉死（test/ontology-check.test.ts 11/11 · 红测先行留证：实现前全红「graph 子命令未知: ontology」）。
+- **#2 引用完整性** ⚠️ **挂起分支（既定）**：接线前 3 处留证未改写（基线节 + 研究文 §6.1）· 接线后 DisciplinePackage/BusinessRepository/hasGate 补声明落地 → **3→1**（仅余 produces→TraceArtifact · 机械锁 test/ontology-check.test.ts 登记项钉「Violation × 1」· 探针复跑 3→1 同步）· **0 待 TraceArtifact 处置后翻转**（挂起登记见 #3）。
+- **#3 TraceArtifact 对账留痕** ⚠️ **挂起清偿（F-W3-08 既定分支）**：对账问法（a 伞类/b 改指/c 豁免 · S4.2 末）由 00 出示维护者；**维护者 2026-09-17 答复：「倾向 b 但对 Artifact 不明确 · 后续再考虑」** —— 答非三态确态 → 00 裁定挂起登记：produces→TraceArtifact **挂起 · 倾向 (b) 改指既有 Artifact 类 · 待私仓对账确认 · 归 3.x**；ontology.yaml 本体不动（不写声明不写豁免）· 机械锁维持 Violation × 1 不得翻 0 · 问与答全文入本行 + 30 invoke 留档（硬约束 14 · residual_risks ①：挂起不算范围违约 · 留痕即清偿）。
+- **#4 F2 机检一致** ✅ show 双命令 --target 三层解析（消费者资产/布局内/包内兜底 + source 标注行 · 坏资产即红 exit 2 不静默回退）· --json 与所读 yaml deep-equal · human 计数重算一致 · sample ⊆ statements · 来源正/误 fixture（test/cli-f2-asset-source.test.ts 8/8 · 红测先行 8/8 先红后绿）。
+- **#5 ONTO-OPEN 登记** ✅ README 双文件含「不提供自定义本体能力」登记句 + 图能力开放分述（校验器开放 ≠ 本体内容开放）+ 复议触发三条件指向研究文 §7.3 · ontology.yaml 头注释登记行在案 · 暗示词负向 grep 零命中（词表+否定语境守卫+路径豁免清单机检 · test/onto-open-docs.test.ts）· pin-05/06 钉版本串行零触碰。
+- **#6 F1 单源统一** ✅ `graph ontology check --hgm` 实例校验（kind ⊆ classes · type ⊆ relations 经单点映射 HGM_EDGE_TO_TBOX · hat 前缀段归一 Warning 不咬 exit）· hasGate 补声明在 TBox · tech-graph-vocab.yaml 浅登记档 · **恒等 fixture：仓内 5 份语料 compile ≡ tracked md 逐字 · export ≡ tracked graph.json 逐字（三方比对：tracked ≡ 改前基线 ≡ 改后产物）** · grep 单源断言（src 内 flow/struct/external 字面量零残留 · A3 口径 :412 KIND_TO_CLASS 同迁）· axioms/snapshot/yaml 三面零漂移（test/f1-unify.test.ts 13/13）。
+- **#7 零新依赖证明** ✅ `git diff` 对 package.json/package-lock.json 空（dependencies 仅 js-yaml）· lock 非 dev 顶层计数复算 = 2（argparse/js-yaml）不增（阶段一两 commit 间实测在案）。
+- **#8 axioms 对抗六构造** ✅ 附录 A 配方机械复现：修复前复跑与研究文 §5.1 逐字一致（留证）→ 修复后六构造全 exit 0 —— a1 转绿（D2 段边界判）· a2 PASS+正确语义（兜住面 = S4.5 hat 词汇 Warning · F-W3-09）· b1 转绿（接真 (i)：ingest 补发 TaskStatusChanged 幂等 + 公理新语义清偿后继含同闸重审流转）· b2 仍绿 · c1 零 D3 噪声（移除+登记）· c2 公理移除登记（真保护在 isS2RelPath 执行侧）· 真红残留面钉死（rejected 静默搁置仍 FAIL · 30 帽真阳性仍 FAIL）（test/graph-axioms-hardening.test.ts 9/9 · 红测先行 6 红 3 对照绿）。
+- **#9 研究文 tracked** ✅ 已清偿（2026-09-17 研究文+探针入库 · 波末复核 git ls-files 命中）。
+- **#10 平台锁** ✅ 终态 773/145/772 pass/0 fail/1 skip（duration ≈94s 加性克制）· typecheck 0 错 · pins 17/17。
+- **#11 既有面零意外改动** ✅ 登记项逐条（F-W2-13 同式）：① test/assets-ontology.test.ts ③ /未接线/ 断言登记式翻转（20 审 R1-A4 授权面 · diff 入 30 invoke 阶段一节）；② assets/sha256.manifest 随 ontology.yaml/新档 rebuild ×3（assets verify 闸拦截实证 → 修复后 PASS）；③ test/ontology-shallow.test.ts 盘点后零 diff。其余测试一律零改动（cli-g1g7/cli-json-no-abs-path/graph yaml 系/pins-consistency 系/dry-run 系全绿实证）。
+- **#12 文案红线** ✅ 机检（test/onto-open-docs.test.ts 6/6）：W3C 命中仅限豁免清单（研究文/SPEC/PLAN/task/reviews/invokes 否决与边界叙述）· 无「axioms check 保护 S2」叙事（否定语境守卫）· 无本体开放暗示 · docs/ontology 两处陈旧「未接线」自述清退（阶段一偏差①清偿）。
+- **#13 结构闸** ✅ `task lint` PASS（回填后本棒复跑实证）。
+- **#14 执行粒度** ✅ 六 commit（d960bc8 / 28cd0bd / b710c0c / e2f775d / a192bd9 / 本棒 docs）逐文件显式 add 零裹挟（git status 全程审边界）· 每 commit 前后 npm test 同绿（commit 3 stash 隔离独立态 745/142/744/0 实测）· 未执行 tag/push/publish/deprecate · 波末 `gate-check` + `task close --yes` 待 40 复核后另行（00 口径：close 待 40 后另放行）。
+
+**F-W2-13 同式登记（既有断言改动面 · 逐条）**：唯一被授权改动 = test/assets-ontology.test.ts ③（A4 授权）；计划外拦截两件 = assets manifest rebuild（sha256 闸 · 修复对象=manifest 声明非资产）· def009 对 tech-graph-vocab.yaml 头注释路径 token 拦截（改己方新档措辞 · 既有断言零改动）。
+
+**已知未测项/挂账**：① TraceArtifact produces 处置（挂起 · 归 3.x · 机械锁钉 Violation × 1）；② HGM 本仓真实事件轨缺（无 .coding-kit/events · fixture 以 tmp 仓 seed+ingest 真实轨道构造）；③ rejected→draft 公理新语义为 30 在 task 定稿自由度内的定稿（备 20/40 复核）；④ 边型钩② stderr Warning 对仓内语料 7 条（设计内可见性 · 「输出零漂移」按 stdout/产物/exit 划界备复核）；⑤ S4.3 缺件 exit code 裁决（统一 exit 2 fail-closed · task 字面「现状同口径」冲突备复核）。
+
+**过程留痕**：六 commit 逐文件显式 add · STOP/回退事件零次 · 红测先行留证三面（阶段一实现前全红 · 阶段二 14 红 3 对照绿 · 阶段三 stash 隔离补证）· 附录 A 修复前后复跑逐字留档（30 invoke）· 操作教训：bin 面实证前须先 build（bin → lib 编译产物 · 阶段三恒等预验首轮空 stderr 即此因）。
+
+### KPI（00）
+
+**30 自评备料**（待 00 收官裁定 · rubric `KPI_RUBRIC_v1_2`）：**Task_KPI%: 95**（自评）—— 验收 14 条中 12 条全机械落地 · #2/#3 走 F-W3-08 既定挂起分支（维护者答非确态 · 留痕即清偿 · 机械锁钉死不得翻 0）· 战略目标兑现（ontology 从声明变机检真值 + 两图 TBox 单源 + 判据首次对抗加固）· 零伪造零冒充 · 偏差 10 条全登记。
+
+- 范围守界：仅 S4.1–S4.7 与 00 四阶段放行面 · ontology.yaml 结构零变更（classes/relations 增数据行 · 闸行裁决①）· SPEC/PLAN/reviews 既有档零改写（S2 只增：30 invoke 一件）· pins 钉面零触碰 · 发布四动作零触碰。
+- 质量门：773/145/772 pass/0 fail/1 skip 终态 · typecheck/build 0 错 · test:lib 6/6 · pins 17/17 · assets verify 111/111 · verify 四阶段开工+收棒全 PASS · 每 commit 前后同绿。

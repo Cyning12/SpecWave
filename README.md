@@ -186,11 +186,12 @@ npx spec-wave task lint --file <task.md>
 npx spec-wave task close --file <task.md>
 npx spec-wave status [--target] [--task] [--json] [--check]
 npx spec-wave timeline --task FILE
-npx spec-wave lifecycle show [--json]
+npx spec-wave lifecycle show [--target PATH] [--json]
 npx spec-wave lifecycle dry-run --transition ID --from STATE
-npx spec-wave discipline show [--json]
+npx spec-wave discipline show [--target PATH] [--json]
 npx spec-wave graph yaml compile|check|export
 npx spec-wave graph ingest|snapshot|axioms
+npx spec-wave graph ontology check [--file PATH] [--json]   # + --hgm: instance check of the event-sourced graph against the bundled ontology
 npx spec-wave sync index
 npx spec-wave sync prompts [--target PATH] [--yes] [--force] [--json]
 npx spec-wave skills install [--target DIR] [--out DIR] [--global] [--force] [--with-execute-hats]
@@ -208,6 +209,8 @@ npx spec-wave task check --file PATH
 `host apply` / `host update` sniff the host-adapt table version and optional `@deepseek-ai/dsh-tools` peer (**U-01**): mismatch → exit 2 and no writes (`--json` includes `contract.status`). `--tools dsh` keeps commands=[] (no `.dsh/commands/`) and lands orchestration as `.dsh/skills/kit-*`. **`host update` without `--tools`** uses sticky `.coding-kit/host-tools.json` (else exit 1). See **Multi-host in one package** above.
 
 This **source repo** dogfoods `graph yaml compile|check|export` against `docs/_tech_graph/` (**not** shipped in the npm package; https://github.com/Cyning12/SpecWave/tree/main/docs/_tech_graph).
+
+**Graph capability vs. ontology layer (3.0 ONTO-OPEN ruling)**: the graph surface is open — `graph yaml compile|check|export` works on consumer-authored graphs today, and `graph ontology check [--file PATH]` validates the bundled ontology file or a drifted copy you point it at. The bundled ontology (`assets/ontology.yaml`) is SpecWave's self-use meta-model, however — **不提供自定义本体能力**（the ontology layer is **not** open: no consumer-defined classes/relations; validator open ≠ ontology content open）. Re-examination triggers (research doc §7.3): a real consumer request · re-evaluation after the ontology-check surface stays stable for one minor · post-B5 ecosystem pull — via an HG-SCHEMA-CHANGE-style human gate.
 
 `init` / `upgrade` / `sync index` / `skills build` never overwrite the S2 process domain (`docs/tasks/`, `docs/harness/reviews/`, `docs/harness/invokes/by-task/`, plus legacy bare `reviews/` / `invokes/by-task/`). **S2 prefix truth is a single shared constant** (`S2_TRUTH_PREFIXES` in `cli-shared`; F1 / 1.x MVP). `sync prompts` writes only the Starter whitelist under `docs/harness/prompts/` (**11** files) and `docs/harness/templates/TASK_TEMPLATE.md` — default dry-run; existing files with different content are listed as conflicts and are not overwritten unless you pass `--force`.
 

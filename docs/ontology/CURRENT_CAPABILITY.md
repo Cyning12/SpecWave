@@ -34,7 +34,8 @@ AdoptedProfile · VersionManifest · Task · Hat · HumanGate · InvokeSnapshot 
 ## 机器校验
 
 - 浅校验：`test/ontology-shallow.test.ts`（结构 + ONTO- 前缀 + product_semver）  
-- HGM 公理：`npx dsh-coding-kit graph axioms check`（**不**校验本 ontology 文件；独立 `ontology-check` 仍未接线）
+- HGM 公理：`npx spec-wave graph axioms check`（**不**校验本 ontology 文件 · 两命令分工）
+- 本文件校验：`npx spec-wave graph ontology check`（3.0-W3 起已接线 · SHACL 语义子集 profile `spec-wave-shacl-subset/v1` · 五形状含 VersionShape=Warning see pin-03）· HGM 实例校验：`npx spec-wave graph ontology check --hgm`（node.kind / edge.type ⊆ 本文件词汇）
 
 ## 与 discipline「已接线」口径
 
