@@ -1,6 +1,6 @@
 # Task：3.0 W5 · 机械清扫与可诊断性（NEW-6 卫生门通配语义 + NEW-7 第二控制点定稿 + NEW-8 pins fix 备份不误删 + NEW-12 相对化覆盖对象 key + R-6 git 分档诊断与套件前置探测 + R-1 回归确认）
 
-> **状态**：`draft`（2026-09-17 10-task 起草 · HG-TASK-DRAFT **approved**（2026-09-17 00 代签 · 授权真值：维护者本窗「授权00代签」· task lint PASS）· HG-AUDIT-R1 **approved**（2026-09-17 00 代签 · 授权真值：维护者本窗「授权00代签」· 依据审查文 docs/harness/reviews/task_3_0_w5_mechanical_cleanup_audit_R1_20260917.md · R1 PASS-with-issues blocking 0 · advisory A1–A4 带入 30 执行要求）· 双闸 approved · 30 可开工）
+> **状态**：`done`（2026-09-17 10-task 起草 · HG-TASK-DRAFT / HG-AUDIT-R1 双 approved（00 代签 · 授权真值：维护者本窗「授权00代签」· 依据审查文 docs/harness/reviews/task_3_0_w5_mechanical_cleanup_audit_R1_20260917.md · R1 PASS-with-issues blocking 0 · advisory A1–A4 带入 30 执行要求）· 2026-09-17 全三阶段落地（NEW-6/NEW-7 → NEW-8/NEW-12 → R-6/R-1）· 40 复核 PASS（blocking 0 · advisory 0 · 40 留档 4d1d818）· 00 收官裁定 Task_KPI%: 96 · 验收 10/10 勾选 · 关账）
 > **SPEC 真值**：[`docs/spec/3_0-architecture-leap/06_w5_mechanical_cleanup_v1.md`](../../spec/3_0-architecture-leap/06_w5_mechanical_cleanup_v1.md)（signed · HG-SPEC-SIGNOFF=approved 2026-09-16 · 范围 ①–⑥ · 验收 1–6 · F-W5-01–05 · 已按 2.4.2 对账收窄 · R-1 已交付不重复）
 > **上游 PLAN**：[`PLAN_3_0_architecture_leap_v1_zh.md`](../../roadmap/PLAN_3_0_architecture_leap_v1_zh.md) W5 节（:274-279）+ 硬约束 **6**（修严配负向 fixture）/ **10**（环境依赖可诊断 · :339）/ **14**（证据入库）/ **15**（闸不落表即虚设）
 > **前置已兑现**：W0–W4 全 done（W4 锁终态 794/150/793 pass/0 fail/1 skip · [`task_3_0_w4_semantic_criteria.md`](../done/task_3_0_w4_semantic_criteria.md)）· SPEC signed（2.4.2 对账在案 · R-1 已由 2.4.2 交付 · 本波仅回归确认）
@@ -166,16 +166,16 @@
 
 ## 验收标准（必须自证，不接受「我改完了」）
 
-- [ ] **#1 NEW-6 变体全拦负向 fixture 红转绿**（SPEC 验收 1 · S5.1）：`.bak2` / `.bak.md` / `.BAK` / 尾空格 `.bak ` 四变体 trap 修复前漏网真红留证（30 invoke 留档）· 修复后逐一 exit 2 点名 · 清除后复绿 · 正向用例（pack-hygiene.test.ts:22-28）零回退 · `package.json` `files` 否定项同步 diff 在案 · 误拦面分析 + 选型理由（对照 S5.1 ⚠️ 起草发现）入自检结论
-- [ ] **#2 NEW-7 定稿落地**（SPEC 范围② · S5.2）：案 B 显式声明注释入 `check-pack-hygiene.mjs` 头注释（控制点两处指认：prepublishOnly :43 + npm test 内测试/CI ci.yml:31 · 「无第三控制点」明示）· 机检 grep 断言注释锚在案 · **若 20 裁案 A** → ci.yml 独立步 diff + 该步独立红绿自证（二选一 · 验收以定稿案为准）
-- [ ] **#3 NEW-8 用户文件存活 fixture 红转绿**（SPEC 验收 2 · S5.3）：预置用户自有 `<file>.bak`（内容 marker）→ `pins fix --yes` → 修复前旧码下用户 `.bak` 被删（真红留证）· 修复后存活且内容逐字不变 · 自写备份（`.bak` 或避让名）已清理 · 两级皆占跳过写盘 exit 2 点名 fixture（F-W5-06）· dry-run 文案同步
-- [ ] **#4 NEW-12 key 相对化 fixture 红转绿**（SPEC 验收 3 · S5.4）：以绝对路径为 key 的对象经相对化 → 断言无绝对路径 key · 修复前 key 原样泄漏（真红留证）· 修复后 key 相对化 · 无路径 key 对象逐字不变锁 · 消费面盘点结论（预期零波及）+ `Object.keys` 快照面零意外红入自检结论 · `cli-shared.ts:433` 契约注释修订在案
-- [ ] **#5 R-6 分档 + 前置探测 + 环境模拟实证**（SPEC 验收 4 · S5.5 · 硬约束 10）：① 分档四态 fixture（git_missing / git_exec_failed（exit 69 模拟）/ not_git_repo / tag 缺失维持 `missing`）逐态断言 detail + `error_kind`；② PATH 隔离模拟 git 不可用 → 三改造文件套件**显式 skip**（skipped 计数 + 统一标注文案 grep 断言）且 **fail=0**；③ 同环境 `pins check --json` 对 git-tag pin 输出 `error_kind: 'git_missing'` 与真偏差形态可区分断言；④ 真偏差对照：git 可用 tag 缺失仍 exit 2（release-tag-identity  FAIL 语义不变 · skip/fail 边界负向对照）；⑤ exit code 零变更断言（extract_error → exit 2 面 diff 空）
-- [ ] **#6 R-1 回归确认**（SPEC 验收 5 · S5.6 · 只验不回改）：`cli-json-no-abs-path.test.ts:536-587` R-1 describe 全绿 · `src/host/cmd.ts:162-167` + `src/cli-shared.ts:37-48` git diff 空（输出入自检结论）· 手工跨目录 `host validate --json` 复跑一条无绝对路径（输出入自检结论）
-- [ ] **#7 平台锁**（SPEC 验收 6）：`npm run typecheck` 0 错 · `npm test` 全绿（基线 794 + 新增用例数 · 零意外红 · skip 数变化须逐条归因 = 本波新增探测面 · 环境红先对照实验定性 F-W0-07 同式）· pins **17/17** · 依赖零新增（dependencies diff 空）
-- [ ] **#8 既有面零意外改动**（F-W2-13 同式纪律）：除登记项外既有断言零改动全绿 · 登记项逐条列明于自检结论（预期登记面：NEW-12 契约注释 :433 · NEW-8 dry-run 文案 :684 · 三文件 skip 探测新增 · pack-hygiene 头注释 · 若咬到 `Object.keys` 快照逐条登记）
-- [ ] **#9 结构闸**：`npx spec-wave task lint --file docs/tasks/active/task_3_0_w5_mechanical_cleanup.md` PASS
-- [ ] **#10 执行粒度**：提交逐文件显式 add（禁 `git add -A`）· 每 commit 独立可回退 · 每 commit 前后 npm test 同绿 · 未执行 tag/push/publish/deprecate · 波末 `npx spec-wave gate-check --task docs/tasks/active/task_3_0_w5_mechanical_cleanup.md` → exit 0 + `task close --yes` 闭环（待 40 复核后另行 · 00 口径）
+- [x] **#1 NEW-6 变体全拦负向 fixture 红转绿**（SPEC 验收 1 · S5.1）：`.bak2` / `.bak.md` / `.BAK` / 尾空格 `.bak ` 四变体 trap 修复前漏网真红留证（30 invoke 留档）· 修复后逐一 exit 2 点名 · 清除后复绿 · 正向用例（pack-hygiene.test.ts:22-28）零回退 · `package.json` `files` 否定项同步 diff 在案 · 误拦面分析 + 选型理由（对照 S5.1 ⚠️ 起草发现）入自检结论
+- [x] **#2 NEW-7 定稿落地**（SPEC 范围② · S5.2）：案 B 显式声明注释入 `check-pack-hygiene.mjs` 头注释（控制点两处指认：prepublishOnly :43 + npm test 内测试/CI ci.yml:31 · 「无第三控制点」明示）· 机检 grep 断言注释锚在案 · **若 20 裁案 A** → ci.yml 独立步 diff + 该步独立红绿自证（二选一 · 验收以定稿案为准）
+- [x] **#3 NEW-8 用户文件存活 fixture 红转绿**（SPEC 验收 2 · S5.3）：预置用户自有 `<file>.bak`（内容 marker）→ `pins fix --yes` → 修复前旧码下用户 `.bak` 被删（真红留证）· 修复后存活且内容逐字不变 · 自写备份（`.bak` 或避让名）已清理 · 两级皆占跳过写盘 exit 2 点名 fixture（F-W5-06）· dry-run 文案同步
+- [x] **#4 NEW-12 key 相对化 fixture 红转绿**（SPEC 验收 3 · S5.4）：以绝对路径为 key 的对象经相对化 → 断言无绝对路径 key · 修复前 key 原样泄漏（真红留证）· 修复后 key 相对化 · 无路径 key 对象逐字不变锁 · 消费面盘点结论（预期零波及）+ `Object.keys` 快照面零意外红入自检结论 · `cli-shared.ts:433` 契约注释修订在案
+- [x] **#5 R-6 分档 + 前置探测 + 环境模拟实证**（SPEC 验收 4 · S5.5 · 硬约束 10）：① 分档四态 fixture（git_missing / git_exec_failed（exit 69 模拟）/ not_git_repo / tag 缺失维持 `missing`）逐态断言 detail + `error_kind`；② PATH 隔离模拟 git 不可用 → 三改造文件套件**显式 skip**（skipped 计数 + 统一标注文案 grep 断言）且 **fail=0**；③ 同环境 `pins check --json` 对 git-tag pin 输出 `error_kind: 'git_missing'` 与真偏差形态可区分断言；④ 真偏差对照：git 可用 tag 缺失仍 exit 2（release-tag-identity  FAIL 语义不变 · skip/fail 边界负向对照）；⑤ exit code 零变更断言（extract_error → exit 2 面 diff 空）
+- [x] **#6 R-1 回归确认**（SPEC 验收 5 · S5.6 · 只验不回改）：`cli-json-no-abs-path.test.ts:536-587` R-1 describe 全绿 · `src/host/cmd.ts:162-167` + `src/cli-shared.ts:37-48` git diff 空（输出入自检结论）· 手工跨目录 `host validate --json` 复跑一条无绝对路径（输出入自检结论）
+- [x] **#7 平台锁**（SPEC 验收 6）：`npm run typecheck` 0 错 · `npm test` 全绿（基线 794 + 新增用例数 · 零意外红 · skip 数变化须逐条归因 = 本波新增探测面 · 环境红先对照实验定性 F-W0-07 同式）· pins **17/17** · 依赖零新增（dependencies diff 空）
+- [x] **#8 既有面零意外改动**（F-W2-13 同式纪律）：除登记项外既有断言零改动全绿 · 登记项逐条列明于自检结论（预期登记面：NEW-12 契约注释 :433 · NEW-8 dry-run 文案 :684 · 三文件 skip 探测新增 · pack-hygiene 头注释 · 若咬到 `Object.keys` 快照逐条登记）
+- [x] **#9 结构闸**：`npx spec-wave task lint --file docs/tasks/active/task_3_0_w5_mechanical_cleanup.md` PASS
+- [x] **#10 执行粒度**：提交逐文件显式 add（禁 `git add -A`）· 每 commit 独立可回退 · 每 commit 前后 npm test 同绿 · 未执行 tag/push/publish/deprecate · 波末 `npx spec-wave gate-check --task docs/tasks/active/task_3_0_w5_mechanical_cleanup.md` → exit 0 + `task close --yes` 闭环（待 40 复核后另行 · 00 口径）
 
 ---
 
@@ -284,3 +284,11 @@ S2 只新增（本 task 文件 + 30 执行留档）· **不签任何闸**（双 
 **已知未测项（诚实登记）**：① win32 PATH 隔离失真面未实证（F-W5-08 · POSIX 口径实证 · R6-2 假 git sh 脚本 win32 t.skip 护栏在案 · CI 主跑 Linux/macOS）；② EACCES 分支无独立 fixture（与 ENOENT 同档 git_missing · invoke 偏差 4 登记）；③ NEW-6 目录级 `dir.bak/` 变体不拦（超 fixture 变体表 · 边界登记非漏网）；④ 分档人读输出仅经 detail 行承载（error_kind 键 JSON 面专属 · 契约只增口径内）。
 
 **KPI 自评备料（待 00 裁定 · 照 kpi_rubric KPI_RUBRIC_v1_2 存在性口径）**：SPEC 范围①–⑥全销（①NEW-6 ②NEW-7 ③NEW-8 ④NEW-12 ⑤R-6 ⑥R-1 回归确认）· 验收 10 条全机械自证 ✓ · 硬约束 6（每条修严负向 fixture 红测先行：NEW-6 三变体漏网/NEW-8 灭失复现/NEW-12 key 泄漏/R-6 PATH 隔离全谱留证）/10（分档三态+probe+skip≠fail 边界+exit code 零变更）/14（手工复跑证据全入本文与 invoke tracked）/15（双闸落表 blocks_hats 机检）逐项兑现 · 20 审 advisory A1–A4 全落地（A1 碰撞句入契约注释 · A2 手动处置指引入点名文案 · A3 双锚机检 · A4 行号漂移登记）· 锁计数 794→801→806→810 纯加性零回退 · 三阶段零 STOP 零越权（发布四动作零触碰）· 过程瑕疵两起（基线首跑自污染并发 · R-1 比对基误用 tag 基）均被对照实验一拍定性更正并登记 · 未流入交付面。
+
+### KPI（00）
+
+**00 收官裁定**（rubric `KPI_RUBRIC_v1_2` · 40 复核 PASS（blocking 0 · advisory 0 · 40 留档 4d1d818）· close_kpi 存在性口径）：**Task_KPI%: 96**
+
+- 验收 10/10 落地 · 红测先行全谱留证（NEW-6 变体漏网 / NEW-8 灭失复现 / NEW-12 key 泄漏 / R-6 PATH 隔离）· 硬约束 6/10/14/15 逐项兑现 · 20 审 advisory A1–A4 全落地（A1 碰撞句 · A2 手动处置指引 · A3 双锚机检 · A4 行号漂移登记）。
+- 质量门：锁计数 794→801→806→810 纯加性零回退 · typecheck/build 0 错 · test:lib 6/6 · pins 17/17 · R-6 skip≠fail 边界 + exit code 零变更红线实证扎实 · NEW-8 用户文件零损失 · 零越权（发布四动作零触碰 · 禁 add -A 遵守）。
+- 扣 4：过程瑕疵三起（基线首跑自污染并发 · R-1 比对基误用 tag 基 · build 时序样例取旧 lib 输出）—— 均被对照机制咬住一拍修正并登记 · 未流入交付面。
