@@ -297,7 +297,7 @@ describe('C* CLI P0 runtime', { concurrency: 1 }, () => {
         }),
       )
       // DEF-003 T4：verify 查 R<n> 审查文存在性 · 补审查文保持本用例 PASS 口径
-      await writeRel(dir, 'docs/harness/reviews/task_approved_ok_audit_R1_2026-08-20.md', '# R1 fixture\n\n## 结论\n\nPASS · 零内容阻塞（fixture）\n\n审查结论：fixture 全项合规，无阻塞遗留，准予关账。\n')
+      await writeRel(dir, 'docs/harness/reviews/task_approved_ok_audit_R1_2026-08-20.md', '# R1 fixture\n\n## 结论\n\nPASS · 零内容阻塞（fixture）\n\n审查结论：fixture 范围与验收全项合规，无阻塞遗留，准予关账。\n')
       // DEF-003 T5：verify 查 pre-30 invoke hats（default required=10,30,40 · ∩{10,20,00}={10} 须落盘才 PASS）
       await writeRel(dir, 'docs/harness/invokes/by-task/approved_ok/invoke_20260801_10_approved_ok.md', '# invoke 10 fixture')
       const r = runCli(['verify', '--task', rel, '--target', dir])
@@ -356,7 +356,7 @@ describe('C* CLI P0 runtime', { concurrency: 1 }, () => {
       )
       await writeRel(dir, 'pyproject.toml', '[project]\nname = "demo"\nversion = "0.1.0"\n')
       // DEF-003 T4：verify 查 R<n> 审查文存在性 · 补审查文保持本用例 PASS 口径
-      await writeRel(dir, 'docs/harness/reviews/task_d5_pyproject_audit_R1_2026-08-20.md', '# R1 fixture\n\n## 结论\n\nPASS · 零内容阻塞（fixture）\n\n审查结论：fixture 全项合规，无阻塞遗留，准予关账。\n')
+      await writeRel(dir, 'docs/harness/reviews/task_d5_pyproject_audit_R1_2026-08-20.md', '# R1 fixture\n\n## 结论\n\nPASS · 零内容阻塞（fixture）\n\n审查结论：fixture 范围与验收全项合规，无阻塞遗留，准予关账。\n')
       // DEF-003 T5：verify 查 pre-30 invoke hats（default required=10,30,40 · ∩{10,20,00}={10} 须落盘才 PASS）
       await writeRel(dir, 'docs/harness/invokes/by-task/d5_pyproject/invoke_20260801_10_d5_pyproject.md', '# invoke 10 fixture')
       const v = runCli(['verify', '--task', rel, '--target', dir])
@@ -400,7 +400,7 @@ describe('C* CLI P0 runtime', { concurrency: 1 }, () => {
         ].join('\n'),
       )
       // DEF-003 T4：verify 查 R<n> 审查文存在性 · 补审查文保持本用例 PASS 口径
-      await writeRel(dir, 'docs/harness/reviews/task_d5_lintci_audit_R1_2026-08-20.md', '# R1 fixture\n\n## 结论\n\nPASS · 零内容阻塞（fixture）\n\n审查结论：fixture 全项合规，无阻塞遗留，准予关账。\n')
+      await writeRel(dir, 'docs/harness/reviews/task_d5_lintci_audit_R1_2026-08-20.md', '# R1 fixture\n\n## 结论\n\nPASS · 零内容阻塞（fixture）\n\n审查结论：fixture 范围与验收全项合规，无阻塞遗留，准予关账。\n')
       // DEF-003 T5：verify 查 pre-30 invoke hats（default required=10,30,40 · ∩{10,20,00}={10} 须落盘才 PASS）
       await writeRel(dir, 'docs/harness/invokes/by-task/d5_lintci/invoke_20260801_10_d5_lintci.md', '# invoke 10 fixture')
       const v = runCli(['verify', '--task', rel, '--target', dir])
@@ -440,7 +440,7 @@ describe('C* CLI P0 runtime', { concurrency: 1 }, () => {
         ].join('\n'),
       )
       // DEF-003 T4：verify 查 R<n> 审查文存在性 · 补审查文保持本用例 PASS 口径
-      await writeRel(dir, 'docs/harness/reviews/task_d5_pytestci_audit_R1_2026-08-20.md', '# R1 fixture\n\n## 结论\n\nPASS · 零内容阻塞（fixture）\n\n审查结论：fixture 全项合规，无阻塞遗留，准予关账。\n')
+      await writeRel(dir, 'docs/harness/reviews/task_d5_pytestci_audit_R1_2026-08-20.md', '# R1 fixture\n\n## 结论\n\nPASS · 零内容阻塞（fixture）\n\n审查结论：fixture 范围与验收全项合规，无阻塞遗留，准予关账。\n')
       // DEF-003 T5：verify 查 pre-30 invoke hats（default required=10,30,40 · ∩{10,20,00}={10} 须落盘才 PASS）
       await writeRel(dir, 'docs/harness/invokes/by-task/d5_pytestci/invoke_20260801_10_d5_pytestci.md', '# invoke 10 fixture')
       const v = runCli(['verify', '--task', rel, '--target', dir])
@@ -465,7 +465,7 @@ describe('C* CLI P0 runtime', { concurrency: 1 }, () => {
       )
       await writeRel(dir, 'test_smoke.py', 'def test_ok():\n    assert True\n')
       // DEF-003 T4：verify 查 R<n> 审查文存在性 · 补审查文保持本用例 PASS 口径
-      await writeRel(dir, 'docs/harness/reviews/task_d5_pyfile_audit_R1_2026-08-20.md', '# R1 fixture\n\n## 结论\n\nPASS · 零内容阻塞（fixture）\n\n审查结论：fixture 全项合规，无阻塞遗留，准予关账。\n')
+      await writeRel(dir, 'docs/harness/reviews/task_d5_pyfile_audit_R1_2026-08-20.md', '# R1 fixture\n\n## 结论\n\nPASS · 零内容阻塞（fixture）\n\n审查结论：fixture 范围与验收全项合规，无阻塞遗留，准予关账。\n')
       // DEF-003 T5：verify 查 pre-30 invoke hats（default required=10,30,40 · ∩{10,20,00}={10} 须落盘才 PASS）
       await writeRel(dir, 'docs/harness/invokes/by-task/d5_pyfile/invoke_20260801_10_d5_pyfile.md', '# invoke 10 fixture')
       const v = runCli(['verify', '--task', rel, '--target', dir])

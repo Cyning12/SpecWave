@@ -117,7 +117,7 @@ describe('2.2-W3 C2 · verify --json 可观测四字段', { concurrency: 1 }, ()
   it('PASS 态：四字段存在 · exitCode=0=进程退出码 · 键集=既有五键+新增四键', async () => {
     await withTemp(async (dir) => {
       await seedTask(dir)
-      await writeRel(dir, REVIEW_REL, '# R1 fixture\n\n## 结论\n\nPASS · 零内容阻塞（fixture）\n\n审查结论：fixture 全项合规，无阻塞遗留，准予关账。\n')
+      await writeRel(dir, REVIEW_REL, '# R1 fixture\n\n## 结论\n\nPASS · 零内容阻塞（fixture）\n\n审查结论：fixture 范围与验收全项合规，无阻塞遗留，准予关账。\n')
       const r = runCli(['verify', '--task', TASK_REL, '--target', dir, '--json'])
       assert.equal(r.status, 0, r.combined)
       const payload = JSON.parse(r.stdout) as Record<string, unknown>
@@ -142,7 +142,7 @@ describe('2.2-W3 C2 · verify --json 可观测四字段', { concurrency: 1 }, ()
   it('既有字段回归不变：command/target/task/blocked/verdict 语义保持', async () => {
     await withTemp(async (dir) => {
       await seedTask(dir)
-      await writeRel(dir, REVIEW_REL, '# R1 fixture\n\n## 结论\n\nPASS · 零内容阻塞（fixture）\n\n审查结论：fixture 全项合规，无阻塞遗留，准予关账。\n')
+      await writeRel(dir, REVIEW_REL, '# R1 fixture\n\n## 结论\n\nPASS · 零内容阻塞（fixture）\n\n审查结论：fixture 范围与验收全项合规，无阻塞遗留，准予关账。\n')
       const r = runCli(['verify', '--task', TASK_REL, '--target', dir, '--json'])
       assert.equal(r.status, 0, r.combined)
       const payload = JSON.parse(r.stdout) as Record<string, unknown>
@@ -163,7 +163,7 @@ describe('2.2-W3 C2 · verify --json 可观测四字段', { concurrency: 1 }, ()
   it('traceId 为单次运行标识：两次运行取值不同', async () => {
     await withTemp(async (dir) => {
       await seedTask(dir)
-      await writeRel(dir, REVIEW_REL, '# R1 fixture\n\n## 结论\n\nPASS · 零内容阻塞（fixture）\n\n审查结论：fixture 全项合规，无阻塞遗留，准予关账。\n')
+      await writeRel(dir, REVIEW_REL, '# R1 fixture\n\n## 结论\n\nPASS · 零内容阻塞（fixture）\n\n审查结论：fixture 范围与验收全项合规，无阻塞遗留，准予关账。\n')
       const r1 = runCli(['verify', '--task', TASK_REL, '--target', dir, '--json'])
       const r2 = runCli(['verify', '--task', TASK_REL, '--target', dir, '--json'])
       assert.equal(r1.status, 0, r1.combined)
@@ -220,7 +220,7 @@ describe('2.3-W3-B · --json target 相对化 + 错误面零泄漏 + exit 1 信�
   it('① PASS/BLOCKED 两档：payload.target 相对化 · stdout 无绝对 token', async () => {
     await withTemp(async (dir) => {
       await seedTask(dir)
-      await writeRel(dir, REVIEW_REL, '# R1 fixture\n\n## 结论\n\nPASS · 零内容阻塞（fixture）\n\n审查结论：fixture 全项合规，无阻塞遗留，准予关账。\n')
+      await writeRel(dir, REVIEW_REL, '# R1 fixture\n\n## 结论\n\nPASS · 零内容阻塞（fixture）\n\n审查结论：fixture 范围与验收全项合规，无阻塞遗留，准予关账。\n')
       const pass = runCli(['verify', '--task', TASK_REL, '--target', dir, '--json'])
       assert.equal(pass.status, 0, pass.combined)
       const p1 = JSON.parse(pass.stdout) as Record<string, unknown>

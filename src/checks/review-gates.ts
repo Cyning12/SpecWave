@@ -129,16 +129,32 @@ export function findReview(target: string, taskFile: string): boolean {
 // §4 R-4 建议形态）；窗口显式排除 `\n` → R-5 换行形态维持已登记残余不动（归 3.0 · K 断言钉死）；
 // 排除 `。；` 限同句防跨句误中）· no pass / not pass / reject（英文基本形态 · i 旗标 ·
 // R-2 补 `not\s*pass` 封堵 `NOT PASS` 形态 · §3.1 行 G）· 内容阻塞（前置 零 除外）——命中即不通过。
+// 3.0-W4 NEW-11（评审文 w4_semantic_criteria_review_20260917 §3.3 定稿 · 63 份合规结论节误伤 0/63 实测）：
+// 词表广义化五类入表 —— 中文签收面（不予/不/未签收）· 英文否定完成式（doesn't/does not pass ·
+// fail to pass · not approv*）· 英文否决族（decline/veto/refuse）· 中英混入（不/未+pass · not/no+通过）·
+// `\bNG\b` 不入首批（OQ-4 观察名单：本仓 284 份 0 命中 · 消费者英文 prose 或有他义 · 若日后入限结论节作用域）。
 // 误伤兜底：措辞巧合误伤阈值与回退档见 task_2_4_2_patch R-2-c（存量实测 0 翻转 · 留痕在案）。
 // 判定：通过词命中且无否定命中且节内容量达标（2.4-W2 S1·N=20）→ pass；否则 fail（不可解析 = 不通过 · 不误绿）。
 const REVIEW_SECTION_HEAD_RE = /^#{2,3}\s*(?:[一二三四五六七八九十]+[、.]\s*)?(结论|签收)/
 const REVIEW_PASS_RE = /(\bPASS\b|ACCEPT|签收|零内容阻塞|零阻塞|通过)/i
-const REVIEW_NEG_RE = /((?<!无需)(?<!不)(?<!未)退回|不[^。；\n]{0,12}通过|未[^。；\n]{0,12}通过|no\s*pass|not\s*pass|reject|(?<!零)内容阻塞)/i
+// NEW-11 五类形态说明与残余登记见上方注释块（:132-135 · 残余四类：日韩德法俄全形态/符号形态/谐音拆字全角/拼音 ·
+// 不承诺完备 · 后续发现新形态 → 补词表 + fixture · 循本次同流程 · F-W4-02 兑现面）。
+const REVIEW_NEG_RE = /((?<!无需)(?<!不)(?<!未)退回|不[^。；\n]{0,12}通过|未[^。；\n]{0,12}通过|不予签收|不签收|未签收|no\s*pass|not\s*pass|doesn['’]t\s*pass|does\s+not\s+pass|fail(?:ed|s)?\s+to\s+pass|not\s+approv\w*|\bdeclined?\b|\bveto(?:ed)?\b|\brefused?\b|(?:不|未)\s*pass|not\s*通过|no\s*通过|reject|(?<!零)内容阻塞)/i
 // 2.4-W2 S1·N=20（评审文 w2_conclusion_gate_strength_review_20260914 §4 定档）：
 // 结论/签收节合并文本去除全部通过词命中后，残余非空白字符数须 >= REVIEW_MIN_SUBSTANCE，
 // 封堵 A2 收窄形态「结论节只写通过二字」（存量 48 份现行 PASS 文实测误伤 0/48 · D-24-W2-NO-RETRO 不追溯）。
 const REVIEW_MIN_SUBSTANCE = 20
 const REVIEW_PASS_STRIP_RE = new RegExp(REVIEW_PASS_RE.source, 'gi')
+
+// 3.0-W4 NEW-5（评审文 w4_semantic_criteria_review_20260917 §2 定稿 · OQ-1 档 M 采纳 · 20-task-audit R1 维持档 M）：
+// 结论/签收节内语义组合判 VERB ∧ SUBJ ∧ (OBJ ∨ GATE)（节内共现 · 不要求同行同句）·
+// 与否定守卫 / 通过词 / substance≥20 地板全部 AND 保留（双保险防「词齐但仍是碎句」）。
+// 词集单点声明（防双份真值）：VERB = REVIEW_PASS_RE 沿用不扩（63/63 实测命中）·
+// SUBJ/OBJ/GATE 三集唯一真值即下列三常量（评审文 §2.2 · 63 份合规结论节命中率 57/59/61 在案 ·
+// 档 M 误伤恰 6 件全枚举入 docs/harness/legacy-gate-exempt.yaml 留痕 · 循 2.3.1 N11 先例不追溯）。
+const REVIEW_SUBJ_RE = /审查|评审|核对|复核|审计|验收|检查|audit|review/i
+const REVIEW_OBJ_RE = /任务|task|SPEC|PLAN|范围|验收|交付|变更|计划|闸|钉|docs\/|src\/|本波|W\d/i
+const REVIEW_GATE_RE = /HG-[A-Z-]+|approved|人闸|代签|闸/i
 
 export function evalReviewConclusion(content: string): { pass: boolean; detail: string } {
   const lines = content.split('\n')
@@ -164,12 +180,21 @@ export function evalReviewConclusion(content: string): { pass: boolean; detail: 
   }
   const text = chunks.join('\n')
   const scope = '结论/签收节'
-  if (REVIEW_NEG_RE.test(text)) return { pass: false, detail: scope + '含否定结论词（退回/不.未通过/no pass/reject/内容阻塞）' }
+  if (REVIEW_NEG_RE.test(text)) return { pass: false, detail: scope + '含否定结论词（退回/不.未通过/不予.不.未签收/no.not pass/doesn\'t/fail to pass/not approv*/reject/decline/veto/refuse/中英混入/内容阻塞）' }
   if (!REVIEW_PASS_RE.test(text)) return { pass: false, detail: scope + '无可机读通过词（PASS/ACCEPT/签收/通过/零阻塞）' }
   // 2.4-W2 S1·N=20：节内容量判据（去通过词后残余非空白字符 < N → 判未通过 · failClosed 方向）
   const substance = text.replace(REVIEW_PASS_STRIP_RE, '').replace(/\s+/g, '').length
   if (substance < REVIEW_MIN_SUBSTANCE) {
     return { pass: false, detail: scope + `内容量不足（去通过词后非空白 ${substance}<${REVIEW_MIN_SUBSTANCE} 字符 · 结论节须含实质签收内容 · 2.4-W2 S1·N=20）` }
+  }
+  // 3.0-W4 NEW-5 档 M 语义组合判（判定链尾 · failClosed · 缺维即不通过 · detail 点名缺失维度）。
+  // 诚实边界（评审文 §2.4 末行 · R-① 登记面）：机械判据不防「成段伪造一次并未发生的审查」——
+  // 该残余由 invoke 留痕（close_invoke 帽集合闸）与 HG-AUDIT-R1 人签兜底，语义闸职责 = 把裸长度/裸动词顶包逐出合规面。
+  if (!REVIEW_SUBJ_RE.test(text)) {
+    return { pass: false, detail: scope + '缺审查行为陈述（SUBJ）· 档 M 语义判须陈述审查行为（审查/评审/核对/复核/审计/验收/检查/audit/review · 3.0-W4 NEW-5）' }
+  }
+  if (!REVIEW_OBJ_RE.test(text) && !REVIEW_GATE_RE.test(text)) {
+    return { pass: false, detail: scope + '缺对象或闸指涉（OBJ∨GATE）· 档 M 语义判须指涉被审对象或闸（3.0-W4 NEW-5）' }
   }
   return { pass: true, detail: scope + '结论可机读通过' }
 }

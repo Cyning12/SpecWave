@@ -134,7 +134,7 @@ describe('F2 P0 gate semantics (failClosed)', { concurrency: 1 }, () => {
     await withTemp(async (dir) => {
       const rel = 'docs/tasks/active/task_f2_d5.md'
       await writeRel(dir, rel, requiredD5Task('f2_d5'))
-      await writeRel(dir, 'docs/harness/reviews/task_f2_d5_audit_R1_20260909.md', '# R1\n\n## 结论\n\nPASS · 零内容阻塞（fixture）\n\n审查结论：fixture 全项合规，无阻塞遗留，准予关账。\n')
+      await writeRel(dir, 'docs/harness/reviews/task_f2_d5_audit_R1_20260909.md', '# R1\n\n## 结论\n\nPASS · 零内容阻塞（fixture）\n\n审查结论：fixture 范围与验收全项合规，无阻塞遗留，准予关账。\n')
       await writeRel(
         dir,
         'docs/harness/invokes/by-task/f2_d5/invoke_20260909_10_f2_d5.md',

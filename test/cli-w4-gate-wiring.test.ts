@@ -45,7 +45,7 @@ async function writeRel(root: string, rel: string, body: string): Promise<string
 }
 
 // 2.4-W2 S1·N=20：结论节须含实质签收内容（去通过词后非空白 ≥20 字符）· 本 fixture substance=42
-const REVIEW_PASS = '# R1 fixture\n\n## 结论\n\nPASS · 零内容阻塞（fixture）\n\n审查结论：fixture 全项合规，无阻塞遗留，准予关账。\n'
+const REVIEW_PASS = '# R1 fixture\n\n## 结论\n\nPASS · 零内容阻塞（fixture）\n\n审查结论：fixture 范围与验收全项合规，无阻塞遗留，准予关账。\n'
 const REVIEW_NO_PASS = '# R1 fixture\n\n## 结论\n\n| 项 | 判定 |\n|----|------|\n| 仅文档 | 是 |\n'
 
 // verify 面最小 task fixture（闸全 approved · test_strategy=recommended）
@@ -521,7 +521,9 @@ describe('2.4-W2 · 结论级闸强度增强（S1·N=20 · 评审文 w2_conclusi
       const under = runCli(['verify', '--task', rel, '--target', dir])
       assert.equal(under.status, 2, under.combined)
       assert.match(under.combined, /内容量不足（去通过词后非空白 19<20 字符/)
-      await writeRel(dir, 'docs/harness/reviews/task_w2_edge_audit_R1_20260914.md', '# R1 fixture\n\n## 结论\n\n通过 abcdefghijklmnop\n')
+      // 3.0-W4 登记（验收 #11）：恰 20 侧由裸 ASCII 填充重锚为语义合规等长文本（去通过词后非空白恰 20 ·
+      // 裸填充形态已被 NEW-5 档 M 逐出合规面 —— 即本波 ① 号负向 fixture 的攻击面本体）；恰 19 侧不动（仍内容量不足先闸）。
+      await writeRel(dir, 'docs/harness/reviews/task_w2_edge_audit_R1_20260914.md', '# R1 fixture\n\n## 结论\n\n本审查核对验收范围，通过。abcde\n')
       const at = runCli(['verify', '--task', rel, '--target', dir])
       assert.equal(at.status, 0, at.combined)
       assert.match(at.combined, /VERIFY: PASS/)
@@ -738,6 +740,128 @@ describe('2.3.1 N13 [P2] · 豁免四字段显式类型判（falsy 陷阱 · 验
       const bad = runCli(['task', 'lint-done', '--target', dir])
       assert.equal(bad.status, 2, bad.combined)
       assert.match(bad.combined, /豁免条目无效（不豁免）/)
+    })
+  })
+})
+
+describe('3.0-W4 NEW-5 [范围①] · 结论闸语义化（档 M：VERB∧SUBJ∧(OBJ∨GATE) 节内共现 · 评审文 w4_semantic_criteria_review_20260917 §2 定稿 · OQ-1 档 M 采纳 · 20 审维持）', { concurrency: 1 }, () => {
+  // 红测先行（硬约束 6 · 评审文 §2.4 对抗表机械复现）：修复前（2.4.2 码）填充顶包三件套全部
+  // exit 0 PASS 漏网 —— 「通过。」+16 字任意 ASCII 填充即过 substance≥20 地板（真红实测证据见
+  // docs/harness/invokes/by-task/3-0-w4-semantic-criteria/invoke_20260917_30_3-0-w4-semantic-criteria.md）；
+  // 修复后 exit 2 · detail 点名缺失维度（缺审查行为陈述 SUBJ / 缺对象或闸指涉 OBJ∨GATE）。
+  async function seedW4n5(dir: string, slug: string, review: string): Promise<string> {
+    const rel = `docs/tasks/active/task_${slug}_v1.md`
+    await writeRel(dir, rel, taskMd(slug))
+    await writeRel(dir, `docs/harness/invokes/by-task/${slug.replace(/_/g, '-')}/invoke_20260901_10_x.md`, '# invoke 10\n')
+    await writeRel(dir, `docs/harness/reviews/task_${slug}_audit_R1_20260917.md`, review)
+    return rel
+  }
+  const N5 = (line: string): string => `# R1 fixture\n\n## 结论\n\n${line}\n`
+  const assertBlocked5 = async (dir: string, rel: string, dim: RegExp): Promise<void> => {
+    const r = runCli(['verify', '--task', rel, '--target', dir])
+    assert.equal(r.status, 2, r.combined)
+    assert.match(r.combined, /VERIFY: BLOCKED · 审查文结论不可机读通过/)
+    assert.match(r.combined, dim)
+  }
+
+  it('① 填充顶包「通过。」+16 字填充 → BLOCKED exit 2 点名缺审查行为陈述 SUBJ（无 SUBJ/OBJ/GATE · 修复前 PASS 真红）', async () => {
+    await withTemp(async (dir) => {
+      const rel = await seedW4n5(dir, 'w4n5_pad', N5('通过。abcdefghijklmnop'))
+      await assertBlocked5(dir, rel, /缺审查行为陈述（SUBJ）/)
+    })
+  })
+
+  it('② 「本审查通过。」+填充（SUBJ 有 · OBJ/GATE 无）→ BLOCKED exit 2 点名缺对象或闸指涉 OBJ∨GATE（修复前 PASS 真红）', async () => {
+    await withTemp(async (dir) => {
+      const rel = await seedW4n5(dir, 'w4n5_subj', N5('本审查通过。abcdefghijklmnop'))
+      await assertBlocked5(dir, rel, /缺对象或闸指涉（OBJ∨GATE）/)
+    })
+  })
+
+  it('③ 「HG-SPEC-SIGNOFF approved，予以通过。」+填充（GATE 有 · SUBJ 无）→ BLOCKED exit 2 点名缺 SUBJ（修复前 PASS 真红）', async () => {
+    await withTemp(async (dir) => {
+      // 偏差登记：task S5.1 底稿闸例作「HG-AUDIT-R1 approved」—— HG-AUDIT 内嵌 AUDIT 命中 SUBJ 词集
+      // （i 旗标 · 评审文 §2.2 定稿词集逐字沿用），判定意图「GATE 有 · SUBJ 无 → 挡」由 HG-SPEC-SIGNOFF 同构承载。
+      const rel = await seedW4n5(dir, 'w4n5_gate', N5('HG-SPEC-SIGNOFF approved，予以通过。abcdefghijkl'))
+      await assertBlocked5(dir, rel, /缺审查行为陈述（SUBJ）/)
+    })
+  })
+
+  it('④ 诚实边界对照：成段合规构造「本审查核对验收标准与范围，无阻塞，通过。」维持 PASS（机械判据不防成段伪造 · R-① 登记面 · 由 invoke 留痕 + HG-AUDIT-R1 人签兜底 · 评审文 §2.4 末行）', async () => {
+    await withTemp(async (dir) => {
+      const rel = await seedW4n5(dir, 'w4n5_honest', N5('本审查核对验收标准与范围，无阻塞，通过。逐项核毕。'))
+      const r = runCli(['verify', '--task', rel, '--target', dir])
+      assert.equal(r.status, 0, r.combined)
+      assert.match(r.combined, /VERIFY: PASS/)
+    })
+  })
+
+  it('⑤ substance≥20 地板保留对照：「通过\\n」仍内容量不足 FAIL（语义组合判在地板之后 · 既有 F 形态零回退）', async () => {
+    await withTemp(async (dir) => {
+      const rel = await seedW4n5(dir, 'w4n5_floor', N5('通过\n'))
+      const r = runCli(['verify', '--task', rel, '--target', dir])
+      assert.equal(r.status, 2, r.combined)
+      assert.match(r.combined, /内容量不足/)
+    })
+  })
+})
+
+describe('3.0-W4 NEW-11 [范围③] · 否定词表广义化（五类 · 评审文 §3.3 定稿 · 不承诺完备 · 误伤 0/63 回归锁）', { concurrency: 1 }, () => {
+  // 红测先行（硬约束 6）：修复前（2.4.2 词表）下表各形态与通过词同节并存均判 PASS 漏网
+  // （逐条真红实测 · substance 全达标 · 证据见 30 invoke 留档）；修复后 REVIEW_NEG_RE 命中 → exit 2 点名否定。
+  // 覆盖：中文签收面（不予/不/未签收）· 英文否定完成式（doesn't/fail to pass/not approv*）·
+  // 英文否决族（decline/veto/refuse）· 中英混入（不/未+pass · not/no+通过）。
+  // 注一：'does not pass' 由 2.4.2 R-2 既有 not\s*pass 已覆盖（修复前即 FAIL · 非本波红转绿面），
+  //       本类红转绿代表形 = doesn't / failed / fails / not approved。
+  // 注二：\bNG\b 不入首批（OQ-4 观察名单 · 消费者英文 prose 或有他义）→ 无 fixture，登记于 review-gates.ts 词表注释；
+  //       残余四类（日韩德法俄/符号/拆字/拼音 · F-W4-02 不承诺完备）同处登记。
+  async function seedW4n11(dir: string, slug: string, review: string): Promise<string> {
+    const rel = `docs/tasks/active/task_${slug}_v1.md`
+    await writeRel(dir, rel, taskMd(slug))
+    await writeRel(dir, `docs/harness/invokes/by-task/${slug.replace(/_/g, '-')}/invoke_20260901_10_x.md`, '# invoke 10\n')
+    await writeRel(dir, `docs/harness/reviews/task_${slug}_audit_R1_20260917.md`, review)
+    return rel
+  }
+  const N11 = (line: string): string => `# R1 fixture\n\n## 结论\n\n${line}\n`
+  const assertNeg = async (dir: string, slug: string, line: string): Promise<void> => {
+    const rel = await seedW4n11(dir, slug, N11(line))
+    const r = runCli(['verify', '--task', rel, '--target', dir])
+    assert.equal(r.status, 2, r.combined)
+    assert.match(r.combined, /VERIFY: BLOCKED · 审查文结论不可机读通过/)
+    assert.match(r.combined, /含否定结论词/)
+  }
+
+  it('类一 · 中文签收面：不予签收 / 不签收 / 未签收 → BLOCKED exit 2（修复前全 PASS 真红）', async () => {
+    await withTemp(async (dir) => {
+      await assertNeg(dir, 'w4n11_sign1', '本审查核对后不予签收：缺陷三项待修复后再审，结论状态回退为待签。')
+      await assertNeg(dir, 'w4n11_sign2', '本审查核对后不签收：缺陷三项待修复后再审，结论状态回退为待签。')
+      await assertNeg(dir, 'w4n11_sign3', '本审查核对后未签收：缺陷三项待修复后再审，结论状态回退为待签。')
+    })
+  })
+
+  it('类二 · 英文否定完成式：doesn\'t pass / failed to pass / fails to pass / not approved → BLOCKED exit 2（修复前全 PASS 真红）', async () => {
+    await withTemp(async (dir) => {
+      await assertNeg(dir, 'w4n11_en1', "Review verdict: it doesn't pass. Three defects found in the audit round, rework required.")
+      await assertNeg(dir, 'w4n11_en2', 'The change failed to pass review: three defects confirmed, rework required before signoff.')
+      await assertNeg(dir, 'w4n11_en3', 'The change fails to pass review: three defects confirmed, rework required before signoff.')
+      await assertNeg(dir, 'w4n11_en4', 'Verdict: not approved. Originally marked PASS in the draft; the audit found three defects, rework required.')
+    })
+  })
+
+  it('类三 · 英文否决族：declined / vetoed / refused → BLOCKED exit 2（修复前全 PASS 真红）', async () => {
+    await withTemp(async (dir) => {
+      await assertNeg(dir, 'w4n11_veto1', 'Declined by reviewer: verdict originally recorded as accepted, three defects pending rework.')
+      await assertNeg(dir, 'w4n11_veto2', 'Verdict vetoed: originally recorded as accepted, three defects pending rework before signoff.')
+      await assertNeg(dir, 'w4n11_veto3', 'Signoff refused: originally recorded as accepted, three defects pending rework.')
+    })
+  })
+
+  it('类四 · 中英混入：不 pass / 未 pass / not 通过 / no 通过 → BLOCKED exit 2（修复前全 PASS 真红）', async () => {
+    await withTemp(async (dir) => {
+      await assertNeg(dir, 'w4n11_mix1', '本审查结论为不 pass：缺陷三项待修复后再审，范围已逐项核毕。')
+      await assertNeg(dir, 'w4n11_mix2', '本审查结论为未 pass：缺陷三项待修复后再审，范围已逐项核毕。')
+      await assertNeg(dir, 'w4n11_mix3', 'Verdict: not 通过。缺陷三项待修复后再审，范围已逐项核毕。')
+      await assertNeg(dir, 'w4n11_mix4', 'Verdict: no 通过。缺陷三项待修复后再审，范围已逐项核毕。')
     })
   })
 })

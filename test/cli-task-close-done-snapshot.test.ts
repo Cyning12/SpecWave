@@ -108,7 +108,7 @@ async function seedComplete(
   artifacts: { review?: boolean; invoke10?: boolean; invoke3040?: boolean } = {},
 ): Promise<void> {
   await writeRel(dir, TASK_REL, taskMd())
-  if (artifacts.review !== false) await writeRel(dir, REVIEW_REL, '# R1 fixture\n\n## 结论\n\nPASS · 零内容阻塞（fixture）\n\n审查结论：fixture 全项合规，无阻塞遗留，准予关账。\n')
+  if (artifacts.review !== false) await writeRel(dir, REVIEW_REL, '# R1 fixture\n\n## 结论\n\nPASS · 零内容阻塞（fixture）\n\n审查结论：fixture 范围与验收全项合规，无阻塞遗留，准予关账。\n')
   if (artifacts.invoke10 !== false) await writeRel(dir, INVOKE10_REL, '# invoke 10 fixture')
   if (artifacts.invoke3040 !== false) await writeRel(dir, INVOKE3040_REL, '# invoke 30+40 merged fixture')
 }

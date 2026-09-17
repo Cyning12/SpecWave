@@ -3,7 +3,8 @@
 # 纪律：新增条目必须 slug/reason/date/authorized_by 四字段齐（谁/何时/理由）；缺字段条目视为无效并 warn（不豁免）。
 # YAML 引号规范（2.3.1 N13）：四字段一律须为非空字符串；数字形态值（如 00）**必须加引号**（"00"），
 # 未加引号会被 YAML 解析为整型 0 → 显式类型判（typeof === 'string'）拒收 → 条目无效不豁免并留痕。
-# 本清单为「闸新行为不追溯存量」（SPEC 04 §5.4 · D-23-W4-TRANSITION）的数据载体：全部条目为 2.3.0 接线前历史关账。
+# 本清单为「闸新行为不追溯存量」（SPEC 04 §5.4 · D-23-W4-TRANSITION）的数据载体：全部条目为闸接线前合法存量
+# （2.3.0 reviews/invoke_hats 闸接线前历史关账 · 3.0-W4 NEW-5 档 M 语义闸接线前合法件循 2.3.1 N11 先例同清单登记）。
 version: "1"
 
 reviews:
@@ -79,6 +80,31 @@ reviews:
     reason: 2.3.0 前历史关账 · 审查文无结论/签收节（通过词在全文 · 结论级 v2 回退全文口径 2026-09-13 接线前合法 · 2.3.1 N11 强制结论节接线后经裸 verify 实测波及 · task_2_3_1_patch 抽验核因）
     date: '2026-09-14'
     authorized_by: 00（2026-09-12 维护者会话授权）
+
+  - slug: 00-default-behavior-kit-1-7-1
+    reason: 3.0-W4 NEW-5 档 M 语义闸接线存量波及 · 评审文 w4_semantic_criteria_review_20260917 §2.3/§7 枚举 · 接线前合法 · 循 2.3.1 N11 先例不追溯 · 形态：task_00_default_behavior_kit_1_7_1_audit_R1_ACCEPT 结论节「ACCEPT。范围限于…」无审查行为词（SUBJ 缺）
+    date: '2026-09-17'
+    authorized_by: 00（2026-09-16 维护者双签授权 00 代签）
+  - slug: 2-4-gate-strength-w1-pins-extract
+    reason: 3.0-W4 NEW-5 档 M 语义闸接线存量波及 · 评审文 w4_semantic_criteria_review_20260917 §2.3/§7 枚举 · 接线前合法 · 循 2.3.1 N11 先例不追溯 · 形态：task_2_4_gate_strength_w1_pins_extract_audit_R1_20260914 短结论「W1 结论：PASS · 零内容阻塞，与总审文 §4…一致」无审查行为词（SUBJ 缺）
+    date: '2026-09-17'
+    authorized_by: 00（2026-09-16 维护者双签授权 00 代签）
+  - slug: 2-4-gate-strength-w3-output-rel
+    reason: 3.0-W4 NEW-5 档 M 语义闸接线存量波及 · 评审文 w4_semantic_criteria_review_20260917 §2.3/§7 枚举 · 接线前合法 · 循 2.3.1 N11 先例不追溯 · 形态：task_2_4_gate_strength_w3_output_rel_audit_R1_20260914 短结论（W3 同 W1 形态）无审查行为词（SUBJ 缺）
+    date: '2026-09-17'
+    authorized_by: 00（2026-09-16 维护者双签授权 00 代签）
+  - slug: 2-4-gate-strength-w4-assets-observability
+    reason: 3.0-W4 NEW-5 档 M 语义闸接线存量波及 · 评审文 w4_semantic_criteria_review_20260917 §2.3/§7 枚举 · 接线前合法 · 循 2.3.1 N11 先例不追溯 · 形态：task_2_4_gate_strength_w4_assets_observability_audit_R1_20260914 短结论（W4 同 W1 形态）无审查行为词（SUBJ 缺）
+    date: '2026-09-17'
+    authorized_by: 00（2026-09-16 维护者双签授权 00 代签）
+  - slug: 2-4-gate-strength-w5-materials-messaging
+    reason: 3.0-W4 NEW-5 档 M 语义闸接线存量波及 · 评审文 w4_semantic_criteria_review_20260917 §2.3/§7 枚举 · 接线前合法 · 循 2.3.1 N11 先例不追溯 · 形态：task_2_4_gate_strength_w5_materials_messaging_audit_R1_20260914 短结论（W5 同 W1 形态）无审查行为词（SUBJ 缺）
+    date: '2026-09-17'
+    authorized_by: 00（2026-09-16 维护者双签授权 00 代签）
+  - slug: 2-4-gate-strength-w6-p3-cleanup
+    reason: 3.0-W4 NEW-5 档 M 语义闸接线存量波及 · 评审文 w4_semantic_criteria_review_20260917 §2.3/§7 枚举 · 接线前合法 · 循 2.3.1 N11 先例不追溯 · 形态：task_2_4_gate_strength_w6_p3_cleanup_audit_R1_20260914 短结论（W6 同 W1 形态）无审查行为词（SUBJ 缺）
+    date: '2026-09-17'
+    authorized_by: 00（2026-09-16 维护者双签授权 00 代签）
 
 invoke_hats:
   - slug: 2_1_1-host-tools-ux-w0-planning
