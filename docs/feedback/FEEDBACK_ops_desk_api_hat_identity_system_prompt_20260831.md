@@ -4,7 +4,7 @@
 > **日期**：2026-08-31  
 > **kit 版本**：`1.9.1`（`package.json` 钉版 · `npx dsh-coding-kit --version`）  
 > **操作者**：人 + 本仓 00/对话（IDE Agent · Cursor / Claude Code）  
-> **关联**：`docs/harness/prompts/00-orchestrator.md` · `docs/harness/prompts/README.md`（Skills 分发说明）· Host 规划 [`02_agent_host_plan_v0.md`](../../spec/agent-infra/02_agent_host_plan_v0.md)  
+> **关联**：`docs/harness/prompts/00-orchestrator.md` · `docs/harness/prompts/README.md`（Skills 分发说明）· Host 规划 `02_agent_host_plan_v0.md`（历史本地件 · 未入库 · 不在仓）  
 > **主题**：过程帽条文存在，但 **无稳定 System Prompt / re-anchor 面** → 长对话丢帽；00 默认「只委派」条文已钉，仍 **偶现亲自落地**
 
 ---

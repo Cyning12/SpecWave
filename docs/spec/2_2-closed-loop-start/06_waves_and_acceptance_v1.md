@@ -9,7 +9,7 @@
 
 - [x] `HG-SPEC-SIGNOFF=approved`（人 · 2026-09-11 会话预授权 · 00 代签落表 · 冻结 D-PINS-EXIT / D-SPEC-213-ROW / D-PINS-SCOPE-8 / D-W2-ABS-PATH-UX · 全部采纳推荐）
 - [x] `HG-NEXT-PLAN=approved`（人 · 2026-09-11 会话预授权 · 00 代签落表 · 此前**零实现代码改动**）
-- [x] 20-spec-audit 书面审落盘 [`../harness/reviews/spec_2_2_closed_loop_start_audit_R1_20260911.md`](../harness/reviews/spec_2_2_closed_loop_start_audit_R1_20260911.md)（R1 pass 零阻塞）
+- [x] 20-spec-audit 书面审落盘 [`../../harness/reviews/spec_2_2_closed_loop_start_audit_R1_20260911.md`](../../harness/reviews/spec_2_2_closed_loop_start_audit_R1_20260911.md)（R1 pass 零阻塞）
 - [ ] 00 拆 W1–W7 task（每波一个 · **W1 已开单**：`docs/tasks/active/task_2_2_closed_loop_w1_release_pins.md`）
 
 > W0/D0「推广物料翻新」已由上一轮外部完成（`delivery/promotion/` 4 份 + `package.json` description/keywords，工作区未提交），**仅引用不重做**；各波提交不得裹挟这些未提交改动（D0-PROT）。

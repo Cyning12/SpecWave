@@ -10,7 +10,7 @@
 
 | 子树 | 工作区路径 | 动作 | 仓内替代/指针 |
 |------|------------|------|---------------|
-| `00_inventory/` | `docs/dsh_coding_kit_optimization/00_inventory/` | W3 原文已迁 `reference/` | [`architecture_1.2.2.md`](./architecture_1.2.2.md) · [`cli_surface_1.2.2.md`](./cli_surface_1.2.2.md) · [`plugin_surface_1.2.2.md`](./plugin_surface_1.2.2.md) · [`assets_catalog_1.2.2.md`](./assets_catalog_1.2.2.md)；现行 L1 [`01_struct.md`](../../_tech_graph/01_struct.md) |
+| `00_inventory/` | `docs/dsh_coding_kit_optimization/00_inventory/` | W3 原文已迁 `reference/` | [`architecture_1.2.2.md`](./architecture_1.2.2.md) · [`cli_surface_1.2.2.md`](./cli_surface_1.2.2.md) · [`plugin_surface_1.2.2.md`](./plugin_surface_1.2.2.md) · [`assets_catalog_1.2.2.md`](./assets_catalog_1.2.2.md)；现行 L1 [`01_struct.md`](../../../_tech_graph/01_struct.md) |
 | `01_defects/` | `docs/dsh_coding_kit_optimization/01_defects/` | 留外 | [`03_defects_debt_ledger.md`](../../../releases/03_defects_debt_ledger.md) |
 | `02_compare_speckit/` | `docs/dsh_coding_kit_optimization/02_compare_speckit/` | 留外 + POINTER | 治理叙事 · 非仓事实源 |
 | `03_directions/` | `docs/dsh_coding_kit_optimization/03_directions/` | 留外 + POINTER | 治理叙事 · 非仓事实源 |

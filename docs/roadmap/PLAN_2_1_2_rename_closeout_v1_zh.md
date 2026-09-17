@@ -3,7 +3,7 @@
 > **状态**：`signed` · **CLOSED**（W0–W4 DONE · **HG-PUBLISH** / **HG-DEPRECATE-HARNESS=approved** · `2.1.2` **published** · 2026-09-10）  
 > **目标发版**：`spec-wave@2.1.2`（**patch** · 改名完整度 + 溯源 + 迁移链 + init 健壮性）  
 > **基线**：`spec-wave@2.1.1` published · 改名验收曾未达发版级完整  
-> **证据**：[`.workbuddy/output/审查报告-SpecWave-2.1.1-改名验收.md`](../../.workbuddy/output/审查报告-SpecWave-2.1.1-改名验收.md)  
+> **证据**：[`.workbuddy/output/审查报告-SpecWave-2.1.1-改名验收.md`](../harness/reviews/w7_evidence_provenance_20260917.md)  
 > **系列 SPEC**：[`docs/spec/2_1_2-rename-closeout/`](../spec/2_1_2-rename-closeout/)（`signed` · **CLOSED**）  
 > **验收**：[`ACCEPTANCE_2_1_2_rename_closeout_2_1_2_zh.md`](./ACCEPTANCE_2_1_2_rename_closeout_2_1_2_zh.md)
 

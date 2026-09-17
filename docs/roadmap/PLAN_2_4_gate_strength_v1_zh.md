@@ -3,9 +3,9 @@
 > **状态**：`approved` · **HG-NEXT-PLAN=approved**（2026-09-14 维护者本窗签收草稿 · 并书面授权 00 代签本版后续全部过程闸；签前不得开任何 W 波 task 的限制解除）  
 > **目标发版**：`spec-wave@2.4.0`（**minor** · 「声明 → 接线 → 可验证」主线之门禁强度补全：门禁已接线但可被弱形态绕过，本版把钉面/闸面/输出面/资产面的强度补到与对外声称一致）  
 > **基线**：`spec-wave@2.3.1` published（npm `latest` = 2.3.1 · tag `v2.3.1` ↔ bump commit `268ca21` · 归档 [`ACCEPTANCE_2_3_1_patch_2_3_1_zh.md`](./ACCEPTANCE_2_3_1_patch_2_3_1_zh.md)）  
-> **判断依据（范围主源）**：[`.workbuddy/output/验收报告-SpecWave-2.3.0.md`](../.workbuddy/output/验收报告-SpecWave-2.3.0.md) §6「建议 2.4（minor）—— 门禁强度补全」（N2–N14 八组 · 每项证据见报告 §3.B–§3.O）+ §6 末「建议同步调整的对外口径」  
+> **判断依据（范围主源）**：[`.workbuddy/output/验收报告-SpecWave-2.3.0.md`](../harness/reviews/w7_evidence_provenance_20260917.md) §6「建议 2.4（minor）—— 门禁强度补全」（N2–N14 八组 · 每项证据见报告 §3.B–§3.O）+ §6 末「建议同步调整的对外口径」  
 > **残余登记（并入范围）**：[`ACCEPTANCE_2_3_1_patch_2_3_1_zh.md`](./ACCEPTANCE_2_3_1_patch_2_3_1_zh.md)「已知残余（主动登记 · 归 2.4）」节（A2 结论节内强度增强权衡 · N9 未修留痕）  
-> **路线背景（非范围/风险口径）**：[`.workbuddy/output/路线研究-SpecWave-2.2-3.0.md`](../.workbuddy/output/路线研究-SpecWave-2.2-3.0.md) §6 非范围冻结 · §7 风险表（该文只编排到 2.2/2.3/3.0 三波 · **2.4.0 方案设计不在该文**，真值以验收报告 §6 为准）  
+> **路线背景（非范围/风险口径）**：[`.workbuddy/output/路线研究-SpecWave-2.2-3.0.md`](../harness/reviews/w7_evidence_route_research_2_2_to_3_0_20260917.md) §6 非范围冻结 · §7 风险表（该文只编排到 2.2/2.3/3.0 三波 · **2.4.0 方案设计不在该文**，真值以验收报告 §6 为准）  
 > **格式模板**：[`PLAN_2_3_wiring_completion_v1_zh.md`](./PLAN_2_3_wiring_completion_v1_zh.md)（结构骨架沿用）
 
 ---

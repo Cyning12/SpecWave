@@ -3,9 +3,9 @@
 > **状态**：`signed` · **HG-SPEC-SIGNOFF=approved** · **HG-NEXT-PLAN=approved**（2026-09-12 维护者会话授权 00 代签 · 与 2.2.0/2.2.1 同模式）  
 > **目标发版**：`spec-wave@2.3.0`（**minor** · 「声明 → 接线 → 可验证」主线之接线补全）· **发布状态：已 published**（2026-09-14 · 人 · tag `v2.3.0` ↔ bump commit `87dfa6f` · 归档 [`ACCEPTANCE_2_3_wiring_completion_2_3_0_zh.md`](./ACCEPTANCE_2_3_wiring_completion_2_3_0_zh.md)）  
 > **基线**：`spec-wave@2.2.1` published（npm `latest` · tag `v2.2.1` ↔ 包身份一致）· 464 用例全通过 · `pins check` 12/12 PASS（本棒实测 2026-09-12 · exit 0）· typecheck 0 错 0 警 · 运行时依赖仅 `js-yaml` · 宿主 7 个  
-> **任务来源**：[`.workbuddy/output/PROMPT-2.3.0-落地-交给SpecWave-agent.md`](../.workbuddy/output/PROMPT-2.3.0-落地-交给SpecWave-agent.md)（§3 波次表 · §4 硬约束 · §5 人闸模式）  
-> **判断依据**：[`.workbuddy/output/路线研究-SpecWave-2.2-3.0.md`](../.workbuddy/output/路线研究-SpecWave-2.2-3.0.md)（§5 波次编排出处）· [`.workbuddy/output/验收报告-SpecWave-2.2.0.md`](../.workbuddy/output/验收报告-SpecWave-2.2.0.md)（§4 问题清单 §7 机制化建议 · 本次范围主源）  
-> **文案纪律**：[`.workbuddy/output/推广事实卡-2.2.0.md`](../.workbuddy/output/推广事实卡-2.2.0.md)（§10 黑名单 · §11 禁称清单）  
+> **任务来源**：[`.workbuddy/output/PROMPT-2.3.0-落地-交给SpecWave-agent.md`](../harness/reviews/w7_evidence_provenance_20260917.md)（§3 波次表 · §4 硬约束 · §5 人闸模式）  
+> **判断依据**：[`.workbuddy/output/路线研究-SpecWave-2.2-3.0.md`](../harness/reviews/w7_evidence_route_research_2_2_to_3_0_20260917.md)（§5 波次编排出处）· [`.workbuddy/output/验收报告-SpecWave-2.2.0.md`](../harness/reviews/w7_evidence_provenance_20260917.md)（§4 问题清单 §7 机制化建议 · 本次范围主源）  
+> **文案纪律**：[`.workbuddy/output/推广事实卡-2.2.0.md`](../harness/reviews/w7_evidence_provenance_20260917.md)（§10 黑名单 · §11 禁称清单）  
 > **系列 SPEC**：[`docs/spec/2_3-wiring-completion/`](../spec/2_3-wiring-completion/)（`signed`）
 
 ---

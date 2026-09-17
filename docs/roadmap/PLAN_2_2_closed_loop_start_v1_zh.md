@@ -3,9 +3,9 @@
 > **状态**：`signed` · **HG-SPEC-SIGNOFF=approved** · **HG-NEXT-PLAN=approved**（人 · 2026-09-11 会话预授权 · 00 代签落表）  
 > **目标发版**：`spec-wave@2.2.0`（**minor** · 「声明 → 接线 → 可验证」闭环起步）  
 > **基线**：`spec-wave@2.1.3` published（npm `latest` · tag `v2.1.3` ↔ 同 commit）· 406 用例 / 54 文件 / 48.7s 全通过 · typecheck 0 错 0 警 · 运行时依赖仅 `js-yaml` · 宿主 4 个  
-> **任务来源**：[`.workbuddy/output/PROMPT-2.2.0-落地-交给SpecWave-agent.md`](../.workbuddy/output/PROMPT-2.2.0-落地-交给SpecWave-agent.md)（§3 波次表 · §4 W1/A1 详规 · §6 硬约束）  
-> **判断依据**：[`.workbuddy/output/路线研究-SpecWave-2.2-3.0.md`](../.workbuddy/output/路线研究-SpecWave-2.2-3.0.md)（五路取证 · 加权评分 · 波次编排）  
-> **文案纪律**：[`.workbuddy/output/推广事实卡-2.1.3.md`](../.workbuddy/output/推广事实卡-2.1.3.md)（§10 黑名单 · §11 禁称清单）  
+> **任务来源**：[`.workbuddy/output/PROMPT-2.2.0-落地-交给SpecWave-agent.md`](../harness/reviews/w7_evidence_provenance_20260917.md)（§3 波次表 · §4 W1/A1 详规 · §6 硬约束）  
+> **判断依据**：[`.workbuddy/output/路线研究-SpecWave-2.2-3.0.md`](../harness/reviews/w7_evidence_route_research_2_2_to_3_0_20260917.md)（五路取证 · 加权评分 · 波次编排）  
+> **文案纪律**：[`.workbuddy/output/推广事实卡-2.1.3.md`](../harness/reviews/w7_evidence_provenance_20260917.md)（§10 黑名单 · §11 禁称清单）  
 > **系列 SPEC**：[`docs/spec/2_2-closed-loop-start/`](../spec/2_2-closed-loop-start/)（`draft`）
 
 ---

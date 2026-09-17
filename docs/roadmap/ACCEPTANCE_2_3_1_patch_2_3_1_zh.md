@@ -2,7 +2,7 @@
 
 > **版本**：`spec-wave@2.3.1`（**待发版** · bump 已落 2026-09-14 · tag/push/publish 仅人）
 > **task**：[`docs/tasks/done/task_2_3_1_patch.md`](../tasks/done/task_2_3_1_patch.md)（slug `2-3-1-patch` · 无独立 SPEC 夹 · 属 2_3-wiring-completion 验收后 patch）
-> **依据**：[`.workbuddy/output/验收报告-SpecWave-2.3.0.md`](../../.workbuddy/output/验收报告-SpecWave-2.3.0.md) §3.B/§3.L/§3.N · §6「建议 2.3.1」（判 PASS-with-issues）
+> **依据**：[`.workbuddy/output/验收报告-SpecWave-2.3.0.md`](../harness/reviews/w7_evidence_provenance_20260917.md) §3.B/§3.L/§3.N · §6「建议 2.3.1」（判 PASS-with-issues）
 
 ## 修复清单（§6 建议 2.3.1 三项 · 全落地）
 

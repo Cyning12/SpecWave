@@ -3,7 +3,7 @@
 > **状态**：`signed` · **IMPLEMENTED** · **`2.1.2` published** · **CLOSED**（2026-09-10）  
 > **spec_slug**：`2_1_2-rename-closeout`  
 > **目标包**：`spec-wave@2.1.2`  
-> **上游证据**：[`.workbuddy/output/审查报告-SpecWave-2.1.1-改名验收.md`](../../../.workbuddy/output/审查报告-SpecWave-2.1.1-改名验收.md)（2026-09-10）  
+> **上游证据**：[`.workbuddy/output/审查报告-SpecWave-2.1.1-改名验收.md`](../../harness/reviews/w7_evidence_provenance_20260917.md)（2026-09-10）  
 > **基线**：`spec-wave@2.1.1` **published** · 改名未达发版级完整（tag/npm 身份错位 · 链式废弃 · 对外残留）  
 > **姊妹系列**：[`rename-specgate/`](../rename-specgate/)（2.1.1 改名主轨 · 功能已通 · 残留收口进本系列）  
 > **上游规划**：[`PLAN_2_1_2_rename_closeout_v1_zh.md`](../../roadmap/PLAN_2_1_2_rename_closeout_v1_zh.md)  

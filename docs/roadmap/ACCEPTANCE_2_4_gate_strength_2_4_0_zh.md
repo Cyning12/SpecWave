@@ -2,7 +2,7 @@
 
 > **版本**：`spec-wave@2.4.0`（**已 published** · 2026-09-14 · 人执行 publish · dist-tags `latest=2.4.0` · `time.2.4.0`=2026-09-14T10:07:41Z · tag **`v2.4.0`** ↔ bump commit `343025d` · 探针全过）
 > **tasks**：[`docs/tasks/done/`](../tasks/done/) `task_2_4_gate_strength_w1..w6_*`（W1–W6 全 CLOSE · release 波无独立 task，走 RELEASING 人 checklist）
-> **依据**：[`.workbuddy/output/验收报告-SpecWave-2.3.0.md`](../../.workbuddy/output/验收报告-SpecWave-2.3.0.md) §6「建议 2.4」八组（N2–N14）+ §6 末对外口径三条 + [`ACCEPTANCE_2_3_1_patch_2_3_1_zh.md`](./ACCEPTANCE_2_3_1_patch_2_3_1_zh.md) 已知残余登记三条；规划 [`PLAN_2_4_gate_strength_v1_zh.md`](./PLAN_2_4_gate_strength_v1_zh.md)（HG-NEXT-PLAN=approved · 维护者授权 00 代签过程闸）
+> **依据**：[`.workbuddy/output/验收报告-SpecWave-2.3.0.md`](../harness/reviews/w7_evidence_provenance_20260917.md) §6「建议 2.4」八组（N2–N14）+ §6 末对外口径三条 + [`ACCEPTANCE_2_3_1_patch_2_3_1_zh.md`](./ACCEPTANCE_2_3_1_patch_2_3_1_zh.md) 已知残余登记三条；规划 [`PLAN_2_4_gate_strength_v1_zh.md`](./PLAN_2_4_gate_strength_v1_zh.md)（HG-NEXT-PLAN=approved · 维护者授权 00 代签过程闸）
 
 ## 修复清单（W1–W6 · 全落地）
 

@@ -4,9 +4,9 @@
 > **spec_slug**：`2_2-closed-loop-start`  
 > **目标包**：`spec-wave@2.2.0`（**minor**）  
 > **上游规划**：[`PLAN_2_2_closed_loop_start_v1_zh.md`](../../roadmap/PLAN_2_2_closed_loop_start_v1_zh.md)（含 16 条前提校核）  
-> **任务来源**：[`.workbuddy/output/PROMPT-2.2.0-落地-交给SpecWave-agent.md`](../../../.workbuddy/output/PROMPT-2.2.0-落地-交给SpecWave-agent.md)  
-> **判断依据**：[`.workbuddy/output/路线研究-SpecWave-2.2-3.0.md`](../../../.workbuddy/output/路线研究-SpecWave-2.2-3.0.md)  
-> **文案纪律**：[`.workbuddy/output/推广事实卡-2.1.3.md`](../../../.workbuddy/output/推广事实卡-2.1.3.md)  
+> **任务来源**：[`.workbuddy/output/PROMPT-2.2.0-落地-交给SpecWave-agent.md`](../../harness/reviews/w7_evidence_provenance_20260917.md)  
+> **判断依据**：[`.workbuddy/output/路线研究-SpecWave-2.2-3.0.md`](../../harness/reviews/w7_evidence_route_research_2_2_to_3_0_20260917.md)  
+> **文案纪律**：[`.workbuddy/output/推广事实卡-2.1.3.md`](../../harness/reviews/w7_evidence_provenance_20260917.md)  
 > **基线**：`spec-wave@2.1.3` **published**（406 用例 / 54 文件 / 48.7s 全通过 · typecheck 0 错 0 警）  
 > **Open Folder**：本仓根（本地目录可仍名 `dsh-coding-kit/`）
 

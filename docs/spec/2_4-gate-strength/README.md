@@ -4,9 +4,9 @@
 > **spec_slug**：`2_4-gate-strength`  
 > **目标包**：`spec-wave@2.4.0`（**minor**）  
 > **上游规划**：[`PLAN_2_4_gate_strength_v1_zh.md`](../../roadmap/PLAN_2_4_gate_strength_v1_zh.md)（approved · 含 10 组范围校核）  
-> **判断依据（范围主源）**：[`.workbuddy/output/验收报告-SpecWave-2.3.0.md`](../../../.workbuddy/output/验收报告-SpecWave-2.3.0.md) §6「建议 2.4（minor）—— 门禁强度补全」（N2–N14 八组 · 证据见报告 §3.B–§3.O）+ §6 末「建议同步调整的对外口径」  
+> **判断依据（范围主源）**：[`.workbuddy/output/验收报告-SpecWave-2.3.0.md`](../../harness/reviews/w7_evidence_provenance_20260917.md) §6「建议 2.4（minor）—— 门禁强度补全」（N2–N14 八组 · 证据见报告 §3.B–§3.O）+ §6 末「建议同步调整的对外口径」  
 > **残余登记（并入范围）**：[`../../roadmap/ACCEPTANCE_2_3_1_patch_2_3_1_zh.md`](../../roadmap/ACCEPTANCE_2_3_1_patch_2_3_1_zh.md)「已知残余（主动登记 · 归 2.4）」节（A2 结论节内强度增强 · N9 未修留痕）  
-> **路线背景（非范围/风险口径）**：[`.workbuddy/output/路线研究-SpecWave-2.2-3.0.md`](../../../.workbuddy/output/路线研究-SpecWave-2.2-3.0.md) §6 非范围冻结 · §7 风险表  
+> **路线背景（非范围/风险口径）**：[`.workbuddy/output/路线研究-SpecWave-2.2-3.0.md`](../../harness/reviews/w7_evidence_route_research_2_2_to_3_0_20260917.md) §6 非范围冻结 · §7 风险表  
 > **基线**：`spec-wave@2.3.1` **published**（npm `latest` = 2.3.1 · tag `v2.3.1` ↔ bump `268ca21` · N1/N11/N13 已随 2.3.1 落地，不在本版范围）  
 > **Open Folder**：本仓根（本地目录可仍名 `dsh-coding-kit/`）
 

@@ -4,9 +4,9 @@
 > **spec_slug**：`2_3-wiring-completion`  
 > **目标包**：`spec-wave@2.3.0`（**minor**）  
 > **上游规划**：[`PLAN_2_3_wiring_completion_v1_zh.md`](../../roadmap/PLAN_2_3_wiring_completion_v1_zh.md)（含 14 条前提校核）  
-> **任务来源**：[`.workbuddy/output/PROMPT-2.3.0-落地-交给SpecWave-agent.md`](../../../.workbuddy/output/PROMPT-2.3.0-落地-交给SpecWave-agent.md)  
-> **判断依据**：[`.workbuddy/output/路线研究-SpecWave-2.2-3.0.md`](../../../.workbuddy/output/路线研究-SpecWave-2.2-3.0.md)（§5）· [`.workbuddy/output/验收报告-SpecWave-2.2.0.md`](../../../.workbuddy/output/验收报告-SpecWave-2.2.0.md)（§4/§7 · 范围主源）  
-> **文案纪律**：[`.workbuddy/output/推广事实卡-2.2.0.md`](../../../.workbuddy/output/推广事实卡-2.2.0.md)（§10 黑名单 · §11 禁称清单）  
+> **任务来源**：[`.workbuddy/output/PROMPT-2.3.0-落地-交给SpecWave-agent.md`](../../harness/reviews/w7_evidence_provenance_20260917.md)  
+> **判断依据**：[`.workbuddy/output/路线研究-SpecWave-2.2-3.0.md`](../../harness/reviews/w7_evidence_route_research_2_2_to_3_0_20260917.md)（§5）· [`.workbuddy/output/验收报告-SpecWave-2.2.0.md`](../../harness/reviews/w7_evidence_provenance_20260917.md)（§4/§7 · 范围主源）  
+> **文案纪律**：[`.workbuddy/output/推广事实卡-2.2.0.md`](../../harness/reviews/w7_evidence_provenance_20260917.md)（§10 黑名单 · §11 禁称清单）  
 > **基线**：`spec-wave@2.2.1` **published**（464 用例全通过 · `pins check` 12/12 PASS · typecheck 0 错 0 警 · 宿主 7 个）  
 > **Open Folder**：本仓根（本地目录可仍名 `dsh-coding-kit/`）
 
