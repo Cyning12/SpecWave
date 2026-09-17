@@ -85,7 +85,8 @@ function taskMd(opts: {
     '|------|-----|',
     `| **task_slug** | \`${opts.slug}\` |`,
     `| **test_strategy** | \`${testStrategy}\` |`,
-    ...(opts.wikiDelta ? [`| **wiki_delta** | \`${opts.wikiDelta}\` |`] : []),
+    // 3.0-W6 N2-C 登记项：lint 入链后 fixture 默认补 wiki_delta=none（E8 lint-clean）· 显式 null 维持缺行形态
+    ...(opts.wikiDelta === null ? [] : [`| **wiki_delta** | \`${opts.wikiDelta ?? 'none'}\` |`]),
     '',
   ]
   if (opts.includeGates !== false) {

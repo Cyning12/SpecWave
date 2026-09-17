@@ -140,8 +140,10 @@ export function seedDisciplineFixture(dir: string): void {
       placeholderSelfCheck: true,
       unchecked: true,
     }),
-    // D3：思考轮节缺控制表 → verify --task G4 闸 failClosed exit 2（3.0-W6 S6.4 · declared=not_wired 对照 · status 回写归 S6.7）
+    // D3：思考轮节缺控制表 → verify --task G4 闸 failClosed exit 2（3.0-W6 S6.4）
     'docs/tasks/active/task_w6dc_noround_v1.md': dcTaskMd('w6dc_noround', 'approved', { thinkNoTable: true }),
+    // A9/N2-C：lint-FAIL（缺验收标准 E3）→ verify --task lint 步 failClosed exit 2（3.0-W6 S6.5）
+    'docs/tasks/active/task_w6dc_lintbad_v1.md': dcTaskMd('w6dc_lintbad', 'approved').replace('## 验收标准', '## 验收（缺标准节名 · 触 E3）'),
     // A7：done 文件二次 close → task close BLOCKED exit 2
     'docs/tasks/done/task_w6dc_done_v1.md': dcTaskMd('w6dc_done', 'approved'),
   }

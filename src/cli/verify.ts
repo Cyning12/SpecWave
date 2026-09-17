@@ -9,6 +9,7 @@ import {
   evalThinkingRoundStructure,
   findLatestReview,
   findReview,
+  lintTaskFile,
   findSpecReview,
   loadLegacyGateExempt,
   resolveExemptEntry,
@@ -233,7 +234,7 @@ async function verifyBareReviewsMode(
 export async function cmdVerify(args: string[]): Promise<void> {
   if (args.includes('--help') || args.includes('-h')) {
     console.log(
-      '用法: npx spec-wave verify [--target PATH] [--task FILE | --spec FILE] [--json] [--with-wiki-lint] [--allow-no-review] [--allow-invoke-gap] [--allow-no-spec-review]（不带 --task/--spec = 仓级 reviews 全量扫描 · 2.3-W4 FULL-reviews）',
+      '用法: npx spec-wave verify [--target PATH] [--task FILE | --spec FILE] [--json] [--with-wiki-lint] [--allow-no-review] [--allow-invoke-gap] [--allow-no-spec-review] [--allow-lint-fail] [--audit-file PATH]（不带 --task/--spec = 仓级 reviews 全量扫描 · 2.3-W4 FULL-reviews · 3.0-W6：--task 链含 lint 步 N2-C + G4 思考轮闸 + C6 审计落盘）',
     )
     return
   }
@@ -247,13 +248,16 @@ export async function cmdVerify(args: string[]): Promise<void> {
   rest = r3
   // DEF-003 阶段二 T4/T5：--allow-no-review / --allow-invoke-gap 真生效（硬闸豁免 · 留痕）；
   // PRD_DEF-003 后续棒：--allow-no-spec-review 真生效（verify --spec 豁免 · 留痕）；
-  // 其余 --allow-* 仍走 DEF-011 fail-fast（--allow-lint-fail 等归 DEF-011 交接清单）
+  // 3.0-W6 S6.5 N2-C：--allow-lint-fail 真生效（lint 步豁免 · 留痕 · DEF-011 交接清单兑现）；
+  // 其余 --allow-* 仍走 DEF-011 fail-fast
   const allowNoReview = rest.includes('--allow-no-review')
   rest = rest.filter((a) => a !== '--allow-no-review')
   const allowInvokeGap = rest.includes('--allow-invoke-gap')
   rest = rest.filter((a) => a !== '--allow-invoke-gap')
   const allowNoSpecReview = rest.includes('--allow-no-spec-review')
   rest = rest.filter((a) => a !== '--allow-no-spec-review')
+  const allowLintFail = rest.includes('--allow-lint-fail')
+  rest = rest.filter((a) => a !== '--allow-lint-fail')
   // K3：--with-wiki-lint 追加闸（显式旗标 · 非破坏；preset 默认开启为独立决策点，本 task 不做）
   const withWikiLint = rest.includes('--with-wiki-lint')
   rest = rest.filter((a) => a !== '--with-wiki-lint')
@@ -349,6 +353,34 @@ export async function cmdVerify(args: string[]): Promise<void> {
     if (json) emitJson(true)
     else console.log(`VERIFY: BLOCKED · ${test.reason} · ${label}`)
     fail('', VERIFY_BLOCKED_EXIT_CODE)
+  }
+  // 3.0-W6 S6.5 N2-C：lint 步入链（runTestCheck 紧后 · 先于 G4 —— lint-FAIL 由 lint 步点名（逃逸率判据字面干净 ·
+  // 避免被 G4 抢先 BLOCKED 造成口径歧义 · 两闸正交语义不变）· lintTaskFile 单一实现源 · errors→BLOCKED 逐条点名 E 规则 ·
+  // warnings 不挡 W1–W7 warn-only 语义不动 · 与 G4 闸正交）。active 面 failClosed ·
+  // done 面 warn 降级不挡（D-23-W4-TRANSITION 同式 · 不追溯存量 · 硬约束 7）·
+  // --allow-lint-fail 真豁免留痕（F-W6-09 非静默 · waived[] + 文本点名）。
+  const lint = lintTaskFile(abs, target)
+  if (lint.errors.length > 0) {
+    const lintRules = lint.errors.map((e) => e.rule).join('/')
+    const lintDetail = lint.errors.map((e) => `[${e.rule}${e.line ? `:L${e.line}` : ''}] ${e.message}`).join('；')
+    if (allowLintFail) {
+      waived.push(`task lint FAIL（${lintRules} · --allow-lint-fail 豁免）`)
+      if (!json) {
+        console.log(`verify: 留痕 · task lint FAIL（${lintDetail}）· --allow-lint-fail 豁免生效（仍须修 E 规则缺口）`)
+      }
+    } else if (abs.split(path.sep).includes('done')) {
+      waived.push(`task lint FAIL（${lintRules} · done 目录审计降级 warn）`)
+      if (!json) {
+        console.log(`verify: warn · task lint FAIL（${lintDetail} · done 目录降级不挡 · D-23-W4-TRANSITION 不追溯存量）`)
+      }
+    } else {
+      if (json) emitJson(true)
+      else {
+        console.log(`VERIFY: BLOCKED · task lint FAIL · ${label}`)
+        for (const e of lint.errors) console.log(`  - [${e.rule}${e.line ? `:L${e.line}` : ''}] ${e.message}`)
+      }
+      fail('', VERIFY_BLOCKED_EXIT_CODE)
+    }
   }
   // 3.0-W6 S6.4 G4 思考轮控制表闸（SPEC 07 ④ signed · D-23-W4-G4-EXIT 升级通道兑现）：
   // 判据 = evalThinkingRoundStructure 单一实现源（checks/lint.ts · 与 task lint W5–W7 同族不复制）；

@@ -22,6 +22,7 @@ export {
   evalCloseStatus,
   evalCloseInvokeHats,
   evalCloseReview,
+  evalCloseExecEvidence,
   evalCloseGraphDelta,
   evalCloseKpi,
   evalCloseExperience,

@@ -65,6 +65,7 @@ function taskMd(opts: { slug: string; audit?: string; draft?: string }): string 
     '|------|-----|',
     `| **task_slug** | \`${opts.slug}\` |`,
     '| **test_strategy** | `recommended` |',
+    '| **wiki_delta** | `none` |', // 3.0-W6 N2-C 登记项：lint 入链后 fixture 须 lint-clean（E8）
     '',
     '### 人工闸',
     '',
@@ -106,8 +107,8 @@ describe('DEF-011 verify/gate-check 旗标不再静默吞（D1 fail-fast · D2 -
   // D1/D3: 无实现语义的旗标一律 exit 1，不再被 filter 丢弃
   // DEF-003 T4：--allow-no-review 已真生效（豁免 R<n> 审查文硬闸 · 见 cli-verify-review.test.ts），移出拒绝清单
   // DEF-003 T5：--allow-invoke-gap 已真生效（豁免 pre-30 invoke hats 硬闸 · 见 cli-verify-invoke-hats.test.ts），移出拒绝清单
+  // 3.0-W6 N2-C 登记项：--allow-lint-fail 已真生效（lint 步豁免留痕 · 见 w6-n2c-g7.test.ts），移出拒绝清单
   const VERIFY_REJECTED: string[][] = [
-    ['--allow-lint-fail'],
     ['--agent-hint'],
     ['--graph'],
     ['--workspace-root', '/tmp'],

@@ -46,6 +46,7 @@ function taskMd(opts: { slug: string; profile?: string; requiredHats?: string })
     '|------|-----|',
     `| **task_slug** | \`${opts.slug}\` |`,
     '| **test_strategy** | `recommended` |',
+    '| **wiki_delta** | `none` |', // 3.0-W6 N2-C 登记项：lint 入链后 fixture 须 lint-clean（E8）
   ]
   if (opts.profile) rows.push(`| **invoke_retention_profile** | \`${opts.profile}\` |`)
   if (opts.requiredHats) rows.push(`| **required_invoke_hats** | \`${opts.requiredHats}\` |`)

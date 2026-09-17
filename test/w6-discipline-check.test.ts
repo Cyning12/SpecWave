@@ -57,20 +57,22 @@ async function seedConsumerYaml(dir: string, body: string): Promise<void> {
 }
 
 describe('3.0-W6 S6.2 F4 · discipline check 真实触发源', { concurrency: 1 }, () => {
-  it('包内 yaml v1 收窄面 9 条全绿（A1/A5/A6/A7/B2/B4/C1/C2/D3 · declared vs verified 双列 · exit 0）', () => {
+  it('包内 yaml v1 收窄面 10 条全绿（A1/A5/A6/A7/A9/B2/B4/C1/C2/D3 · declared vs verified 双列 · exit 0）', () => {
     const r = runCli(['discipline', 'check'])
     assert.equal(r.status, 0, r.combined)
     assert.match(r.combined, /declared（纸面） \| verified（实跑）/)
-    for (const id of ['A1', 'A5', 'A6', 'A7', 'B2', 'B4', 'C1', 'C2', 'D3']) {
+    for (const id of ['A1', 'A5', 'A6', 'A7', 'A9', 'B2', 'B4', 'C1', 'C2', 'D3']) {
       assert.match(r.combined, new RegExp('\\| ' + id + ' \\| '), '缺行: ' + id)
     }
-    assert.match(r.combined, /汇总: pass 9 · fail 0 · unreachable 0/)
+    assert.match(r.combined, /汇总: pass 10 · fail 0 · unreachable 0/)
     assert.match(r.combined, /审计轨 hook_guard 事件在轨/, 'B2 G7 佐证面（审计轨 hook_guard 事件）')
-    // declared≠verified 可区分实证：D3 纸面 not_wired · 实跑 pass（G4 failClosed 已接线 · status 回写归 S6.7）；
-    // C1/C2 已于阶段二回写 mechanical（W6 对账实证 · 回归锁 test/w6-g2-g4-gates.test.ts）
+    // 阶段三收官：C1/C2/D3 全回写 mechanical（not_wired 清零）· A5/B2 G7 warn-only 档 partial 直呈（不虚标）
     assert.match(r.combined, /\| C1 \| mechanical \| pass \|/)
     assert.match(r.combined, /\| C2 \| mechanical \| pass \|/)
-    assert.match(r.combined, /\| D3 \| not_wired \| pass \| exit 2 吻合期望 2 \|/)
+    assert.match(r.combined, /\| D3 \| mechanical \| pass \| exit 2 吻合期望 2 \|/)
+    assert.match(r.combined, /\| A5 \| partial \| pass \|/, 'G7 warn-only 档 declared=partial（诚实口径）')
+    assert.match(r.combined, /\| B2 \| partial \| pass \|/)
+    assert.match(r.combined, /\| A9 \| mechanical \| pass \| exit 2 吻合期望 2 \|/, 'N2-C 挂接面（lint 入链 failClosed）')
     assert.doesNotMatch(r.combined, /\| fail \|/, '零 fail 行')
   })
 

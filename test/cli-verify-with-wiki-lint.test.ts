@@ -183,7 +183,8 @@ describe('verify --with-wiki-lint（K3 · lint-wiki-delta 并入 verify）', { c
   it('target 无 docs/tasks/ → scanned:0 · ok:true · 不得误 BLOCKED', async () => {
     await withTemp(async (dir) => {
       // task 落仓根（不在 lint 扫描的 docs/tasks/ 候选目录内）
-      await writeRel(dir, 'task_wlw_solo_v1.md', taskMd({ slug: 'wlw_solo' }))
+      // 3.0-W6 N2-C 登记项：lint 入链后 fixture 须 lint-clean（E8 补 wiki_delta=none）
+      await writeRel(dir, 'task_wlw_solo_v1.md', taskMd({ slug: 'wlw_solo', wikiDelta: 'none' }))
       await writeRel(dir, REVIEW_REL.replace('wlw_ok', 'wlw_solo'), '# R1 fixture\n\n## 结论\n\nPASS · 零内容阻塞（fixture）\n\n审查结论：fixture 范围与验收全项合规，无阻塞遗留，准予关账。\n')
       const text = runCli(['verify', '--task', 'task_wlw_solo_v1.md', '--target', dir, '--with-wiki-lint'])
       assert.equal(text.status, 0, text.combined)

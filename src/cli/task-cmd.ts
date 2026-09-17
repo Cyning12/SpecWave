@@ -3,7 +3,7 @@ import { readFile } from 'node:fs/promises'
 import path from 'node:path'
 import { appendAuditEvent, resolveAuditFile, stampAuditEvent } from '../audit/log.ts'
 import { buildDoneSnapshot, extractTaskSlug, fail, findGitRoot, parseHarnessMeta, printJson, takeOption, toRel } from '../cli-shared.ts'
-import { evalCloseGuard, lintTaskFile } from '../cli-checks.ts'
+import { evalCloseExecEvidence, evalCloseGuard, lintTaskFile } from '../cli-checks.ts'
 import { cmdTaskCheck, cmdTaskLintDone, cmdTaskLintWikiDelta } from '../cli-task-extra.ts'
 import { CLOSE_GUARD_ORDER, TASK_USAGE } from './usage.ts'
 
@@ -123,6 +123,11 @@ async function cmdTaskClose(args: string[]): Promise<void> {
       else blockers.push(`${guardId}: ${outcome.detail}`)
     }
   }
+  // 3.0-W6 S6.6 G7 执行证据对照（warn-only · 00 裁定诚实口径）：自检结论声称 verify 而审计轨无
+  // 对应 verify PASS 事件 → warn 点名不挡 close（traces 同格式旁路 · 故意不入 CLOSE_GUARD_ORDER
+  // 防 dry-run/lifecycle 面扰动 · 升 failClosed 归后续 SPEC 明文裁决）。
+  const execEvidence = evalCloseExecEvidence(abs, content)
+  if (execEvidence) traces.push(`close: warn · close_exec_evidence · ${execEvidence.detail}`)
   const activeDir = path.dirname(abs)
   const inActive = path.basename(activeDir) === 'active'
   let dest: string | null = null

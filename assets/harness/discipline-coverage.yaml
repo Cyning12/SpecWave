@@ -16,7 +16,7 @@
 version: "1"
 as_of_package_version: "2.4.2"
 scope: "Starter · harness/prompts （10/22/30/40 + FRAGMENT）+ TEMPLATE_invoke"
-source_audit: "私仓 rethink 2026-07 mechanization-rate 转录聚合 · 2026-08-24 按 dsh-coding-kit 1.2.3 src/ 逐条重盘（DEF-005 机制台账）"
+source_audit: "私仓 rethink 2026-07 mechanization-rate 转录聚合 · 2026-08-24 按 dsh-coding-kit 1.2.3 src/ 逐条重盘（DEF-005 机制台账）· 2026-09-17 3.0-W6 回写：C1/C2/D3 not_wired 清偿 + A5/B2 G7 warn-only 落地档 partial + gaps N2-C closed（触发源实跑面 = discipline check v1 收窄登记）"
 
 gaps:
   - id: WIKI-DELTA
@@ -53,12 +53,12 @@ gaps:
     title: 执行证据（真跑过）
     status: deferred
     closed_in: null
-    note: "方向二 runner；跟 lifecycle dry-run 之后"
+    note: "3.0-W6 S6.6 落地档 = warn-only（00 裁定诚实口径 · 不虚标 closed · SPEC ⑦ 字面偏差登记）：审计轨 hook_guard/verify/task_close 事件落盘（src/audit/log.ts）+ close 对照 warn（evalCloseExecEvidence src/checks/close-guards.ts · 自检结论声称 verify 而无 PASS 事件 → warn 不挡）· 合规率未知 · 升 failClosed 归后续 SPEC 明文裁决（D-23-W4-G4-EXIT 同式）"
   - id: N2-C
     title: verify --task lint → block
-    status: deferred
-    closed_in: null
-    note: "本包 verify 不含 lint 步（src/cli.ts#381-428）· 旧包史实（@cyning/harness warn-only 2.7.0）· 须 FAIL 率下降"
+    status: closed
+    closed_in: "unreleased"
+    note: "3.0-W6 S6.5 接线：lint 步入 verify --task 链（src/cli/verify.ts · lintTaskFile 单一实现源 src/checks/lint.ts · errors→BLOCKED 点名 E 规则 · active failClosed / done warn 降级不追溯 · --allow-lint-fail 真豁免留痕）· lint 逃逸率实测 100%→active 0%（27 件存量 done 全 warn 降级逐条登记 · 测量脚本 scripts/w6-lint-escape-rate.mjs · 回归锁 test/w6-n2c-g7.test.ts）· 旧包史实（@cyning/harness warn-only 2.7.0）"
   - id: SPEC-reviews
     title: SPEC 审查文闸
     status: closed
@@ -124,13 +124,13 @@ statements:
   - id: A5
     source: 30-execute-code.md
     summary: 运行验证命令 + 回填自检结论
-    status: mechanical
-    mechanism: "task close 自检结论非占位符检查（src/cli.ts#556-566）"
-    gap: G7
+    status: partial
+    mechanism: "task close 自检结论非占位符检查（src/checks/close-guards.ts evalCloseSelfCheck）+ 3.0-W6 G7 审计轨对照 warn-only（evalCloseExecEvidence · 自检结论声称 verify 而无 PASS 事件 → warn 不挡）"
+    gap: null
     trigger:
       command: '$CLI task close --file $FIXTURE/docs/tasks/active/task_w6dc_closebad_v1.md'
       expect: 2
-    notes: "命令真跑过仍靠 40 诚实"
+    notes: "G7 warn-only 落地档 → partial（命令真跑过证据面 = 审计轨 · 合规率未知 · 00 裁定诚实口径不虚标 mechanical）· 升 failClosed 归后续 SPEC 明文裁决"
     mechanism_quality: null
   - id: A6
     source: 30-execute-code.md
@@ -166,8 +166,11 @@ statements:
     source: 30-execute-code.md
     summary: 缺验收/failure_paths/必读 → 仅输出阻塞清单
     status: mechanical
-    mechanism: "task lint E1–E7（src/cli.ts#430-511）"
+    mechanism: "task lint E1–E7（src/checks/lint.ts lintTaskFile）+ verify --task lint 步入链 failClosed（src/cli/verify.ts · 3.0-W6 N2-C · done warn 降级不追溯 · --allow-lint-fail 留痕）"
     gap: G1
+    trigger:
+      command: '$CLI verify --target $FIXTURE --task docs/tasks/active/task_w6dc_lintbad_v1.md'
+      expect: 2
     notes: "02 原 ❌ · 已刷新（G1 本包已接线）"
     mechanism_quality: null
   - id: A10
@@ -189,10 +192,10 @@ statements:
   - id: B2
     source: 40-self-check.md
     summary: 必须运行验证命令并摘要退出码
-    status: prompt-only
-    mechanism: null
-    gap: G7
-    notes: "真跑过无证据"
+    status: partial
+    mechanism: "审计轨 hook_guard/verify/task_close 事件落盘（src/audit/log.ts append-only JSONL · exit_code 在轨）+ close 对照 warn-only（evalCloseExecEvidence src/checks/close-guards.ts）· 3.0-W6 S6.6"
+    gap: null
+    notes: "真跑过证据面 = 审计轨（3.0-W6 起）· warn-only 档不虚标 mechanical（合规率未知 · 00 裁定诚实口径）"
     trigger:
       command: '$CLI hook-guard --trigger pre-commit --command "true" --target $FIXTURE'
       expect: 0
@@ -282,13 +285,13 @@ statements:
   - id: D3
     source: 10-requirements.md
     summary: 预置 R0–R5 + 思考轮控制表
-    status: not_wired
-    mechanism: "本包未接线（仅 W4 warn-only · src/cli.ts#498-503）"
+    status: mechanical
+    mechanism: "verify --task G4 思考轮控制表闸 failClosed（src/cli/verify.ts · evalThinkingRoundStructure 单一实现源 src/checks/lint.ts · active 咬 / done warn 降级不追溯）· 3.0-W6 S6.4（SPEC 07 ④ signed 兑现 D-23-W4-G4-EXIT · 回归锁 test/w6-g2-g4-gates.test.ts）"
     gap: G4
     trigger:
       command: '$CLI verify --target $FIXTURE --task docs/tasks/active/task_w6dc_noround_v1.md'
       expect: 2
-    notes: "旧包史实（@cyning/harness · task lint E8–E10 条件触发）· 接线计划见 PRD_DEF-003 阶段二；内容质量仍 20 帽"
+    notes: "旧包史实（@cyning/harness · task lint E8–E10 条件触发）· 2026-09-17 3.0-W6 升 failClosed（lint 面 W5–W7 维持 warn-only 不动）；内容质量仍 20 帽"
     mechanism_quality: null
   - id: D4
     source: 10-requirements.md

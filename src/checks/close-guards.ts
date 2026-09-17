@@ -1,6 +1,7 @@
 import { spawnSync } from 'node:child_process'
 import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import path from 'node:path'
+import { defaultAuditFile, readAuditEvents } from '../audit/log.ts'
 import { extractSection, extractTaskSlug, normalizeSlug, parseHarnessMeta, resolveLayoutFile, STATUS_RE } from '../cli-shared.ts'
 import { WIKI_DELTA_LITERALS, WIKI_DELTA_PATHISH_RE } from '../cli-task-extra.ts'
 import { missingInvokeHats, resolveRequiredInvokeHats } from './invoke-hats.ts'
@@ -108,6 +109,31 @@ export function evalCloseReview(absTask: string): CloseGuardOutcome {
     }
   }
   return { status: 'pass', detail: 'R' + latest.round + ' 审查文存在且结论可机读通过（' + latest.name + '）' }
+}
+
+// 3.0-W6 S6.6 G7 执行证据对照（warn-only · 00 裁定诚实口径 · 不虚标 closed · SPEC ⑦ 字面偏差登记在案）：
+// 自检结论声称跑过 verify（节文本含 verify 字样）而审计轨无对应 task 的 verify PASS 事件
+//（C6 audit.jsonl · exit_code 0 吻合）→ warn 点名**不挡 close**（D-23-W4-G4-EXIT 同式 ·
+// 升 failClosed 归后续 SPEC 明文裁决）。故意不入 CLOSE_GUARD_ORDER：dry-run/lifecycle.yaml 面零扰动。
+// 诚实边界：只对照「声称面」（未声称 verify 的自检结论不查 · 防误报）；声称真假终局靠 S2 留痕 + 人审。
+export function evalCloseExecEvidence(absTask: string, content: string): CloseGuardOutcome | null {
+  const selfCheck = extractSection(content, '### 自检结论', '\n##')
+  if (!selfCheck || !/verify/i.test(selfCheck)) return null
+  const slug = parseHarnessMeta(content).task_slug ?? extractTaskSlug(absTask)
+  const { events } = readAuditEvents(defaultAuditFile(taskTargetRoot(absTask)))
+  const hit = events.some(
+    (e) =>
+      e.event === 'verify' &&
+      e.verdict === 'PASS' &&
+      e.exit_code === 0 &&
+      typeof e.task === 'string' &&
+      (e.task === slug || normalizeSlug(extractTaskSlug(e.task)) === normalizeSlug(slug)),
+  )
+  if (hit) return null
+  return {
+    status: 'warn',
+    detail: '自检结论声称 verify 而审计轨无对应 verify PASS 事件（G7 warn-only · 不挡 close · 升 failClosed 归后续 SPEC 明文裁决）',
+  }
 }
 
 const GRAPH_DELTA_LITERALS = new Set(['none'])

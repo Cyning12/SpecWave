@@ -65,6 +65,7 @@ function taskMd(slug: string): string {
     '|------|-----|',
     `| **task_slug** | \`${slug}\` |`,
     '| **test_strategy** | `recommended`',
+    '| **wiki_delta** | `none` |', // 3.0-W6 N2-C 登记项：lint 入链后 fixture 须 lint-clean（E8）
     '',
     '### 人工闸',
     '',
