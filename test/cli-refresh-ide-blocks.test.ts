@@ -109,6 +109,12 @@ function gitOk(args: string[], cwd: string): void {
   assert.equal(r.status, 0, `git ${args.join(' ')}: ${r.stderr}`)
 }
 
+// 3.0-W5 R-6 前置探测（硬约束 10）：实跑式 git --version 判（非 which 式 · F-W5-07）·
+// 与 w2-shell-hook.test.ts:47-49 先例同构（各文件同构口径 · task S5.5）。
+function gitAvailable(): boolean {
+  return spawnSync('git', ['--version'], { encoding: 'utf8' }).status === 0
+}
+
 async function initGitRepo(dir: string): Promise<void> {
   gitOk(['init', '-q'], dir)
   gitOk(['add', '-A'], dir)
@@ -318,7 +324,11 @@ describe('R-07 refresh-ide-blocks', { concurrency: 1 }, () => {
   })
 
   // 烟测（bin→CLI 全链）
-  it('M12: 脏树 fail-fast — git 仓 + 未提交变更 + --yes → exit 2、零写入、无备份', async () => {
+  it('M12: 脏树 fail-fast — git 仓 + 未提交变更 + --yes → exit 2、零写入、无备份', async (t) => {
+    if (!gitAvailable()) {
+      t.skip('git 不可用（环境不具备 · 硬约束 10 · R-6）')
+      return
+    }
     await withTemp(async (dir) => {
       await writeRel(dir, 'AGENTS.md', '# clean\n')
       await initGitRepo(dir)
@@ -686,7 +696,11 @@ describe('DEF-029 无 marker 文件旧字面仅报告（plain_mentions · 只读
   })
 
   // 下沉（进程内直调 cmdRefreshIdeBlocks）
-  it('D29-5: 仅报告不触发 preflight fail-fast — git 干净仓仅 plain 命中 --yes exit 0、零写入、零备份', async () => {
+  it('D29-5: 仅报告不触发 preflight fail-fast — git 干净仓仅 plain 命中 --yes exit 0、零写入、零备份', async (t) => {
+    if (!gitAvailable()) {
+      t.skip('git 不可用（环境不具备 · 硬约束 10 · R-6）')
+      return
+    }
     await withTemp(async (dir) => {
       const rel = '.cursor/rules/05-harness-starter.mdc'
       await writeRel(dir, rel, PLAIN_BODY)

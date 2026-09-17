@@ -21,15 +21,22 @@ const PINS_YAML = path.join(KIT, 'assets', 'release-pins.yaml')
 
 type RunResult = { status: number | null; stdout: string; stderr: string; combined: string }
 
-function runCli(args: string[], cwd: string): RunResult {
+function runCli(args: string[], cwd: string, env?: NodeJS.ProcessEnv): RunResult {
   const r = spawnSync(process.execPath, ['--experimental-strip-types', CLI_TS, ...args], {
     encoding: 'utf8',
     cwd,
-    env: { ...process.env },
+    env: env ?? { ...process.env },
   })
   const stdout = r.stdout ?? ''
   const stderr = r.stderr ?? ''
   return { status: r.status, stdout, stderr, combined: stdout + '\n' + stderr }
+}
+
+// 3.0-W5 R-6 前置探测（硬约束 10）：git 不可用 → t.skip 显式标注「环境不具备 · 硬约束 10」。
+// 实跑式探测（git --version 判 status · 非 which/PATH 查找 · F-W5-07 探测误判防）——
+// 与 w2-shell-hook.test.ts gitAvailable() 先例同构（各文件同构口径 · task S5.5 许二择一 · 本文件登记此支）。
+function gitAvailable(): boolean {
+  return spawnSync('git', ['--version'], { encoding: 'utf8' }).status === 0
 }
 
 async function withTemp(fn: (dir: string) => Promise<void>): Promise<void> {
@@ -283,7 +290,13 @@ async function makeFixture(dir: string): Promise<void> {
 }
 
 describe('W1-A1 release pins · A组 真实仓钉面一致（失配真失败锚点）', { concurrency: 1 }, () => {
-  it('pins check 在真实仓 exit 0 且打印 PINS: PASS', () => {
+  it('pins check 在真实仓 exit 0 且打印 PINS: PASS', (t) => {
+    // 3.0-W5 R-6：真实仓钉面含 pin-10 git-tag → git 不可用时分档红是 CLI 正确行为（failClosed），
+    // 套件层显式 skip 不记环境红（skip≠fail 边界 · 硬约束 10）
+    if (!gitAvailable()) {
+      t.skip('git 不可用（环境不具备 · 硬约束 10 · R-6）')
+      return
+    }
     const r = runCli(['pins', 'check'], KIT)
     assert.equal(r.status, 0, r.combined)
     assert.match(r.combined, /PINS: PASS/)
@@ -599,7 +612,11 @@ describe('2.3-W1 pins hardening · 失配 fixture 补全（[A]#14）+ 三面入�
     })
   })
 
-  it('W1-B5 pin-10 失配：git 仓无该 tag → status=missing exit 2（测试内 git init 隔离 · 不真打 tag · F-A1-05）', async () => {
+  it('W1-B5 pin-10 失配：git 仓无该 tag → status=missing exit 2（测试内 git init 隔离 · 不真打 tag · F-A1-05）', async (t) => {
+    if (!gitAvailable()) {
+      t.skip('git 不可用（环境不具备 · 硬约束 10 · R-6）')
+      return
+    }
     await withTemp(async (dir) => {
       await makeExtFixture(dir)
       const gitPin = [
@@ -616,11 +633,15 @@ describe('2.3-W1 pins hardening · 失配 fixture 补全（[A]#14）+ 三面入�
       assert.equal(init.status, 0, (init.stderr ?? '') + '（测试环境须可用 git）')
       const j = runCli(['pins', 'check', '--json'], dir)
       assert.equal(j.status, 2, j.combined)
-      const doc = JSON.parse(j.stdout) as { pins: Array<{ id: string; status: string; detail?: string }> }
+      const doc = JSON.parse(j.stdout) as {
+        pins: Array<{ id: string; status: string; detail?: string; error_kind?: string }>
+      }
       const p10 = doc.pins.find((p) => p.id === 'pin-10')
       assert.ok(p10)
       assert.equal(p10!.status, 'missing')
       assert.match(p10!.detail ?? '', /git 操作仅人/)
+      // 3.0-W5 R-6 skip/fail 边界负向对照：git 可用但 tag 缺失 = 钉面真偏差 → 维持 missing 态 · 不挂 error_kind（与环境三态可区分）
+      assert.equal(p10!.error_kind, undefined, '真偏差不挂 error_kind（环境不具备三态专属 additive 键）')
       const r = runCli(['pins', 'check'], dir)
       assert.equal(r.status, 2, r.combined)
       assert.match(r.combined, /\[missing\] pin-10 git/)
@@ -743,6 +764,99 @@ describe('2.3-W1 pins hardening · 失配 fixture 补全（[A]#14）+ 三面入�
       const check = runCli(['pins', 'check'], dir)
       assert.equal(check.status, 0, check.combined)
     })
+  })
+})
+
+describe('3.0-W5 R-6 · git 依赖分档诊断（error_kind 三态 additive · exit code 零变更 · 硬约束 10 · 验收 #5）', { concurrency: 1 }, () => {
+  const GIT_PIN = [
+    '  - id: pin-10',
+    '    path: git',
+    "    extract: { kind: git-tag, pattern: 'v{version}' }",
+    '    expected: { kind: package-version }',
+    '    required: true',
+    '    fixable: false',
+    '',
+  ].join('\n')
+  type PinDoc = { pins: Array<{ id: string; status: string; detail?: string; error_kind?: string }> }
+  async function makeGitPinFixture(dir: string): Promise<void> {
+    await makeExtFixture(dir)
+    await writeRel(dir, 'assets/release-pins.yaml', EXT_PINS_YAML + GIT_PIN)
+  }
+
+  it('R6-1 git_missing：PATH 隔离无 git → extract_error + error_kind=git_missing · exit 2 不降级（failClosed · 无 exit 0 第三条路）', async () => {
+    await withTemp(async (dir) => {
+      await makeGitPinFixture(dir)
+      // PATH 隔离模拟 git 不可用（POSIX 口径 · F-W5-08 win32 失真风险登记在 task/invoke）
+      const emptyBin = path.join(dir, 'empty-bin')
+      await mkdir(emptyBin, { recursive: true })
+      const env = { ...process.env, PATH: emptyBin }
+      const j = runCli(['pins', 'check', '--json'], dir, env)
+      assert.equal(j.status, 2, 'exit code 零变更：环境不具备仍 exit 2 · ' + j.combined)
+      const p10 = (JSON.parse(j.stdout) as PinDoc).pins.find((p) => p.id === 'pin-10')
+      assert.ok(p10)
+      assert.equal(p10!.status, 'extract_error')
+      assert.equal(p10!.error_kind, 'git_missing')
+      assert.match(p10!.detail ?? '', /环境不具备 · 硬约束 10/)
+      const r = runCli(['pins', 'check'], dir, env)
+      assert.equal(r.status, 2, r.combined)
+      assert.match(r.combined, /环境不具备 · 硬约束 10/, '人读输出同步带分档文案')
+      assert.match(r.combined, /PINS: BLOCKED/)
+    })
+  })
+
+  it('R6-2 git_exec_failed：假 git exit 69（license 未同意面模拟）→ error_kind=git_exec_failed + exit code 摘要', async (t) => {
+    if (process.platform === 'win32') {
+      t.skip('POSIX 限定（sh 脚本假 git · F-W5-08 win32 失真登记）')
+      return
+    }
+    await withTemp(async (dir) => {
+      await makeGitPinFixture(dir)
+      const fakeBin = path.join(dir, 'fake-bin')
+      await mkdir(fakeBin, { recursive: true })
+      await writeFile(
+        path.join(fakeBin, 'git'),
+        '#!/bin/sh\necho "fatal: xcode license has not been accepted" >&2\nexit 69\n',
+        { mode: 0o755 },
+      )
+      const env = { ...process.env, PATH: fakeBin }
+      const j = runCli(['pins', 'check', '--json'], dir, env)
+      assert.equal(j.status, 2, j.combined)
+      const p10 = (JSON.parse(j.stdout) as PinDoc).pins.find((p) => p.id === 'pin-10')
+      assert.ok(p10)
+      assert.equal(p10!.status, 'extract_error')
+      assert.equal(p10!.error_kind, 'git_exec_failed')
+      assert.match(p10!.detail ?? '', /exit 69/)
+      assert.match(p10!.detail ?? '', /环境不具备 · 硬约束 10/)
+    })
+  })
+
+  it('R6-3 not_git_repo：git 可用但 target 非 git 仓 → error_kind=not_git_repo（与真偏差 missing 可区分）', async (t) => {
+    if (!gitAvailable()) {
+      t.skip('git 不可用（环境不具备 · 硬约束 10 · R-6）')
+      return
+    }
+    await withTemp(async (dir) => {
+      await makeGitPinFixture(dir)
+      const j = runCli(['pins', 'check', '--json'], dir)
+      assert.equal(j.status, 2, j.combined)
+      const p10 = (JSON.parse(j.stdout) as PinDoc).pins.find((p) => p.id === 'pin-10')
+      assert.ok(p10)
+      assert.equal(p10!.status, 'extract_error')
+      assert.equal(p10!.error_kind, 'not_git_repo')
+      assert.match(p10!.detail ?? '', /非 git 仓/)
+    })
+  })
+
+  it('R6-4 skip 标注统一锚机检：三改造文件 skip 文案均含「环境不具备 · 硬约束 10」（与真偏差 exit 2 输出可区分）', () => {
+    const files = [
+      'test/release-tag-identity.test.ts',
+      'test/pins-consistency.test.ts',
+      'test/cli-refresh-ide-blocks.test.ts',
+    ]
+    for (const f of files) {
+      const src = readFileSync(path.join(KIT, f), 'utf8')
+      assert.ok(src.includes('环境不具备 · 硬约束 10'), f + ' 缺统一 skip 标注锚（硬约束 10）')
+    }
   })
 })
 

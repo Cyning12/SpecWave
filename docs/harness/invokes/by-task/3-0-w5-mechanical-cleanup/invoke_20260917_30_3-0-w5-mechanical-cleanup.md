@@ -119,3 +119,51 @@ dry-run 文案同步（:684）：「写前备份 <file>.bak（已被占则避让
 3. **dry-run 文案具体措辞 30 定**（task 仅要求口径更新为改名避让语义 · B3 用例 `/dry-run/` 断言零回退实测绿）。
 4. **跳过计数为加性尾注**：`PINS FIX: 写入 N 处 · 不可修 M 处` 行尾追加「· 备份两级皆占跳过 X 处」（既有汇总口径零触碰 · 仅加性 · 非范围红线遵守）。
 5. **B12/B13 编号接 B11 后**（既有文件 B10 在 B11 后 · 编号序本非严格 · 沿用文件内就近插入体例）。
+
+---
+
+## 阶段三 · R-6 git 分档诊断 + 套件前置探测 + R-1 回归 + 收官备料（00 验收放行后开工）
+
+### R-6 分档实现（S5.5 · 验收 #5 · 硬约束 10 · exit code 零变更红线）
+
+`src/cli-pins.ts`：`PinResult` additive 扩键 `error_kind?: 'git_missing' | 'git_exec_failed' | 'not_git_repo'`（契约「键集只增不改」允许只增 · 闸行裁决②）· git-tag extract catch 一刀切 → 按因分档三态（ENOENT/EACCES → git_missing · exit 128/stderr「not a git repository」→ not_git_repo · 其余非零 exit → git_exec_failed 带 exit code+stderr 摘要）· tag 缺失维持既有 missing 不挂 error_kind（F-A1-05 面零触碰）· 人读输出经既有 detail 行同步带分档文案。**exit code 零变更**：extract_error 仍计入 bad → exit 2（failClosed 不降级 · 无 exit 0 第三条路 · R6-1 fixture 断言钉死）。
+
+**error_kind 三态输出样例（实测）**：
+- git_missing（PATH 隔离真仓 pins check --json）：`"detail": "git 不存在或不可执行（环境不具备 · 硬约束 10 · R-6）", "error_kind": "git_missing"` · exit 2
+- git_exec_failed（假 git exit 69 模拟 license 未同意面）：`"detail": "git 执行失败（环境不具备 · 硬约束 10 · R-6 · exit 69 · fatal: xcode license has not been accepted）", "error_kind": "git_exec_failed"` · exit 2
+- not_git_repo（真 git · temp 非 git 仓）：`"detail": "target 非 git 仓（环境不具备 · 硬约束 10 · R-6 · not a git repository）", "error_kind": "not_git_repo"` · exit 2
+- 真偏差对照（git 可用 tag 缺失 · W1-B5）：status=missing · detail「git tag 缺失 · git 操作仅人」· **error_kind undefined**（与环境三态可区分断言钉死）
+
+### PATH 隔离实证（验收 #5② 核心 · POSIX 口径）
+
+`env PATH=/tmp/nogit-bin node --test 三改造文件`：**92 tests / 86 pass / fail=0 / skipped 6** —— skip 归因逐条：release-tag-identity 1 + pins-consistency（A 组 1 · W1-B5 1 · R6-3 1）+ cli-refresh-ide-blocks（M12 1 · D29-5 1）。TAP 摘录：`ok 1 - tag v2.4.2 存在… # SKIP git 不可用（环境不具备 · 硬约束 10 · R-6）`（统一锚 grep 机检 = R6-4 fixture 钉三文件）。同环境真仓 `pins check --json` → pin-10 `error_kind: git_missing` · exit 2（锁口径「pin-10 分档预期」✓）。负向对照：正常环境三文件 92/92 pass **0 skip**（probe 不误触发 · tag 缺失维持 FAIL 语义零松动）。
+
+### 套件前置探测（三文件 · 各文件同构支）
+
+实跑式 `gitAvailable()`（`git --version` 判 status · 非 which 式 · F-W5-07）落三文件（与 w2-shell-hook.test.ts:47-49 先例同构 · 注释口径统一声明）：release-tag-identity 单 it（skip/fail 边界注释在案）· pins-consistency A 组 + W1-B5（行号漂移登记见下）· cli-refresh-ide-blocks M12/D29-5（initGitRepo 两消费点）。
+
+### R-1 回归确认（S5.6 · 只验不回改 · 零 diff 硬锁 · 验收 #6）
+
+- `git diff 3664e6f..HEAD -- src/host/cmd.ts` = **0 行**（波次基比对口径 · 见偏差 5）
+- `git diff 3664e6f..HEAD -- src/cli-shared.ts` = 仅 NEW-12 两 hunk（:430 注释 + :451 实现）· findGitRoot :37-48 **零触碰**
+- 回归锁 `cli-json-no-abs-path.test.ts` R-1 describe **4/4 绿**（跨目录缺省基/realpath/仓外/symlink 四 fixture）
+- 手工跨目录复跑（`cd /tmp && node <仓>/bin/specgate.js host validate --file <绝对路径> --json`）：`{"command":"host validate","file":"assets/ide/host-adapt/examples/mvp-hosts.yaml","ok":true,"verdict":"PASS"}` exit 0 · 无绝对路径 ✓（硬约束 14 证据面 = 本文本）
+
+### 锁逐项（阶段三终态 · 本棒实测）
+
+- `npm run typecheck` **0 错** · `npm run build` exit 0
+- `npm test` **810 tests / 154 suites / 809 pass / 0 fail / 1 skip**（806 基线 + R6 describe 4 测试 1 套件 · 零意外红 · skip 恒 1 = 开工基线既有 standing skip · 本波正常环境零新增 · ≈98s）
+- `npm run test:lib` **6/6 pass** · pins **17/17 PASS**（PATH 隔离下 pin-10 行为符合分档预期 · 样例在案）· verify --task 复跑 **VERIFY: PASS**
+- 结构闸 `task lint` **PASS** · 波末 `gate-check` **exit 0**（task close 待 40 复核后 00 口径另行 · 本棒不执行）
+- 依赖零新增
+
+### 偏差登记（阶段三）
+
+1. **pins-consistency 行号漂移**：task 盘点「:562 git init assert」现址 :615-616（W1-B5 内 · 本波 B12/B13 插入致漂移 · 20 审 A4 行号小疵同型登记）。
+2. **A 组真实仓 pins check 亦依赖 git（pin-10 git-tag）· task 盘点未列**：PATH 隔离 fail=0 判据所必需 → 同口径 probe 覆盖 A 组 it（非静默扩面 · 登记在案）。
+3. **probe 形态择「各文件同构」支**（task S5.5 许二择一 · 免新增共享 helper 文件面 · 三文件注释口径统一声明）。
+4. **EACCES 并入 git_missing 档**（「不可执行」语义 · 与 ENOENT 同档 · 无独立 fixture · 登记）。
+5. **R-1 零 diff 比对基更正**：初跑误用 v2.4.2 tag 基 → diff 929 行（含 W0–W4 历史变更 · 非 R-1 回改）· 更正为波次基 3664e6f → host/cmd.ts 0 行 · cli-shared.ts 仅 NEW-12 两 hunk（tag 基≠波次基 · 口径登记）。
+6. **build 时序教训**：bin/specgate.js 消费 lib/ 构建产物 · src 改后须 rebuild 方反映（首跑 PATH 隔离 pins check 样例为旧 lib 输出「git 不可用或 target 非 git 仓」· rebuild 后复取得分档样例 · 一拍即修过程登记）。
+7. **R6-2 假 git sh 脚本 POSIX 限定**（win32 t.skip 护栏在案 · F-W5-08 win32 PATH 隔离失真风险登记 · CI 主跑 Linux/macOS）。
+8. **R6-4 统一锚机检落 pins-consistency**（grep 断言三文件均含「环境不具备 · 硬约束 10」· 与真偏差 exit 2 输出可区分）。

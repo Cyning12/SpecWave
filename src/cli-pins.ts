@@ -38,6 +38,8 @@ type Pin = {
   note?: string
 }
 type PinStatus = 'ok' | 'mismatch' | 'missing' | 'extract_error'
+// 3.0-W5 R-6：git 依赖失败按因分档（硬约束 10 · F-W5-01/F-W5-02）· additive 扩键（契约「键集只增不改」允许只增 · 闸行裁决②）
+type PinErrorKind = 'git_missing' | 'git_exec_failed' | 'not_git_repo'
 type PinResult = {
   id: string
   path: string
@@ -46,6 +48,7 @@ type PinResult = {
   status: PinStatus
   line: number | null
   detail?: string
+  error_kind?: PinErrorKind
 }
 type FixPlan = {
   pin: Pin
@@ -125,8 +128,42 @@ function evaluatePin(root: string, pin: Pin, truth: string): PinResult {
       })
       if (out.trim() === tag) return { ...base, actual: tag, status: 'ok' }
       return { ...base, expected: tag, actual: '(无)', status: 'missing', detail: 'git tag 缺失 · git 操作仅人（F-A1-05）' }
-    } catch {
-      return { ...base, expected: tag, status: 'extract_error', detail: 'git 不可用或 target 非 git 仓' }
+    } catch (e) {
+      // 3.0-W5 R-6（硬约束 10）：catch 一刀切 → 按因分档三态（error_kind additive）。
+      // 「环境不具备」三态与钉面真偏差（missing/mismatch）输出可区分；
+      // exit code 语义零变更 —— extract_error 仍计入 bad → pins check exit 2（failClosed 不降级 · 不存在 exit 0 第三条路 · 非范围红线）。
+      const err = e as { code?: string; status?: number | null; stderr?: string }
+      const stderr = String(err.stderr ?? '')
+      if (err.code === 'ENOENT' || err.code === 'EACCES') {
+        return {
+          ...base,
+          expected: tag,
+          status: 'extract_error',
+          detail: 'git 不存在或不可执行（环境不具备 · 硬约束 10 · R-6）',
+          error_kind: 'git_missing',
+        }
+      }
+      if (err.status === 128 || /not a git repository/i.test(stderr)) {
+        return {
+          ...base,
+          expected: tag,
+          status: 'extract_error',
+          detail: 'target 非 git 仓（环境不具备 · 硬约束 10 · R-6 · not a git repository）',
+          error_kind: 'not_git_repo',
+        }
+      }
+      const summary = stderr.trim().split('\n')[0]?.slice(0, 120) ?? ''
+      return {
+        ...base,
+        expected: tag,
+        status: 'extract_error',
+        detail:
+          'git 执行失败（环境不具备 · 硬约束 10 · R-6 · exit ' +
+          String(err.status ?? '?') +
+          (summary ? ' · ' + summary : '') +
+          '）',
+        error_kind: 'git_exec_failed',
+      }
     }
   }
 
