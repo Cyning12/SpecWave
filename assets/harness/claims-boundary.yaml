@@ -1,0 +1,76 @@
+# 3.0 W7 · S7.4 A3 对外口径边界声明源（task_3_0_w7_closeout_external · 验收 #3 · 硬约束 9）
+#
+# 边界（据 W2 实交 · 可声称 / 不可声称双列）：
+#   可声称：门禁随包内置（进程内 CLI 判定 · exit 2 failClosed）· hooks 可物化（config-hook 3 宿主 /
+#           shell-hook = git 层宿主中立 / 无机制宿主显式降级 L1+L2）· host verify 校验落点一致 ·
+#           P0 门禁在 ≥2 个真实宿主端到端真跑（claude + cursor）。
+#   不可声称：`接入即获得 L3` · `13 宿主全部有 hook 拦截` · pre-archive 宿主内真实触发（仅 fixture +
+#           host verify 兜底）· catalog 远程在线分发（冻结）· npm provenance / OIDC（未启用）——
+#           未落地一律「将新增 / 规划中」。
+# 数据驱动：黑名单词表只改本文件；机检 = scripts/check-claims.mjs（扫 delivery/promotion/** +
+# 根 README 双语 + GLOSSARY 的 forbidden_wording 零命中 · 逐条 allowlist 例外）。
+version: "1"
+as_of: "2026-09"
+
+capabilities:
+  shipped:
+    - id: p0-gates-builtin
+      claim: 门禁随包内置——进程内 CLI 判定（check/verify/gate-check/audit）· 阻断 exit 2 failClosed
+      allowed_wording:
+        - 门禁随包内置
+        - 进程内机械判定
+        - exit 2 failClosed
+        - 不依赖宿主是否执行了 hook
+    - id: hooks-materialize
+      claim: hooks 可物化到支持机制族的宿主落点——config-hook 3 宿主 / shell-hook = git 层宿主中立 / 无机制宿主显式降级 L1+L2
+      allowed_wording:
+        - hooks 可物化
+        - config-hook
+        - shell-hook
+        - 显式降级 L1+L2
+    - id: host-verify
+      claim: host verify 校验宿主落点与声明一致（篡改/删除报红 exit 2）
+    - id: e2e-host-gates
+      claim: P0 门禁在 ≥2 个真实宿主端到端真跑（claude + cursor · e2e tracked 留证）
+  planned:
+    - id: hookless-l3
+      claim: 无 hook 宿主「接入即获得 L3」
+      required_wording: [将新增, 规划中]
+    - id: all-hosts-hook
+      claim: 13 宿主全部有 hook 拦截
+      required_wording: [将新增, 规划中]
+    - id: pre-archive-real-trigger
+      claim: pre-archive 宿主内真实触发（当前仅 fixture + host verify 兜底）
+      required_wording: [将新增, 规划中]
+    - id: catalog-remote
+      claim: catalog 远程在线分发（冻结）
+      required_wording: [规划中]
+    - id: npm-provenance-oidc
+      claim: npm provenance / OIDC（未启用）
+      required_wording: [规划中]
+
+# 未落地能力过度声称黑名单（硬红 · 零命中判据）
+# 注：`dsh-coding-kit` 在本仓为合法 deprecated 过渡 bin 名（pin-09 + README 迁移指引），不裸串判红。
+forbidden_wording:
+  - "接入即 L3"
+  - "接入即获得 L3"
+  - "13 宿主全部有 hook"
+  - "13 宿主全 hook"
+  - "门禁靠宿主 hook 强制"
+  - "靠 hook 强制"
+  - "hook 强制注入"
+
+# 过期事实自述黑名单（硬红 · 零命中判据 · 与 S7.5 K 台账修订对齐）
+# 四宿主 = 2.1.3 时代旧宿主数（现行 13）；406 用例 = 2.1.3 时代旧测试规模（现行以仓根 README 为准）。
+expired_wording:
+  - "四宿主"
+  - "406 用例"
+
+scan_targets:
+  - delivery/promotion/**
+  - README.md
+  - README.zh-CN.md
+  - GLOSSARY.md
+
+# 声明例外（逐条 · 当前为空）
+allowlist: []
