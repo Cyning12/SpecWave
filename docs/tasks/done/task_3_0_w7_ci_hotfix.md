@@ -1,6 +1,6 @@
 # Task：3.0 W7 hotfix · 文档链接机检环境依赖（本地 23 假绿 / CI 34 红 · 存在性判据改入库状态并重建基线）（CI hotfix · bugfix · mini）
 
-> **状态**：`pending`（2026-09-17 10-task 起草 · **HG-TASK-DRAFT = approved**（2026-09-17 00 代签 · 授权真值：维护者本窗授权（tag/push 代跑「授权」+ 过程文档闸代签模式）· task lint PASS）· **HG-AUDIT-R1 = approved**（2026-09-17 00 代签 · 授权真值：维护者本窗授权 · 依据审查文 [`task_3_0_w7_ci_hotfix_audit_R1_20260917.md`](../../harness/reviews/task_3_0_w7_ci_hotfix_audit_R1_20260917.md)（R1 · PASS-with-issues · blocking 0 · advisory A1–A6 · A4/A5/A6 已搭车修 · A1/A2 带入 30））· **30 可开工**（GATE_VERIFY PASS））
+> **状态**：`done`（2026-09-17 10-task 起草 · **HG-TASK-DRAFT = approved**（2026-09-17 00 代签 · 授权真值：维护者本窗授权（tag/push 代跑「授权」+ 过程文档闸代签模式）· task lint PASS）· **HG-AUDIT-R1 = approved**（2026-09-17 00 代签 · 授权真值：维护者本窗授权 · 依据审查文 [`task_3_0_w7_ci_hotfix_audit_R1_20260917.md`](../../harness/reviews/task_3_0_w7_ci_hotfix_audit_R1_20260917.md)（R1 · PASS-with-issues · blocking 0 · advisory A1–A6 · A4/A5/A6 已搭车修 · A1/A2 带入 30））· **30 可开工**（GATE_VERIFY PASS））· 2026-09-17 30 修复交付（`98bc9e0` + `fdcc8b9` · 验收 6/6 勾选 · 锁 860/164/859/0/1 · clone/local 双 34 IDENTICAL）· 40 复核 **PASS-with-issues**（blocking 0 · advisory 5 · 40 留档 `44662d1`）· 00 收官裁定 **Task_KPI%: 94** · task close 归档 `done/`
 > **缺陷真值（已查实 · 本棒复跑）**：tag `v3.0.0`（`3d1b9d3`）+ `main` 双 CI run **35245272523 / 35245273138**（push · 同 headSha）红 —— `test (22.x)` 与 `test (24.x)` 双 job **failure** · 全仓唯一失败测 = `test/check-doc-links.test.ts:35` 正向测。CI 日志逐字：`DOC LINKS (i) 非S2 = 0 · S2 = 34 / 冻结基线 23 · (ii) 非S2 = 0` / `DOC LINKS: FAIL · 非S2(i)=0 非S2(ii)=0 · S2(i)=34 ≠ 基线 23`（同文件其余 3 条 fixture 全绿 · 失败面单一）。
 > **SPEC**：bugfix · **双轨可跳独立 SPEC**（HG-SPEC-SIGNOFF 上行 approved 继承 · 范围/验收/failure_paths 由本 task 承载）
 > **根因（本棒实读 + 三组对照实验定位 · 详见「根因与修法」节）**：`scripts/check-doc-links.mjs:96` `const exists = existsSync(targetAbs)` —— 「可解析 (i)」用**文件系统存在性**判定。本机 `.workbuddy/`（`.gitignore` 忽略但实体在）使 S2 文内 11 处 `.workbuddy/output/验收报告-*.md` 链接「存在」⇒ 少计 11 ⇒ 本地 **23 假绿**；CI/干净 clone 无该实体 ⇒ **34 真红**。**环境依赖判据（硬约束 10 同族）+ 冻结基线 23 系假绿口径**。
@@ -269,6 +269,16 @@ S2 只新增（本 task + 30 invoke/review）· 不追债 34 处冻结坏链 · 
 
 **偏差登记**：① 开工 HEAD `ef1c06f`（= task 提交）≠ task 起草期 `3d1b9d3`（复跑重建核对 · 判据 23/34 逐字一致）；② 三组对照 A 的派生差异：由**修后**脚本派生「字面式」继承 `-z` ⇒ 非 S2(i)=47；按 task 口径由 `3d1b9d3` 原始脚本派生 ⇒ A=48（47 目录链 + 1 非 ASCII）/ B=1 / C=0，与 task/审查文吻合；③ `S2_PARAM_EXCLUDE` 仅排除 task 路径（advisory A2），本 invoke/审查文实测零增链 ⇒ 无需扩展排除或重建基线；④ 修复 commit 与本文档/invoke commit 分离（两笔 · A1 口径 clone 取修复 commit）。
 
+**40 复核登记（PASS-with-issues · blocking 0 · advisory 5 · 40 留档 `44662d1`）**：① **A1 根因表述精度**：库内 `.workbuddy/` 实有 **9 个 tracked 文件**，被引用的 **11 处** `验收报告-SpecWave-*.md` 确**未入库**（少计 11 · 修法「入库判据」不受影响）；② **A3 留档精度**：30 invoke 记录 clone 时点 = 修复 commit `98bc9e0`，40 以**最终 `fdcc8b9`** clone 复跑仍 `S2=34` 且 local↔clone IDENTICAL（A2「以最终 commit 克隆实测为准」满足）；③ **A5 派生方法学**：A=47（修后脚本派生 · 继承 `-z`）/ 48（`3d1b9d3` 原始脚本派生）经 40 逐字复现，登记准确。**A4（CI 转绿待推）归 00** 推后核 CI · **A2（out-of-repo 分支隔离 fixture）登记 3.x/后续**。
+
+### KPI（00）
+
+**00 收官裁定**（rubric `KPI_RUBRIC_v1_2` · 40 复核 PASS-with-issues（blocking 0 · advisory 5）· close_kpi 存在性口径）：**Task_KPI%: 94**
+
+- **修复三件套质量高**：判据改**入库状态**（tracked 文件 ∪ tracked 目录前缀 · 仓外 `existsSync`）+ tracked 集合 `-c core.quotepath=false ls-files -z` 原样读取；40 独立派生复现 **48/1/0**（A_pre/B_pre/C）· 干净 clone 修后 PASS `S2=34` / 修前真红 `34≠23` · local↔clone S2 (i) 集合逐条 IDENTICAL · 环境无关 fixture 红→绿（pre `S2=0` 假绿 → post `S2=1`）· 红测先行 3 pass/2 fail → 5 pass/0 fail —— 修严型硬约束 **6**（负向回归锁）与 **10**（环境依赖可诊断）双兑现。
+- **质量门**：锁纯加性零回退（基线 859/164/858/0/1 → **860/164/859/0/1**）· typecheck 0 错 · build 0 · test:lib 6/6 · pins 17/17 · assets 113/113 · terminology/claims PASS · verify/task lint PASS · 零越权（`scripts`/`test` 外零改 · 禁 `add -A` 遵守 · 未 push/tag · 无 `.gitignore`/`git add -f` 掩盖）。
+- **扣 6**：缺陷逃过 W7 三轮审 + 40 审 + CI 需 hotfix 返工，且首版冻结基线 23 系「文件系统存在性」假绿口径（环境依赖）为主扣分项；advisory 5（A1 根因表述精度 / A2 out-of-repo 隔离 fixture / A3 留档时点 / A4 CI 转绿待推 / A5 派生方法学）均非阻断且已登记。
+
 ---
 
 ## 修订记录
@@ -279,3 +289,4 @@ S2 只新增（本 task + 30 invoke/review）· 不追债 34 处冻结坏链 · 
 | 2026-09-17 | HG-TASK-DRAFT `pending` → **approved**（00 代签 · 授权真值：维护者本窗授权 · tag/push 代跑「授权」+ 过程文档闸代签模式 · task lint PASS）；HG-AUDIT-R1 维持 pending（30 仍拒开工）· 头部状态行同步（`draft` → `pending`） |
 | 2026-09-17 | HG-AUDIT-R1 `pending` → **approved**（00 代签 · 依据 R1 审查文 PASS-with-issues · blocking 0 · advisory A1–A6）· 搭车修 A4（R5/控制行由「双 pending」同步双 approved）+ A5（F-HOT2-04 `tagged-based` → `tracked-based`）+ A6（验收 6 条 / F-HOT2-00–08 计数口径订正）+ A1/A2 带入 30 执行要求 · 头部状态行同步 |
 | 2026-09-17 | 30 修复交付：checker (i) 判据入库状态（tracked 文件 ∪ tracked 目录前缀 · 仓外 `existsSync`）+ tracked 集合 `-z` 原样读取 · 基线 23→34 · `S2_PARAM_EXCLUDE` 改本 task 路径 · test 三改（正向 34 / 环境无关 fixture / (ii) `git init`+`git add`）· ACCEPTANCE 三处 23→34 + 口径补注 · 模拟 CI 修后 PASS + 本地/clone 双 34 IDENTICAL · 锁 860/164/859/0/1 · 修复 commit `98bc9e0` · 自检回填（验收 6/6 勾选 + 偏差 3 条） |
+| 2026-09-17 | 40 复核 **PASS-with-issues**（blocking 0 · advisory 5 · 留档 `44662d1`）→ 00 收官裁定 **Task_KPI%: 94** · A1/A3/A5 登记入自检结论 · A4 归 00（推后核 CI）· A2 登记 3.x/后续 · ### KPI（00）节回填 · 状态 `pending` → `done` · task close 归档 `done/`（13 守卫全过 · invoke 五件套齐） |
