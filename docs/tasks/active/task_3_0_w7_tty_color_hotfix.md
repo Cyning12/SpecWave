@@ -262,7 +262,28 @@
 
 ### 自检结论（执行者）
 
-（待回填）
+**GATE_VERIFY 首输出**（FRAGMENT_30 纪律 · 真值 = task 人工闸表）：`node bin/specgate.js verify --target . --task docs/tasks/active/task_3_0_w7_tty_color_hotfix.md` → **HG-TASK-DRAFT / HG-AUDIT-R1 双闸 approved** · **VERIFY: PASS** · exit 0。
+
+**修复 commit**：`0e1f165`（`0e1f165b09868a021fe7d36c197146dc4c1c5627`）· `fix(3.0-W7): 测试侧 FORCE_COLOR 确定性（plainEnv 单一取值 + 两处 spawn + 回归锁三连 · 验收 #1）`。
+
+**范围三件**：① 新 helper `test/_helpers/plain-env.ts`（`plainEnv()` 唯一取值 `{ ...process.env, FORCE_COLOR:'0', NO_COLOR:'1' }` + `stripAnsi()` 仅断言 · 零产品 import · 不被 `test/*.test.ts` glob 收集）；② 两处 spawn 钉死（scan `runScanner` 补 `env: plainEnv()` · cli-discipline `runCli` `{ ...process.env }` → `plainEnv()`）；③ 回归锁三连 `test/plain-env.test.ts`（现象/修复/契约 + spawn env 探针）。同族 `grep -rn "env: { ...process.env }" test/` = **37 命中 / 32 文件**，真红仅 2（scan + cli-discipline），其余 36 处登记不改。
+
+**验收逐项**：#1 ✓ 发布临门 `FORCE_COLOR=1 npm test` **864 / 165 / 863 pass / 0 fail / 1 skip** · exit 0（修前同命令 2 fail：scan :64 + cli-discipline :85）· #2 ✓ 普通 `npm test` **864 / 165 / 863 pass / 0 fail / 1 skip** · exit 0（基线 859 pass + 4 新锁）· #3 ✓ 锁红→绿（helper 未建 import 失败 1 fail → 建后 4/4 · FC=0/1 均绿）· #4 ✓ 定向 3 文件 FC=0/1 均 12/12/0 · pty 双态 8/8/0（修前 pty 1 fail）· #5 ✓ typecheck 0 错 · pins 17/17 · assets 113/113 · test:lib 6/6 · 依赖零新增 · #6 ✓ task lint PASS + verify 双闸 approved。
+
+**回归锁三连断言点**：① 契约锁 —— ambient FC/NC 7 组合下进程内断言 `plainEnv()` 恒 `FORCE_COLOR==='0'` ∧ `NO_COLOR==='1'` + `stripAnsi('a\u001b[33m0\u001b[39m')==='a0'`；② 现象锁 —— `env: { ...process.env, FORCE_COLOR:'1' }`（删 `NO_COLOR`）spawn 扫描器 ⇒ stdout 含 `/\u001b\[/` ∧ `stripAnsi(stdout).includes('文件数: 0')`；③ 修复锁 —— `env: plainEnv()` spawn ⇒ `!/\u001b\[/.test(stdout)` ∧ 含「文件数: 0」∧ stderr 零 `NO_COLOR`/`FORCE_COLOR` 互斥警告；另 spawn 探针断言子进程 `NO_COLOR==='1' ∧ FORCE_COLOR==='0'`（R2-A1）。
+
+**锁计数（纯加性零回退）**：
+
+| 项 | 实测 |
+|----|------|
+| 基线（task 起草 @fad0637 · 本棒复跑） | 普通 860 / 164 / 859 / 0 / 1 · FC=1 860 / 857 / 2 / 1 · pty 1 fail |
+| 本棒终态 | **普通 864 / 165 / 863 / 0 / 1** · **FC=1 864 / 165 / 863 / 0 / 1** · pty 0 fail |
+| clone `0e1f165` | FC=0/1 双态 **864 / 165 / 863 / 0 / 1** · pty 8/8/0 |
+| typecheck / pins / assets / test:lib | 0 错 / 17/17 / 113/113 / 6/6 |
+| terminology / claims / doc-links | PASS / PASS / PASS（S2=34/34） |
+| 依赖 | 零新增 |
+
+**偏差登记**：① 开工 HEAD `3ceb42c` ≠ task 起草期 `fad0637`（+1 docs 提交）· 复跑重建基线与 task 表逐字吻合；② `FORCE_COLOR='0'+NO_COLOR='1'` 实测 stderr **0 bytes**（零告警），`FORCE_COLOR='1'+NO_COLOR='1'` 164 bytes 互斥警告（B 机制）—— B1 单一取值确证；③ 修复锁 stderr 判据取「不含互斥警告」而非「stderr 为空」（防未来无关告警耦合 · 语义满足 task :95）；④ clone 取修复 commit `0e1f165`（代码终态），其后的 invoke docs 提交对测试面零影响；⑤ pty/定向数字以复跑实测为准（与 task 表一致）。详见 30 invoke `docs/harness/invokes/by-task/3-0-w7-tty-color-hotfix/invoke_20260918_30_3-0-w7-tty-color-hotfix.md`。
 
 ---
 
