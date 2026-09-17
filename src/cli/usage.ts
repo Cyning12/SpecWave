@@ -83,7 +83,7 @@ export function usage(version: string): void {
   npx spec-wave host verify [--tools LIST|all] [--profile core|expanded] [--target PATH] [--file PATH] [--json]  （物化校验 · 篡改报红 exit 2 · fail-closed）
   npx spec-wave host catalog list [--target PATH] [--json]  （B5 适配表目录 · 内置+用户表来源/完整性 · sha256 呈现即强制）
   npx spec-wave hook-guard --trigger pre-commit|pre-archive [--command GATE_CMD] [--target PATH]  （宿主 hook 门禁分发 · 门禁红 exit 2 阻断）
-  npx spec-wave wiki export --json [--target PATH]
+  npx spec-wave wiki export --json [--target PATH] [--root DIR] [--out FILE|-] [--backlinks|--no-backlinks] [--incremental] [--check-conflicts]
   npx spec-wave pins check [--target PATH] [--json]
   npx spec-wave pins fix [--target PATH] [--yes]  （默认 dry-run · S2 机械拒写）
   npx spec-wave assets verify [--target PATH] [--json]  （assets sha256 完整性 · 偏差 exit 2）
