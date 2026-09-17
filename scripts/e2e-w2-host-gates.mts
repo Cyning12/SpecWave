@@ -241,14 +241,51 @@ try {
     }
   }
 
-  // ─── D cursor-agent 备援探测（加分非硬条） ───
-  section('D cursor-agent 备援探测（加分非硬条）')
+  // ─── D cursor 真实宿主 e2e（beforeShellExecution hook · 验收 #1 件② · 备援转正） ───
+  // cursor 语义（20 审取证口径）：exit 2 = deny 阻断 · 非 2 默认 fail-open —— 判定锚要求真 exit 2 路径
+  //（hook-guard 门禁红精确 exit 2）· fail-open 注记留痕（F-W2-06 校准位）。
+  section('D cursor 真实宿主 e2e（beforeShellExecution hook · 验收 #1 件②）')
   {
-    const probe = run('cursor-agent', ['-p', 'Reply with exactly: OK'], { cwd: root, timeoutMs: 60_000 })
+    const probe = run('cursor-agent', ['-p', 'Reply with exactly: OK', '--force', '--trust'], { cwd: root, timeoutMs: 60_000 })
     show('D1 auth 探测', probe, 8)
     const authed = probe.status === 0 && !/Authentication required|login/i.test(probe.combined)
-    console.log(authed ? 'cursor-agent 可用（可作第三件证据）' : 'F-W2-07 登记：cursor-agent 无认证（agent login / CURSOR_API_KEY 缺席）· 备援不可用')
-    summary.push(`D cursor-agent: ${authed ? 'AVAILABLE' : 'ENV-BLOCKED（认证缺席 · 登记）'}`)
+    if (!authed) {
+      console.log('F-W2-07 登记：cursor-agent 无认证（agent login / CURSOR_API_KEY 缺席）· 备援不可用 · 不伪造')
+      summary.push('D cursor e2e: ENV-BLOCKED（认证缺席 · F-W2-07 登记）')
+    } else {
+      const home = path.join(root, 'home-d')
+      mkdirSync(home, { recursive: true })
+      const repo = mkGitRepo(root, 'repo-d')
+      const apply = cli(['host', 'apply', '--tools', 'cursor', '--target', repo, '--yes'], { env: { HOME: home } })
+      show('D2 apply cursor（config-hook 物化 .cursor/hooks.json）', apply, 10)
+      console.log('--- D3 物化配置摘录（.cursor/hooks.json） ---')
+      console.log(readFileSync(path.join(repo, '.cursor', 'hooks.json'), 'utf8').trimEnd())
+
+      makeDirty(repo)
+      const dirty = run(
+        'cursor-agent',
+        ['-p', COMMIT_PROMPT, '--force', '--trust'],
+        { cwd: repo, timeoutMs: CLAUDE_TIMEOUT_MS },
+      )
+      show('D4 脏提交演示（cursor 驱动 · hook 须 deny 阻断）', dirty, 40)
+      const logAfterDirty = git(['log', '--oneline'], repo).stdout
+      const dirtyBlocked =
+        !logAfterDirty.includes('e2e-demo') &&
+        /门禁红|阻断 pre-commit|deny|denied|hook/i.test(dirty.combined)
+
+      rmSync(path.join(repo, 'docs'), { recursive: true, force: true })
+      git(['add', '-A'], repo)
+      const clean = run(
+        'cursor-agent',
+        ['-p', COMMIT_PROMPT, '--force', '--trust'],
+        { cwd: repo, timeoutMs: CLAUDE_TIMEOUT_MS },
+      )
+      show('D5 净提交演示（cursor 驱动 · 须放行）', clean, 25)
+      const cleanOk = git(['log', '--oneline'], repo).stdout.includes('e2e-demo')
+      console.log(`D verdict: 脏拒=${dirtyBlocked ? 'PASS' : 'FAIL'} · 净放=${cleanOk ? 'PASS' : 'FAIL'}`)
+      console.log('注记：cursor 非 2 退出默认 fail-open · 阻断语义精确 exit 2（物化模板口径 · F-W2-06 校准位）')
+      summary.push(`D cursor e2e: ${dirtyBlocked && cleanOk ? 'PASS' : dirtyBlocked ? 'PARTIAL（脏拒证 · 净放未证）' : 'FAIL'}`)
+    }
   }
 
   // ─── E acme --file 双路 ───
