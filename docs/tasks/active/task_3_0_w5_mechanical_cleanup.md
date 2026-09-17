@@ -254,4 +254,33 @@ S2 只新增（本 task 文件 + 30 执行留档）· **不签任何闸**（双 
 
 ### 自检结论（执行者）
 
-（留空 · 30 收官回填：GATE_VERIFY 首输出 / 阶段锁计数 / 验收 10 条逐项 / F-W2-13 同式登记清单 / NEW-6 误拦面分析与选型理由 / NEW-7 定稿案落地证据 / R-1 零 diff 与手工复跑证据）
+**GATE_VERIFY 首输出**（30 开工第 0 步 · 三阶段同一口径）：`node bin/specgate.js verify --target . --task docs/tasks/active/task_3_0_w5_mechanical_cleanup.md` → HG-TASK-DRAFT approved · HG-AUDIT-R1 approved · **VERIFY: PASS**（exit 0 · 各阶段收官复跑同 PASS）。
+
+**执行形态**：三阶段逐棒放行（00 验收 PASS 后放下一棒）· 三 commit 显式逐文件 add：`4a26b95`（阶段一 NEW-6+NEW-7）· `b6ca7ca`（阶段二 NEW-8+NEW-12）· 阶段三 R-6+R-1+收官（本行回填所在 commit 与同波 feat commit · hash 见 git log）· 未 push/tag/publish/deprecate。
+
+**阶段锁计数（纯加性零回退 · skip 恒 1 = 开工基线既有 standing skip · 本波正常环境零新增）**：
+`794/150/793/0/1`（开工基线复跑逐字一致）→ `801/152/800/0/1`（阶段一 +7 测试 +2 套件）→ `806/153/805/0/1`（阶段二 +5 测试 +1 套件）→ `810/154/809/0/1`（阶段三 +4 测试 +1 套件 · 终态）。每棒 typecheck 0 错 · build exit 0 · test:lib 6/6 · pins 17/17 · verify --task PASS · 依赖零新增（dependencies 仍仅 js-yaml）。
+
+**验收 10 条逐项**：
+- [x] **#1 NEW-6 变体全拦红转绿**：`.bak2`/`.bak.md`/尾空格`.bak ` 三变体修复前漏网真红留证（手工探针 exit 0 + fixture 组 pass5/fail4 · 30 invoke 阶段一节）· `.BAK` 同向对照（旧 `i` 旗标已拦）· 修复后四变体逐一 exit 2 点名清除复绿 · 正向用例零回退 · files 否定项 diff 在案（`!assets/**/*.bak` → `!**/*.bak` + `!**/*.bak.*`）· 误拦面分析+选型理由入 invoke（对照 S5.1 ⚠️ 起草发现：SPEC 示例拦不住 `.bak2` · 选型 `/\.bak(\.|$|[0-9]| )/i` 边界扩展式 · 理由注释落脚本头）
+- [x] **#2 NEW-7 案 B 落地**：双控制点声明入 `check-pack-hygiene.mjs` 头注释（prepublishOnly 末端 + npm test 内 pack-hygiene.test.ts 实跑/CI 每 push · 「无第三控制点」明示）· 机检双锚在案（锚①注释四要素 grep 断言 · 锚②测试实跑行存在断言 · 20 审 A3）
+- [x] **#3 NEW-8 用户文件存活红转绿**：B12 预置用户自有 `.bak`（内容 marker）修复前被覆盖+删除真红 · 修复后存活逐字不变 · 目标已修 · 自写避让备份（`.pins-fix-backup`）已清理 · B13 两级皆占跳过写盘 exit 2 点名含「请手动处置后重跑」（A2）· dry-run 文案同步
+- [x] **#4 NEW-12 key 相对化红转绿**：绝对路径 key 修复前原样泄漏真红 · 修复后 key 相对化（`out[walkString(k)]` 同函数同 bases）· 零改写锁逐字不变 · 消费面复核零波及（全量绿 + JSON 契约面 105/105 + Object.keys 快照零意外红）· `cli-shared.ts:433` 契约注释修订含 A1 碰撞句「相对化后撞名后者覆盖前者 · 信封不得依赖碰撞面」
+- [x] **#5 R-6 分档+前置探测+环境模拟实证**：① 分档四态 fixture（R6-1 git_missing PATH 隔离 / R6-2 git_exec_failed 假 git exit 69 / R6-3 not_git_repo / W1-B5 tag 缺失维持 missing 且 error_kind undefined）逐态断言 detail+error_kind；② PATH 隔离三文件 **86 pass / fail=0 / skipped 6**（skip 归因逐条在 invoke · 统一标注锚 TAP 摘录 + R6-4 grep 机检）；③ 同环境真仓 pins check --json → pin-10 `error_kind: git_missing` 与真偏差形态可区分；④ 真偏差对照：release-tag-identity git 可用 tag 缺失维持 FAIL 语义零松动；⑤ exit code 零变更断言（R6-1：环境不具备仍 exit 2 · 无 exit 0 第三条路）
+- [x] **#6 R-1 回归确认（只验不回改）**：回归锁 R-1 describe 4/4 绿 · `git diff 3664e6f..HEAD` src/host/cmd.ts **0 行** + src/cli-shared.ts 仅 NEW-12 两 hunk（findGitRoot :37-48 零触碰 · 比对基更正登记见 invoke 偏差 5）· 手工跨目录 `cd /tmp && host validate --json` 输出 `"file":"assets/ide/host-adapt/examples/mvp-hosts.yaml"` 无绝对路径 exit 0（证据文本在 invoke 阶段三节）
+- [x] **#7 平台锁**：typecheck 0 错 · npm test 810/154/809/0/1 全绿（零意外红 · skip 数变化=PATH 隔离实证面逐条归因 · 正常环境恒 1）· pins 17/17 · 依赖零新增（diff 空）
+- [x] **#8 既有面零意外改动（F-W2-13 同式）**：登记项逐条 = ① pack-hygiene 头注释+正则+FAIL 文案 ② package.json files 否定项数据行 ③ cli-assets.ts:32 分叉注释（纯注释）④ cli-pins.ts 写盘循环+dry-run 文案+PinResult additive 键+git-tag 分档 ⑤ cli-shared.ts:433 契约注释+key 相对化 ⑥ 三文件 probe 新增+R6/W1-B5/A 组断言加性 ⑦ invoke 留档新增 · 此外既有断言零改动全绿 · Object.keys 快照面零波及
+- [x] **#9 结构闸**：`npx spec-wave task lint --file` **PASS**（回填前 W3 warn 占位符提示 · 回填后复跑见 close 前置）
+- [x] **#10 执行粒度**：三 commit 逐文件显式 add（禁 add -A 遵守 · git status --porcelain 全程审边界）· 每 commit 独立可回退 · 每棒前后 npm test 同绿 · 未执行 tag/push/publish/deprecate · 波末 `gate-check` **exit 0**（task close 待 40 复核后 00 口径另行 · 本棒不执行）
+
+**F-W2-13 同式登记清单**：见验收 #8 登记项 + 30 invoke 三阶段「既有面改动登记/偏差登记」全谱（阶段一 5 条 · 阶段二 5 条 · 阶段三 8 条）。
+
+**NEW-6 误拦面分析与选型理由**：候选子串级 `/\.bak/i`（覆盖最全但误拦 `x.bakery`/`x.bakxt` 等「.bak 后接字母」合法名 · 误拦面最大）否决；定档边界扩展式 `/\.bak(\.|$|[0-9]| )/i`（命中面=「.bak+点/数字/空格/结尾」=备份衍生族语义内）· 合法名正向 fixture 钉死不误拦 · 已知边界登记：目录级 `dir.bak/` 不拦（超变体表不扩）· 白名单修正须评审（F-W5-04）· 偏离 SPEC 示例理由（示例字符集不含数字拦不住 `.bak2` · 已裁定口径=验收 binding 优先 · 示例非约束面 · 不回注 SPEC）注释落脚本头。
+
+**NEW-7 定稿案落地证据**：案 B 显式声明（task S5.2 定稿 · 案 A 冗余三理由在 task）· 头注释四要素+机检双锚 fixture 绿 · 升级通道未触发（20 审 R1 已采纳案 B 口径）。
+
+**R-1 零 diff 与手工复跑证据**：见验收 #6 行 + invoke 阶段三节（含比对基更正登记：初跑误用 v2.4.2 tag 基 diff 929 行= W0–W4 历史变更非 R-1 回改 · 更正波次基 3664e6f 后 0 行/两 hunk）。
+
+**已知未测项（诚实登记）**：① win32 PATH 隔离失真面未实证（F-W5-08 · POSIX 口径实证 · R6-2 假 git sh 脚本 win32 t.skip 护栏在案 · CI 主跑 Linux/macOS）；② EACCES 分支无独立 fixture（与 ENOENT 同档 git_missing · invoke 偏差 4 登记）；③ NEW-6 目录级 `dir.bak/` 变体不拦（超 fixture 变体表 · 边界登记非漏网）；④ 分档人读输出仅经 detail 行承载（error_kind 键 JSON 面专属 · 契约只增口径内）。
+
+**KPI 自评备料（待 00 裁定 · 照 kpi_rubric KPI_RUBRIC_v1_2 存在性口径）**：SPEC 范围①–⑥全销（①NEW-6 ②NEW-7 ③NEW-8 ④NEW-12 ⑤R-6 ⑥R-1 回归确认）· 验收 10 条全机械自证 ✓ · 硬约束 6（每条修严负向 fixture 红测先行：NEW-6 三变体漏网/NEW-8 灭失复现/NEW-12 key 泄漏/R-6 PATH 隔离全谱留证）/10（分档三态+probe+skip≠fail 边界+exit code 零变更）/14（手工复跑证据全入本文与 invoke tracked）/15（双闸落表 blocks_hats 机检）逐项兑现 · 20 审 advisory A1–A4 全落地（A1 碰撞句入契约注释 · A2 手动处置指引入点名文案 · A3 双锚机检 · A4 行号漂移登记）· 锁计数 794→801→806→810 纯加性零回退 · 三阶段零 STOP 零越权（发布四动作零触碰）· 过程瑕疵两起（基线首跑自污染并发 · R-1 比对基误用 tag 基）均被对照实验一拍定性更正并登记 · 未流入交付面。
