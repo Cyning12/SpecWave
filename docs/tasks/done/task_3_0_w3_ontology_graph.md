@@ -1,6 +1,6 @@
 # Task：3.0 W3 · 本体驱动的图谱统一（A4 ontology-check 接线 + F2 真口径 + 判据加固 + F1 受限形态统一）
 
-> **状态**：`active`（2026-09-17 10-task 起草 · **HG-TASK-DRAFT / HG-AUDIT-R1 双 approved**（00 代签 · 授权真值：维护者本窗「授权00代签」）· 20-task-audit R1 **PASS-with-issues**（blocking 0 · advisory A1–A4 · A2 已搭车修 · A3/A4 带入 30 执行登记）· **30 可开工**）  
+> **状态**：`done`（2026-09-17 30 实现棒 W3 四阶段收官 · HG-TASK-DRAFT / HG-AUDIT-R1 双 approved（00 代签 · 授权真值：维护者本窗「授权00代签」）· 40 复核 PASS（blocking 0 · advisory A-40-1/2 信息级归 3.x）· 锁终态 773/145/772 pass/0 fail/1 skip · pins 17/17 · assets 111/111 · 验收 #1–#14 全勾（#2/#3 = TraceArtifact 挂起既定分支 · 维护者答「倾向 b 但 Artifact 不明确」· F-W3-08 留痕清偿归 3.x）· 六 commit d960bc8/28cd0bd/b710c0c/e2f775d/a192bd9/0ef6741）
 > **SPEC 真值**：[`docs/spec/3_0-architecture-leap/04_w3_ontology_graph_unify_v1.md`](../../spec/3_0-architecture-leap/04_w3_ontology_graph_unify_v1.md)（signed · HG-SPEC-SIGNOFF=approved · 范围 ①–⑦ · 验收 1–9 · F-W3-01–07）  
 > **研究真值（双裁决已批准）**：[`docs/harness/reviews/w3_ontology_graph_research_20260917.md`](../../harness/reviews/w3_ontology_graph_research_20260917.md)（research-final · 2026-09-17 维护者本窗「两条均接受00的建议」—— **ONTO-OPEN = 不开放**（显式登记 + 三条复议触发 · §7）· **F1 = 受限形态统一**（ontology 作 TBox 内核 + HGM 全量适配 + tech-graph 浅登记 · 各自编译 · 公开 CLI 零 breaking · §9））  
 > **上游 PLAN**：[`PLAN_3_0_architecture_leap_v1_zh.md`](../../roadmap/PLAN_3_0_architecture_leap_v1_zh.md) W3 节（:237-257）+ 硬约束 **3**（schema 变更人闸）/ **13**（本体层零运行时依赖 · 不得声称 W3C 一致性）/ **14**（证据必须入库）/ **15**（闸不落表即虚设）  
