@@ -5,6 +5,7 @@
 > **test_strategy**：`required`（负向 fixture 真红转绿 + 对抗构造验证 + 零新依赖证明）  
 > **上游**：PLAN_3_0 W3 节 · 路线研究 §4 主线一/六（A4/F1/F2）· 校核表 #5/#6/#7/#22/#23/#24 · **OWL 裁决已定（D-30-OWL-REJECT）**  
 > ⚠️ **研究文雏形未入库**（`.workbuddy/output/研究-3.0-W3-本体与图谱-OWL引入评估.md` 被 `.gitignore:4` 忽略）⇒ **本波动工前必须把正式版落盘 `docs/harness/reviews/`（tracked）并回填仓内链接，否则不得引用为证据**（硬约束 14 · EVID-PROV）
+> ✅ **2026-09-17 已清偿**：正式版落盘 [`docs/harness/reviews/w3_ontology_graph_research_20260917.md`](../../harness/reviews/w3_ontology_graph_research_20260917.md)（tracked · 全部证据 tracked 路径+行号实测）· 探针 [`scripts/onto-probe.mts`](../../../scripts/onto-probe.mts)（复跑 `conforms: false` / exit 2 · 3 处 `sh:class` 违规确认）—— 本 ⚠️ 块与验收 8 的「研究文落盘 + 探针镜像 + 链接回填」项由此清偿（硬约束 14 · EVID-PROV）。
 > ⚠️ 行号为起草轮快照（图谱源码体量 `471`/`597`/`113` 行等），W3 task 起草时须回源码复核现值
 > **波次顺序**：本波须排在 W1 之后（PLAN 编排理由 #4 · 与 W1 无代码耦合但须免误归因）。
 
@@ -138,3 +139,4 @@
 | 2026-09-16 | draft · 10-spec · 自 PLAN W3 + 校核 #5/#6/#7/#22/#23/#24 收敛 · OWL 裁决继承 D-30-OWL-REJECT 不重议 |
 | 2026-09-16 | 10-spec 修订 · 20-spec-audit R1 advisory A1/A2/A5 落实（标注/登记级 · 无实质变更） |
 | 2026-09-16 | signed · HG-SPEC-SIGNOFF=approved（2026-09-16 维护者本窗双签（原文：「签收，授权00签收后续所有文档」）· 授权 00 代签本版后续全部过程文档闸（与 2.3.0/2.4.0 同模式）· HG-RELEASE / npm publish / tag / push 不在授权范围 · 仍仅人）· R5 回填 |
+| 2026-09-17 | 标注级回填（**无实质变更**）：研究文正式版落盘 `docs/harness/reviews/w3_ontology_graph_research_20260917.md`（tracked）+ 探针镜像 `scripts/onto-probe.mts` 入库 · 头部 ⚠️ 块旁加「已清偿」注记（硬约束 14 · 验收 8 研究文落盘项 · 00 委派 W3 研究棒执行） |
