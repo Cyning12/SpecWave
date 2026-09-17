@@ -1,6 +1,6 @@
 # Task：3.0 W4 · 防伪判据语义化（结论闸档 M + R-5 跨行封堵 + 词表广义化 + pin-17/pin-08 语义绑定 + exempt 真实性/U1 口径统一）
 
-> **状态**：`active`（2026-09-17 10-task 起草 · HG-TASK-DRAFT / HG-AUDIT-R1 双 approved（00 代签 · 授权真值：维护者本窗「授权00代签」· R1 审查文 PASS-with-issues blocking 0 · advisory A1–A4 带入 30 执行要求）· 30 可开工）
+> **状态**：`done`（2026-09-17 10-task 起草 · HG-TASK-DRAFT / HG-AUDIT-R1 双 approved（00 代签 · 授权真值：维护者本窗「授权00代签」· R1 审查文 PASS-with-issues blocking 0 · advisory A1–A4 带入 30 执行要求）· 2026-09-17 全四阶段落地 · 40 复核 PASS（blocking 0 · advisory 0）· 00 收官裁定 Task_KPI%: 96 · 验收 13/13 勾选 · 关账）
 > **SPEC 真值**：[`docs/spec/3_0-architecture-leap/05_w4_semantic_criteria_v1.md`](../../spec/3_0-architecture-leap/05_w4_semantic_criteria_v1.md)（signed · HG-SPEC-SIGNOFF=approved 2026-09-16 · 范围 ①–⑧ · 验收 1–6 · F-W4-01–05）
 > **设计真值（评审先行 · 硬前置已兑现）**：[`docs/harness/reviews/w4_semantic_criteria_review_20260917.md`](../../harness/reviews/w4_semantic_criteria_review_20260917.md)（217 行 · 六判据形态定稿 + 存量全量实测 + 判据两分边界声明 · OQ-1 档 M / OQ-2 A1 强制+A2 可选 / OQ-3 字段命名对齐 / OQ-4 NG 观察名单 荐案全采纳 · 残余 R-①②③ 登记）
 > **上游 PLAN**：[`PLAN_3_0_architecture_leap_v1_zh.md`](../../roadmap/PLAN_3_0_architecture_leap_v1_zh.md) W4 节（:259-272）+ 硬约束 **6**（修严配负向 fixture）/ **7**（不追溯存量）/ **11**（判据两分）· 配套 **14**（证据入库）/ **15**（闸不落表即虚设）
@@ -219,19 +219,19 @@
 
 ## 验收标准（必须自证，不接受「我改完了」）
 
-- [ ] **#1 NEW-5 档 M 负向 fixture 红转绿**（SPEC 验收 1 · S5.1）：填充顶包 fixture 修复前 PASS 真红留证（30 invoke 留档）· 修复后 FAIL（exit 2 · detail 点名缺 SUBJ / 缺 OBJ∨GATE 维度）· §2.4 对抗三行 fixture（本审查通过+填充挡 · HG approved+填充挡 · 诚实合规构造过）· substance≥20 地板保留（既有 F 形态「通过\n」仍内容量不足 FAIL · 对照零回退）
-- [ ] **#2 存量波及实测登记 + 豁免留痕**（SPEC 验收 2 · S5.1/S5.6）：reviews 全量复跑（89 件 · 评审文基线 88 + 自身 1 · 分母 63）· 新判据后 **PASS 57 + exempted 6 + FAIL 25**（FAIL 集与现口径逐字一致 · 任何差异归因登记）· **6 条豁免**入 `legacy-gate-exempt.yaml` reviews 节（slug 名单照 S5.1 表钉死 · 四字段齐 · reason 引评审文 §7 · authorized_by 过 A1）· 裸 verify 输出该 6 件由 gap 转 **exempted** 留痕 · 30 复跑数字与评审文 §7 基线核对入自检结论
-- [ ] **#3 正例零回退五面**（SPEC 验收 3）：① 63 份现口径合规文除 6 件枚举豁免外全部直接 PASS（57/63）；② NEW-11 词表对 63 份合规结论节误伤 **0**；③ pin-17 双 README **26/26**；④ pin-08 索引行 **15/15**；⑤ exempt **34/34** —— 复跑脚本输出入自检结论
-- [ ] **#4 评审文 + 边界声明**（SPEC 验收 4 · 已清偿复核）：评审文落盘在案（`git ls-files` 命中）· 防伪/自评边界声明（评审文 §1）在案 · 本 task 背景节 + 非范围首行双重声明 · S5.8 机检面落地
-- [ ] **#5 R-5 + K 断言配对更新**（SPEC 验收 5 · S5.2）：K 断言同 fixture 翻向 exit 0→2 · 跨段反向锁新增（不\n\n通过 维持 PASS）· 不留过时断言 · 判据改造与断言翻向同 commit（git log 单 commit 含两侧 diff 证明）· 284 份 md 窄式 0 命中复跑锁
-- [ ] **#6 平台锁**（SPEC 验收 6）：`npm run typecheck` 0 错 · `npm test` 全绿（基线 773 + 新增用例数 · 零意外红 · 环境红先对照实验定性 F-W0-07 同式）· pins **17/17** · 依赖零新增（dependencies diff 空 · lock 非 dev 顶层 = 2 不增）
-- [ ] **#7 判据两分边界防御**（S5.8 · F-W4-05）：`close_kpi` / KPI 判据相关行零 diff（git diff + grep 断言输出入自检结论）· 非范围表防御条在案
-- [ ] **#8 pin-17 语义判 fixture**（SPEC 验收 1 · S5.4）：伪表行顶包两构造挡（非签名表注入词锚 · 签名表第二格注入）红转绿 · 全表誊抄诚实边界登记（fixture 注释）· 26/26 零回退（pins 17/17 兜住）
-- [ ] **#9 pin-08 绑定 fixture**（SPEC 验收 1 · S5.5）：裸版本串无态词 → 修复前 ok 真红 · 修复后 mismatch 点名缺发布态措辞 · S_mid 集 + S_narrow 弃用理由入 yaml semantics（release-pins.yaml pin-08 段）· 15/15 零误伤
-- [ ] **#10 NEW-10 A1 + U1 fixture**（SPEC 验收 1 · S5.6）：假授权（随手填名）→ invalid warn + 不豁免红转绿 · 34/34 零误伤 · verify --task done 面 exempted 留痕 fixture + 无豁免维持 warn fixture（双向钉死 · 字段命名与裸 verify 对齐 OQ-3）· helper 单源 grep 断言（裸 verify / lint-done 同一 helper · src 内无第二份 slug→条目解析拷贝）· close 不消费不对称显式注释在案（close-guards.ts evalCloseReview 头注释）
-- [ ] **#11 既有面零意外改动**（F-W2-13 同式纪律）：除登记项外既有断言零改动全绿 · 登记项逐条列明于自检结论（预期登记面：K 断言翻向 · review-gates.ts:126-133 口径注释更新 · close-guards.ts 头注释 · 词表残余登记注释 · 对照零回退 fixture 若受影响逐条登记）
-- [ ] **#12 结构闸**：`npx spec-wave task lint --file docs/tasks/active/task_3_0_w4_semantic_criteria.md` PASS
-- [ ] **#13 执行粒度**：提交逐文件显式 add（禁 `git add -A`）· 每 commit 独立可回退 · 每 commit 前后 npm test 同绿 · 未执行 tag/push/publish/deprecate · 波末 `npx spec-wave gate-check --task docs/tasks/active/task_3_0_w4_semantic_criteria.md` → exit 0 + `task close --yes` 闭环（待 40 复核后另行 · 00 口径）
+- [x] **#1 NEW-5 档 M 负向 fixture 红转绿**（SPEC 验收 1 · S5.1）：填充顶包 fixture 修复前 PASS 真红留证（30 invoke 留档）· 修复后 FAIL（exit 2 · detail 点名缺 SUBJ / 缺 OBJ∨GATE 维度）· §2.4 对抗三行 fixture（本审查通过+填充挡 · HG approved+填充挡 · 诚实合规构造过）· substance≥20 地板保留（既有 F 形态「通过\n」仍内容量不足 FAIL · 对照零回退）
+- [x] **#2 存量波及实测登记 + 豁免留痕**（SPEC 验收 2 · S5.1/S5.6）：reviews 全量复跑（89 件 · 评审文基线 88 + 自身 1 · 分母 63）· 新判据后 **PASS 57 + exempted 6 + FAIL 25**（FAIL 集与现口径逐字一致 · 任何差异归因登记）· **6 条豁免**入 `legacy-gate-exempt.yaml` reviews 节（slug 名单照 S5.1 表钉死 · 四字段齐 · reason 引评审文 §7 · authorized_by 过 A1）· 裸 verify 输出该 6 件由 gap 转 **exempted** 留痕 · 30 复跑数字与评审文 §7 基线核对入自检结论
+- [x] **#3 正例零回退五面**（SPEC 验收 3）：① 63 份现口径合规文除 6 件枚举豁免外全部直接 PASS（57/63）；② NEW-11 词表对 63 份合规结论节误伤 **0**；③ pin-17 双 README **26/26**；④ pin-08 索引行 **15/15**；⑤ exempt **34/34** —— 复跑脚本输出入自检结论
+- [x] **#4 评审文 + 边界声明**（SPEC 验收 4 · 已清偿复核）：评审文落盘在案（`git ls-files` 命中）· 防伪/自评边界声明（评审文 §1）在案 · 本 task 背景节 + 非范围首行双重声明 · S5.8 机检面落地
+- [x] **#5 R-5 + K 断言配对更新**（SPEC 验收 5 · S5.2）：K 断言同 fixture 翻向 exit 0→2 · 跨段反向锁新增（不\n\n通过 维持 PASS）· 不留过时断言 · 判据改造与断言翻向同 commit（git log 单 commit 含两侧 diff 证明）· 284 份 md 窄式 0 命中复跑锁
+- [x] **#6 平台锁**（SPEC 验收 6）：`npm run typecheck` 0 错 · `npm test` 全绿（基线 773 + 新增用例数 · 零意外红 · 环境红先对照实验定性 F-W0-07 同式）· pins **17/17** · 依赖零新增（dependencies diff 空 · lock 非 dev 顶层 = 2 不增）
+- [x] **#7 判据两分边界防御**（S5.8 · F-W4-05）：`close_kpi` / KPI 判据相关行零 diff（git diff + grep 断言输出入自检结论）· 非范围表防御条在案
+- [x] **#8 pin-17 语义判 fixture**（SPEC 验收 1 · S5.4）：伪表行顶包两构造挡（非签名表注入词锚 · 签名表第二格注入）红转绿 · 全表誊抄诚实边界登记（fixture 注释）· 26/26 零回退（pins 17/17 兜住）
+- [x] **#9 pin-08 绑定 fixture**（SPEC 验收 1 · S5.5）：裸版本串无态词 → 修复前 ok 真红 · 修复后 mismatch 点名缺发布态措辞 · S_mid 集 + S_narrow 弃用理由入 yaml semantics（release-pins.yaml pin-08 段）· 15/15 零误伤
+- [x] **#10 NEW-10 A1 + U1 fixture**（SPEC 验收 1 · S5.6）：假授权（随手填名）→ invalid warn + 不豁免红转绿 · 34/34 零误伤 · verify --task done 面 exempted 留痕 fixture + 无豁免维持 warn fixture（双向钉死 · 字段命名与裸 verify 对齐 OQ-3）· helper 单源 grep 断言（裸 verify / lint-done 同一 helper · src 内无第二份 slug→条目解析拷贝）· close 不消费不对称显式注释在案（close-guards.ts evalCloseReview 头注释）
+- [x] **#11 既有面零意外改动**（F-W2-13 同式纪律）：除登记项外既有断言零改动全绿 · 登记项逐条列明于自检结论（预期登记面：K 断言翻向 · review-gates.ts:126-133 口径注释更新 · close-guards.ts 头注释 · 词表残余登记注释 · 对照零回退 fixture 若受影响逐条登记）
+- [x] **#12 结构闸**：`npx spec-wave task lint --file docs/tasks/active/task_3_0_w4_semantic_criteria.md` PASS
+- [x] **#13 执行粒度**：提交逐文件显式 add（禁 `git add -A`）· 每 commit 独立可回退 · 每 commit 前后 npm test 同绿 · 未执行 tag/push/publish/deprecate · 波末 `npx spec-wave gate-check --task docs/tasks/active/task_3_0_w4_semantic_criteria.md` → exit 0 + `task close --yes` 闭环（待 40 复核后另行 · 00 口径）
 
 ---
 
@@ -348,4 +348,8 @@ S2 只新增（本 task 文件 + 30 执行留档 + 豁免清单 6 条数据行 �
 
 ### KPI（00）
 
-（00 收官裁定回填 · rubric `KPI_RUBRIC_v1_2` · close_kpi 只验存在性 —— 本波硬约束 11：不补语义闸 · KPI 判据零触碰）
+**00 收官裁定**（rubric `KPI_RUBRIC_v1_2` · 40 复核 PASS（blocking 0 · advisory 0 · 40 留档 6a45b75）· close_kpi 存在性口径 —— 本波硬约束 11：不补语义闸 · KPI 判据零触碰）：**Task_KPI%: 96**
+
+- 验收 13/13 落地 · 评审先行（D-24-W2-REVIEW-FIRST）+ 不追溯（D-24-W2-NO-RETRO · 档 M 误伤 6 件循 2.3.1 N11 豁免留痕）流程完整 · 负向 fixture 全链红测先行留证（六判据负向面全谱 · 修复前真红→修复后转绿逐件在案）。
+- 质量门：锁计数 773→782→784→790→794 纯加性零回退 · typecheck/build 0 错 · test:lib 6/6 · pins 17/17 · assets verify 111/111 · 裸 verify 真仓 exit 0（豁免 24 条 · invalid 0）· 每 commit 前后同绿 · 零 STOP 零越权（发布四动作零触碰 · 禁 add -A 遵守）。
+- 扣 4：过程瑕疵两处实现笔误（阶段三 cellForm off-by-one · 阶段四 emitJson TDZ）—— 均被测试网秒咬一拍修复并登记 · 未流入交付面。
