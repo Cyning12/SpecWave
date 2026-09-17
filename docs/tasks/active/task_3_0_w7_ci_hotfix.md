@@ -109,10 +109,10 @@ not ok 1 - 正向：真实仓 非S2(i)=0 非S2(ii)=0 · S2 冻结基线 23 · ex
 
 ## 范围（唯一）
 
-- [ ] **1. `scripts/check-doc-links.mjs`**：(i) 存在性判据改**入库状态**（inRepo = tracked 文件 ∪ tracked 目录前缀 · 仓外仍 `existsSync`）· tracked 集合**原样读取**（`-z`/quotepath=false）· `S2_FROZEN_BASELINE` 重建 **23→34** · `S2_PARAM_EXCLUDE` 更新为本 task 路径（防自咬 · 本棒实测草稿零坏链 S2=23 · 防 in-flight 过程件增链）· 头注释口径同步（「入库状态而非文件系统状态」+ 环境依赖根因/重建理由）。
-- [ ] **2. `test/check-doc-links.test.ts`**：① 正向测期望基线随重建值更新（:35 用例名 + :39 `冻结基线 23` → **34**）；② **新增环境无关性负向 fixture**（临时 root `git init` · 放 gitignore 但实体在的 `.workbuddy/x.md` + 引用它的 S2 md → 修后仍计 (i) 坏链：`--s2-baseline 1` exit 0 / `--s2-baseline 0` exit 2；修前同 fixture S2=0 = 真红对照）；③ **既有负向 (ii) fixture 复绿分支须 `git init` + `git add docs/roadmap/tracked.md`**（tracked-based 下「写在临时目录但未入库」不再算可解析 · 不改则该测修后转红 · 本棒预演实证）。
-- [ ] **3. 基线/文档同步（标注级 · 逐处登记）**：`docs/roadmap/ACCEPTANCE_3_0_architecture_leap_3_0_0_zh.md` 三处 `S2 冻结基线 23` → **34**（:35 / :45 / :62）· 同处加一行口径补注（23 系 FS 存在性假绿口径 · 34 为入库状态重建值）；`docs/harness/reviews/w7_release_probe_3_0_0_20260917.md` **grep 实测零引用 23 ⇒ 零改动**（S2 只新增不覆写 · 硬约束 1）。
-- [ ] **4. 模拟 CI 实证**：`git clone . /tmp/ci-sim && cd /tmp/ci-sim && node scripts/check-doc-links.mjs` → 修后 PASS（`S2=34 / 冻结基线 34` exit 0）；修前同命令真红 34（R0 已实测）· 留证（命令 + 输出写入 30 invoke）。
+- [x] **1. `scripts/check-doc-links.mjs`**：(i) 存在性判据改**入库状态**（inRepo = tracked 文件 ∪ tracked 目录前缀 · 仓外仍 `existsSync`）· tracked 集合**原样读取**（`-z`/quotepath=false）· `S2_FROZEN_BASELINE` 重建 **23→34** · `S2_PARAM_EXCLUDE` 更新为本 task 路径（防自咬 · 本棒实测草稿零坏链 S2=23 · 防 in-flight 过程件增链）· 头注释口径同步（「入库状态而非文件系统状态」+ 环境依赖根因/重建理由）。
+- [x] **2. `test/check-doc-links.test.ts`**：① 正向测期望基线随重建值更新（:35 用例名 + :39 `冻结基线 23` → **34**）；② **新增环境无关性负向 fixture**（临时 root `git init` · 放 gitignore 但实体在的 `.workbuddy/x.md` + 引用它的 S2 md → 修后仍计 (i) 坏链：`--s2-baseline 1` exit 0 / `--s2-baseline 0` exit 2；修前同 fixture S2=0 = 真红对照）；③ **既有负向 (ii) fixture 复绿分支须 `git init` + `git add docs/roadmap/tracked.md`**（tracked-based 下「写在临时目录但未入库」不再算可解析 · 不改则该测修后转红 · 本棒预演实证）。
+- [x] **3. 基线/文档同步（标注级 · 逐处登记）**：`docs/roadmap/ACCEPTANCE_3_0_architecture_leap_3_0_0_zh.md` 三处 `S2 冻结基线 23` → **34**（:35 / :45 / :62）· 同处加一行口径补注（23 系 FS 存在性假绿口径 · 34 为入库状态重建值）；`docs/harness/reviews/w7_release_probe_3_0_0_20260917.md` **grep 实测零引用 23 ⇒ 零改动**（S2 只新增不覆写 · 硬约束 1）。
+- [x] **4. 模拟 CI 实证**：`git clone . /tmp/ci-sim && cd /tmp/ci-sim && node scripts/check-doc-links.mjs` → 修后 PASS（`S2=34 / 冻结基线 34` exit 0）；修前同命令真红 34（R0 已实测）· 留证（命令 + 输出写入 30 invoke）。
 
 ## 非范围
 
@@ -150,12 +150,12 @@ not ok 1 - 正向：真实仓 非S2(i)=0 非S2(ii)=0 · S2 冻结基线 23 · ex
 > **计数口径（A6 订正）**：本 task 验收 = **6 条（#1–#6）** · failure_paths = **9 条（F-HOT2-00–08）**（审查指令括注「5 条 / F-HOT2-01..05」为子集 · 以本 task 现值为真值）。
 > **30 执行要求（A1/A2 带入 · 00 裁定）**：#1/#2 的 `git clone .` 取**修复 commit 后的 HEAD**（未提交即跑仍是修前脚本 · 见 A1）；S2 基线以**最终 commit 克隆实测**为准（过程件若增链按 F-HOT2-01 重建并登记 · 见 A2）。
 
-- [ ] **#1 模拟 CI 实证（修后绿）**（F-HOT2-01 · 硬约束 6）：`git clone . /tmp/ci-sim && cd /tmp/ci-sim && node scripts/check-doc-links.mjs` → **exit 0** 且输出 `非S2(i)=0 非S2(ii)=0 · S2 冻结基线 34`。**对照**：修复前同命令 **exit 2** · `S2(i)=34 ≠ 基线 23`（本 task R0 已实测钉死）。留证：命令 + 两端输出写入 30 invoke。
-- [ ] **#2 本地 checker PASS 且与 clone 同值**（环境无关核心）：仓根 `node scripts/check-doc-links.mjs` → **exit 0** · `S2 = 34 = 冻结基线`；且本地与 `/tmp/ci-sim` 的 S2 (i) **集合逐条一致**（本棒 R0 对照实验：IDENTICAL）。**回归锁**：非 S2 (i)=**0** 且非 S2 (ii)=**0**（目录链 48 处 + 非 ASCII tracked 链 1 处均不得回归）。
-- [ ] **#3 环境无关性负向 fixture 红→绿**（F-HOT2-05/08 · 硬约束 6）：新 fixture 在临时 root（`git init`）放 gitignore 但实体在的 `.workbuddy/x.md` + 引用它的 S2 md → 修后 `--s2-baseline 1` **exit 0**（该链计入 S2 (i)）· `--s2-baseline 0` **exit 2**；**修前同 fixture S2=0**（被文件系统存在性掩盖）= 真红对照（本棒 R0 预演：pre-fix S2=0 exit 2 · post-fix S2=1 exit 0）。
-- [ ] **#4 全量 npm test 全绿**：`npm test` → **858 pass / 0 fail / 1 skip**（不含新增测前 · tag `v3.0.0` 已打 ⇒ pin-10 tag-gated 现绿）；新增 fixture N 条后 **858+N pass / 0 fail**。既有 4 条 check-doc-links fixture 全绿（含按范围 2③ 调整的 (ii) 复绿分支）。
-- [ ] **#5 typecheck / pins**：`npm run typecheck` **0 错** · `node bin/specgate.js pins check` **17/17 PASS**。
-- [ ] **#6 结构闸**：`npx spec-wave task lint --file docs/tasks/active/task_3_0_w7_ci_hotfix.md` PASS（E1–E8 / W5–W7：R0–R5 槽位 + 控制表齐）。
+- [x] **#1 模拟 CI 实证（修后绿）**（F-HOT2-01 · 硬约束 6）：`git clone . /tmp/ci-sim && cd /tmp/ci-sim && node scripts/check-doc-links.mjs` → **exit 0** 且输出 `非S2(i)=0 非S2(ii)=0 · S2 冻结基线 34`。**对照**：修复前同命令 **exit 2** · `S2(i)=34 ≠ 基线 23`（本 task R0 已实测钉死）。留证：命令 + 两端输出写入 30 invoke。**本棒实测（修复 commit `98bc9e0`）**：clone → `S2=34 / 冻结基线 34` exit 0；修前 clone `ef1c06f` → `S2(i)=34 ≠ 23` exit 2。
+- [x] **#2 本地 checker PASS 且与 clone 同值**（环境无关核心）：仓根 `node scripts/check-doc-links.mjs` → **exit 0** · `S2 = 34 = 冻结基线`；且本地与 `/tmp/ci-sim` 的 S2 (i) **集合逐条一致**（本棒 R0 对照实验：IDENTICAL）。**回归锁**：非 S2 (i)=**0** 且非 S2 (ii)=**0**（目录链 48 处 + 非 ASCII tracked 链 1 处均不得回归）。**本棒实测**：本地 exit 0 · S2=34 · clone 同值 34 · S2 (i) 集合 diff 空 **IDENTICAL** · 非 S2 (i)=0 (ii)=0（三组对照 48/1/0 复跑复现）。
+- [x] **#3 环境无关性负向 fixture 红→绿**（F-HOT2-05/08 · 硬约束 6）：新 fixture 在临时 root（`git init`）放 gitignore 但实体在的 `.workbuddy/x.md` + 引用它的 S2 md → 修后 `--s2-baseline 1` **exit 0**（该链计入 S2 (i)）· `--s2-baseline 0` **exit 2**；**修前同 fixture S2=0**（被文件系统存在性掩盖）= 真红对照（本棒 R0 预演：pre-fix S2=0 exit 2 · post-fix S2=1 exit 0）。**本棒实测**：定向测试修前 3 pass / 2 fail（正向 34 + 新 fixture 红）→ 修后 5 pass / 0 fail。
+- [x] **#4 全量 npm test 全绿**：`npm test` → **858 pass / 0 fail / 1 skip**（不含新增测前 · tag `v3.0.0` 已打 ⇒ pin-10 tag-gated 现绿）；新增 fixture N 条后 **858+N pass / 0 fail**。既有 4 条 check-doc-links fixture 全绿（含按范围 2③ 调整的 (ii) 复绿分支）。**本棒实测**：`npm test` → **860 tests / 164 suites / 859 pass / 0 fail / 1 skip**（= 基线 858 + 1 新 fixture）。
+- [x] **#5 typecheck / pins**：`npm run typecheck` **0 错** · `node bin/specgate.js pins check` **17/17 PASS**。**本棒实测**：typecheck 0 错 · pins 17/17 · build 0 · test:lib 6/6 · assets 113/113 · terminology/claims PASS · 依赖零新增。
+- [x] **#6 结构闸**：`npx spec-wave task lint --file docs/tasks/active/task_3_0_w7_ci_hotfix.md` PASS（E1–E8 / W5–W7：R0–R5 槽位 + 控制表齐）。**本棒实测**：`task lint` → `LINT: PASS`。
 
 ---
 
@@ -248,7 +248,26 @@ S2 只新增（本 task + 30 invoke/review）· 不追债 34 处冻结坏链 · 
 
 ### 自检结论（执行者）
 
-（30/40 回填）
+**GATE_VERIFY 首输出**（FRAGMENT_30 纪律 · 真值 = task 人工闸表）：`node bin/specgate.js verify --target . --task docs/tasks/active/task_3_0_w7_ci_hotfix.md` → **HG-TASK-DRAFT / HG-AUDIT-R1 双闸 approved** · **VERIFY: PASS** · exit 0（HG-AUDIT-R1 非 pending ⇒ 30 可开工）。
+
+**修复 commit**：`98bc9e0`（`98bc9e05af35cf97856cf5bad4ac6f44cbeff44f`）· `fix(3.0-W7): check-doc-links 判据改入库状态（tracked 文件∪目录前缀 + -z 原样读取 · 环境无关 · 基线重建 34 · 验收 #1/#2）`。
+
+**验收逐项**：#1 ✓ 模拟 CI 修后绿（clone `98bc9e0` → `S2=34 / 冻结基线 34` exit 0；修前 clone `ef1c06f` → `S2(i)=34 ≠ 23` exit 2）· #2 ✓ 本地 exit 0 · `S2=34=冻结基线` · 本地与 clone 的 S2 (i) 集合 **diff 空 IDENTICAL** · 非 S2 (i)=0 (ii)=0（目录链 48 处 + 非 ASCII 1 处零回归）· #3 ✓ 环境无关 fixture 红→绿（pre-fix `S2=0` baseline 1 exit 2 红 → post-fix `S2=1` baseline 1 exit 0 / baseline 0 exit 2）· #4 ✓ `npm test` **860 tests / 164 suites / 859 pass / 0 fail / 1 skip**（= 基线 858 + 1 新 fixture）· #5 ✓ typecheck 0 错 · pins 17/17 · #6 ✓ `task lint` PASS。
+
+**锁计数（纯加性零回退）**：
+
+| 项 | 实测 |
+|----|------|
+| 基线（task 起草 @3d1b9d3） | 859 tests / 164 suites / 858 pass / 0 fail / 1 skip |
+| 本棒终态 | **860 / 164 / 859 / 0 / 1**（+1 新 fixture） |
+| typecheck / build / test:lib | 0 错 / 0 / 6/6 |
+| pins / assets / terminology / claims | 17/17 / 113/113 / PASS / PASS |
+| 本地 / clone checker | S2=34 PASS / S2=34 PASS（集合 IDENTICAL） |
+| 依赖 | 零新增 |
+
+**已知未测项/边界**：① CI 平台矩阵 22.x/24.x 两档（本修走 Node API + git · 无平台特化分支）；② git 不可用时可诊断性（`spawnSync('git',…)` 失败 → tracked 空 → 全 in-repo 链接判坏 · 方向 fail-closed · 报错未按因分档 · 硬约束 10 尚差一步）本棒只登记不裹挟（residual ②/§同类面快扫）；③ (i) 语义收严：未来引入「本地存在但未入库的非 `.workbuddy` 链接」会红（缓解：仓外维持 `existsSync` · tracked 目录前缀 · fixture 明示语义）。
+
+**偏差登记**：① 开工 HEAD `ef1c06f`（= task 提交）≠ task 起草期 `3d1b9d3`（复跑重建核对 · 判据 23/34 逐字一致）；② 三组对照 A 的派生差异：由**修后**脚本派生「字面式」继承 `-z` ⇒ 非 S2(i)=47；按 task 口径由 `3d1b9d3` 原始脚本派生 ⇒ A=48（47 目录链 + 1 非 ASCII）/ B=1 / C=0，与 task/审查文吻合；③ `S2_PARAM_EXCLUDE` 仅排除 task 路径（advisory A2），本 invoke/审查文实测零增链 ⇒ 无需扩展排除或重建基线；④ 修复 commit 与本文档/invoke commit 分离（两笔 · A1 口径 clone 取修复 commit）。
 
 ---
 
@@ -259,3 +278,4 @@ S2 只新增（本 task + 30 invoke/review）· 不追债 34 处冻结坏链 · 
 | 2026-09-17 | 初稿 · 10-task（CI run 35245272523/35245273138 hotfix · bugfix 双轨跳 SPEC）：CI 真值 + 根因（:96 FS 存在性 · `.workbuddy` 实体少计 11）落背景节 · 三组对照实验定位法定修法（字面式 42/48 不可用 → tracked 目录前缀 + 原样读取 → 34/34/0 IDENTICAL）· 基线复跑（859/164/858/0/1 · typecheck 0 · pins 17/17 · tag v3.0.0@3d1b9d3）· 范围唯一（checker 判据 + tracked 读取 + 基线重建 + test 三改 + ACCEPTANCE 三处标注）· 非范围含 tag 决策/掩盖式修法 · 验收 6 条（含 #1 模拟 CI 真红转绿 · #3 环境无关 fixture 红→绿 · #2 双跑同值）· F-HOT2-00~08 · R0–R5 五槽 + residual 五条 · 同类面快扫（唯 :96 真红 + git 不可诊断候选）· 本棒不签任何闸 |
 | 2026-09-17 | HG-TASK-DRAFT `pending` → **approved**（00 代签 · 授权真值：维护者本窗授权 · tag/push 代跑「授权」+ 过程文档闸代签模式 · task lint PASS）；HG-AUDIT-R1 维持 pending（30 仍拒开工）· 头部状态行同步（`draft` → `pending`） |
 | 2026-09-17 | HG-AUDIT-R1 `pending` → **approved**（00 代签 · 依据 R1 审查文 PASS-with-issues · blocking 0 · advisory A1–A6）· 搭车修 A4（R5/控制行由「双 pending」同步双 approved）+ A5（F-HOT2-04 `tagged-based` → `tracked-based`）+ A6（验收 6 条 / F-HOT2-00–08 计数口径订正）+ A1/A2 带入 30 执行要求 · 头部状态行同步 |
+| 2026-09-17 | 30 修复交付：checker (i) 判据入库状态（tracked 文件 ∪ tracked 目录前缀 · 仓外 `existsSync`）+ tracked 集合 `-z` 原样读取 · 基线 23→34 · `S2_PARAM_EXCLUDE` 改本 task 路径 · test 三改（正向 34 / 环境无关 fixture / (ii) `git init`+`git add`）· ACCEPTANCE 三处 23→34 + 口径补注 · 模拟 CI 修后 PASS + 本地/clone 双 34 IDENTICAL · 锁 860/164/859/0/1 · 修复 commit `98bc9e0` · 自检回填（验收 6/6 勾选 + 偏差 3 条） |
