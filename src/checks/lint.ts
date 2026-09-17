@@ -18,6 +18,26 @@ const KNOWN_STATUS_TOKENS = new Set([
 // 自检结论占位符（draft 期合法 · close 前须回填）；cmdTaskClose 亦用
 export const PLACEHOLDER_RE = /^（[^）]*(回填|待填)[^）]*）$/
 
+// 3.0-W6 S6.4（G4 · SPEC 07 ④ signed 兑现 D-23-W4-G4-EXIT）：思考轮结构判定共享 helper ——
+// hasSection=false → 豁免面（SPEC 承载 / bugfix 轨 · W4 warn）；hasSection=true 时三缺口分别点名：
+// missingSlots（R0–R5 槽位）/ missingTable（| 轮 | 结论 | early_stop | 表头）/ earlyStopNoReason。
+// 消费面：lintTaskFile W5–W7（warn-only 不变）+ verify --task G4 闸（active failClosed / done warn 降级）。
+export function evalThinkingRoundStructure(content: string): {
+  hasSection: boolean
+  missingSlots: string[]
+  missingTable: boolean
+  earlyStopNoReason: boolean
+} {
+  const hasSection = /^###\s+R0(\b|[^\d]|$)/m.test(content) || /^#{2,3}\s+.*思考轮/m.test(content)
+  if (!hasSection) return { hasSection, missingSlots: [], missingTable: false, earlyStopNoReason: false }
+  const missingSlots = ['R0', 'R1', 'R2', 'R3', 'R4', 'R5'].filter(
+    (r) => !new RegExp('^###\\s+' + r + '(\\b|[^\\d]|$)', 'm').test(content),
+  )
+  const missingTable = !/^\|\s*轮\s*\|\s*结论\s*\|\s*early_stop\s*\|/m.test(content)
+  const earlyStopNoReason = /\|\s*\*{0,2}yes/i.test(content) && !/reason（early_stop）/.test(content)
+  return { hasSection, missingSlots, missingTable, earlyStopNoReason }
+}
+
 export function lintTaskFile(filePath: string, cwd: string): {
   ok: boolean
   errors: LintIssue[]
@@ -99,31 +119,30 @@ export function lintTaskFile(filePath: string, cwd: string): {
   if (!content.includes('### 人工闸')) {
     warnings.push({ rule: 'W2', message: '缺 ### 人工闸 节（轻量 task 可忽略本提醒）' })
   }
-  const hasThinkSection = /^###\s+R0(\b|[^\d]|$)/m.test(content) || /^#{2,3}\s+.*思考轮/m.test(content)
-  if (!hasThinkSection) {
+  // 3.0-W6 S6.4：判据单源化 —— evalThinkingRoundStructure 同时供本 lint W5–W7（warn-only 面不变）
+  // 与 verify --task G4 闸（active failClosed · SPEC 07 ④ signed 兑现 D-23-W4-G4-EXIT）消费，禁复制判据。
+  const think = evalThinkingRoundStructure(content)
+  if (!think.hasSection) {
     warnings.push({
       rule: 'W4',
       message: '无思考轮节（SPEC 承载 / bugfix 轨合法豁免 · 有节则查 R0–R5 与控制表）',
     })
   } else {
-    // 2.3-W4 G4 思考轮结构接线（warn-only 过渡 · D-23-W4-G4-EXIT：升 failClosed 唯一路径=后续 SPEC 明文裁决）：
-    // W5 槽位 / W6 控制表 / W7 early_stop=yes 须 reason——均不挡 LINT: PASS（exit 码不变）。
-    const missingSlots = ['R0', 'R1', 'R2', 'R3', 'R4', 'R5'].filter(
-      (r) => !new RegExp('^###\\s+' + r + '(\\b|[^\\d]|$)', 'm').test(content),
-    )
-    if (missingSlots.length > 0) {
+    // 2.3-W4 G4 思考轮结构（task lint 面维持 warn-only · exit 码不变 · W5 槽位 / W6 控制表 / W7 early_stop reason）：
+    // failClosed 升级落在 verify --task 链（3.0-W6 S6.4）· 本面文案逐字保留（回归锁 cli-w4-gate-wiring.test.ts）。
+    if (think.missingSlots.length > 0) {
       warnings.push({
         rule: 'W5',
-        message: '思考轮槽位不全（缺 ' + missingSlots.join('/') + ' · warn-only 过渡 · D-23-W4-G4-EXIT）',
+        message: '思考轮槽位不全（缺 ' + think.missingSlots.join('/') + ' · warn-only 过渡 · D-23-W4-G4-EXIT）',
       })
     }
-    if (!/^\|\s*轮\s*\|\s*结论\s*\|\s*early_stop\s*\|/m.test(content)) {
+    if (think.missingTable) {
       warnings.push({
         rule: 'W6',
         message: '缺思考轮控制表（| 轮 | 结论 | early_stop | 表头 · warn-only 过渡 · D-23-W4-G4-EXIT）',
       })
     }
-    if (/\|\s*\*{0,2}yes/i.test(content) && !/reason（early_stop）/.test(content)) {
+    if (think.earlyStopNoReason) {
       warnings.push({
         rule: 'W7',
         message: '控制表含 early_stop=yes 但缺 reason（early_stop）回填（warn-only 过渡 · D-23-W4-G4-EXIT）',

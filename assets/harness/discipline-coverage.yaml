@@ -228,24 +228,24 @@ statements:
   - id: C1
     source: 22-task-audit.md
     summary: 必须落盘 reviews task_*_audit_R*
-    status: not_wired
-    mechanism: "本包未接线（findReview 仅 status 使用 · src/cli-status.ts#70）"
+    status: mechanical
+    mechanism: "verify --task R<n> 审查文存在级 + 结论级闸（src/cli/verify.ts · findReview/findLatestReview/evalReviewConclusion 单一实现源 src/checks/review-gates.ts）+ close_review（src/checks/close-guards.ts）· 2.3.0 起已接线（3.0-W6 对账实证 · 回归锁 test/w6-g2-g4-gates.test.ts）"
     gap: G2
     trigger:
       command: '$CLI verify --target $FIXTURE --task docs/tasks/active/task_w6dc_noreview_v1.md'
       expect: 2
-    notes: "旧包史实（@cyning/harness · verify/close reviews 闸 G2 v2.5+ · 全量 N4 v2.9）· 接线计划见 PRD_DEF-003 阶段二；内容质量仍 prompt-only"
+    notes: "旧包史实（@cyning/harness · verify/close reviews 闸 G2 v2.5+ · 全量 N4 v2.9）· 2026-09-17 3.0-W6 对账：现码机制面见 mechanism 栏（SPEC ③ 前提偏差在案 · 本波 = 回归锁 + 回写）· 审查文内容质量仍 prompt-only"
     mechanism_quality: null
   - id: C2
     source: 22-task-audit.md
     summary: HG-AUDIT-R1 pending 时禁止附 30 Prompt
-    status: not_wired
-    mechanism: "本包未接线（无 reviews 存在性闸）"
+    status: mechanical
+    mechanism: "verify --task 存在级闸（src/cli/verify.ts · 缺 R<n> 审查文 BLOCKED exit 2）+ HG-AUDIT-R1 pending → 30 拒开工（formatGateCheck src/cli/gates.ts）· 2.3.0 起已接线（3.0-W6 对账实证 · 回归锁 test/w6-g2-g4-gates.test.ts）"
     gap: G2
     trigger:
       command: '$CLI verify --target $FIXTURE --task docs/tasks/active/task_w6dc_pending_v1.md'
       expect: 2
-    notes: "旧包史实（@cyning/harness · 存在性闸随 G2）· 接线计划见 PRD_DEF-003 阶段二；审查文内容无检查"
+    notes: "旧包史实（@cyning/harness · 存在性闸随 G2）· 2026-09-17 3.0-W6 对账实证已接线 · 审查文内容无检查"
     mechanism_quality: null
   - id: C3
     source: 22-task-audit.md
@@ -286,8 +286,8 @@ statements:
     mechanism: "本包未接线（仅 W4 warn-only · src/cli.ts#498-503）"
     gap: G4
     trigger:
-      command: '$CLI task lint --file $FIXTURE/docs/tasks/active/task_w6dc_noround_v1.md'
-      expect: 0
+      command: '$CLI verify --target $FIXTURE --task docs/tasks/active/task_w6dc_noround_v1.md'
+      expect: 2
     notes: "旧包史实（@cyning/harness · task lint E8–E10 条件触发）· 接线计划见 PRD_DEF-003 阶段二；内容质量仍 20 帽"
     mechanism_quality: null
   - id: D4

@@ -48,5 +48,5 @@ export {
 export { LEGACY_GATE_EXEMPT_REL, loadLegacyGateExempt, resolveExemptEntry } from './checks/exempt.ts'
 export type { LegacyGateExemptEntry, LegacyGateExempt } from './checks/exempt.ts'
 export { runTestCheck } from './checks/test-artifacts.ts'
-export { PLACEHOLDER_RE, lintTaskFile } from './checks/lint.ts'
+export { evalThinkingRoundStructure, PLACEHOLDER_RE, lintTaskFile } from './checks/lint.ts'
 export type { LintIssue } from './checks/lint.ts'

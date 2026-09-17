@@ -66,9 +66,11 @@ describe('3.0-W6 S6.2 F4 · discipline check 真实触发源', { concurrency: 1 
     }
     assert.match(r.combined, /汇总: pass 9 · fail 0 · unreachable 0/)
     assert.match(r.combined, /审计轨 hook_guard 事件在轨/, 'B2 G7 佐证面（审计轨 hook_guard 事件）')
-    // declared≠verified 可区分实证：C1/C2/D3 纸面 not_wired · 实跑 pass（G2 现码已接线 · 起草发现在案）
-    assert.match(r.combined, /\| C1 \| not_wired \| pass \|/)
-    assert.match(r.combined, /\| D3 \| not_wired \| pass \|/)
+    // declared≠verified 可区分实证：D3 纸面 not_wired · 实跑 pass（G4 failClosed 已接线 · status 回写归 S6.7）；
+    // C1/C2 已于阶段二回写 mechanical（W6 对账实证 · 回归锁 test/w6-g2-g4-gates.test.ts）
+    assert.match(r.combined, /\| C1 \| mechanical \| pass \|/)
+    assert.match(r.combined, /\| C2 \| mechanical \| pass \|/)
+    assert.match(r.combined, /\| D3 \| not_wired \| pass \| exit 2 吻合期望 2 \|/)
     assert.doesNotMatch(r.combined, /\| fail \|/, '零 fail 行')
   })
 

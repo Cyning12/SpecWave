@@ -6,6 +6,7 @@ import { CliError, extractTaskSlug, fail, findGate, normalizeSlug, parseHarnessM
 import {
   checkPre30InvokeHats,
   evalReviewConclusion,
+  evalThinkingRoundStructure,
   findLatestReview,
   findReview,
   findSpecReview,
@@ -301,6 +302,7 @@ export async function cmdVerify(args: string[]): Promise<void> {
   const abs = resolveTaskPath(target, taskFile)
   const label = path.basename(abs)
   const exempted: string[] = [] // U1：exempt.reviews 命中留痕（done 面 · OQ-3 命名对齐裸 verify · emitJson 闭包消费故须先声明）
+  const waived: string[] = [] // 豁免/降级留痕（emitJson 闭包消费 · 3.0-W6 G4 done warn 降级同通道故须先声明）
   const emitJson = (blocked: boolean, waived?: string[], wikiLint?: WikiLintGateResult | null): void => {
     // obs 恒非空：emitJson 全部调用点均在 if (json) 守卫内（obs 仅 --json 时计算）
     const o = obs as VerifyObservability
@@ -348,6 +350,28 @@ export async function cmdVerify(args: string[]): Promise<void> {
     else console.log(`VERIFY: BLOCKED · ${test.reason} · ${label}`)
     fail('', VERIFY_BLOCKED_EXIT_CODE)
   }
+  // 3.0-W6 S6.4 G4 思考轮控制表闸（SPEC 07 ④ signed · D-23-W4-G4-EXIT 升级通道兑现）：
+  // 判据 = evalThinkingRoundStructure 单一实现源（checks/lint.ts · 与 task lint W5–W7 同族不复制）；
+  // active 面 failClosed（缺槽位/控制表/reason 点名 exit 2）· done 面 warn 降级不挡
+  //（D-23-W4-TRANSITION 不追溯存量 · 硬约束 7 · waived[] 留痕）· 无思考轮节维持豁免（SPEC 承载 / bugfix 轨）。
+  const think = evalThinkingRoundStructure(content)
+  if (think.hasSection && (think.missingSlots.length > 0 || think.missingTable || think.earlyStopNoReason)) {
+    const lacks: string[] = []
+    if (think.missingSlots.length > 0) lacks.push(`槽位 ${think.missingSlots.join('/')}`)
+    if (think.missingTable) lacks.push('控制表')
+    if (think.earlyStopNoReason) lacks.push('early_stop reason')
+    const gapText = lacks.join(' · ')
+    if (abs.split(path.sep).includes('done')) {
+      waived.push(`思考轮控制表缺口（缺 ${gapText} · done 目录审计降级 warn）`)
+      if (!json) {
+        console.log(`verify: warn · 思考轮控制表缺口（缺 ${gapText} · done 目录降级不挡 · D-23-W4-TRANSITION 不追溯存量）`)
+      }
+    } else {
+      if (json) emitJson(true)
+      else console.log(`VERIFY: BLOCKED · 思考轮控制表缺口（缺 ${gapText} 点名）· ${label}`)
+      fail('', VERIFY_BLOCKED_EXIT_CODE)
+    }
+  }
   // DEF-003 阶段二 T4：R<n> 审查文存在性硬闸（findReview 与 status / dry-run 同口径 · cli-checks 单一实现源）
   const reviewFound = findReview(target, abs)
   if (!reviewFound && !allowNoReview) {
@@ -355,7 +379,6 @@ export async function cmdVerify(args: string[]): Promise<void> {
     else console.log(`VERIFY: BLOCKED · missing R<n> review · ${label}`)
     fail('', VERIFY_BLOCKED_EXIT_CODE)
   }
-  const waived: string[] = []
   if (!reviewFound && allowNoReview) {
     waived.push('missing R<n> review（--allow-no-review 豁免）')
     if (!json) {
