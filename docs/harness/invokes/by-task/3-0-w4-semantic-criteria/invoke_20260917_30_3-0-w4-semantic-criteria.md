@@ -65,8 +65,39 @@
 - 阈值边界探针（cli-w4-gate-wiring.test.ts :524 区）：恰 20 侧由裸 ASCII 填充重锚为语义合规等长文本「本审查核对验收范围，通过。abcde」（去通过词后非空白恰 20 · 裸填充即本波 ① 号攻击面本体）· 恰 19 侧不动（substance 先闸仍 内容量不足 FAIL）
 - K 断言（:693-701）本阶段**不动**（R-5 归阶段二 · 跨段反向锁同）
 
+---
+
+## 阶段二 · R-5 跨行否定封堵 + K 断言翻向（commit 45569ec · 00 验收 PASS）
+
+- **判据**：REVIEW_NEG_RE 增窄邻接 alternative「(?:不|未)[ \t]*\n[ \t]*(?:予以?|以)?通过」（单换行 · 禁 \n\n 跨段 · 不引字符窗口）。
+- **红绿**：修复前 K 翻向 + 跨行三形态（不\n通过 · 未\n通过 · 未\n予以通过）全 exit 0 漏网真红 · 跨段反向锁（不\n\n通过 PASS）双向同向；修复后 3/3 绿（K exit 2 点名含否定结论词）。
+- **K 断言翻向**：test :695-705 同 fixture exit 0→2 · 无过时断言 · review-gates.ts:129 区 2.4.2「维持漏网」句封板 · 判据+断言同 commit（F-W4-09 硬锁 · commit body 注明分步必红理由）。
+- **回归**：285 份 tracked md（90+78+94+23）窄式 **0 命中** · 行尾 不/未 **0 行** · 88 基线集 57+6+25 不翻（旧 FAIL 集 15/3/7 逐字一致）。
+- **锁**：784/148/783/0/1 · typecheck 0 · build ✓ · pins 17/17 · 裸 verify exit 0（24 留痕不翻）· test:lib 首跑 5/6 系 S0 漂移哨兵构建序暂态（lib 未随 src 重建）→ build 后三跑稳定 6/6（00 验收定性成立）。
+- **偏差**：前缀形态 (予|以)? 增补 (予以?|以)?（底稿不覆盖「未\n予以通过」· 与同句窗口语素对齐 · 三性质不变 · 00 登记成立）。
+
+## 阶段三 · NEW-4 pin-17 表行语义判 + pin-08 发布态绑定（commit b7b3cce · 00 验收 PASS）
+
+- **判据**：pin-17 = 双命中 + ①词锚剥 \|\s* 行首锚落 cells[0] 主键列 + ②所属表首表头格 /^(Host|宿主)$/ 签名（miss 附注点名 NEW-4 维度 · hitsAll 同口径）；pin-08 = cells[2] 边界点式串 ∧ S_mid {published,已发,released,CLOSED,规划中,planned} 同格共现（裸版本串入 noState 嫌疑点名无发布态措辞）· S_narrow 弃用理由（伤 L10 CLOSED 行 1/15）入 yaml semantics。
+- **红绿**：修复前 4 红全顶包（Topic 表注入 / 第二格注入 / 裸版本串 / 不同格全 exit 0）· 修复后 6/6 绿 + 全表誊抄诚实边界 PASS（职责边界固化）+ S_mid 三态正向全 ok。
+- **回归**：双 README 各 10 表 · 签名表各恰 1 · 26/26 零误伤（pins「13 宿主校验 · 13 双语命中」）· spec 索引 18 行/15 含点式串 · S_mid 15/15 误伤 0（评审文 §4/§5 逐字吻合）· pins 17/17 · 现行文档零咬。
+- **A2 同 commit**：pins-consistency:1311 旧句断言 → S_mid 三条新断言 · 既有五组短语断言保留未破。
+- **登记**：W2-B7/B10 脱表补行重锚表内插入 · sha256.manifest 联动重建（assets verify 双面 PASS · 循 W3 先例）。
+- **偏差**：cellForm slice(6) off-by-one（\|\s* 实 5 字符）被 failClosed（host_hits 正则非法）咬出一拍即修 anchor.length。
+- **锁**：790/149/789/0/1 · typecheck 0 · build ✓ · test:lib 6/6（build 后跑）· 裸 verify exit 0。
+
+## 阶段四 · NEW-10 exempt A1 真实性 + U1 口径统一 + N5 登记 + 收官（commit 见自检结论 · 本 invoke 同波）
+
+- **A1 三元判**（exempt.ts loader）：① 全角括号前身份段非空 ∧ ② 括号内 ISO 日期 ∧ ③ 括号内出处词（授权/批准/会话/答复）· 不合入 invalid warn 不豁免（与缺四字段同通道）· 诚实边界 R-③ 注释在案（锁形态不锁事实 · 终局 S2 留痕+人审）· A2 可选/A3 弃选登记入 yaml 头注释。
+- **红绿**：假授权四形态（张三 / "00" / 有日期无出处词 / 有出处词无日期）修复前全豁免真红 → 修复后全 invalid 不豁免 exit 2 点名 A1 三元判 · 合规形态对照 PASS · **存量 40 条（34 旧+6 新）A1 全过 invalid 0**（评审文 34/34 基线 + 阶段一 6 条自过）。
+- **四处 fixture 重锚（20 审 advisory A1 · 与 loader 同 commit）**：① w4l_ok（:313 区）· ② meta_slug_x（N14 :345 区）· ③ N13「"00"→豁免命中」语义**有意反转**为 invalid（裸名/裸号即假授权形态 · 类型判层未加引号 00 半段保留 · 绿径改由 A1 合规形态承载）· ④ bare_gap（cli-verify-spec:240 区）。
+- **U1**：resolveExemptEntry 单源（exempt.ts · normalizeSlug 内收）· 三消费面同构（裸 verify :168 / lint-done :107,:124 / verify --task done 面新增）· grep 单源断言咬死（src 内无第二份 Map.get 拷贝）· done 面双向 fixture（有豁免 → exempted 留痕含 JSON 条件键（契约只增不改）· 无豁免 → warn 降级维持）· close 不消费设计性不对称显式注释入 close-guards.ts evalCloseReview 头注释（杜绝顺手补消费 · U2/U3 弃选在案）。
+- **N5 登记**：rebuild 追认语义不封堵口径标注入 task 自检结论（cli-assets.ts:86-90 警示文案在案复核 · 零行为变更）。
+- **偏差**：emitJson 闭包引用后置 const exempted 致 TDZ 运行红（--json 面 5 套件咬住）→ 声明前置一拍即修（测试网实效登记）。
+- **锁**：**794/150/793/0/1** · typecheck 0 · build ✓ · test:lib 6/6 · pins 17/17 · 裸 verify exit 0（24 留痕 · invalid 0）· verify --task PASS · gate-check exit 0 · task lint PASS · KPI 零 diff（四阶段机检）。
+
 ## 维护者授权边界
 
 - ⛔ 未 tag / push / publish / deprecate（四动作仅人）
 - ⛔ 未触碰 HG 闸表 / SPEC / PLAN / KPI 判据面
-- 本棒仅阶段一；R-5 跨行封堵（S5.2）/ pin-17（S5.4）/ pin-08（S5.5）/ NEW-10（S5.6）/ N5（S5.7）归后续阶段
+- 全四阶段完毕（范围①–⑦全销 · ⑧硬前置起草期已销）；波末 task close 待 40 复核后 00 口径

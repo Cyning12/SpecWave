@@ -311,27 +311,40 @@ S2 只新增（本 task 文件 + 30 执行留档 + 豁免清单 6 条数据行 �
 
 ### 自检结论（执行者）
 
-**30 阶段一（NEW-5 档 M + NEW-11 词表 + 6 件豁免 · 验收 #1/#2/#3 对应面）回填 · 2026-09-17 · HEAD 0eb6cd7 工作区**
+**30 全四阶段收官回填 · 2026-09-17 · 基线 HEAD 0eb6cd7 → 终态 3640a67+45569ec+b7b3cce+89d89d6**
 
-**GATE_VERIFY**：HG-TASK-DRAFT approved · HG-AUDIT-R1 approved · VERIFY: PASS（exit 0 · 双闸真值以本表为准）。
+**GATE_VERIFY（第 0 步首输出）**：`node bin/specgate.js verify --target . --task <本 task>` → 闸扫描表 HG-TASK-DRAFT approved · HG-AUDIT-R1 approved · **VERIFY: PASS**（exit 0 · 双闸真值以人工闸表为准）。波末 `gate-check` exit 0 · `task lint` PASS。
 
-**锁逐项（全绿）**：typecheck 0 错 · build exit 0 · npm test **782/147/781 pass/0 fail/1 skip**（基线 773/145/772/0/1 + 新增 9 测试/2 套件 · 零意外红）· test:lib **6/6**（S2 真仓裸 verify smoke ✓）· pins **17/17** · 裸 verify 真仓 exit 0（豁免留痕 24=18 旧+6 新）· verify --task 复跑 PASS · 依赖零新增。
+**阶段锁计数（纯加性 · 每阶段前后同绿）**：773/145/772/0/1（基线）→ 782/147/781/0/1（阶段一 +9 测/2 套件）→ 784/148/783/0/1（阶段二 +2 测/1 套件 · K 原地翻向不计数）→ 790/149/789/0/1（阶段三 +6 测/1 套件）→ **794/150/793/0/1**（阶段四 +4 测/1 套件）· 零意外红 · 零回退。
 
-**验收 #1（NEW-5 档 M 负向 fixture 红转绿）**：红测先行 —— 修复前 7 红全呈「VERIFY: PASS · 0!==2」真红漏网（① 通过。+16 填充 substance=31 · ② 本审查通过+填充 =34 · ③ 闸词+approved+通过+填充 =49 · NEW-11 四类 14 形态 substance 41–90）；修复后 9/9 绿（①③ exit 2 点名缺 SUBJ · ② 点名缺 OBJ∨GATE · 五类全点名含否定结论词）· ④ 诚实边界成段合规构造 PASS（R-① 职责边界固化）· ⑤「通过\n」仍内容量不足 FAIL（substance≥20 地板保留零回退）。
+**验收 13 条逐项**：
+- **#1 NEW-5 档 M 红转绿** ✓（填充顶包三件套修复前真红 substance=31/34/49 漏网 → 修复后 exit 2 点名缺 SUBJ/缺 OBJ∨GATE · 诚实边界对照 PASS · 「通过\n」地板 FAIL 零回退）
+- **#2 存量波及 + 豁免留痕** ✓（88 基线集复跑 PASS 57 · FAIL 31=25 旧+6 新 · 误伤恰枚举 6 件无第 7 件 · 6 条豁免四字段齐入清单 · 裸 verify 由 gap 转 exempted · A3 口径：评审文自身非消费形态单列）
+- **#3 正例零回退五面** ✓（57/63 直接过 · 词表 0/63 · pin-17 26/26 · pin-08 15/15 · exempt 40/40（34 旧+6 新 A1 全过 invalid 0））
+- **#4 评审文 + 边界声明** ✓（评审文 tracked 在案 · §1 判据两分声明 + 本 task 背景节/非范围首行双重声明 · S5.8 机检落地）
+- **#5 R-5 + K 断言配对** ✓（窄邻接式入 NEG_RE · K 断言同 fixture exit 0→2 翻向 + 跨段反向锁新增 · 判据与断言同 commit 45569ec 单 commit 含两侧 diff · 285 份 md 窄式 0 命中 · 行尾 不/未 0 行）
+- **#6 平台锁** ✓（typecheck 0 错 · npm test 793/794 全绿 · build exit 0 · test:lib 6/6 · pins 17/17 · 依赖零新增：dependencies 仍仅 js-yaml · lock 非 dev 顶层=2）
+- **#7 判据两分边界防御** ✓（四阶段 `git diff | grep -i kpi` 均零命中 · close_kpi 零变更 · 非范围表防御条在案）
+- **#8 pin-17 语义判 fixture** ✓（非签名表注入/签名表第二格注入双构造修复前真红 → 修复后 exit 2 · 全表誊抄诚实边界 fixture 注释登记 · 26/26 零回退 pins 兜住）
+- **#9 pin-08 绑定 fixture** ✓（裸版本串/不同格两构造修复前 ok 真红 → 修复后 mismatch 点名无发布态措辞 · S_mid 集+S_narrow 弃用理由入 yaml semantics · 15/15 零误伤）
+- **#10 NEW-10 A1 + U1** ✓（假授权四形态修复前全豁免真红 → 修复后 invalid warn 不豁免 · 40/40 零误伤 · done 面双向 fixture（有豁免 exempted 留痕含 JSON 键 · 无豁免 warn 维持）· helper 单源 grep 断言咬死（src 内无第二份 Map.get 拷贝）· close 不对称显式注释在案 close-guards.ts evalCloseReview 头注释）
+- **#11 既有面零意外改动** ✓（登记面逐条列下 · 此外既有断言零改动全绿）
+- **#12 结构闸** ✓（task lint PASS · gate-check exit 0）
+- **#13 执行粒度** ✓（四 commit 逐文件显式 add 无 -A · 每 commit 前后 npm test 同绿 · 未 tag/push/publish/deprecate · 波末 task close 待 40 复核后 00 口径）
 
-**验收 #2（存量波及复跑 + 豁免留痕 · A3 口径）**：探针分母 = **88 件基线集**（git ls-tree 9c895db）· 第 89/90 件单列（评审文自身非 findLatestReview 消费形态 · R1 审查文新判据下 PASS）。复跑（真 src 实现）：**PASS 57 · FAIL 31 = 25 旧 + 6 新** —— FAIL 25 旧集 detail 分布 15/3/7 与现口径逐字一致（判据单调加严旧 FAIL 不可能翻绿）· **误伤恰为评审文 §2.3/§7 枚举 6 件（全「缺 SUBJ」）· 无第 7 件意外误伤**。6 条豁免入 legacy-gate-exempt.yaml reviews 节（四字段齐 · reason 引评审文 §2.3/§7+形态句 · date 2026-09-17 · authorized_by 过 A1 三元判实测）· loader 收编 reviews 18→24 · invalid 0 · 裸 verify 该 6 件由 gap 转 **exempted** 留痕 ✓。
+**F-W2-13 既有面登记清单（全波汇总）**：① 阶段一：对照 fixture 重锚 30 处/15 文件（标准合规 fixture 补 OBJ 锚词「范围与验收」）+ 阈值边界探针恰 20 侧重锚等长语义合规文本 + 否定 detail 括注扩列 + 词集注释；② 阶段二：K 断言翻向 + review-gates.ts:129 R-5 句封板；③ 阶段三：W2-B7/B10 脱表补行重锚表内插入 + pins-consistency:1311 A2 断言随 semantics 改写同 commit 更新 + sha256.manifest 随 release-pins.yaml 联动重建（循 W3 先例）；④ 阶段四：A1 四处豁免 fixture 重锚（w4l_ok / meta_slug_x / N13「"00"」语义有意反转 + 注释 / bare_gap）+ N13 类型面绿径改由 A1 合规形态承载。
 
-**验收 #3（正例零回退 · 本棒对应两面）**：① 63 份现口径合规文除 6 件枚举豁免外全部直接 PASS（57/63 ✓ 探针实测）· ② NEW-11 词表对 63 份合规结论节误伤 **0/63**（6 件新 FAIL 全为缺 SUBJ · 旧否定命中仍 3 件不增 ✓）。③④⑤（pin-17 26/26 · pin-08 15/15 · exempt 34/34）归后续阶段验收面，本阶段 pins 17/17 兜住未动面。
+**N5 口径登记（范围⑦ · 零行为变更）**：`assets manifest rebuild` 追认语义在 provenance 未启用前提下**不封堵**（REBUILD_WARN 警示文案 cli-assets.ts:86-90 在案复核 · 快照断言锁文案零触碰）· 本波仅口径标注 · 若日后动归 W7 对外口径。
 
-**验收 #7（判据两分防御）**：`git diff -- src/ test/ | grep -i kpi` **零命中** · close_kpi/close-guards 零变更 ✓。
+**豁免 24 条留痕面**：裸 verify 真仓 exit 0 · 豁免命中留痕 24 条（18 旧 + 6 新 NEW-5）· invalid 0 · loader 收编 reviews 24 + invoke_hats 16。
 
-**F-W2-13 既有面登记清单**：① 对照 fixture 重锚 30 处/15 文件（标准合规 fixture 补 OBJ 锚词「范围与验收」· 档 M 下原形态 OBJ∨GATE 双缺必挡）；② 阈值边界探针恰 20 侧重锚语义合规等长文本（cli-w4-gate-wiring :524 区 · 恰 19 侧不动）；③ review-gates.ts 否定 detail 括注扩列 + 词集注释增 NEW-11 句（R-5 句 :129 零触碰）；④ K 断言 :693-701 本阶段不动（归阶段二）。
+**偏差登记（全波 5 条）**：① fixture ③ 闸例 HG-AUDIT-R1→HG-SPEC-SIGNOFF（AUDIT 词素 i 旗标命中 SUBJ 集 · 判定意图不变）；② NEW-11 'does not pass' 系 2.4.2 R-2 既有覆盖非红转绿面；③ NEG_RE 笔误 `doesn['’]\s*pass` 漏 t 被红测咬住即修；④ R-5 前缀形态 (予|以)? 增补 (予以?|以)?（底稿不覆盖「未\n予以通过」· 三性质不变 · 00 验收登记成立）；⑤ pin-17 cellForm slice(6) off-by-one（\|\s* 实 5 字符）被 failClosed 咬出一拍即修为 anchor.length。另：阶段四 emitJson 闭包引用后置 const 致 TDZ 运行红（5 套件 --json 面咬住）→ exempted 声明前置即修（登记为实现笔误 · 测试网实效）。
 
-**偏差登记（3 条 · 详见 30 invoke）**：fixture ③ 闸例 HG-AUDIT-R1→HG-SPEC-SIGNOFF（AUDIT 词素 i 旗标下命中 SUBJ 集 · 判定意图不变）；NEW-11 'does not pass' 系 2.4.2 R-2 既有覆盖非红转绿面；NEG_RE 初版笔误 `doesn['’]\s*pass` 漏 t 被红测咬住即修。
+**已知未测项/挂账（残余显式登记）**：R-① 成段伪造审查行为不防（invoke 留痕 + HG-AUDIT-R1 人签兜底 · fixture 固化边界）· R-② 窄式对消费者仓「恰在 不/未 后硬换行」排版理论误伤（本仓 0/285 · 误伤可枚举+豁免可留痕通道）· R-③ A1 只锁形态不锁事实（诚实边界注释在案 · A2 可选强形态登记入 yaml 头注释）· \bNG\b 观察名单（OQ-4 · 若日后入限结论节作用域）。
 
-**挂账（后续阶段）**：范围② R-5 跨行封堵 + K 断言翻向（S5.2）· ④ pin-17（S5.4）· ⑤ pin-08（S5.5 · advisory A2 同 commit 登记）· ⑥ NEW-10 A1+U1（S5.6 · advisory A1 四处豁免 fixture 重锚同 commit）· ⑦ N5（S5.7）· 验收 #4/#5/#6/#8–#13 全量终验 · 波末 gate-check + task close（待 40 复核后 00 口径）。
+**过程留痕**：`docs/harness/invokes/by-task/3-0-w4-semantic-criteria/invoke_20260917_30_3-0-w4-semantic-criteria.md`（四阶段红绿证据全谱）。
 
-**过程留痕**：`docs/harness/invokes/by-task/3-0-w4-semantic-criteria/invoke_20260917_30_3-0-w4-semantic-criteria.md`。
+**KPI 自评备料（待 00 裁定 · 照 kpi_rubric KPI_RUBRIC_v1_2 存在性口径 · 本波硬约束 11 不补语义闸）**：六判据范围①–⑦全销（⑧评审文硬前置起草期已销）· 验收 13 条全机械自证 ✓ · 硬约束 6（每条修严负向 fixture 红测先行）/7（不追溯 · 误伤 6 件豁免留痕）/11（KPI 零触碰四阶段机检）/14（复跑数字全入本节 tracked）/15（双闸落表机检咬住）逐项兑现 · advisory A1–A4 全落地（A1 四处重锚同 commit · A2 断言同 commit · A3 口径写明 · A4 援引以闸对象论为准）。
 
 ### KPI（00）
 
