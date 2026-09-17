@@ -1,6 +1,7 @@
 import { existsSync } from 'node:fs'
 import { readFile } from 'node:fs/promises'
 import path from 'node:path'
+import { appendAuditEvent, resolveAuditFile, stampAuditEvent, type AuditGateSnapshot } from '../audit/log.ts'
 import { evaluateMayStart30, fail, findGate, parseHumanGates, printJson, resolveTarget, resolveTaskPath, takeOption, toRel } from '../cli-shared.ts'
 import { listBareSpecFiles, runTestCheck } from '../cli-checks.ts'
 import { compareVersion, isLegacyHarnessLineVersion, manifestPath, readManifest } from './init.ts'
@@ -171,7 +172,7 @@ export async function cmdGateCheck(args: string[]): Promise<void> {
 
 export async function cmdAudit(args: string[]): Promise<void> {
   if (args.includes('--help') || args.includes('-h')) {
-    console.log('用法: npx spec-wave audit [--target PATH] [--task FILE]')
+    console.log('用法: npx spec-wave audit [--target PATH] [--task FILE] [--audit-file PATH]')
     return
   }
   let rest = args
@@ -179,19 +180,28 @@ export async function cmdAudit(args: string[]): Promise<void> {
   rest = r1
   const { value: taskFile, rest: r2 } = takeOption(rest, '--task')
   rest = r2
+  // 3.0-W6 S6.1：--audit-file 仅改审计落点（仓外拒 + S2 拒写双兜底在 resolveAuditFile · 无豁免参数）
+  const { value: auditFile, rest: r2b } = takeOption(rest, '--audit-file')
+  rest = r2b
   if (rest.length > 0) fail(`audit 未知参数: ${rest.join(' ')}`)
   // C1-b（2.2-W2）：gate 面 --target 须落 git 仓内（F-W2-02）；C3：目标打印相对化（toRel 口径）
   const target = resolveTarget(process.cwd(), targetArg, { requireGitRoot: true })
+  // F-W6-02/F-W6-07：落点合法性 fail-fast（先于任何门禁输出 · 拒写硬失败不降级）
+  resolveAuditFile(target, auditFile)
+  const auditStartedAt = Date.now()
   console.log(`目标: ${toRel(process.cwd(), target)}`)
   if (taskFile) console.log(`task: ${taskFile}`)
 
   let gateOk = true
   let gateText = ''
+  let gateSnapshot: AuditGateSnapshot[] = []
   if (taskFile) {
     const abs = resolveTaskPath(target, taskFile)
     // C3 补漏（2.3-W3 · D-23-W3-REL-BASE）：错误文案相对化（target 归卡基）
     if (!existsSync(abs)) fail(`错误: 未找到 --task 文件 ${toRel(target, abs)}`)
-    const formatted = formatGateCheck(abs, await readFile(abs, 'utf8'))
+    const content = await readFile(abs, 'utf8')
+    gateSnapshot = parseHumanGates(content).map((g) => ({ id: g.id, status: g.status }))
+    const formatted = formatGateCheck(abs, content)
     gateText = formatted.text
     gateOk = !formatted.blocked
     process.stdout.write(gateText)
@@ -201,5 +211,23 @@ export async function cmdAudit(args: string[]): Promise<void> {
   console.log(`  gate-check: ${gateOk ? 'PASS' : 'FAIL'}`)
   console.log(`  test-check: ${test.ok ? 'PASS' : 'FAIL'}`)
   if (test.reason) console.log(`    ${test.reason}`)
+  // 3.0-W6 S6.1 C6 主产出点：audit verdict 落审计轨（观测面纯旁路 · stdout/exit 零变更 · F-W6-01 降级不阻断）
+  const auditOk = gateOk && test.ok
+  const why: string[] = []
+  if (!gateOk) why.push('gate-check FAIL')
+  if (!test.ok) why.push(`test-check FAIL${test.reason ? `（${test.reason}）` : ''}`)
+  appendAuditEvent(
+    target,
+    stampAuditEvent({
+      event: 'audit',
+      verdict: auditOk ? 'PASS' : 'FAIL',
+      exit_code: auditOk ? 0 : 2,
+      ...(taskFile ? { task: taskFile } : {}),
+      ...(gateSnapshot.length > 0 ? { gates: gateSnapshot } : {}),
+      ...(why.length > 0 ? { detail: why.join(' · ').slice(0, 300) } : {}),
+      duration_ms: Date.now() - auditStartedAt,
+    }),
+    { auditFile },
+  )
   if (!gateOk || !test.ok) fail('ICVO audit 未通过', 2)
 }

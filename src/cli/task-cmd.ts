@@ -1,6 +1,7 @@
 import { existsSync, mkdirSync, renameSync } from 'node:fs'
 import { readFile } from 'node:fs/promises'
 import path from 'node:path'
+import { appendAuditEvent, resolveAuditFile, stampAuditEvent } from '../audit/log.ts'
 import { buildDoneSnapshot, extractTaskSlug, fail, findGitRoot, parseHarnessMeta, printJson, takeOption, toRel } from '../cli-shared.ts'
 import { evalCloseGuard, lintTaskFile } from '../cli-checks.ts'
 import { cmdTaskCheck, cmdTaskLintDone, cmdTaskLintWikiDelta } from '../cli-task-extra.ts'
@@ -62,6 +63,9 @@ async function cmdTaskClose(args: string[]): Promise<void> {
   rest = r1
   const { value: targetArg, rest: r2 } = takeOption(rest, '--target')
   rest = r2
+  // 3.0-W6 S6.1：--audit-file 仅改审计落点（相对 task 所在仓根解析 · 仓外拒 + S2 拒写双兜底 · 无豁免参数）
+  const { value: auditFile, rest: r3 } = takeOption(rest, '--audit-file')
+  rest = r3
   if (rest.length > 0) fail(`task close 未知参数: ${rest.join(' ')}`)
   if (!fileArg) fail('task close 须指定 --file PATH')
   const abs = path.resolve(process.cwd(), fileArg)
@@ -69,10 +73,30 @@ async function cmdTaskClose(args: string[]): Promise<void> {
   // 2.4.1 NEW-2：--json 基参取命令 target = task 文件所在仓根（findGitRoot 上溯 · 无 .git 回落 cwd
   // 保持旧行为）——cwd≠target 时 dest/done_snapshot/blockers 内嵌路径仍可相对化（报告 §3 代理复现面）
   const closeJsonBase = findGitRoot(abs) ?? process.cwd()
+  // F-W6-02/F-W6-07：审计落点合法性 fail-fast（拒写硬失败不降级 · 先于守卫求值）
+  resolveAuditFile(closeJsonBase, auditFile)
+  const closeStartedAt = Date.now()
   const content = await readFile(abs, 'utf8')
   const meta = parseHarnessMeta(content)
   const fileSlug = extractTaskSlug(abs)
   const slug = meta.task_slug ?? fileSlug
+  // 3.0-W6 S6.1 ③：close verdict 三态落审计轨（观测面纯旁路 · appendAuditEvent 单一实现源）。
+  // 偏差登记（留 20 复核）：verdict 枚举 v1 = PASS|BLOCKED|FAIL 无 READY —— dry-run READY
+  // 映射 verdict=PASS + detail 点名「READY（dry-run · 未执行归档）」区分真归档 PASS。
+  const emitCloseAudit = (verdict: 'PASS' | 'BLOCKED', exitCode: number, detail?: string): void => {
+    appendAuditEvent(
+      closeJsonBase,
+      stampAuditEvent({
+        event: 'task_close',
+        verdict,
+        exit_code: exitCode,
+        task: slug,
+        ...(detail ? { detail: detail.slice(0, 300) } : {}),
+        duration_ms: Date.now() - closeStartedAt,
+      }),
+      { auditFile },
+    )
+  }
   const blockers: string[] = []
   const traces: string[] = []
   const closeAllowFlags: Record<string, string | undefined> = {
@@ -114,6 +138,7 @@ async function cmdTaskClose(args: string[]): Promise<void> {
     for (const t of traces) console.log(t)
   }
   if (blockers.length > 0) {
+    emitCloseAudit('BLOCKED', 2, blockers.join('；'))
     if (json) {
       // K5：--json BLOCKED —— 非 0 退出 · JSON 仅错误面（无 done_snapshot 字段）
       printJson(closeJsonBase, { ok: false, status: 'BLOCKED', slug, blockers, traces })
@@ -124,6 +149,7 @@ async function cmdTaskClose(args: string[]): Promise<void> {
     fail('', 2)
   }
   if (!yes) {
+    emitCloseAudit('PASS', 0, 'READY（dry-run · 未执行归档）')
     if (json) {
       // K5：--json READY（dry-run · 含豁免 dry-run）—— 未归档 → done_snapshot 恒 null · exit 0
       printJson(closeJsonBase, { ok: true, status: 'READY', slug, dest, traces, done_snapshot: null })
@@ -142,6 +168,7 @@ async function cmdTaskClose(args: string[]): Promise<void> {
   // HARNESS_META_HEADING 节原文（extractSection · 归档真值防模板漂移）；快照存在性
   // 唯绑归档事件，与豁免旗标无关（20 审 R2 口径裁决：豁免 + --yes → 快照照打）
   const snapshot = buildDoneSnapshot(dest)
+  emitCloseAudit('PASS', 0, `归档 → ${toRel(closeJsonBase, dest)}`)
   if (json) {
     printJson(closeJsonBase, {
       ok: true,

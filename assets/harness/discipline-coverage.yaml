@@ -4,6 +4,9 @@
 # 历史叙事：私仓 rethink 文档 03_coverage_matrix.md（2026-07 mechanization-rate · 不随包分发）
 # 维护：新闸合入时更新 statements[].status / gaps[] / as_of_package_version
 # 禁止：把本文件当「每周全量重盘」流程；不做 audit --discipline UI（本波）
+# trigger（additive 扩键 · 3.0-W6 F4 · 闸行裁决③）：{ command, expect, audit_event? } ·
+#   占位符 $CLI=本包 CLI 入口 / $FIXTURE=临时 fixture 仓根 · discipline check 实跑验证（declared vs verified 双列）
+#   v1 收窄面 = S2 公理 A1/A5/A6/A7/B4 + 本波四条 G2(C1/C2)/G4(D3)/G7(B2) · 全量触发源化归后续波次（登记留痕）
 # status 口径（DEF-005 重盘 · as_of = 本包实接线）：
 #   mechanical  = 机制在本包 src/ 已接线（mechanism 带锚点）
 #   partial     = 有机制但覆盖不全
@@ -89,6 +92,9 @@ statements:
     status: mechanical
     mechanism: "gate-check + verify（src/cli.ts#325,#381 · 1.1.0 P0 子集 · 须 --task）"
     gap: null
+    trigger:
+      command: '$CLI verify --target $FIXTURE --task docs/tasks/active/task_w6dc_pending_v1.md'
+      expect: 2
     notes: null
     mechanism_quality: null
   - id: A2
@@ -121,6 +127,9 @@ statements:
     status: mechanical
     mechanism: "task close 自检结论非占位符检查（src/cli.ts#556-566）"
     gap: G7
+    trigger:
+      command: '$CLI task close --file $FIXTURE/docs/tasks/active/task_w6dc_closebad_v1.md'
+      expect: 2
     notes: "命令真跑过仍靠 40 诚实"
     mechanism_quality: null
   - id: A6
@@ -129,6 +138,9 @@ statements:
     status: mechanical
     mechanism: "task lint-done 帽集合校验（src/cli-task-extra.ts#100-116 · 2.3-W4 帽级）+ close_invoke 帽集合闸（src/cli-checks.ts evalCloseInvokeHats）"
     gap: null
+    trigger:
+      command: '$CLI verify --target $FIXTURE --task docs/tasks/active/task_w6dc_noinvoke_v1.md'
+      expect: 2
     notes: "旧包史实（@cyning/harness · close 集合闸 evaluateInvokeHatsRetention · v2.12.0 默认 10,30,40 · profile minimal/full · v2.12.1 前缀 hat run）"
     mechanism_quality: null
   - id: A7
@@ -137,6 +149,9 @@ statements:
     status: mechanical
     mechanism: "task close（src/cli.ts · CLOSE_GUARD_ORDER 13 守卫 · 2.3-W4 起 close_review 含结论级判定）"
     gap: null
+    trigger:
+      command: '$CLI task close --file $FIXTURE/docs/tasks/done/task_w6dc_done_v1.md'
+      expect: 2
     notes: "手动 mv 旁路由 task lint-done 兜底（src/cli-task-extra.ts · 2.3-W4 起帽级）；status reviews.CLOSE 已升结论级口径（src/cli-status.ts · 2.3-W4 · 归档 ∧ 最高 R 轮审查结论可机读通过）"
     mechanism_quality: null
   - id: A8
@@ -178,6 +193,10 @@ statements:
     mechanism: null
     gap: G7
     notes: "真跑过无证据"
+    trigger:
+      command: '$CLI hook-guard --trigger pre-commit --command "true" --target $FIXTURE'
+      expect: 0
+      audit_event: hook_guard
     mechanism_quality: null
   - id: B3
     source: 40-self-check.md
@@ -193,6 +212,9 @@ statements:
     status: prompt-only
     mechanism: null
     gap: G6
+    trigger:
+      command: '$CLI audit --target $FIXTURE --task docs/tasks/active/task_w6dc_pending_v1.md --audit-file docs/tasks/evil.jsonl'
+      expect: 2
     notes: null
     mechanism_quality: null
   - id: B5
@@ -209,6 +231,9 @@ statements:
     status: not_wired
     mechanism: "本包未接线（findReview 仅 status 使用 · src/cli-status.ts#70）"
     gap: G2
+    trigger:
+      command: '$CLI verify --target $FIXTURE --task docs/tasks/active/task_w6dc_noreview_v1.md'
+      expect: 2
     notes: "旧包史实（@cyning/harness · verify/close reviews 闸 G2 v2.5+ · 全量 N4 v2.9）· 接线计划见 PRD_DEF-003 阶段二；内容质量仍 prompt-only"
     mechanism_quality: null
   - id: C2
@@ -217,6 +242,9 @@ statements:
     status: not_wired
     mechanism: "本包未接线（无 reviews 存在性闸）"
     gap: G2
+    trigger:
+      command: '$CLI verify --target $FIXTURE --task docs/tasks/active/task_w6dc_pending_v1.md'
+      expect: 2
     notes: "旧包史实（@cyning/harness · 存在性闸随 G2）· 接线计划见 PRD_DEF-003 阶段二；审查文内容无检查"
     mechanism_quality: null
   - id: C3
@@ -257,6 +285,9 @@ statements:
     status: not_wired
     mechanism: "本包未接线（仅 W4 warn-only · src/cli.ts#498-503）"
     gap: G4
+    trigger:
+      command: '$CLI task lint --file $FIXTURE/docs/tasks/active/task_w6dc_noround_v1.md'
+      expect: 0
     notes: "旧包史实（@cyning/harness · task lint E8–E10 条件触发）· 接线计划见 PRD_DEF-003 阶段二；内容质量仍 20 帽"
     mechanism_quality: null
   - id: D4

@@ -1,7 +1,8 @@
 import { existsSync, readFileSync, statSync } from 'node:fs'
 import { readFile } from 'node:fs/promises'
 import path from 'node:path'
-import { extractTaskSlug, fail, findGate, normalizeSlug, parseHarnessMeta, parseHumanGates, printJson, resolveTarget, resolveTaskPath, takeOption, toRel } from '../cli-shared.ts'
+import { appendAuditEvent, resolveAuditFile, stampAuditEvent, type AuditGateSnapshot } from '../audit/log.ts'
+import { CliError, extractTaskSlug, fail, findGate, normalizeSlug, parseHarnessMeta, parseHumanGates, printJson, resolveTarget, resolveTaskPath, takeOption, toRel } from '../cli-shared.ts'
 import {
   checkPre30InvokeHats,
   evalReviewConclusion,
@@ -255,6 +256,9 @@ export async function cmdVerify(args: string[]): Promise<void> {
   // K3：--with-wiki-lint 追加闸（显式旗标 · 非破坏；preset 默认开启为独立决策点，本 task 不做）
   const withWikiLint = rest.includes('--with-wiki-lint')
   rest = rest.filter((a) => a !== '--with-wiki-lint')
+  // 3.0-W6 S6.1：--audit-file 仅改审计落点（仅 --task 模式落事件 · 仓外拒 + S2 拒写双兜底 · 无豁免参数）
+  const { value: auditFile, rest: r5 } = takeOption(rest, '--audit-file')
+  rest = r5
   if (rest.length > 0) fail(`verify 未知参数: ${rest.join(' ')}`)
   // C1-b（2.2-W2）：gate 面 --target 须落 git 仓内（F-W2-02 · 安全设计 §2.2.4 跨仓引用禁止）
   const target = resolveTarget(process.cwd(), targetArg, { requireGitRoot: true })
@@ -262,6 +266,8 @@ export async function cmdVerify(args: string[]): Promise<void> {
   const obs = json ? await collectVerifyObservability() : null
   // --task 与 --spec 互斥（旧包 lib/cli.js#487-491 语义 · exit 1 用法错误）
   if (taskFile && specFile) fail('verify：--task 与 --spec 互斥')
+  // 3.0-W6：--audit-file 仅 --task 模式有意义（裸 verify/--spec 不落审计事件 · 防静默忽略误导）
+  if (auditFile && !taskFile) fail('verify：--audit-file 仅 --task 模式有效（裸 verify / --spec 不落审计事件）')
   if (specFile) {
     await verifySpecMode(target, specFile, { json, allowNoSpecReview, allowNoReview, withWikiLint }, obs)
     return
@@ -270,6 +276,27 @@ export async function cmdVerify(args: string[]): Promise<void> {
     // 2.3-W4 FULL-reviews：裸 verify = 仓级 reviews 全量扫描（原用法错 exit 1 语义由本模式取代）
     await verifyBareReviewsMode(target, { json, withWikiLint }, obs)
     return
+  }
+  // 3.0-W6 S6.1 ②：--task 各 verdict 出口落审计轨（appendAuditEvent 单一实现源 · 观测面纯旁路）。
+  // 落点合法性 fail-fast（F-W6-02 S2 拒写 exit 2 / F-W6-07 仓外拒 exit 1 · 拒写不降级）；
+  // verdict 事件经 try/catch 旁路留痕后原样重抛 —— 主输出与 exit code 零变更（行为面零回归快照钉死）。
+  resolveAuditFile(target, auditFile)
+  const auditStartedAt = Date.now()
+  let auditGates: AuditGateSnapshot[] | undefined
+  const emitVerifyAudit = (verdict: 'PASS' | 'BLOCKED', exitCode: number, detail?: string): void => {
+    appendAuditEvent(
+      target,
+      stampAuditEvent({
+        event: 'verify',
+        verdict,
+        exit_code: exitCode,
+        task: taskFile,
+        ...(auditGates && auditGates.length > 0 ? { gates: auditGates } : {}),
+        ...(detail ? { detail: detail.slice(0, 300) } : {}),
+        duration_ms: Date.now() - auditStartedAt,
+      }),
+      { auditFile },
+    )
   }
   const abs = resolveTaskPath(target, taskFile)
   const label = path.basename(abs)
@@ -294,12 +321,14 @@ export async function cmdVerify(args: string[]): Promise<void> {
       ...(wikiLint ? { wiki_lint: wikiLintJson(wikiLint) } : {}),
     })
   }
+  try {
   if (!existsSync(abs)) {
     if (json) emitJson(true)
     else console.log(`VERIFY: BLOCKED · task 文件不存在 · ${label}`)
     fail('', VERIFY_BLOCKED_EXIT_CODE)
   }
   const content = await readFile(abs, 'utf8')
+  auditGates = parseHumanGates(content).map((g) => ({ id: g.id, status: g.status }))
   const formatted = formatGateCheck(abs, content)
   if (!json) process.stdout.write(formatted.text)
   if (formatted.blocked) {
@@ -397,6 +426,7 @@ export async function cmdVerify(args: string[]): Promise<void> {
       }
       fail('', VERIFY_BLOCKED_EXIT_CODE)
     }
+    emitVerifyAudit('PASS', 0, [...waived, ...exempted].length > 0 ? [...waived, ...exempted].join('；') : undefined)
     if (json) emitJson(false, waived, wikiLint)
     else {
       console.log(`verify: wiki-lint PASS · scanned: ${wikiLint.scanned} · scope: all`)
@@ -404,8 +434,16 @@ export async function cmdVerify(args: string[]): Promise<void> {
     }
     return
   }
+  emitVerifyAudit('PASS', 0, [...waived, ...exempted].length > 0 ? [...waived, ...exempted].join('；') : undefined)
   if (json) emitJson(false, waived)
   else {
     console.log(`VERIFY: PASS · ${label}`)
+  }
+  } catch (err) {
+    // 3.0-W6 S6.1：BLOCKED verdict 留痕后原样重抛（观测面旁路 · 主输出与 exit code 零变更）
+    if (err instanceof CliError && err.exitCode === VERIFY_BLOCKED_EXIT_CODE) {
+      emitVerifyAudit('BLOCKED', err.exitCode, err.message || undefined)
+    }
+    throw err
   }
 }

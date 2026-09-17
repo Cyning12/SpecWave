@@ -1,5 +1,6 @@
 import { existsSync, readFileSync } from 'node:fs'
 import path from 'node:path'
+import { formatDisciplineCheck, runDisciplineCheck } from './checks/discipline-check.ts'
 import { fail, findGate, KIT_LAYOUT_DIR, packageRoot, parseHumanGates, printJson, resolveTarget, takeOption, toRel } from './cli-shared.ts'
 // DEF-003 阶段二 T3：dry-run 守卫 adapter 复用 cli-checks 单一实现源（与 verify / status 同口径）
 // DEF-003 阶段二 T6：close_* 守卫复用 cli-checks evalCloseGuard（与 task close 同一实现源）
@@ -29,7 +30,8 @@ type DisciplineData = {
   version: string
   as_of_package_version: string
   scope: string
-  statements?: { id: string; source: string; summary: string; status: string }[]
+  // 3.0-W6 S6.2（F4）：trigger 为 additive 扩键（只增 · 闸行裁决③ · loadDiscipline 校验面零变更容忍）
+  statements?: { id: string; source: string; summary: string; status: string; trigger?: unknown }[]
   gaps?: { id: string; title: string; status: string }[]
 }
 
@@ -476,6 +478,7 @@ export async function cmdDiscipline(args: string[]): Promise<void> {
   if (!sub || sub === '--help' || sub === '-h' || args.includes('--help') || args.includes('-h')) {
     console.log(`用法:
   npx spec-wave discipline show [--target PATH] [--json]
+  npx spec-wave discipline check [--target PATH] [--json]
 `)
     return
   }
@@ -492,5 +495,28 @@ export async function cmdDiscipline(args: string[]): Promise<void> {
     else console.log(`${sourceLine(target, source)}\n${formatDisciplineShow(data, source, target)}`)
     return
   }
-  fail(`discipline 子命令未知: ${sub ?? '(空)'}\n用法: discipline show [--target PATH] [--json]`)
+  // 3.0-W6 S6.2（F4 · SPEC 07 范围②）：discipline check —— 登记 trigger 的 statements 接真实触发源
+  // 实跑验证（declared 纸面 vs verified 实跑双列可区分 · F-W6-05 unreachable 分档不误报 fail）。
+  // exit 语义：verified=fail（真红）→ exit 2 点名；unreachable 不抬 exit code（环境诊断 · 观测面）。
+  if (sub === 'check') {
+    let remaining = rest
+    const { value: targetArg, rest: r1 } = takeOption(remaining, '--target')
+    remaining = r1
+    const json = remaining.includes('--json')
+    const unknown = remaining.filter((a) => a !== '--json')
+    if (unknown.length > 0) fail(`discipline check 未知参数: ${unknown.join(' ')}`)
+    const target = resolveTarget(process.cwd(), targetArg)
+    const { data, source } = loadDiscipline(target)
+    const report = runDisciplineCheck(data.statements ?? [])
+    if (json) {
+      printJson(process.cwd(), { command: 'discipline check', ...report })
+    } else {
+      console.log(formatDisciplineCheck(report, sourceLine(target, source)))
+    }
+    if (report.fail > 0) {
+      fail(`discipline check: verified=fail ${report.fail} 条（declared 纸面 ≠ verified 真实 · 点名如上）`, 2)
+    }
+    return
+  }
+  fail(`discipline 子命令未知: ${sub ?? '(空)'}\n用法: discipline show [--target PATH] [--json] · discipline check [--target PATH] [--json]`)
 }

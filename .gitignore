@@ -3,3 +3,6 @@ lib/
 *.tsbuildinfo
 .workbuddy/
 *.bak
+# 3.0-W6 C6（F-W6-10）：审计流 = 观测面非证据面 · 防每跑门禁脏工作区；
+# 证据摘录入 invoke/自检结论（硬约束 14 口径）。A3 登记：本行只覆盖本仓，消费仓须自查 .gitignore。
+docs/harness/audit/*.jsonl

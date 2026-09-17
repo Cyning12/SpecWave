@@ -1,5 +1,6 @@
 import { spawnSync } from 'node:child_process'
 import { readFileSync } from 'node:fs'
+import { appendAuditEvent, stampAuditEvent } from '../audit/log.ts'
 import { fail, resolveTarget, takeOption } from '../cli-shared.ts'
 import { isPlainObject } from './schema.ts'
 
@@ -123,7 +124,20 @@ export async function cmdHookGuard(args: string[]): Promise<void> {
     console.error(`hook-guard: 命中 ${trigger}（${command.trim().slice(0, 80)}）→ 跑门禁: ${gateCommand}`)
   }
 
+  const gateStartedAt = Date.now()
   const gateStatus = runGateCommand(gateCommand, target)
+  // 3.0-W6 S6.6 G7 执行证据：门禁真跑过即留证（审计轨 hook_guard 事件 · exit_code 与门禁真实出口吻合）。
+  // 观测面旁路（F-W6-01 降级不阻断）；hook-guard 不设 --audit-file（内部命令面 · 落点恒默认 · 留 20 复核）。
+  appendAuditEvent(
+    target,
+    stampAuditEvent({
+      event: 'hook_guard',
+      verdict: gateStatus === 0 ? 'PASS' : 'BLOCKED',
+      exit_code: gateStatus,
+      detail: `trigger=${trigger} · command=${gateCommand}`.slice(0, 300),
+      duration_ms: Date.now() - gateStartedAt,
+    }),
+  )
   if (gateStatus !== 0) {
     // 阻断语义精确 exit 2（裁决③ · cursor 非 2 退出 fail-open 口径）
     console.error(`hook-guard: 门禁红（exit ${gateStatus}）· 阻断 ${trigger}`)
