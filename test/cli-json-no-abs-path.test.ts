@@ -6,6 +6,7 @@ import os from 'node:os'
 import path from 'node:path'
 import { describe, it } from 'node:test'
 import { fileURLToPath } from 'node:url'
+import { relativizeOutputValue } from '../src/cli-shared.ts'
 
 const KIT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const CLI_TS = path.join(KIT, 'src', 'cli.ts')
@@ -593,5 +594,39 @@ describe('2.4.2 R-1 [P2] · host validate 缺省基改取 --file 所在仓根（
     const r2 = runCli(['host', 'validate', '--file', absYaml], KIT)
     assert.equal(r2.status, 0, r2.combined)
     assert.ok(r2.stdout.includes(`file: ${EXAMPLE_REL.split(path.sep).join('/')}`), `人类输出 file 须相对化:\n${r2.stdout}`)
+  })
+})
+
+describe('3.0-W5 NEW-12 · relativizeOutputValue 覆盖对象 key（验收 #4 · 红测先行：修复前 key 原样泄漏真红）', () => {
+  const BASE = '/tmp/dsh-ck-new12-base'
+
+  it('以绝对路径为 key 的对象：key 相对化 · 无绝对路径 key · value 相对化零回退', () => {
+    const out = relativizeOutputValue(BASE, {
+      [BASE + '/docs/tasks/active/x.md']: { hits: 2, note: BASE + '/assets/a.yaml' },
+      'plain-key': 'plain-value',
+    }) as Record<string, unknown>
+    const keys = Object.keys(out)
+    assert.ok(
+      !keys.some((k) => k.includes(BASE)),
+      '断言无绝对路径 key（修复前 key 原样泄漏 = 真红面）: ' + keys.join(','),
+    )
+    assert.ok(keys.includes('docs/tasks/active/x.md'), 'key 已相对化为仓内相对形: ' + keys.join(','))
+    const entry = out['docs/tasks/active/x.md'] as { hits: number; note: string }
+    assert.equal(entry.note, 'assets/a.yaml', 'value 相对化零回退')
+    assert.equal(out['plain-key'], 'plain-value')
+  })
+
+  it('零改写锁：无路径 key 的对象逐字不变（键集与值零触碰面）', () => {
+    const input = { alpha: 'x', beta: { gamma: 'y' }, list: ['z', 1, true, null] }
+    assert.deepEqual(relativizeOutputValue(BASE, input), input)
+  })
+
+  it('键碰撞语义登记（20 审 A1）：相对化后撞名后者覆盖前者 · 信封不得依赖碰撞面', () => {
+    const out = relativizeOutputValue(BASE, {
+      'docs/x.md': 'first',
+      [BASE + '/docs/x.md']: 'second',
+    }) as Record<string, string>
+    assert.deepEqual(Object.keys(out), ['docs/x.md'])
+    assert.equal(out['docs/x.md'], 'second', 'A1 登记语义：撞名后者覆盖前者')
   })
 })

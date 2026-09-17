@@ -681,26 +681,47 @@ function cmdPinsFix(root: string, yes: boolean): void {
     console.log('[unfixable] ' + u.result.id + ' ' + u.result.path + ' · ' + u.reason)
   }
   if (!yes) {
-    console.log('PINS FIX: dry-run · 以上 ' + plans.length + ' 处将改（--yes 才写盘 · 写前备份 <file>.bak · 写盘成功后自动清理）')
+    console.log('PINS FIX: dry-run · 以上 ' + plans.length + ' 处将改（--yes 才写盘 · 写前备份 <file>.bak（已被占则避让为 <file>.pins-fix-backup · 两级皆占则跳过写盘 exit 2）· 写盘成功后自动清理自写备份）')
     if (unfixable.length > 0) fail('PINS FIX: ' + unfixable.length + ' 处不可修（须人工）', 2)
     return
   }
   // 同文件只写一次（最终累计内容）· 只备份一次（写前旧值 · F-P1-07 一次收敛）
-  // 2.3.1 N1-d：备份在写盘成功后自动清理（只清本次自写 .bak · F-P2-08）——
+  // 2.3.1 N1-d：备份在写盘成功后自动清理（只清本次自写备份 · F-P2-08）——
   // 备份唯一消费场景是写盘失败回滚；留存会被 npm publish 从工作树打入包内（验收报告 §3.B）。
+  // 3.0-W5 NEW-8（F-W5-03/F-W5-06 · 用户文件零损失优先于修复便利）：写前备份存在即改名避让 ——
+  // <file>.bak 空闲则用（旧行为不变）；已被占（用户自有同名 .bak）→ 避让为 <file>.pins-fix-backup
+  // （刻意避开 .bak 后缀 · 防万一残留被 NEW-6 卫生门通配拦下）；两级皆占 → 该文件跳过写盘，
+  // 点名并计入 exit 2（failClosed · 不无备份写盘 · 不递增造第三级名）。
   const written = new Set<string>()
+  const skipped: string[] = []
   for (const p of plans) {
     if (written.has(p.rel)) continue
+    if (skipped.includes(p.rel)) continue
     let final = p
     for (const q of plans) if (q.rel === p.rel) final = q
     const abs = path.resolve(root, p.rel)
-    copyFileSync(abs, abs + '.bak')
+    const bak = abs + '.bak'
+    let backup: string | null = null
+    if (!existsSync(bak)) backup = bak
+    else if (!existsSync(abs + '.pins-fix-backup')) backup = abs + '.pins-fix-backup'
+    if (backup === null) {
+      skipped.push(p.rel)
+      console.log('[skipped] ' + p.rel + '（备份两级皆占：.bak 与 .pins-fix-backup 均存在 · 不无备份写盘 · 请手动处置后重跑）')
+      continue
+    }
+    copyFileSync(abs, backup)
     writeFileSync(abs, final.newContent)
-    unlinkSync(abs + '.bak') // 写盘成功 → 自动清理本次备份（2.3.1 N1-d）
+    unlinkSync(backup) // 写盘成功 → 自动清理本次自写备份（跟踪实际用名 · 2.3.1 N1-d）
     written.add(p.rel)
     console.log('[written] ' + p.rel + '（写前备份已于成功后自动清理 · 2.3.1）')
   }
-  console.log('PINS FIX: 写入 ' + plans.length + ' 处 · 不可修 ' + unfixable.length + ' 处')
+  console.log(
+    'PINS FIX: 写入 ' + plans.length + ' 处 · 不可修 ' + unfixable.length + ' 处' +
+      (skipped.length > 0 ? ' · 备份两级皆占跳过 ' + skipped.length + ' 处' : ''),
+  )
+  if (skipped.length > 0) {
+    fail('PINS FIX: ' + skipped.length + ' 处备份两级皆占跳过写盘（不无备份写盘 · 请手动处置后重跑）', 2)
+  }
   if (unfixable.length > 0) fail('PINS FIX: ' + unfixable.length + ' 处不可修（须人工 · 真值源/git 永不反向改）', 2)
 }
 

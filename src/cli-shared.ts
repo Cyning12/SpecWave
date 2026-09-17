@@ -430,7 +430,12 @@ function realpathOrAncestor(p: string): string {
   }
 }
 
-/** 深遍历 JSON 载荷：仅改字符串值（键名不动 · 契约「键集只增不改」）。 */
+/**
+ * 深遍历 JSON 载荷：字符串值与对象键名同经相对化（3.0-W5 NEW-12 契约修订）。
+ * 契约「键集只增不改」= 键**集合**（存在性集合）语义不变 —— 相对化是改写非增删；
+ * 含绝对路径基串的 key 会被相对化改写（与 value 同函数同 bases 口径 · 消费方以绝对路径 key 查表须同步修 · F-W5-05）。
+ * 键碰撞语义（20 审 A1 登记）：相对化后撞名后者覆盖前者 · 信封不得依赖碰撞面。
+ */
 export function relativizeOutputValue(base: string, value: unknown): unknown {
   const realBase = realpathOrAncestor(base)
   const bases = realBase === base ? [base] : [base, realBase]
@@ -446,7 +451,7 @@ export function relativizeOutputValue(base: string, value: unknown): unknown {
     if (v !== null && typeof v === 'object') {
       const out: Record<string, unknown> = {}
       for (const [k, vv] of Object.entries(v as Record<string, unknown>)) {
-        out[k] = walk(vv)
+        out[walkString(k)] = walk(vv) // NEW-12：key 亦经 walkString 相对化（契约修订见上注释）
       }
       return out
     }

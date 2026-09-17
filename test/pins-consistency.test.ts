@@ -378,6 +378,59 @@ describe('W1-A1 release pins · B组 fixture 仓行为', { concurrency: 1 }, () 
     })
   })
 
+  it('B12 3.0-W5 NEW-8 用户既有同名 .bak 零损失：fix --yes 避让为 .pins-fix-backup · 用户文件存活逐字不变 · 自写避让备份已清理（F-W5-03）', async () => {
+    await withTemp(async (dir) => {
+      await makeFixture(dir)
+      await writeRel(dir, 'assets/ontology.yaml', BROKEN_ONTOLOGY)
+      // 预置用户自有同名 .bak（内容 marker）——修复前旧码 copyFileSync 静默覆盖 + unlinkSync 删除 = 零预警损失（真红面）
+      const userBak = path.join(dir, 'assets/ontology.yaml.bak')
+      await writeFile(userBak, 'USER-OWNED-BACKUP-MARKER' + '\n', 'utf8')
+      const r = runCli(['pins', 'fix', '--yes'], dir)
+      assert.equal(r.status, 0, r.combined)
+      assert.equal(
+        await readFile(userBak, 'utf8'),
+        'USER-OWNED-BACKUP-MARKER' + '\n',
+        '用户既有 .bak 须存活且内容逐字不变（NEW-8 目标行为 · 零损失优先于修复便利）',
+      )
+      const fixed = await readFile(path.join(dir, 'assets/ontology.yaml'), 'utf8')
+      assert.equal(fixed, GOOD_ONTOLOGY, '目标文件已修')
+      assert.equal(
+        existsSync(path.join(dir, 'assets/ontology.yaml.pins-fix-backup')),
+        false,
+        '自写避让备份写盘成功后须自动清理（只清本次自写 · F-P2-08 / 2.3.1 N1-d 语义不变）',
+      )
+    })
+  })
+
+  it('B13 3.0-W5 NEW-8 两级皆占（.bak 与 .pins-fix-backup 均存在）：跳过写盘 exit 2 点名含「请手动处置后重跑」· 零写盘零损失（F-W5-06 · 20 审 A2 文案硬要求）', async () => {
+    await withTemp(async (dir) => {
+      await makeFixture(dir)
+      await writeRel(dir, 'assets/ontology.yaml', BROKEN_ONTOLOGY)
+      await writeFile(path.join(dir, 'assets/ontology.yaml.bak'), 'USER-BAK' + '\n', 'utf8')
+      await writeFile(path.join(dir, 'assets/ontology.yaml.pins-fix-backup'), 'STALE-BACKUP' + '\n', 'utf8')
+      const r = runCli(['pins', 'fix', '--yes'], dir)
+      assert.equal(r.status, 2, r.combined)
+      assert.match(r.combined, /ontology\.yaml/, '点名被跳过文件')
+      assert.match(r.combined, /请手动处置后重跑/, 'A2：点名文案须含手动处置指引')
+      assert.match(r.combined, /两级皆占/)
+      assert.equal(
+        await readFile(path.join(dir, 'assets/ontology.yaml'), 'utf8'),
+        BROKEN_ONTOLOGY,
+        '不无备份写盘：目标文件保持原值未动（零损失优先 · failClosed）',
+      )
+      assert.equal(
+        await readFile(path.join(dir, 'assets/ontology.yaml.bak'), 'utf8'),
+        'USER-BAK' + '\n',
+        '用户 .bak 逐字不变',
+      )
+      assert.equal(
+        await readFile(path.join(dir, 'assets/ontology.yaml.pins-fix-backup'), 'utf8'),
+        'STALE-BACKUP' + '\n',
+        '既有避让位文件逐字不变',
+      )
+    })
+  })
+
   it('B5 S2 机械拒写：fixable 落点指 docs/tasks → fix --yes exit 2 · 零写盘 · 零备份残留', async () => {
     await withTemp(async (dir) => {
       await makeFixture(dir)

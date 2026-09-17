@@ -62,3 +62,60 @@
 - `package.json`：files 否定项 `"!assets/**/*.bak"` → `"!**/*.bak"` + `"!**/*.bak.*"`（数据行非结构变更 · 闸行裁决①在案）
 - `src/cli-assets.ts`：:32 同族分叉理由注释（纯注释 · 行为零变更）
 - `test/pack-hygiene.test.ts`：扩 NEW-6 四变体负向 + 正向不误拦 + NEW-7 双锚（+7 测试 +2 套件）· 既有正向/负向用例零改动全绿
+
+---
+
+## 阶段二 · NEW-8 pins fix 备份不误删 + NEW-12 相对化覆盖对象 key（00 验收放行后开工）
+
+### 红测先行证据（硬约束 6 · 修复前真红留证）
+
+新 fixture 组修复前实跑（`--test-name-pattern='NEW-8|NEW-12|B12|B13'` · 旧码）：**pass 2 / fail 4** ——
+- **B12**（用户既有 `.bak` 存活 fixture）：修复前旧码 `copyFileSync(abs, abs+'.bak')` 静默覆盖用户文件 → `unlinkSync` 删除 → 用户 `.bak` 灭失（真红 · 零预警损失实锤面复现）
+- **B13**（两级皆占 fixture）：修复前 exit **0**（期望 2 · 旧码无占用语义照样覆盖删除写盘）
+- **NEW-12 key fixture**：修复前以绝对路径为 key 的对象经 `relativizeOutputValue` 后 key 原样泄漏（断言无绝对路径 key → 真红）
+- 同向通过（锁面）：零改写锁（无路径 key 对象逐字不变 · 修复前后同绿）
+
+修复后同组全绿（B12 用户文件逐字存活 + 避让备份自清理 · B13 exit 2 点名含指引 · NEW-12 key 相对化 + 碰撞登记语义）。
+
+### NEW-8 定稿口径落地（S5.3 · 验收 #3 · F-W5-03/F-W5-06）
+
+`src/cli-pins.ts` 写盘循环：`<file>.bak` 空闲则用（旧行为不变）· 已被占 → 避让 `<file>.pins-fix-backup`（刻意避开 .bak 后缀防 NEW-6 通配自咬）· **两级皆占 → 跳过写盘 + exit 2 点名**（不无备份写盘 · 不递增第三级名）。写盘成功后只清本次自写备份（跟踪实际用名 `backup` 变量 · 2.3.1 N1-d / F-P2-08 语义不变）。
+
+**A2 文案样例（实测输出串）**：
+- `[skipped] assets/ontology.yaml（备份两级皆占：.bak 与 .pins-fix-backup 均存在 · 不无备份写盘 · 请手动处置后重跑）`
+- `PINS FIX: 1 处备份两级皆占跳过写盘（不无备份写盘 · 请手动处置后重跑）`（exit 2 · failClosed）
+
+dry-run 文案同步（:684）：「写前备份 <file>.bak（已被占则避让为 <file>.pins-fix-backup · 两级皆占则跳过写盘 exit 2）· 写盘成功后自动清理自写备份」。
+
+### NEW-12 定稿口径落地（S5.4 · 验收 #4 · F-W5-05）
+
+`src/cli-shared.ts` `relativizeOutputValue` 对象分支 `out[k]` → `out[walkString(k)]`（key 与 value 同函数同 bases 口径）。
+
+**契约注释 diff（:433 区 · 含 A1 碰撞句）**：
+```diff
+-/** 深遍历 JSON 载荷：仅改字符串值（键名不动 · 契约「键集只增不改」）。 */
++/**
++ * 深遍历 JSON 载荷：字符串值与对象键名同经相对化（3.0-W5 NEW-12 契约修订）。
++ * 契约「键集只增不改」= 键**集合**（存在性集合）语义不变 —— 相对化是改写非增删；
++ * 含绝对路径基串的 key 会被相对化改写（与 value 同函数同 bases 口径 · 消费方以绝对路径 key 查表须同步修 · F-W5-05）。
++ * 键碰撞语义（20 审 A1 登记）：相对化后撞名后者覆盖前者 · 信封不得依赖碰撞面。
++ */
+```
+
+**消费面复核结论（F-W5-05 · 预期零波及实锤）**：全量 npm test 绿 = `assertJsonNoAbsRoot` 全 stdout 串扫描面（cli-json-no-abs-path 全 describe · 含 R-1 回归锁）+ `Object.keys` 固定字段集快照面（verify/gate-check/pins 等）+ JSON 契约面合跑 105/105（cli-flags 路径边界反向 fixture 含）**零意外红** —— 现网无以绝对路径为 key 的信封（与 S5.4 预查一致）· 零断言改动零快照更新。
+
+### 锁逐项（阶段二本棒实测）
+
+- `npm run typecheck` **0 错** · `npm run build` exit 0
+- `npm test` **806 tests / 153 suites / 805 pass / 0 fail / 1 skip**（阶段一终态 801/152/800/0/1 + 新增 5 测试 / 1 套件 · 零意外红 · skip 数不变 · duration ≈97s）
+- `npm run test:lib` **6/6 pass** · pins **17/17 PASS** · verify --task 复跑 **VERIFY: PASS**
+- JSON 输出契约面（cli-flags + cli-json-no-abs-path + pins-consistency 合跑）**105/105 全绿**
+- 依赖零新增
+
+### 偏差登记（阶段二）
+
+1. **NEW-12 fixture 落点**：task S5.4 建议「selfproof 系扩或单测直调」二选一 —— 取**直调导出函数**式但落于 `cli-json-no-abs-path.test.ts` 同文件（新 describe · 与 selfproof 系邻接 · 两全其建议形态）。
+2. **碰撞语义用例非红转绿面**：「撞名后者覆盖前者」为新行为本体（修复前两 key 并存必红）· 与 key fixture 同红转绿组一并留证 · A1 登记语义钉死。
+3. **dry-run 文案具体措辞 30 定**（task 仅要求口径更新为改名避让语义 · B3 用例 `/dry-run/` 断言零回退实测绿）。
+4. **跳过计数为加性尾注**：`PINS FIX: 写入 N 处 · 不可修 M 处` 行尾追加「· 备份两级皆占跳过 X 处」（既有汇总口径零触碰 · 仅加性 · 非范围红线遵守）。
+5. **B12/B13 编号接 B11 后**（既有文件 B10 在 B11 后 · 编号序本非严格 · 沿用文件内就近插入体例）。
