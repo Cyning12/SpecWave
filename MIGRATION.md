@@ -123,9 +123,9 @@ DEPRECATED: use dsh-coding-kit instead. See https://github.com/Cyning12/SpecWave
 
 ---
 
-## 2.4.2 → 3.0.0（breaking）· 适配表 schema 跃迁（草案）
+## 2.4.2 → 3.0.0（breaking）· 适配表 schema 跃迁（定稿 · 经真实 2.4.1 仓演练）
 
-> **状态：草案** —— W7 定稿前置 · 真实 2.4.1 仓演练后转正（3.0 W1 · 评审文 [`docs/harness/reviews/w1_schema_change_review_20260916.md`](docs/harness/reviews/w1_schema_change_review_20260916.md) §4 素材落地）。
+> **状态：定稿 · 经真实 2.4.1 仓演练（2026-09-17 · 3.0 W7）** —— 旧格式表零改动通过 validate/apply + 新能力可选启用通过 validate（演练记录 [`docs/harness/reviews/w7_migration_rehearsal_2_4_1_20260917.md`](docs/harness/reviews/w7_migration_rehearsal_2_4_1_20260917.md)）。（3.0 W1 · 评审文 [`docs/harness/reviews/w1_schema_change_review_20260916.md`](docs/harness/reviews/w1_schema_change_review_20260916.md) §4 素材落地）
 > 适用范围：host-adapt 适配表（`assets/ide/host-adapt/examples/mvp-hosts.yaml` 及 `--file` 自定义表）的 schema v1 → v2 跃迁 + 闸判定泛化。
 
 ### ① 默认路径：什么都不用做
@@ -149,6 +149,13 @@ DEPRECATED: use dsh-coding-kit instead. See https://github.com/Cyning12/SpecWave
 
 - 13 宿主既有物化路径全部不变（本波不碰任何 `.cursor/` / `.claude/` / `.dsh/` 等落点）；`hosts` 保持数组形态且每行带 `host_id`（pin-17 提取前提）。
 
+### ⑤ 演练结论（2026-09-17 · 3.0 W7 · 真实 v2.4.1 仓）
+
+- 演练基线：`git worktree add <tmp> v2.4.1` → worktree commit `c89f92d`（v2.4.1 表为 v1 扁平 · 无 `schema_version`）。
+- ① **旧格式零改动**：以 v2.4.1 版 `mvp-hosts.yaml` 跑当前码 `host validate --file` → **PASS**；`host apply --tools dsh,cursor --dry-run --file` → **PASS**（planned writes 正常）。
+- ② **新能力可选启用**：最小 v2 表（`schema_version: 2` + 根级 `command_sets` + `defaults`/`extends` + `surfaces.hooks`）→ `host validate` **PASS**；`host apply --dry-run` **PASS**（cursor `config-hook` 物化 `.cursor/hooks.json`；dsh `mechanism: none` 显式降级 L1+L2）。
+- **结论：未发现 schema 兼容洞**（F-W7-01 未触发 · 回退 W1 通道未启用）。逐步骤命令与输出见演练记录。
+
 ---
 ## 修订记录
 
@@ -164,3 +171,4 @@ DEPRECATED: use dsh-coding-kit instead. See https://github.com/Cyning12/SpecWave
 | 2026-09-10 | **`2.1.0` published**（多平台技能+编排）；当时消费者钉 `dsh-coding-kit@2.1.0`（史实；现已 deprecate） |
 | 2026-09-10 | **W1 收口**：终点改 SpecWave；`spec-wave` 非过渡 bin；醒目声明 `dsh-coding-kit` deprecated；钉点仅推荐 `spec-wave` |
 | 2026-09-16 | **3.0 W1 草案节**：增「2.4.2 → 3.0.0（breaking）」适配表 schema 跃迁迁移节（草案 · W7 定稿 + 真实 2.4.1 仓演练后转正）· 只追加不动既有行（pin-14 钉点行未触） |
+| 2026-09-17 | **3.0 W7 定稿**：适配表 schema 跃迁节草案 → 定稿（经真实 v2.4.1 仓演练 · 旧格式零改动 + 新能力可选启用均 PASS · 无兼容洞）· 演练记录 [`docs/harness/reviews/w7_migration_rehearsal_2_4_1_20260917.md`](docs/harness/reviews/w7_migration_rehearsal_2_4_1_20260917.md) |
