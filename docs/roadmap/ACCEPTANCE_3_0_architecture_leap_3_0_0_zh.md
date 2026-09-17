@@ -2,7 +2,7 @@
 
 > **状态**：**待发版**（**PENDING PUBLISH** · 2026-09-17 bump · tag `v3.0.0` **待人打** · `npm publish` **仅人** · `HG-RELEASE=pending`）
 > **SPEC**：[3_0-architecture-leap SPEC 系列](../spec/3_0-architecture-leap/) · 规划 [`PLAN_3_0_architecture_leap_v1_zh.md`](PLAN_3_0_architecture_leap_v1_zh.md)
-> **task**：[`docs/tasks/active/task_3_0_w7_closeout_external.md`](../tasks/active/task_3_0_w7_closeout_external.md)（W7 收尾与对外 · 双闸 approved）
+> **task**：[`docs/tasks/done/task_3_0_w7_closeout_external.md`](../tasks/done/task_3_0_w7_closeout_external.md)（W7 收尾与对外 · **CLOSED** · 双闸 approved · 40 复核 PASS-with-issues）
 > **探针**：[`docs/harness/reviews/w7_release_probe_3_0_0_20260917.md`](../harness/reviews/w7_release_probe_3_0_0_20260917.md)（6 项）
 > **发布边界（诚实红线）**：**tag / push / publish / deprecate 四动作全仅人** —— 本档与探针**不代打 tag、不 publish**；`pin-10`（git tag `v3.0.0`）**打 tag 前为设计红**，打 tag 后须 17/17。
 
@@ -27,7 +27,7 @@
 | 阶段一（F3+E3） | `da1a4e4`+`7e9ee37` | 845 | 844 | 0 | 1 | **270** | — |
 | 阶段二（术语+A3+K） | `2243489`+`5473319`+`33ae2b4` | 855 | 854 | 0 | 1 | 270 | terms/claims PASS |
 | 阶段三（迁移+链接+证据） | `0d06c1f`+`d2d1c1e`+`7c5f2c9` | 859 | 858 | 0 | 1 | 270 | links PASS（非 S2 (i)/(ii)=0） |
-| 阶段四（bump） | 见 RELEASING / 本档 | 859 | 857 + **2 tag-gated 设计红** | — | 1 | 270 | 三 checker PASS |
+| 阶段四（bump） | 见 RELEASING / 本档 | 859 | 856 | **2（tag-gated 设计红）** | 1 | 270 | 三 checker PASS |
 
 - **spawn 重定基**：671 → **270**（`scripts/e3-spawn-count.mjs` · 达标 ≤300）。
 - **术语**：判红面 `门控` 残留 **0**（`terminology.yaml` + `check-terminology`）。

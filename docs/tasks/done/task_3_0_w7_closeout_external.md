@@ -1,6 +1,6 @@
 # Task：3.0 W7 · 收尾与对外（F3 wiki 能力补全 + E3 spawn 收官 + 术语统一 + A3 对外口径边界 + K-1~K-4 台账 + MIGRATION 定稿与真实 2.4.1 仓演练 + 链接两级机检 + 证据入库清偿 + 2.4.2 口径补正搭车 + 3.0.0 release bump）
 
-> **状态**：`draft`（2026-09-17 10-task 起草 · **HG-TASK-DRAFT / HG-AUDIT-R1 双闸 approved（00 代签 2026-09-17 · 维护者本窗「授权00代签」）** · `HG-RELEASE` = 发布动作闸 **不拦 30**（00 裁定 2026-09-17 · blocks=—）· **30 可开工**（双闸 approved · pre-30 invoke 三件套齐 · GATE_VERIFY PASS））
+> **状态**：`done`（2026-09-17 10-task 起草 · **HG-TASK-DRAFT / HG-AUDIT-R1 双闸 approved（00 代签 2026-09-17 · 维护者本窗「授权00代签」）** · `HG-RELEASE` = 发布动作闸 **不拦 30**（00 裁定 2026-09-17 · blocks=—）· **30 可开工**（双闸 approved · pre-30 invoke 三件套齐 · GATE_VERIFY PASS））
 > **SPEC 真值**：[`docs/spec/3_0-architecture-leap/08_w7_closeout_external_v1.md`](../../spec/3_0-architecture-leap/08_w7_closeout_external_v1.md)（signed · HG-SPEC-SIGNOFF=approved 2026-09-16 · 范围 ①–⑩ · §5 设计要点 · 验收 1–10 · F-W7-01–06）
 > **上游 PLAN**：[`PLAN_3_0_architecture_leap_v1_zh.md`](../../roadmap/PLAN_3_0_architecture_leap_v1_zh.md) W7 节（:288-293）+ K-1~K-4 台账（:295-308）+ 硬约束 **1**（S2 永不覆写 · :330）/ **7**（不追溯存量 · :336）/ **8**（每波单独提交 · :337）/ **9**（对外文案事实卡黑名单 · :338）/ **14**（证据入库 · :343）/ **15**（闸不落表即虚设 · :344）/ **16**（版本路由 · :345）
 > **前置已兑现**：W0–W6 全 done（W6 终态锁 841/160/840/0/1 · [`task_3_0_w6_observability_audit.md`](../done/task_3_0_w6_observability_audit.md)）· SPEC 08 signed · W2 hooks 物化 + host verify 已交付（[`task_3_0_w2_gates_in_hosts.md`](../done/task_3_0_w2_gates_in_hosts.md) · 六 commit）· W3 研究文与探针已按硬约束 14 入库（[`w3_ontology_graph_research_20260917.md`](../../harness/reviews/w3_ontology_graph_research_20260917.md) · [`scripts/onto-probe.mts`](../../../scripts/onto-probe.mts)）
@@ -204,6 +204,7 @@ W0–W6 已把 3.0 的架构跃迁与接线全部交付（841/160/840/0/1 · pin
   2. 若复核发现**其他** 2.4.2 口径滞后行 → 随本波提交补正并在提交说明注明。
 - **红线**：**不改 2.4.2 提交本身 · 不移动 tag**（tag ≠ HEAD 纪律 · 硬约束 7）。
 - **机检断言**：`grep` 全仓无 `2.4.2.*待发版` / `v2.4.2.*待人打`；本波至少一个提交说明含「补正 2.4.2 口径滞后」。
+- **残留分类登记（A2 · 40 复核搭车）**：全仓精确 grep 的历史残留 = `docs/tasks/done/task_2_4_2_patch.md` + 其 `docs/harness/invokes/by-task/2-4-2-patch/*` + `docs/roadmap/ACCEPTANCE_2_4_2_patch_2_4_2_zh.md` —— 均 **S2 / 历史豁免**（永不覆写 · 不追溯存量）；**对外 live 面（`CHANGELOG.md` / `RELEASING.md`）零残留**。
 
 ### S7.10 3.0.0 release bump（SPEC 范围⑩ · 验收 #9/#10 · HG-RELEASE）
 
@@ -272,20 +273,20 @@ W0–W6 已把 3.0 的架构跃迁与接线全部交付（841/160/840/0/1 · pin
 
 ## 验收标准（必须自证，不接受「我改完了」）
 
-- [ ] **#1 术语一致性机检通过（最终口径 · 唯一判红 = `门控`）**（SPEC 验收 1 · S7.3）：`assets/harness/terminology.yaml` 落盘 + `scripts/check-terminology.mjs` 入套件（或独立命令写入自检结论）· **① canonical 保留词 GLOSSARY 五词在位正向断言（门禁/过程轨/帽制/人闸/真值源）· 任何位置不判红（含 `人闸` 74 计次/65 行与 `人工闸` 全形态）** · **② 唯一判红对象 = `门控`（应为 `门禁`）· 仅自述/对外面（README 双语/GLOSSARY/RELEASING[除 `门控 skip`]/MIGRATION/delivery/promotion）** · **③ 豁免面逐条枚举**（research_report[含 K-3 目标文本]/安全设计/系统设计/docs/spec/历史PLAN/`门控 skip`）+ **词边界排除 `后门控制`** · **④ 判据 = `门控` 判红面命中 0（计次/逐行口径）· 不再要求 `人闸`/`人工闸` 计数** · **⑤ 正负 fixture**：保留词 `人闸`/`人工闸` 不红 · `delivery/promotion` 注入 `门控` 真红 · research_report 的 `门控`/`门控 skip`/`后门控制` 不红 · **⑥ 实测基线：门控 全 tracked 95 · 判红面 3（全 `门控 skip` 已豁免）· 残留 0**
-- [ ] **#2 迁移指引经真实 2.4.1 仓演练可通**（SPEC 验收 2 · S7.6）：`git worktree` 挂 `v2.4.1`（`c89f92d`）或 fixture → 旧格式表零改动通过 + 新能力可选启用 · 逐步骤命令/输出/exit code 记录落 `docs/harness/reviews/w7_migration_rehearsal_2_4_1_20260917.md`（S2 只新增）· **发现兼容洞即 F-W7-01 STOP**
-- [ ] **#3 对外文案黑名单机检**（SPEC 验收 3 · S7.4）：`claims-boundary.yaml` + 边界文档 tracked · `scripts/check-claims.mjs` 对 `delivery/promotion/*` + README 双语 + GLOSSARY 断言 forbidden 零命中 · 未落地一律「将新增/规划中」· **不含「接入即 L3」/「13 宿主全 hook」/「靠 hook 强制」** · 负向 fixture 真红
-- [ ] **#4 相对链接两级机检（S2 豁免口径 · 00 裁定 2026-09-17）**（SPEC 验收 4 · S7.7）：`scripts/check-doc-links.mjs` 固化入套件 · **(i) 非 S2 坏链硬判 = 0**（含 PLAN_2_3 ×4 / PLAN_2_4 ×2 / PLAN_2_2 ×3 存量修复）· **(ii) 非 S2 的 `.workbuddy/…` 链接目标全部 `git ls-files` 命中 = 0 未命中** · **S2 三域冻结基线（26 处）显式豁免且不漂移 · 新增 S2 坏链仍须拦** · 负向 fixture 真红
-- [ ] **#5 竞品口径台账逐条校对**（SPEC 验收 5 · S7.5）：K-1~K-4 全部落点（含内容锚补全的 :120/:267/:395/高层架构 :196/promotion 01/02）替换为 **区间 + as_of** · 旧单值（`30+`/`105`/`22 个`/`200+`）零命中 · 「流程性门禁」定性偏差按事实修正 · 差异化迁移「内置零装配 + 多宿主物化」· 复核出处留痕 · 已外发历史不回改
-- [ ] **#6 证据入库清偿**（SPEC 验收 6 · S7.8）：必做 ≥4 件（路线研究 · 验收报告-2.4.0/2.4.1 · exports_probe）镜像或显式登记（来源+日期）· 其余 7 件 2.x 历史件逐件处置 · 非 S2 的 `.workbuddy` 直链 = 0 · W3 已清偿两件核对在案 · 机检 `git ls-files` 命中
-- [ ] **#7 E3 重定基削减数字（00 裁定 2026-09-17）**（SPEC 验收 7 · S7.2）：before **671** → after **重定基显著下降**（同口径脚本 · `scripts/e3-spawn-count.mjs` · **目标定稿 ≤300 = 规范下限 · 机检硬判据**）· **SPEC「<50」显式登记「按重定基不可达 · 归 3.x/后续波次」**（循 G7 诚实口径 · 不硬凑不虚标）· 每条下沉配等价单测（先补后删）· 每文件 e2e 烟测 ≤1（例外登记）· 用例数零意外删减（仅加性）· **连重定目标亦不达 → F-W7-07 STOP**（不得静默放宽）
-- [ ] **#8 2.4.2 口径补正搭车**（SPEC 验收 8 · S7.9）：全仓复核无 2.4.2 滞后表述（已由 `1067f32` 修正 · 登记）· 本波至少一提交说明含「补正 2.4.2 口径滞后」· 未改 2.4.2 提交 / 未移动 tag
-- [ ] **#9 3.0.0 发版探针含 compat 项**（SPEC 验收 9 · S7.10 · **硬约束 4 红线**）：探针第 1 项 =「旧格式适配表在新版零改动可用」（与 S7.6 同判据）· 不过 **不得发版** · 另含 pins / host validate+apply+update / pack 清单 / 裸 verify / assets verify 全项
-- [ ] **#10 平台锁**（SPEC 验收 10 · S7.10）：`npm run typecheck` 0 错 · `npm test` 全绿（基线 841/160/840/0/1 + 新增用例 · skip 变化逐条归因）· `npm run build` 0 错 · `npm run test:lib` 6/6 · pins **17/17**（打 tag 前人复跑口径）· `assets verify` 全绿 · **bump 后版本钉全落点同步** · **依赖零新增**（dependencies 仍仅 `js-yaml`）
-- [ ] **#11 F3 wiki fixture 全绿**（S7.1）：双向 backlinks 对偶断言 · 增量 = 全量等价（逐字）· 冲突检测 red/green（`--check-conflicts` exit 2 点名 · 默认 exit 0 零回退）· 红测先行（当前无键真红留证）· 既有 `wiki export` 消费者零回退（键集只增）
-- [ ] **#12 既有面零意外改动**（F-W2-13 同式纪律）：除登记项外既有断言零改动全绿 · 登记项逐条列明于自检结论（预期登记面：`cli-wiki.ts` 输出键增 · usage 行扩 · 术语/链接/黑名单脚本+test · PLAN_2_x 链接修 · K 物料 · MIGRATION 定稿 · README/CHANGELOG/RELEASING/pins/测试版本断言 · assets manifest rebuild）
-- [ ] **#13 结构闸**：`npx spec-wave task lint --file docs/tasks/active/task_3_0_w7_closeout_external.md` PASS（E1–E8 无 error）
-- [ ] **#14 执行粒度与发布边界**：逐文件显式 add（**禁 `git add -A`**）· 每 commit 独立可回退 · 每 commit 前后 `npm test` 同绿 · **未执行 tag / push / publish / deprecate** · 波末 `npx spec-wave gate-check --task docs/tasks/active/task_3_0_w7_closeout_external.md` → exit 0 + `task close`（待 40 复核后 00 节奏另行）
+- [x] **#1 术语一致性机检通过（最终口径 · 唯一判红 = `门控`）**（SPEC 验收 1 · S7.3）：`assets/harness/terminology.yaml` 落盘 + `scripts/check-terminology.mjs` 入套件（或独立命令写入自检结论）· **① canonical 保留词 GLOSSARY 五词在位正向断言（门禁/过程轨/帽制/人闸/真值源）· 任何位置不判红（含 `人闸` 74 计次/65 行与 `人工闸` 全形态）** · **② 唯一判红对象 = `门控`（应为 `门禁`）· 仅自述/对外面（README 双语/GLOSSARY/RELEASING[除 `门控 skip`]/MIGRATION/delivery/promotion）** · **③ 豁免面逐条枚举**（research_report[含 K-3 目标文本]/安全设计/系统设计/docs/spec/历史PLAN/`门控 skip`）+ **词边界排除 `后门控制`** · **④ 判据 = `门控` 判红面命中 0（计次/逐行口径）· 不再要求 `人闸`/`人工闸` 计数** · **⑤ 正负 fixture**：保留词 `人闸`/`人工闸` 不红 · `delivery/promotion` 注入 `门控` 真红 · research_report 的 `门控`/`门控 skip`/`后门控制` 不红 · **⑥ 实测基线：门控 全 tracked 95 · 判红面 3（全 `门控 skip` 已豁免）· 残留 0**
+- [x] **#2 迁移指引经真实 2.4.1 仓演练可通**（SPEC 验收 2 · S7.6）：`git worktree` 挂 `v2.4.1`（`c89f92d`）或 fixture → 旧格式表零改动通过 + 新能力可选启用 · 逐步骤命令/输出/exit code 记录落 `docs/harness/reviews/w7_migration_rehearsal_2_4_1_20260917.md`（S2 只新增）· **发现兼容洞即 F-W7-01 STOP**
+- [x] **#3 对外文案黑名单机检**（SPEC 验收 3 · S7.4）：`claims-boundary.yaml` + 边界文档 tracked · `scripts/check-claims.mjs` 对 `delivery/promotion/*` + README 双语 + GLOSSARY 断言 forbidden 零命中 · 未落地一律「将新增/规划中」· **不含「接入即 L3」/「13 宿主全 hook」/「靠 hook 强制」** · 负向 fixture 真红
+- [x] **#4 相对链接两级机检（S2 豁免口径 · 00 裁定 2026-09-17）**（SPEC 验收 4 · S7.7）：`scripts/check-doc-links.mjs` 固化入套件 · **(i) 非 S2 坏链硬判 = 0**（含 PLAN_2_3 ×4 / PLAN_2_4 ×2 / PLAN_2_2 ×3 存量修复）· **(ii) 非 S2 的 `.workbuddy/…` 链接目标全部 `git ls-files` 命中 = 0 未命中** · **S2 三域冻结基线（26 处）显式豁免且不漂移 · 新增 S2 坏链仍须拦** · 负向 fixture 真红
+- [x] **#5 竞品口径台账逐条校对**（SPEC 验收 5 · S7.5）：K-1~K-4 全部落点（含内容锚补全的 :120/:267/:395/高层架构 :196/promotion 01/02）替换为 **区间 + as_of** · 旧单值（`30+`/`105`/`22 个`/`200+`）零命中 · 「流程性门禁」定性偏差按事实修正 · 差异化迁移「内置零装配 + 多宿主物化」· 复核出处留痕 · 已外发历史不回改
+- [x] **#6 证据入库清偿**（SPEC 验收 6 · S7.8）：必做 ≥4 件（路线研究 · 验收报告-2.4.0/2.4.1 · exports_probe）镜像或显式登记（来源+日期）· 其余 7 件 2.x 历史件逐件处置 · 非 S2 的 `.workbuddy` 直链 = 0 · W3 已清偿两件核对在案 · 机检 `git ls-files` 命中
+- [x] **#7 E3 重定基削减数字（00 裁定 2026-09-17）**（SPEC 验收 7 · S7.2）：before **671** → after **重定基显著下降**（同口径脚本 · `scripts/e3-spawn-count.mjs` · **目标定稿 ≤300 = 规范下限 · 机检硬判据**）· **SPEC「<50」显式登记「按重定基不可达 · 归 3.x/后续波次」**（循 G7 诚实口径 · 不硬凑不虚标）· 每条下沉配等价单测（先补后删）· 每文件 e2e 烟测 ≤1（例外登记）· 用例数零意外删减（仅加性）· **连重定目标亦不达 → F-W7-07 STOP**（不得静默放宽）
+- [x] **#8 2.4.2 口径补正搭车**（SPEC 验收 8 · S7.9）：全仓复核无 2.4.2 滞后表述（已由 `1067f32` 修正 · 登记）· 本波至少一提交说明含「补正 2.4.2 口径滞后」· 未改 2.4.2 提交 / 未移动 tag
+- [x] **#9 3.0.0 发版探针含 compat 项**（SPEC 验收 9 · S7.10 · **硬约束 4 红线**）：探针第 1 项 =「旧格式适配表在新版零改动可用」（与 S7.6 同判据）· 不过 **不得发版** · 另含 pins / host validate+apply+update / pack 清单 / 裸 verify / assets verify 全项
+- [x] **#10 平台锁**（SPEC 验收 10 · S7.10）：`npm run typecheck` 0 错 · `npm test` 全绿（基线 841/160/840/0/1 + 新增用例 · skip 变化逐条归因）· `npm run build` 0 错 · `npm run test:lib` 6/6 · pins **17/17**（打 tag 前人复跑口径）· `assets verify` 全绿 · **bump 后版本钉全落点同步** · **依赖零新增**（dependencies 仍仅 `js-yaml`）
+- [x] **#11 F3 wiki fixture 全绿**（S7.1）：双向 backlinks 对偶断言 · 增量 = 全量等价（逐字）· 冲突检测 red/green（`--check-conflicts` exit 2 点名 · 默认 exit 0 零回退）· 红测先行（当前无键真红留证）· 既有 `wiki export` 消费者零回退（键集只增）
+- [x] **#12 既有面零意外改动**（F-W2-13 同式纪律）：除登记项外既有断言零改动全绿 · 登记项逐条列明于自检结论（预期登记面：`cli-wiki.ts` 输出键增 · usage 行扩 · 术语/链接/黑名单脚本+test · PLAN_2_x 链接修 · K 物料 · MIGRATION 定稿 · README/CHANGELOG/RELEASING/pins/测试版本断言 · assets manifest rebuild）
+- [x] **#13 结构闸**：`npx spec-wave task lint --file docs/tasks/active/task_3_0_w7_closeout_external.md` PASS（E1–E8 无 error）
+- [x] **#14 执行粒度与发布边界**：逐文件显式 add（**禁 `git add -A`**）· 每 commit 独立可回退 · 每 commit 前后 `npm test` 同绿 · **未执行 tag / push / publish / deprecate** · 波末 `npx spec-wave gate-check --task docs/tasks/active/task_3_0_w7_closeout_external.md` → exit 0 + `task close`（待 40 复核后 00 节奏另行）
 
 ---
 
@@ -367,7 +368,7 @@ S2 只新增（本 task + 演练/镜像/登记件）· 不签任何闸（双 pen
 
 ### 自检结论（执行者）
 
-> **30 执行帽 · 2026-09-17 · 四阶段（一→四）完成 · 待 40 复核 · 不 close**（本棒为 30 派发 · 00 指令回填）
+> **30 执行帽 · 2026-09-17 · 四阶段（一→四）完成 · 40 复核 PASS-with-issues（blocking 0 · advisory 3 · 40 留档 `8f44053`）· 00 关账裁定 `Task_KPI%`: 97 · 归档**（本棒为 30 派发 · 00 指令回填）
 > **GATE_VERIFY**：`node bin/specgate.js verify --target . --task docs/tasks/active/task_3_0_w7_closeout_external.md` → HG-TASK-DRAFT / HG-AUDIT-R1 = approved（HG-RELEASE=pending 不拦 30）· **VERIFY: PASS**（四阶段开工前 + 各笔 commit 后复跑均 PASS）。
 
 #### 一、commit（九笔 · 显式列文件 · 禁 add -A · 未 push/tag）
@@ -387,7 +388,7 @@ S2 只新增（本 task + 演练/镜像/登记件）· 不签任何闸（双 pen
 | 一 | 845 | 844 | 0 | 1 | **270** |
 | 二 | 855 | 854 | 0 | 1 | 270 |
 | 三 | 859 | 858 | 0 | 1 | 270 |
-| 四（bump） | 859 | 857 + **2 tag-gated 设计红** | — | 1 | 270 |
+| 四（bump） | 859 | 856 | **2（tag-gated 设计红）** | 1 | 270 |
 
 - typecheck **0 错** · build **0 错** · test:lib **6/6** · assets **113/113** · 依赖零新增。
 - **pins 16/17**（pin-10 = git tag `v3.0.0` **设计红** · 打 tag 后须 17/17）· pin-08 手工补 `docs/spec/README.md` 3.0.0 行转绿。
@@ -401,7 +402,7 @@ S2 只新增（本 task + 演练/镜像/登记件）· 不签任何闸（双 pen
 5. **K-1~K-4 台账** ✅ — 落点零单值旧数（`30+`/`105`/`22 个`/`200+`/`不是机械性`）· `as_of 2026-09` 区间化 · K-3 定性修正 · 出处留痕。
 6. **证据入库清偿** ✅ — 4 件镜像入 `docs/harness/reviews/`（provenance 头 · 不改写）+ 7 件「仅本地草稿」登记（`w7_evidence_provenance_20260917.md`）· 非 S2 `.workbuddy` 直链 0。
 7. **E3 spawn 重定基** ✅ — **671 → 270**（≤300 硬判据 · `scripts/e3-spawn-count.mjs`）· 每文件 ≤1 烟测 · it 零增删。
-8. **2.4.2 口径补正搭车** ✅ — `CHANGELOG:10` 已 published（`1067f32`）· 提交 `d2d1c1e` 说明含「补正 2.4.2 口径滞后」；未改 2.4.2 提交 / 未移 tag。
+8. **2.4.2 口径补正搭车** ✅ — `CHANGELOG:10` 已 published（`1067f32`）· 提交 `d2d1c1e` 说明含「补正 2.4.2 口径滞后」；未改 2.4.2 提交 / 未移 tag。**残留分类（A2）**：全仓精确 grep 历史残留 = `docs/tasks/done/task_2_4_2_patch.md` + 其 `docs/harness/invokes/by-task/2-4-2-patch/*` + `docs/roadmap/ACCEPTANCE_2_4_2_patch_2_4_2_zh.md` —— 均 **S2/历史豁免** · **对外 live 面（CHANGELOG/RELEASING）零残留**。
 9. **3.0.0 发版探针含 compat** ✅ — 6 项（① compat 首项 PASS）· `docs/harness/reviews/w7_release_probe_3_0_0_20260917.md`。
 10. **平台锁** ✅ — 四门 + pins 16/17 + assets 113/113 + 依赖零新增。
 11. **F3 wiki fixture** ✅ — 双向 backlinks 对偶 / 增量=全量等价（逐字）/ 冲突 red-green；`test/cli-wiki.test.ts` 4/4；红测先行 4/4。
@@ -425,4 +426,12 @@ S2 只新增（本 task + 演练/镜像/登记件）· 不签任何闸（双 pen
 - **tag `v3.0.0` 待人打**（HG-RELEASE 仅人）：打 tag 后 `pins` 17/17 · `release-tag-identity` 转绿。
 - **`npm publish` 仅人**（HG-RELEASE=pending）：publish 后回填 ACCEPTANCE/RELEASING/README/spec 索引为已 published。
 - **2.x manifest 跨产品线迁移文案**（偏差 7）· **S2 链接冻结基线**（硬约束 1）· **`.workbuddy/` 7 件仅本地草稿**（登记在案）。
-- **不 close**（待 40 复核后 00 节奏另行）。
+- **关账**：40 复核 PASS-with-issues（blocking 0 · advisory 3 · 40 留档 `8f44053`）· 00 裁定 `Task_KPI%`: 97 · `task close --yes` 13 守卫全过 · 归档 `docs/tasks/done/`。
+
+### KPI（00）
+
+**00 收官裁定**（rubric `KPI_RUBRIC_v1_2` · 40 复核 PASS-with-issues（blocking 0 · advisory 3 · 40 留档 `8f44053`）· close_kpi 存在性口径）：**Task_KPI%: 97**
+
+- **十项全交付**：验收 #1–#14 全落地（术语机检 / A3 口径边界 / K 台账区间化 / 2.4.1 真实演练 / 链接两级 / 证据清偿 / E3 **671→270** / F3 wiki 三能力 / 探针 **6 项** / 平台锁）· 三轮审闭环（R1/R2/R3）· bump 九件套 + 探针就绪 · **tag-gated 设计红诚实登记**（pin-10 + `release-tag-identity` 待维护者 tag `v3.0.0` · 未伪造 tag/绿）。
+- **质量门**：锁计数 **841→845→855→859 纯加性零回退** · typecheck 0 错 · build 0 错 · test:lib 6/6 · pins **16/17**（pin-10 设计红）· assets **113/113** · 三 checker PASS · 依赖零新增 · **零越权**（tag/push/publish/deprecate 四动作零触碰 · 禁 `git add -A` 遵守）。
+- **扣 3**：过程瑕疵三处（A1 计数笔误「857」实为 **856 pass / 164 suites** · 三类 checker 数字口径 · KPI 节补写）—— 随关账顺手订正并登记，未流入交付面（src/test 机械面正确 · 40 advisory A1–A3）。

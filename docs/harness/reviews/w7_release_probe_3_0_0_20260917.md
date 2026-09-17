@@ -25,7 +25,7 @@ exit=0
 
 ```text
 npm run typecheck  → 0 错
-npm test           → 859 tests / 163 suites · 857 pass / 0 fail（非设计红）/ 1 skip · 2 tag-gated 设计红（pins-consistency A 组 · release-tag-identity · 打 tag 后转绿）
+npm test           → 859 tests / 164 suites · 856 pass / 2 fail（tag-gated 设计红）/ 1 skip（859 = 856 + 2 设计红 + 1 skip）· 设计红 = pins-consistency A 组 · release-tag-identity（打 tag 后转绿）
 npm run build      → 0 错
 npm run test:lib   → 6/6
 ```
