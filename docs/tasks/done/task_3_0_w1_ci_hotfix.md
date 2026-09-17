@@ -1,6 +1,6 @@
 # Task：3.0 W1 hotfix · 闸基线扫描器空目录 ENOENT（CI hotfix · bugfix · mini）
 
-> **状态**：`active`（2026-09-16 10-task 起草 · **HG-TASK-DRAFT / HG-AUDIT-R1 双闸 approved**（00 代签 · 授权真值：维护者本窗「授权00代签」）· 20-task-audit R1 **PASS**（blocking 0 · advisory A1–A2 · A1 已搭车修 · A2 带入 30 守加性原则）· **30 可开工**）  
+> **状态**：`done`（2026-09-16 10-task 起草 · **HG-TASK-DRAFT / HG-AUDIT-R1 双闸 approved**（00 代签 · 授权真值：维护者本窗「授权00代签」）· 20-task-audit R1 **PASS**（blocking 0 · advisory A1–A2 · A1 已搭车修 · A2 带入 30 守加性原则）· **30 可开工**）· 2026-09-16 30 修复交付（`e7e868b` · 三证：负向锁/模拟 CI/零行为差）· 2026-09-17 40 补做复核 **PASS-with-issues**（blocking 1 = 关账材料缺位 B1 · advisory 1 = `close_self_check` 占位绕过 A1 · 交付面全绿 · 40 留档见 invoke 40）· 2026-09-17 30 补关账材料 · 00 收官裁定 **Task_KPI%: 95** · 验收 6/6 勾选 · 关账归档 `done/`）  
 > **缺陷真值（已查实）**：CI run **35066550895**（push `f9f9c02` 后）`test/w1-gate-generalization.test.ts:179` 失败 —— spawn `scripts/scan-human-gates-baseline.mts:101` 的 `readdirSync('docs/tasks/active')` **ENOENT**。根因：W1/W0 task 全 close 后 `docs/tasks/active/` 为空目录 · git 不跟踪空目录 ⇒ CI 新鲜 checkout 无此目录；本地目录恒在 ⇒ **本地 667 全绿 CI 1 红**。**环境依赖不健壮**（PLAN 硬约束 **10** 同族：环境依赖必须可诊断）  
 > **SPEC**：bugfix · **双轨可跳独立 SPEC**（HG-SPEC-SIGNOFF 上行 approved 继承 · 范围/验收/failure_paths 由本 task 承载）  
 > **基线（2026-09-16 本棒复跑实测 · 详见「开工基线」节）**：HEAD `f9f9c02` · npm test **667 tests / 130 suites / 666 pass / 0 fail / 1 skip** · typecheck 0 错 · pins **17/17**  
@@ -73,7 +73,7 @@
 
 ## 范围
 
-- [ ] **唯一**：`scripts/scan-human-gates-baseline.mts` 扫描循环（:99-104 · 改点 :101）对 `SCAN_DIRS`（:31 · `docs/tasks/active` + `docs/tasks/done` 双目录同式）加 **existsSync 守卫** —— 目录缺失按零文件处理（不崩 · continue）· 守卫后输出注明 skipped-missing 目录（console 行 + snapshot `meta` 诊断字段，如 `skipped_missing_dirs` · 硬约束 10 可诊断口径）。守卫风格照仓内先例（`src/cli-status.ts:35` / `src/cli-sync.ts:20` / `src/cli-task-extra.ts:33` existsSync→continue/return []）。
+- [x] **唯一**：`scripts/scan-human-gates-baseline.mts` 扫描循环（:99-104 · 改点 :101）对 `SCAN_DIRS`（:31 · `docs/tasks/active` + `docs/tasks/done` 双目录同式）加 **existsSync 守卫** —— 目录缺失按零文件处理（不崩 · continue）· 守卫后输出注明 skipped-missing 目录（console 行 + snapshot `meta` 诊断字段，如 `skipped_missing_dirs` · 硬约束 10 可诊断口径）。守卫风格照仓内先例（`src/cli-status.ts:35` / `src/cli-sync.ts:20` / `src/cli-task-extra.ts:33` existsSync→continue/return []）。
 
 ## 非范围
 
@@ -103,12 +103,12 @@
 
 ## 验收标准（必须自证，不接受「我改完了」）
 
-- [ ] **#1 负向 fixture/单测**（F-HOT-03/F-HOT-04）：在无 `docs/tasks/active/` 的临时目录树（或 mock · 含双目录均缺失组合）跑扫描器 → **exit 0** · 缺失目录文件数 = 0 · 输出含 **skipped 注记**（console 行 + snapshot meta 诊断字段逐字断言）。（实现提示：扫描器 `REPO_ROOT` 自 `import.meta.url` 推导 · 临时树须保 `scripts/` + `src/` 相对结构 · 或由 30 裁定最小重构使 root 可注入 · 不扩范围）
-- [ ] **#2 既有 A2 比对测试全绿**：`test/w1-gate-generalization.test.ts` **15 测全绿**（含 :179 存量快照回归锁 232 行逐条不变 · F-HOT-01）
-- [ ] **#3 平台锁**：全量 `npm test` **667+N 全绿零回退**（N = 本棒新增测数 · 环境红先对照实验定性）· `npm run typecheck` 0 错 · `node bin/specgate.js pins check` **17/17**
-- [ ] **#4 模拟 CI 环境实证**（硬约束 6 负向锁）：临时拷贝中**显式删除** `docs/tasks/active/` 后跑该测试文件 → 修复前真红（本 task R0 已实证 1 红）· 修复后 **15/15 转绿**。参考命令：`TMP=$(mktemp -d); git archive HEAD | tar -x -C $TMP; cd $TMP && git init -q && git add -A && git commit -qm x && rm -rf docs/tasks/active && npm ci --ignore-scripts && node --test --test-concurrency=1 --experimental-strip-types test/w1-gate-generalization.test.ts`（**必须 `git init`**：裸 archive 无 `.git` 带出 3 个 gate-check 测红假象 · R0 登记；**必须 `rm -rf docs/tasks/active`**：本 task 文件入 active/ 后目录非空会掩盖缺陷 · residual ①）
-- [ ] **#5 有目录环境零行为差**（F-HOT-01 锁）：本仓正常环境重扫 → snapshot 对 baseline manifest 文件集 + 行键（gate_id,status,blocks,出现序）逐条一致（即 #2 :179 断言面 · 双目录均在时守卫零介入的另一半证明）
-- [ ] **#6 结构闸**：`npx spec-wave task lint --file docs/tasks/active/task_3_0_w1_ci_hotfix.md` PASS
+- [x] **#1 负向 fixture/单测**（F-HOT-03/F-HOT-04）：在无 `docs/tasks/active/` 的临时目录树（或 mock · 含双目录均缺失组合）跑扫描器 → **exit 0** · 缺失目录文件数 = 0 · 输出含 **skipped 注记**（console 行 + snapshot meta 诊断字段逐字断言）。（实现提示：扫描器 `REPO_ROOT` 自 `import.meta.url` 推导 · 临时树须保 `scripts/` + `src/` 相对结构 · 或由 30 裁定最小重构使 root 可注入 · 不扩范围）
+- [x] **#2 既有 A2 比对测试全绿**：`test/w1-gate-generalization.test.ts` **15 测全绿**（含 :179 存量快照回归锁 232 行逐条不变 · F-HOT-01）
+- [x] **#3 平台锁**：全量 `npm test` **667+N 全绿零回退**（N = 本棒新增测数 · 环境红先对照实验定性）· `npm run typecheck` 0 错 · `node bin/specgate.js pins check` **17/17**
+- [x] **#4 模拟 CI 环境实证**（硬约束 6 负向锁）：临时拷贝中**显式删除** `docs/tasks/active/` 后跑该测试文件 → 修复前真红（本 task R0 已实证 1 红）· 修复后 **15/15 转绿**。参考命令：`TMP=$(mktemp -d); git archive HEAD | tar -x -C $TMP; cd $TMP && git init -q && git add -A && git commit -qm x && rm -rf docs/tasks/active && npm ci --ignore-scripts && node --test --test-concurrency=1 --experimental-strip-types test/w1-gate-generalization.test.ts`（**必须 `git init`**：裸 archive 无 `.git` 带出 3 个 gate-check 测红假象 · R0 登记；**必须 `rm -rf docs/tasks/active`**：本 task 文件入 active/ 后目录非空会掩盖缺陷 · residual ①）
+- [x] **#5 有目录环境零行为差**（F-HOT-01 锁）：本仓正常环境重扫 → snapshot 对 baseline manifest 文件集 + 行键（gate_id,status,blocks,出现序）逐条一致（即 #2 :179 断言面 · 双目录均在时守卫零介入的另一半证明）
+- [x] **#6 结构闸**：`npx spec-wave task lint --file docs/tasks/active/task_3_0_w1_ci_hotfix.md` PASS
 
 ---
 
@@ -193,7 +193,30 @@ S2 只新增（本 task + 30 交付 scripts/test 改动）· 不签任何闸 · 
 
 ### 自检结论（执行者）
 
-（待 30 执行棒回填）
+**GATE_VERIFY 首输出**（FRAGMENT_30 纪律 · 真值 = task 人工闸表）：`node bin/specgate.js verify --target . --task docs/tasks/active/task_3_0_w1_ci_hotfix.md` → 闸扫描表 **HG-TASK-DRAFT / HG-AUDIT-R1 双闸 approved**（HG-NEXT-PLAN / HG-SPEC-SIGNOFF 上行 approved）· **VERIFY: PASS** · exit 0（HG-AUDIT-R1 非 pending ⇒ 30 可开工）。
+
+**验收逐项**：#1 ✓ 缺失目录负向 fixture（双缺/单缺/双在 3 例 · exit 0 + skipped 注记逐字 + `meta.skipped_missing_dirs` 加性键；同树修复前 scanner exit 1 ENOENT `:101:22` 对照 · 40 自造临时树复核）· #2 ✓ `test/w1-gate-generalization.test.ts` 15/15 全绿（含 :179 存量 232 行快照回归锁不变）· #3 ✓ 平台锁定向 18/18 + 全量 841/160/840/0/1（基线 667 纯加性零回退）+ typecheck 0 错 + pins 17/17 · #4 ✓ 模拟 CI（`git archive` + `git init` + `npm ci --ignore-scripts` 真装 + 显式 `rm -rf docs/tasks/active`）→ 15/15 绿（修复前真红已钉）· #5 ✓ 有目录零行为差：修复前后 snapshot 逐字节 IDENTICAL · meta 五键无 `skipped_missing_dirs`（A2 加性原则兑现）· #6 ✓ `task lint` PASS。
+
+**锁计数（纯加性零回退 · 40 复核终态）**：
+
+| 项 | 实测 |
+|----|------|
+| 基线（task 起草 · `f9f9c02`） | 667 tests / 130 suites / 666 pass / 0 fail / 1 skip |
+| 定向（hotfix 面） | 18 tests / 5 suites / 18 pass / 0 fail / 0 skip（W1 15 + hotfix 3） |
+| 终态（40 复核 · W6 后） | **841 tests / 160 suites / 840 pass / 0 fail / 1 skip** |
+| typecheck / pins | 0 错 / 17/17 |
+
+**已知未测项/边界**：① CI 平台矩阵仅 Node 22.x / 24.x 两档（本修复走 `existsSync` 通用 API · 无平台特化分支）；② 低危无守卫残余面（`cli-wiki.ts:82` / `cli-skills.ts:74,282` / `cli-pins.ts:299,307`）本棒只登记不修 · 归 W5/W7 裁定；③ residual ② `docs/tasks/done/` 整体清空同类再犯由守卫双目录同式覆盖兜底；④ residual ① 本 task 文件入 active/ 的掩盖效应对冲于验收 #4。
+
+**偏差登记**：① 开工 HEAD `9809703` ≠ task 起草基线 `f9f9c02`（复跑重建核对）② 修复 commit 与 docs commit 间夹 `2daaacd`（W2 docs · git 线非相邻）③ 模拟 CI 须在修复 commit 后取 HEAD（操作顺序教训）④ 关账材料由 30 补落（40 补做复核 B1 · 本棒补齐）。
+
+### KPI（00）
+
+**00 收官裁定**（rubric `KPI_RUBRIC_v1_2` · 40 补做复核 PASS-with-issues（交付面全绿 · blocking 1 = 关账材料缺位 B1 已补 · advisory 1 · 40 留档见 `invoke_20260916_40_3-0-w1-ci-hotfix.md`）· close_kpi 存在性口径）：**Task_KPI%: 95**
+
+- **修复三证质量高**：负向锁三连（双缺/单缺/双在）+ 修复前同树 ENOENT `:101:22` 崩溃对照 + 模拟 CI（`npm ci` 真装 + 显式删 active/）15/15 红转绿 + A2 有目录零行为差 snapshot 逐字节 IDENTICAL —— 修严型硬约束 **6**（负向回归锁）与 **10**（环境依赖可诊断）双兑现。
+- **质量门**：锁计数纯加性零回退（基线 667 → 终态 841/160/840/0/1 · 定向 18/18）· typecheck 0 错 · pins 17/17 · CI 35066550895(fail) → 35081308164(success) · 零越权（发布四动作零触碰 · 禁 `add -A` 遵守 · 未 push/tag · 无 `.gitkeep` 掩盖）。
+- **扣 5**：**关账工序遗漏**（30 执行留档缺位致 `task close` 一度 BLOCKED · 40 补做复核 B1）为主 · advisory 小疵（`close_self_check` 占位判定被 `---` 绕过 A1 · pre-existing 非本修复引入）· 偏差 4 条登记；交付面（src/scripts/test）本身零扣分。
 
 ---
 
@@ -202,3 +225,4 @@ S2 只新增（本 task + 30 交付 scripts/test 改动）· 不签任何闸 · 
 | 日期 | 说明 |
 |------|------|
 | 2026-09-16 | 初稿 · 10-task（CI run 35066550895 hotfix · bugfix 双轨跳 SPEC）：缺陷真值 + 根因落背景节 · 本棒实证（active/ 空零跟踪 · git archive+init 模拟恰 1 红 · 裸 archive 3 红假象登记）· 基线复跑（667/130/666/0/1 · typecheck 0 · pins 17/17）· 范围唯一（scanner 双目录 existsSync 守卫 + skipped-missing 诊断）· 非范围含 .gitkeep 禁令（理由落表）· 验收 6 条（含 #4 模拟 CI 显式删目录负向锁 · 对冲本 task 文件掩盖效应）· F-HOT-00–05 · R0–R5 五槽 + residual 三条 · 同类面快扫登记（1 真红 + 16 已守卫 + 3 组低危候选）· 本棒不签任何闸 |
+| 2026-09-17 | 30 修复交付关账回填（补做 · 40 复核 PASS-with-issues blocking 1 已补）：自检结论（GATE_VERIFY 首输出 + 验收 #1–#6 逐项 + 锁计数 + 已知未测项 + 偏差 4 条）+ ### KPI（00）（00 收官裁定 Task_KPI%: 95 · rubric KPI_RUBRIC_v1_2）+ 验收 6/6 勾选 + 状态 active→done + 归档 done/ |
