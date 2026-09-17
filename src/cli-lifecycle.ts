@@ -1,6 +1,6 @@
 import { existsSync, readFileSync } from 'node:fs'
 import path from 'node:path'
-import { fail, findGate, packageRoot, parseHumanGates, printJson, resolveTarget, takeOption } from './cli-shared.ts'
+import { fail, findGate, KIT_LAYOUT_DIR, packageRoot, parseHumanGates, printJson, resolveTarget, takeOption, toRel } from './cli-shared.ts'
 // DEF-003 阶段二 T3：dry-run 守卫 adapter 复用 cli-checks 单一实现源（与 verify / status 同口径）
 // DEF-003 阶段二 T6：close_* 守卫复用 cli-checks evalCloseGuard（与 task close 同一实现源）
 // PRD_DEF-003 后续棒：to_00 spec_reviews_retention 复用 cli-checks evalSpecReviewsRetention（与 verify --spec 同一实现源）
@@ -33,38 +33,61 @@ type DisciplineData = {
   gaps?: { id: string; title: string; status: string }[]
 }
 
-function assetsHarnessFile(name: string): string {
-  return path.join(packageRoot(), 'assets', 'harness', name)
+// 3.0-W3 S4.3（F2 真口径 · O3）：show 双命令改读消费者资产 —— 三层解析优先级（逐层 existsSync 探测）：
+//   1. <target>/assets/harness/<name>（消费者资产 · O3 真口径 —— 本仓即 dogfood 实例：仓根 assets/harness/ tracked）
+//   2. <target>/.coding-kit/assets/harness/<name>（布局内消费者资产 · KIT_LAYOUT_DIR）
+//   3. packageRoot()/assets/harness/<name>（包内自述兜底 · 命中时输出来源标注行 source: package-fallback）
+// 解析失败纪律：三层均缺 → exit 2 fail-closed；消费者资产（1/2 层）存在但 YAML 解析/校验失败 → exit 2
+// 点名该路径（坏资产即红 · 不得静默回退包内件）。init 不物化 assets/harness 入消费者仓（cli/init.ts 实读）
+// ⇒ 真实消费者多走 fallback —— 来源标注行即诚实口径（不假装读到了消费者资产）。
+type HarnessAssetSource = { kind: 'consumer' | 'layout' | 'package-fallback'; abs: string }
+
+function resolveHarnessAsset(target: string, name: string): HarnessAssetSource {
+  const consumer = path.join(target, 'assets', 'harness', name)
+  if (existsSync(consumer)) return { kind: 'consumer', abs: consumer }
+  const layout = path.join(target, KIT_LAYOUT_DIR, 'assets', 'harness', name)
+  if (existsSync(layout)) return { kind: 'layout', abs: layout }
+  return { kind: 'package-fallback', abs: path.join(packageRoot(), 'assets', 'harness', name) }
 }
 
-function loadLifecycle(): { data: LifecycleData; filePath: string } {
-  const filePath = assetsHarnessFile('lifecycle.yaml')
-  if (!existsSync(filePath)) fail(`lifecycle.yaml 不存在: ${filePath}`)
+function sourceLine(target: string, src: HarnessAssetSource): string {
+  return src.kind === 'package-fallback'
+    ? 'source: package-fallback（消费者资产未找到 · 显示包内自述口径）'
+    : `source: ${toRel(target, src.abs)}`
+}
+
+function loadHarnessAsset(target: string, name: string): { raw: string; source: HarnessAssetSource } {
+  const source = resolveHarnessAsset(target, name)
+  if (!existsSync(source.abs)) fail(`${name} 不存在: ${toRel(target, source.abs)}`, 2)
+  return { raw: readFileSync(source.abs, 'utf8'), source }
+}
+
+function loadLifecycle(target: string): { data: LifecycleData; filePath: string; source: HarnessAssetSource } {
+  const { raw, source } = loadHarnessAsset(target, 'lifecycle.yaml')
   let data: LifecycleData
   try {
-    data = yamlLoad(readFileSync(filePath, 'utf8')) as LifecycleData
+    data = yamlLoad(raw) as LifecycleData
   } catch (err) {
-    fail(`lifecycle.yaml 解析失败: ${(err as Error).message}`)
+    fail(`lifecycle.yaml 解析失败: ${toRel(process.cwd(), source.abs)} :: ${(err as Error).message}`, 2)
   }
   if (!data?.version || !Array.isArray(data.states) || !Array.isArray(data.transitions)) {
-    fail('lifecycle.yaml 校验失败: 缺 version/states/transitions')
+    fail(`lifecycle.yaml 校验失败: ${toRel(process.cwd(), source.abs)} :: 缺 version/states/transitions`, 2)
   }
-  return { data, filePath }
+  return { data, filePath: source.abs, source }
 }
 
-function loadDiscipline(): { data: DisciplineData; filePath: string } {
-  const filePath = assetsHarnessFile('discipline-coverage.yaml')
-  if (!existsSync(filePath)) fail(`discipline-coverage.yaml 不存在: ${filePath}`)
+function loadDiscipline(target: string): { data: DisciplineData; filePath: string; source: HarnessAssetSource } {
+  const { raw, source } = loadHarnessAsset(target, 'discipline-coverage.yaml')
   let data: DisciplineData
   try {
-    data = yamlLoad(readFileSync(filePath, 'utf8')) as DisciplineData
+    data = yamlLoad(raw) as DisciplineData
   } catch (err) {
-    fail(`discipline-coverage.yaml 解析失败: ${(err as Error).message}`)
+    fail(`discipline-coverage.yaml 解析失败: ${toRel(process.cwd(), source.abs)} :: ${(err as Error).message}`, 2)
   }
   if (!data?.version || !data.as_of_package_version || !Array.isArray(data.statements)) {
-    fail('discipline-coverage.yaml 校验失败')
+    fail(`discipline-coverage.yaml 校验失败: ${toRel(process.cwd(), source.abs)}`, 2)
   }
-  return { data, filePath }
+  return { data, filePath: source.abs, source }
 }
 
 function formatLifecycleShow(data: LifecycleData): string {
@@ -88,7 +111,7 @@ function formatLifecycleShow(data: LifecycleData): string {
   return lines.join('\n').trimEnd()
 }
 
-function formatDisciplineShow(data: DisciplineData): string {
+function formatDisciplineShow(data: DisciplineData, source?: HarnessAssetSource, target?: string): string {
   const byStatus: Record<string, number> = {}
   for (const s of data.statements ?? []) byStatus[s.status] = (byStatus[s.status] ?? 0) + 1
   const gapBy: Record<string, number> = {}
@@ -118,7 +141,12 @@ function formatDisciplineShow(data: DisciplineData): string {
     const sum = s.summary.length > 72 ? `${s.summary.slice(0, 69)}…` : s.summary
     lines.push(`- [${s.status}] ${s.id}: ${sum}`)
   }
-  lines.push('', '注: SoT = assets/harness/discipline-coverage.yaml · show 只读')
+  // 3.0-W3 S4.3：SoT 尾注行按实际来源改写（fallback 诚实标注包内自述口径）
+  const sot =
+    !source || source.kind === 'package-fallback'
+      ? '注: SoT = 包内 assets/harness/discipline-coverage.yaml（package-fallback）· show 只读'
+      : `注: SoT = ${toRel(target ?? process.cwd(), source.abs)} · show 只读`
+  lines.push('', sot)
   lines.push('注: status 口径 = 本包实接线（not_wired = 声称但本包未接线 · 旧包机制见 yaml notes）')
   return lines.join('\n')
 }
@@ -228,7 +256,9 @@ function dryRunTransition(opts: {
   detail?: string
   exitCode: number
 } {
-  const { data } = loadLifecycle()
+  // 3.0-W3 S4.3：dry-run 维持包内自述口径（F2 真口径范围 = show 双命令 · dry-run 现状延续）——
+  // 以 packageRoot() 为 target 走三层解析，第 1 层即命中包内件，行为与接线前逐字一致。
+  const { data } = loadLifecycle(packageRoot())
   const knownIds = data.transitions.map((t) => t.id)
   const transition = data.transitions.find((t) => t.id === opts.transitionId)
   if (!transition) {
@@ -358,7 +388,7 @@ export async function cmdLifecycle(args: string[]): Promise<void> {
   const [sub, ...rest] = args
   if (!sub || sub === '--help' || sub === '-h' || args.includes('--help') || args.includes('-h')) {
     console.log(`用法:
-  npx spec-wave lifecycle show [--json]
+  npx spec-wave lifecycle show [--target PATH] [--json]
   npx spec-wave lifecycle dry-run --transition ID --from STATE [--task PATH] [--target PATH] [--json]
        [--allow-no-review] [--allow-lint-fail] [--allow-no-spec-review]
        [--allow-invoke-gap] [--allow-unchecked]
@@ -368,12 +398,17 @@ export async function cmdLifecycle(args: string[]): Promise<void> {
     return
   }
   if (sub === 'show') {
-    const json = rest.includes('--json')
-    const unknown = rest.filter((a) => a !== '--json')
+    let remaining = rest
+    const { value: targetArg, rest: r1 } = takeOption(remaining, '--target')
+    remaining = r1
+    const json = remaining.includes('--json')
+    const unknown = remaining.filter((a) => a !== '--json')
     if (unknown.length > 0) fail(`lifecycle show 未知参数: ${unknown.join(' ')}`)
-    const { data } = loadLifecycle()
+    // 3.0-W3 S4.3：--target 缺省 = cwd（DEF-019 同口径 resolveTarget · 缺省行为 = 本仓 dogfood 第 1 层）
+    const target = resolveTarget(process.cwd(), targetArg)
+    const { data, source } = loadLifecycle(target)
     if (json) printJson(process.cwd(), data)
-    else console.log(formatLifecycleShow(data))
+    else console.log(`${sourceLine(target, source)}\n${formatLifecycleShow(data)}`)
     return
   }
   if (sub === 'dry-run') {
@@ -433,25 +468,29 @@ export async function cmdLifecycle(args: string[]): Promise<void> {
     if (report.exitCode && report.exitCode !== 0) fail('', report.exitCode)
     return
   }
-  fail(`lifecycle 子命令未知: ${sub}\n用法: lifecycle show [--json] · lifecycle dry-run --transition ID --from STATE`)
+  fail(`lifecycle 子命令未知: ${sub}\n用法: lifecycle show [--target PATH] [--json] · lifecycle dry-run --transition ID --from STATE`)
 }
 
 export async function cmdDiscipline(args: string[]): Promise<void> {
   const [sub, ...rest] = args
   if (!sub || sub === '--help' || sub === '-h' || args.includes('--help') || args.includes('-h')) {
     console.log(`用法:
-  npx spec-wave discipline show [--json]
+  npx spec-wave discipline show [--target PATH] [--json]
 `)
     return
   }
   if (sub === 'show') {
-    const json = rest.includes('--json')
-    const unknown = rest.filter((a) => a !== '--json')
+    let remaining = rest
+    const { value: targetArg, rest: r1 } = takeOption(remaining, '--target')
+    remaining = r1
+    const json = remaining.includes('--json')
+    const unknown = remaining.filter((a) => a !== '--json')
     if (unknown.length > 0) fail(`discipline show 未知参数: ${unknown.join(' ')}`)
-    const { data } = loadDiscipline()
+    const target = resolveTarget(process.cwd(), targetArg)
+    const { data, source } = loadDiscipline(target)
     if (json) printJson(process.cwd(), data)
-    else console.log(formatDisciplineShow(data))
+    else console.log(`${sourceLine(target, source)}\n${formatDisciplineShow(data, source, target)}`)
     return
   }
-  fail(`discipline 子命令未知: ${sub ?? '(空)'}\n用法: discipline show [--json]`)
+  fail(`discipline 子命令未知: ${sub ?? '(空)'}\n用法: discipline show [--target PATH] [--json]`)
 }
