@@ -1,0 +1,45 @@
+# 3.0 W7 · S7.3 术语机检声明源（task_3_0_w7_closeout_external · 验收 #1）
+#
+# 00 最终裁定（2026-09-17 · 基于 GLOSSARY 真值亲读）：
+#   canonical 保留词 = 门禁 / 过程轨 / 帽制 / 人闸 / 真值源（GLOSSARY 五词）——任何位置一律不判红；
+#   唯一判红对象 = 变体词 `门控`（应为 `门禁`）· 判红面 = 六目标闭集（闭集外不扫）；
+#   豁免面逐条枚举；词边界排除 `后门控制`；`门控 skip` / gated-test 语义不计残留。
+# 数据驱动：新增/调整落点只改本文件，不改脚本（与 release-pins.yaml 同风格）。
+version: "1"
+
+# ① canonical 保留词存在性正向断言（判据真值文件 = GLOSSARY.md）
+canonical_assertion:
+  file: GLOSSARY.md
+canonical:
+  - 门禁
+  - 过程轨
+  - 帽制
+  - 人闸
+  - 真值源
+
+# ② 唯一判红对象 = 变体词；判红面 = 六目标闭集（闭集外不扫）
+variants:
+  - variant: 门控
+    canonical: 门禁
+    targets:
+      - README.md
+      - README.zh-CN.md
+      - GLOSSARY.md
+      - RELEASING.md
+      - MIGRATION.md
+      - delivery/promotion/**
+    # ③ 豁免面（逐条枚举 · 与 canonical 正名无冲突 · 不计残留）
+    exempt_patterns:
+      - "门控 skip"          # gated-test / skip 语义（RELEASING 实测 3 处）
+    # 词边界排除：`后门控制` 中的 `门控` 子串不判红
+    word_boundary_excludes:
+      - 后门控制
+
+# ③ 豁免面（判红面闭集之外的语境 · 登记备查 · 闭集外不扫）
+exempt_paths:
+  - delivery/research_report.md   # 竞品语境（含 K-3 目标文本「内核 SDD 门控为流程性」）
+  - delivery/安全设计.md
+  - delivery/系统设计.md
+  - docs/spec/**
+  - docs/roadmap/**
+  - .workbuddy/output/**
