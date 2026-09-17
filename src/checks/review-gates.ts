@@ -126,7 +126,12 @@ export function findReview(target: string, taskFile: string): boolean {
 // 否定守卫：退回（前置 无需/不/未 除外）· 否定+通过同句共现（2.4.2 R-2：窗口由 2.4.1 的
 // 「不/未 与 通过 之间 ≤3 任意字符」放宽为同句共现 `不[^。；\n]{0,12}通过` / `未[^。；\n]{0,12}通过` ——
 // 封堵「不最终予以通过」「未能够予以通过」插 4 字超窗形态（验收报告-SpecWave-2.4.1 §3.1 行 I/J ·
-// §4 R-4 建议形态）；窗口显式排除 `\n` → R-5 换行形态维持已登记残余不动（归 3.0 · K 断言钉死）；
+// §4 R-4 建议形态）；窗口显式排除 `\n` —— R-5 换行残余已由 3.0-W4 窄邻接式封堵（REVIEW_NEG_RE 跨行
+// alternative「(?:不|未)[ \t]*\n[ \t]*(?:予以?|以)?通过」· 仅单换行邻接 · 禁 `\n\n` 跨段 · 不引字符窗口 ·
+// 「予以」前缀形态较评审文底稿 (予|以)? 增补（与同句窗口覆盖语素对齐 · task S5.2 fixture 含 未\n予以通过）·
+// 284 份 tracked md 实测 0 命中 ·
+// 评审文 w4_semantic_criteria_review_20260917 §3.1 定档依据 · 宽窗口实测误中 08_w7_closeout_external_v1.md:85
+// 已固化为跨段反向锁钉死禁改宽 · K 断言同 fixture 翻向 exit 0→2 同 commit · F-W4-09）；
 // 排除 `。；` 限同句防跨句误中）· no pass / not pass / reject（英文基本形态 · i 旗标 ·
 // R-2 补 `not\s*pass` 封堵 `NOT PASS` 形态 · §3.1 行 G）· 内容阻塞（前置 零 除外）——命中即不通过。
 // 3.0-W4 NEW-11（评审文 w4_semantic_criteria_review_20260917 §3.3 定稿 · 63 份合规结论节误伤 0/63 实测）：
@@ -139,7 +144,7 @@ const REVIEW_SECTION_HEAD_RE = /^#{2,3}\s*(?:[一二三四五六七八九十]+[�
 const REVIEW_PASS_RE = /(\bPASS\b|ACCEPT|签收|零内容阻塞|零阻塞|通过)/i
 // NEW-11 五类形态说明与残余登记见上方注释块（:132-135 · 残余四类：日韩德法俄全形态/符号形态/谐音拆字全角/拼音 ·
 // 不承诺完备 · 后续发现新形态 → 补词表 + fixture · 循本次同流程 · F-W4-02 兑现面）。
-const REVIEW_NEG_RE = /((?<!无需)(?<!不)(?<!未)退回|不[^。；\n]{0,12}通过|未[^。；\n]{0,12}通过|不予签收|不签收|未签收|no\s*pass|not\s*pass|doesn['’]t\s*pass|does\s+not\s+pass|fail(?:ed|s)?\s+to\s+pass|not\s+approv\w*|\bdeclined?\b|\bveto(?:ed)?\b|\brefused?\b|(?:不|未)\s*pass|not\s*通过|no\s*通过|reject|(?<!零)内容阻塞)/i
+const REVIEW_NEG_RE = /((?<!无需)(?<!不)(?<!未)退回|不[^。；\n]{0,12}通过|未[^。；\n]{0,12}通过|不予签收|不签收|未签收|no\s*pass|not\s*pass|doesn['’]t\s*pass|does\s+not\s+pass|fail(?:ed|s)?\s+to\s+pass|not\s+approv\w*|\bdeclined?\b|\bveto(?:ed)?\b|\brefused?\b|(?:不|未)\s*pass|not\s*通过|no\s*通过|(?:不|未)[ \t]*\n[ \t]*(?:予以?|以)?通过|reject|(?<!零)内容阻塞)/i
 // 2.4-W2 S1·N=20（评审文 w2_conclusion_gate_strength_review_20260914 §4 定档）：
 // 结论/签收节合并文本去除全部通过词命中后，残余非空白字符数须 >= REVIEW_MIN_SUBSTANCE，
 // 封堵 A2 收窄形态「结论节只写通过二字」（存量 48 份现行 PASS 文实测误伤 0/48 · D-24-W2-NO-RETRO 不追溯）。

@@ -692,12 +692,54 @@ describe('2.4.2 R-2 [P2] · 否定词表补 not\\s*pass + 同句共现窗口（�
     })
   })
 
-  it('K 形态「不\\n通过」换行：维持 PASS 漏网（R-5 已登记归 3.0 · 窗口排除 \\n 口径钉死 · 防顺手修）', async () => {
+  it('K 形态「不\\n通过」换行 → BLOCKED exit 2 点名否定（R-5 窄邻接式封堵兑现 · 3.0-W4 真修 · 2.4.2「维持漏网」锁定语义同 fixture 翻向）', async () => {
     await withTemp(async (dir) => {
-      // 换行形态 + 实质内容达标 → 现口径判 PASS（已知残余 · 断言钉死防本波顺手修 R-5）
+      // 判据改造与断言翻向同 commit（F-W4-09 硬锁 · 验收 #5）：同一 fixture exit 0→2 即「修复后转绿」回归锁语义
       const rel = await seedR2(dir, 'r2_k', '# R1 fixture\n\n## 结论\n\n本任务经逐项核对不\n通过式检查均已完成，审查项合规，准予签收。\n')
       const r = runCli(['verify', '--task', rel, '--target', dir])
-      assert.equal(r.status, 0, `K 换行形态须维持漏网（R-5 归 3.0 · 不得顺手修）: ${r.combined}`)
+      assert.equal(r.status, 2, `K 换行形态须封堵（R-5 窄邻接式 · 3.0-W4）: ${r.combined}`)
+      assert.match(r.combined, /VERIFY: BLOCKED · 审查文结论不可机读通过/)
+      assert.match(r.combined, /含否定结论词/)
+    })
+  })
+})
+
+describe('3.0-W4 R-5 [范围②] · 跨行否定封堵（窄邻接式：单换行 · 禁 \\n\\n 跨段 · 不引字符窗口 · 评审文 §3.1/§3.2 定稿）', { concurrency: 1 }, () => {
+  // 红测先行（硬约束 6）：修复前（2.4.2+阶段一码）跨行三形态全部 exit 0 PASS 漏网
+  //（既有同句窗口 [^。；\nn]{0,12} 显式排除换行符 · 真红证据见 30 invoke 留档）· 修复后 exit 2 点名否定。
+  // 跨段反向锁：「不\\n\\n通过」维持 PASS —— 08_w7_closeout_external_v1.md:85 宽窗口误中案例固化为
+  //「禁止未来顺手把窗口改宽」的回归锁（评审文 §3.2 · 284 份 tracked md 窄式 0 命中实测）。
+  async function seedW4r5(dir: string, slug: string, review: string): Promise<string> {
+    const rel = `docs/tasks/active/task_${slug}_v1.md`
+    await writeRel(dir, rel, taskMd(slug))
+    await writeRel(dir, `docs/harness/invokes/by-task/${slug.replace(/_/g, '-')}/invoke_20260901_10_x.md`, '# invoke 10\n')
+    await writeRel(dir, `docs/harness/reviews/task_${slug}_audit_R1_20260917.md`, review)
+    return rel
+  }
+  const R5 = (line: string): string => `# R1 fixture\n\n## 结论\n\n${line}\n`
+
+  it('跨行三形态：不\\n通过 · 未\\n通过 · 未\\n予以通过 → BLOCKED exit 2 点名否定（修复前全 PASS 真红）', async () => {
+    await withTemp(async (dir) => {
+      const cases: Array<[string, string]> = [
+        ['w4r5_bu', '本任务经审查不\n通过：缺陷三项待修，范围已逐项核毕，重审后再签。'],
+        ['w4r5_wei', '本任务经审查未\n通过：缺陷三项待修，范围已逐项核毕，重审后再签。'],
+        ['w4r5_yuyi', '本审查结论：未\n予以通过。缺陷三项待修，范围已逐项核毕，重审后再签。'],
+      ]
+      for (const [slug, line] of cases) {
+        const rel = await seedW4r5(dir, slug, R5(line))
+        const r = runCli(['verify', '--task', rel, '--target', dir])
+        assert.equal(r.status, 2, `${slug} 跨行否定须封堵: ${r.combined}`)
+        assert.match(r.combined, /VERIFY: BLOCKED · 审查文结论不可机读通过/)
+        assert.match(r.combined, /含否定结论词/)
+      }
+    })
+  })
+
+  it('跨段反向锁：「不\\n\\n通过」（跨段空行）维持 PASS（窄式不跨段 · 08_w7:85 误中案例固化 · 禁顺手改宽窗口）', async () => {
+    await withTemp(async (dir) => {
+      const rel = await seedW4r5(dir, 'w4r5_span', R5('本任务经逐项核对不\n\n通过式检查均已完成，审查项合规，验收范围一致，准予签收。'))
+      const r = runCli(['verify', '--task', rel, '--target', dir])
+      assert.equal(r.status, 0, `跨段形态须维持 PASS（窄邻接式不跨段）: ${r.combined}`)
       assert.match(r.combined, /VERIFY: PASS/)
     })
   })
