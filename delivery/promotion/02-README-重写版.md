@@ -1,6 +1,8 @@
 # SpecWave
 
 > **历史版本快照（2.1.3 时点）**：本文为 README 重写**草稿**，数字与能力表述定格于 `spec-wave@2.1.3` 时点，**不作现行口径引用**；现行事实面（宿主数 · 测试规模 · 已交付能力）以仓根 [README.md](../../README.md) 为准。
+>
+> **3.0 W7 K-4 台账修订注**：过期数值/定性已按「区间 + as_of」对齐真值面（现行 13 宿主 · `assets verify` 已交付）；测试规模与版本以仓根 README 为准。出处：SPEC 08 §5.1 + PLAN K-1~K-4 台账（官方文档站 / 镜像快照 / 第三方盘点 · 2026-09-15 实测 · as_of 2026-09）。
 
 > 跨宿主规范分发器——把 AI 编码纪律从"建议性提示词"升级为"机械门禁 + 留档可审计的过程轨"。零云、零服务端、MIT 开源。
 
@@ -9,7 +11,7 @@
 [![AGENTS.md](https://img.shields.io/badge/AGENTS.md-friendly-green.svg)](https://agents.md)
 [![Node](https://img.shields.io/node/v/spec-wave)](https://nodejs.org)
 
-**SpecWave**（`spec-wave@2.1.3`）是一个本地 CLI + npm 包，把 AI 编码过程的纪律从"建议性提示词"升级为"机械性门禁 + 留档可审计的过程轨"。零云、零服务端、MIT 开源。前身链为 SpecGate → dsh-coding-kit → SpecWave；过渡 bin `specgate` · `dsh-coding-kit` 仍可用（同一入口），旧包 `@cyning/harness` · `dsh-coding-kit` 均已 deprecate。
+**SpecWave**（`spec-wave`；版本以仓根 README 现行口径为准）是一个本地 CLI + npm 包，把 AI 编码过程的纪律从"建议性提示词"升级为"机械性门禁 + 留档可审计的过程轨"。零云、零服务端、MIT 开源。前身链为 SpecGate → dsh-coding-kit → SpecWave；过渡 bin `specgate` · `dsh-coding-kit` 仍可用（同一入口），旧包 `@cyning/harness` · `dsh-coding-kit` 均已 deprecate。
 
 - **CLI 面**：`npx spec-wave check / verify / gate-check / audit`
 - **插件面**：在 DSH 宿主内用 `apply_coding_standards` / `init_coding_kit`

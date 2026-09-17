@@ -117,7 +117,7 @@
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | B1 | Claude Code（含 Hooks / Agent Skills / Plugins & Marketplace） | Anthropic | 本地 CLI + 云模型 | 终端原生 agentic 编码 | 约 30 个生命周期钩子事件；`PreToolUse` 可 `deny`、退出码 2 可阻断；插件可打包 skills/agents/hooks/MCP/LSP | 订阅制（Pro 约 20 USD/月起）+ 用量计费 | SR-01, SR-02, SR-03, SR-10 | 门禁强制性最强、且有完整分发形态（marketplace）的宿主，是 kit「P0 门禁 + npm 分发」的直接对照 |
 | B2 | Cursor（Rules + Hooks + Skills） | Anysphere（Cursor） | 桌面 IDE（VS Code fork）+ 云 | IDE 内 agentic 编码 / 补全自动 | `.cursor/rules/*.mdc` 四激活模式；`.cursor/hooks.json` 含 `failClosed` / `loop_limit`；四层配置优先级 Enterprise > Team > Project > User | 订阅制（Pro 约 20 USD/月起） | SR-04, SR-05 | 唯一提供「钩子失败即阻断」与「组织级强制下发」的 IDE 宿主，对照 kit 的「组织级规范强制」诉求 |
-| B3 | GitHub spec-kit（`specify` CLI） | GitHub（开源，MIT） | 本地 CLI + 模板文件 | 规范驱动开发（SDD）全过程 | Constitution→Specify→Clarify→Plan→Tasks→Analyze→Implement 门控流程；扩展/预设/项目本地覆盖四层模板优先级；30+ agent 集成 | 开源免费（可自建 catalog，离线/防火墙内可用） | SR-06, SR-07 | 与 kit「过程轨 + 模板资产 + 不覆写」最接近的开源方法论产品，且其 30 宿主集成正面对应 kit 的单宿主困境 |
+| B3 | GitHub spec-kit（`specify` CLI） | GitHub（开源，MIT） | 本地 CLI + 模板文件 | 规范驱动开发（SDD）全过程 | Constitution→Specify→Clarify→Plan→Tasks→Analyze→Implement 门控流程；扩展/预设/项目本地覆盖四层模板优先级；35–38 agent 集成（as_of 2026-09） | 开源免费（可自建 catalog，离线/防火墙内可用） | SR-06, SR-07 | 与 kit「过程轨 + 模板资产 + 不覆写」最接近的开源方法论产品，且其 35–38 宿主集成（as_of 2026-09）正面对应 kit 的单宿主困境 |
 | B4 | Ruler（`@intellectronica/ruler`） | intellectronica（开源，MIT） | 本地 CLI（npm 分发） | 集中式 AI 编码规范管理与分发 | `.ruler/` 单一规范源 + `ruler.toml` 声明，`ruler apply` 编译分发到 32 类 agent 原生配置位 | 开源免费（npm） | SR-11 | **与 kit 定位重合度最高**：同为 npm 分发的规范产品、同为「集中规范源 → 多宿主落盘」，是 kit 生态位的最直接参照物 |
 | B5 | AWS Kiro（Specs + Steering + Hooks + Powers） | Amazon Web Services | 桌面 IDE（Code OSS fork）+ CLI + AWS 云 | 规格驱动的 agentic 开发环境 | Specs 三阶段产物入仓；Steering 文件三种加载模式；事件驱动 Hooks；Powers 为可组合能力模块 | 订阅制（Free / Pro / Pro+ / Power 多档） | SR-12, SR-13 | 规格驱动 + 门禁 + 分发的完整闭环，且**正在执行一条旧产品线（Amazon Q Developer）下线迁移**——直接对应 kit 的旧产品线迁移课题 |
 
@@ -166,10 +166,10 @@
 | 核心能力 | 门控流程：`constitution`（治理原则）→ `specify`（需求与用户旅程）→ `clarify`（澄清）→ `checklist`（质量清单）→ `plan`（技术方案）→ `tasks`（任务拆解）→ `analyze`（跨产物一致性）→ `implement`（执行）；另有 `taskstoissues`、`converge` | 已核实（SR-06） |
 | 架构特点 | 模板四层解析优先级：项目本地覆盖（`.specify/templates/overrides/`）> 预设 Presets > 扩展 Extensions > 内核 Core；命令文件在安装时写入各 agent 目录，多个 preset/extension 提供同名命令时高优先级胜出，移除后自动回退次高 | 已核实（SR-06） |
 | 部署形态 | 以 `uvx --from git+… specify init` 加 `--integration` 参数（取值为 copilot / claude / codex 等宿主名）初始化；明确声明可离线、在防火墙内、跨 Windows/macOS/Linux 运行；组织可自建 extension 与 preset catalog | 已核实（SR-06, SR-07） |
-| 集成方式 | 30+ AI 编码 agent 集成（Copilot、Gemini、Codex、Windsurf、Claude、Forge、Kiro 等）；对支持 skills mode 的集成可用 `--integration-options="--skills"` 改为安装 Agent Skills 而非斜杠命令文件 | 已核实（SR-06, SR-07） |
-| 定价模式 | 开源（MIT），零许可成本；社区扩展 105 个（60+ 作者）、预设 22 个、贡献者 200+ | 已核实（SR-07） |
+| 集成方式 | 35–38 AI 编码 agent 集成（as_of 2026-09）（Copilot、Gemini、Codex、Windsurf、Claude、Forge、Kiro 等）；对支持 skills mode 的集成可用 `--integration-options="--skills"` 改为安装 Agent Skills 而非斜杠命令文件 | 已核实（SR-06, SR-07） |
+| 定价模式 | 开源（MIT），零许可成本；社区扩展 138–157（作者 90+）、presets 25–33、贡献者 240–270+、stars 121K–130K+（as_of 2026-09 · 各镜像快照不同步，取区间） | 已核实（SR-07） |
 | 优势 | 「分层覆盖 + 安装期物化 + 优先级回退」三件套，让一套方法论内核能同时服务 30 个宿主而不分叉；且完全离线可用，无云依赖 | 综合归纳（SR-06, SR-07） |
-| 局限 | 门控是**流程性**的（阶段产物存在性与一致性检查），不是**机械性**的（不验证代码能否编译/测试通过）；这条边界与其自身定位一致，但也意味着它不覆盖 kit P0 门禁所覆盖的那一层 | 推断（依据 SR-06 命令语义） |
+| 局限 | 内核 SDD 门控为流程性（阶段产物存在性与一致性检查）；但扩展生态已含机械门禁类（CI Guard / Architecture Guard / plan-review-gate / DocGuard / Verify 系列），可对接 CI 做拦截。kit 差异化落点为「门禁随包内置（零装配）+ 可多宿主物化（W2）」（as_of 2026-09 复核） | 推断（依据 SR-06 命令语义） |
 | 对本项目的参考价值 | 与 kit 的「过程轨（tasks/reviews/invokes）永不覆写 + 模板资产 + 命令族 G1–G7」高度同构；其四层模板优先级正是 kit 治理 X7（S2 过程域前缀四份硬编码互不统一）所需的「单一真值源 + 分层覆盖」范式的现成答案 | 推断（依据 SR-06 + material_digest X7） |
 
 #### 2.2.4 B4 - Ruler（`@intellectronica/ruler`）
@@ -217,7 +217,7 @@
 | 扩展/定制机制 | Skills / Commands / Agents / Hooks / MCP / LSP / monitors / bin | Hooks（command 与 prompt 两种）+ Skills + Commands | Extensions（加能力）+ Presets（改内核）+ 项目本地 overrides | `ruler.toml` + `.ruler/*.md` 递归拼接 | Powers（含可选 MCP Server）+ 自定义子智能体 | SR-03, SR-05, SR-06, SR-11, SR-12 |
 | 模板/规则优先级模型 | 作用域 user / project / local / managed | Enterprise > Team > Project > User | 项目本地覆盖 > Presets > Extensions > Core | 字母序拼接（无优先级，仅拼接顺序） | Always > fileMatch > manual | SR-03, SR-05, SR-06, SR-11, SR-12 |
 | 过程留档（过程轨） | 无内置；靠 `.claude/` 目录与 git | 无内置 | **有**：spec / plan / tasks / checklist 全部入仓可审查 | 无（且自动维护 `.gitignore` 排除生成物） | **有**：requirements / design / tasks 入仓 | SR-06, SR-11, SR-12 |
-| 跨宿主覆盖 | 1（自身） | 1（自身） | 30+ 个 agent 集成 | 32 类 agent 目标 | 1（自身，另有 Spec Kit 兼容声明） | SR-06, SR-07, SR-11 |
+| 跨宿主覆盖 | 1（自身） | 1（自身） | 35–38 个 agent 集成（as_of 2026-09） | 32 类 agent 目标 | 1（自身，另有 Spec Kit 兼容声明） | SR-06, SR-07, SR-11 |
 | 无云/离线可用 | 否（依赖 Anthropic 云） | 否（IDE 云同步、Team 云分发） | **是**（明确声明离线、防火墙内可用） | **是**（纯本地 CLI，无服务） | 否（Bedrock / AWS） | SR-07, SR-11, SR-12 |
 | 旧产品线迁移机制 | 未公开 | `.cursorrules` 保留为 legacy、未公布移除日期；官方给出四步迁移指引 | 未涉及 | 未涉及 | **有完整机制**（见下行） | SR-04, SR-13 |
 | 破坏性变更 / 迁移治理 | 未公开专项机制 | 「legacy，将被废弃」措辞，无日期 | 未涉及 | 未涉及 | **Q Developer IDE 插件与付费订阅 2027-04-30 终止支持，给 12 个月过渡；2026-05-15 起停止新注册；四个 IDE 市场保留插件并挂废弃公告；按 IDE 提供迁移指南；过渡期内继续推关键修复** | SR-12, SR-13 |
@@ -255,7 +255,7 @@
 **逐项打分依据（事实可回溯）**：
 
 - 场景契合度：B4 与 kit 同为 npm 分发的本地规范产品（5 分）；B3 同为「方法论内核 + 过程轨 + 模板资产 + 多宿主」（4 分）；B1 门禁语义与 kit P0 门禁同源，但它是宿主而非规范分发产品（4 分）；B2 四层强制下发与 kit 的组织级诉求同类，但 IDE 绑定（3 分）；B5 三者俱全却自成闭环、不可作为分发目标（3 分）。
-- 技术成熟度：B1/B2 均为大规模商用、文档完备（5 分）；B3 有 30+ 集成与 200+ 贡献者，但 CLI 仍走 `uvx --from git+…`（4 分）；B5 商用但产品较新（4 分）；**B4 官方自述 Beta Research Preview**（2 分）。
+- 技术成熟度：B1/B2 均为大规模商用、文档完备（5 分）；B3 有 35–38 集成（as_of 2026-09）与 240–270+ 贡献者，但 CLI 仍走 `uvx --from git+…`（4 分）；B5 商用但产品较新（4 分）；**B4 官方自述 Beta Research Preview**（2 分）。
 - 集成难度（反向）：B4 一条 `npx` 即完成（5 分）；B3 一次 `specify init` 且离线可用（4 分）；B1/B2 需写 `settings.json` / `hooks.json` 并把脚本纳入仓库（3 分）；**B5 需要更换 IDE**（1 分）。
 - 成本（反向）：B3/B4 开源零许可 + 零云资源（5 分）；B1/B2 订阅制约 20 USD/月起（3 分）；B5 多档订阅且最高档约 200 USD/月（2 分）。
 - 合规可控性：B3/B4 明确离线与防火墙内可用、无服务端（5 分）；B1 本地执行但依赖 Anthropic 云（4 分）；B2 IDE 云同步且 Team 层由云仪表盘分发（3 分）；B5 绑定 AWS/Bedrock（2 分）。
@@ -264,7 +264,7 @@
 
 > 基于 §3.1 加权总分，形成分层结论。每层结论必须引用得分作为依据。
 
-- **优先借鉴**：**B4 Ruler（加权总分 4.40，场景契合度 5/5、集成难度 5/5、合规可控性 5/5）** 与 **B3 GitHub spec-kit（4.35，合规可控性 5/5、成本 5/5、跨宿主 30+ 集成）** —— 二者互补而非互斥：**B4 给出「分发形态」的答案**（单一规范源 + 声明式适配表 + `ruler apply` 编译落地，且与 kit 同为 npm 分发、零云资源），**B3 给出「过程门禁与模板治理」的答案**（四层模板优先级 + 安装期物化 + 优先级回退 + 产物入仓可审）。二者相加恰好覆盖 kit 的「规范注入 + 过程门禁 + 可分发的 CLI 产品」三要素。注意 B4 成熟度仅 2/5，借鉴其**形态与适配表设计**，不借鉴其实现（且须评估其 Beta 状态下的语义漂移风险）。
+- **优先借鉴**：**B4 Ruler（加权总分 4.40，场景契合度 5/5、集成难度 5/5、合规可控性 5/5）** 与 **B3 GitHub spec-kit（4.35，合规可控性 5/5、成本 5/5、跨宿主 35–38 集成（as_of 2026-09））** —— 二者互补而非互斥：**B4 给出「分发形态」的答案**（单一规范源 + 声明式适配表 + `ruler apply` 编译落地，且与 kit 同为 npm 分发、零云资源），**B3 给出「过程门禁与模板治理」的答案**（四层模板优先级 + 安装期物化 + 优先级回退 + 产物入仓可审）。二者相加恰好覆盖 kit 的「规范注入 + 过程门禁 + 可分发的 CLI 产品」三要素。注意 B4 成熟度仅 2/5，借鉴其**形态与适配表设计**，不借鉴其实现（且须评估其 Beta 状态下的语义漂移风险）。
 - **部分借鉴**：**B1 Claude Code（3.90，技术成熟度 5/5、门禁强制性最强）** —— 借鉴点：① 阻断语义用「退出码 2 / `permissionDecision: deny`」而非提示词表达，并把「退出码 1 不阻断」这类反直觉行为写进官方文档；② 插件 Marketplace 的分发形态与 `plugin validate` 的本地校验命令；③ 项目级 hooks 随仓库提交即团队共享的落地路径。不借鉴的部分：宿主绑定、托管策略对项目级配置的覆盖能力。**B2 Cursor（3.40）** —— 借鉴点：① 四层配置优先级 Enterprise > Team > Project > User，且低优先级不可覆盖高优先级；② `failClosed` 把「失败放行」反转为「失败阻断」；③ `loop_limit` 让 `stop` 钩子可驱动 agent 续跑。不借鉴的部分：IDE 绑定、云仪表盘分发（与 kit 零云资源约束冲突）。
 - **不借鉴（否决）**：**B5 AWS Kiro（加权总分 2.55，集成难度 1/5、成本 2/5、合规可控性 2/5）** —— 否决理由：借鉴其产品形态意味着要求用户更换 IDE 并接受 AWS/Bedrock 绑定，与 kit 既有的「npm 包 + 本地 CLI + 无任何云资源」硬约束直接冲突，成本不可接受且合规不可控。**但本否决只针对产品形态**：B5 的**旧产品线迁移治理范式**（12 个月过渡窗、新注册截止日先于 EOS 日、旧渠道保留并挂废弃公告、按渠道分别给迁移指南、过渡期内续推关键修复）是本轮调研中可直接抄用、且 kit 当前最缺的一块，已在 §4.1 单列为建议项。
 
@@ -392,7 +392,7 @@
 | SR-04 | 官方文档 | Rules — Cursor Docs（`.cursor/rules/` 与 `.mdc` 格式、`description`/`globs`/`alwaysApply` 三字段、四种激活模式、`.cursorrules` legacy 措辞、Team > Project > User 优先级、规则不作用于 Tab/Inline Edit/Bugbot、500 行上限） | https://docs.cursor.com/context/rules | B2, §2.2.2, §2.3 | 2026-09-04 |
 | SR-05 | 官方文档 | Hooks — Cursor Docs（`.cursor/hooks.json` schema `version: 1`、事件清单、退出码 2 阻断、`failClosed` 默认 false 与语义、`loop_limit` 默认 5、Enterprise > Team > Project > User 四层优先级与工作目录规则、matcher 规则） | https://cursor.com/en-US/docs/hooks | B2, §2.2.2, §2.3, §3.1 | 2026-09-04 |
 | SR-06 | 开源仓库 | github/spec-kit · README（斜杠命令全表、Extensions/Presets/项目本地覆盖四层模板优先级与运行时解析、安装期写入 agent 目录、同名命令优先级与移除回退、`--integration-options="--skills"`） | https://github.com/github/spec-kit | B3, §2.2.3, §2.3 | 2026-09-04 |
-| SR-07 | 官方站点 | GitHub Spec Kit（SDD 定位、Spec→Plan→Tasks→Implement 内核、30 integrations、105 community extensions / 60+ authors、22 presets、200+ contributors、离线与防火墙内可用、可自建 catalog） | https://github.github.com/spec-kit/ | B3, §2.2.3, §2.3, §5.1 | 2026-09-04 |
+| SR-07 | 官方站点 | GitHub Spec Kit（SDD 定位、Spec→Plan→Tasks→Implement 内核、35–38 integrations、138–157 community extensions / 90+ authors、25–33 presets、240–270+ contributors、stars 121K–130K+（as_of 2026-09 · 各镜像快照不同步，取区间）、离线与防火墙内可用、可自建 catalog） | https://github.github.com/spec-kit/ | B3, §2.2.3, §2.3, §5.1 | 2026-09-04 |
 | SR-08 | 官方标准站 | AGENTS.md（定位为「面向 agent 的 README」、60k+ 开源项目采用、嵌套 AGENTS.md 就近优先） | https://agents.md/ | §2.3, §4.1, §4.3 | 2026-09-04 |
 | SR-09 | 基金会新闻稿 | Linux Foundation Announces the Formation of the Agentic AI Foundation (AAIF)（2025-12-09；MCP / goose / AGENTS.md 三项创始捐赠；AGENTS.md 由 OpenAI 于 2025 年 8 月发布、60,000+ 项目采用、采用方列举 Amp/Codex/Cursor/Devin/Factory/Gemini CLI/GitHub Copilot/Jules/VS Code；白金成员名单） | https://www.linuxfoundation.org/press/linux-foundation-announces-the-formation-of-the-agentic-ai-foundation | §2.3, §4.3 | 2026-09-04 |
 | SR-10 | 开放标准规范 | Agent Skills Specification（SKILL.md 结构、frontmatter 字段、三级渐进加载模型、各平台项目/全局目录约定、平台兼容矩阵） | https://agentskills.io/ ；规范仓 https://github.com/agentskills/agentskills | §2.3, §4.3 | 2026-09-04 |
