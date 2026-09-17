@@ -14,6 +14,7 @@ import {
 } from './cli-shared.ts'
 import {
   loadLegacyGateExempt,
+  resolveExemptEntry,
   missingInvokeHats,
   resolveRequiredInvokeHats,
   type LegacyGateExemptEntry,
@@ -104,7 +105,7 @@ export function lintDoneInvokes(target: string): {
   const missing: string[] = []
   const slugExempted: { slug: string; entry: LegacyGateExemptEntry }[] = []
   for (const slug of missingRaw) {
-    const ent = exempt.invoke_hats.get(slug)
+    const ent = resolveExemptEntry(exempt, 'invoke_hats', slug) // U1 单源（3.0-W4 · checks/exempt.ts）
     if (ent) slugExempted.push({ slug, entry: ent })
     else missing.push(slug)
   }
@@ -121,7 +122,7 @@ export function lintDoneInvokes(target: string): {
     const taskSlug = meta.task_slug ?? slug
     const miss = missingInvokeHats(target, taskSlug, required)
     if (miss.length === 0) continue
-    const ent = exempt.invoke_hats.get(normalizeSlug(taskSlug)) ?? exempt.invoke_hats.get(slug)
+    const ent = resolveExemptEntry(exempt, 'invoke_hats', taskSlug) ?? resolveExemptEntry(exempt, 'invoke_hats', slug) // U1 单源（3.0-W4）
     if (ent) exempted.push({ slug: taskSlug, entry: ent })
     else hatGaps.push({ slug: taskSlug, rel, missing: miss, required })
   }

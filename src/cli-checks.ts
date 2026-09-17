@@ -45,7 +45,7 @@ export {
   findReview,
   evalReviewConclusion,
 } from './checks/review-gates.ts'
-export { LEGACY_GATE_EXEMPT_REL, loadLegacyGateExempt } from './checks/exempt.ts'
+export { LEGACY_GATE_EXEMPT_REL, loadLegacyGateExempt, resolveExemptEntry } from './checks/exempt.ts'
 export type { LegacyGateExemptEntry, LegacyGateExempt } from './checks/exempt.ts'
 export { runTestCheck } from './checks/test-artifacts.ts'
 export { PLACEHOLDER_RE, lintTaskFile } from './checks/lint.ts'

@@ -89,6 +89,9 @@ export function evalCloseInvokeHats(absTask: string, content: string): CloseGuar
 
 // close_review（2.3-W4 G2 结论级升级 · 评审文 §2.1）：R<n> 审查文存在 + 最高 R 轮结论可机读通过
 // （findLatestReview / evalReviewConclusion 单一实现源 · close 天然只闸新关账不追溯存量 · D-23-W4-TRANSITION）。
+// 3.0-W4 U1（评审文 §6.2 定稿）：close 不消费 legacy-gate-exempt 是**设计性不对称**而非缺陷 ——
+// 豁免清单全部条目语义 = 「闸接线前合法存量」，新关账无「接线前合法」可言；请勿顺手补消费
+//（U2 弃选：豁免机制反噬 · U3 弃选：存量 34 条瞬间全红违反不追溯 · 弃选理由评审文 §6.2 在案）。
 export function evalCloseReview(absTask: string): CloseGuardOutcome {
   const latest = findLatestReview(taskTargetRoot(absTask), absTask)
   if (!latest) {

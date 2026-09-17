@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict'
 import { spawnSync } from 'node:child_process'
+import { readFileSync } from 'node:fs'
 import { mkdtemp, rm, writeFile, mkdir } from 'node:fs/promises'
 import os from 'node:os'
 import path from 'node:path'
@@ -310,13 +311,14 @@ describe('2.3-W4 INVOKE-HATS · lint-done 帽级（failClosed + 数据豁免）'
           '  - slug: w4l_ok',
           '    reason: 2.3.0 前历史关账（fixture）',
           "    date: '2026-09-13'",
-          '    authorized_by: 00（fixture）',
+          // 3.0-W4 A1 重锚（20 审 advisory A1 ① · 与 loader 同 commit）：00（fixture）不过 A1 三元判 → 合规形态
+          '    authorized_by: 00（2026-09-13 fixture 授权）',
           '',
         ].join('\n'),
       )
       const good = runCli(['task', 'lint-done', '--target', dir])
       assert.equal(good.status, 0, good.combined)
-      assert.match(good.combined, /豁免命中留痕: w4l_ok（2\.3\.0 前历史关账（fixture） · 2026-09-13 · 00（fixture））/)
+      assert.match(good.combined, /豁免命中留痕: w4l_ok（2\.3\.0 前历史关账（fixture） · 2026-09-13 · 00（2026-09-13 fixture 授权））/)
       assert.match(good.combined, /LINT-DONE: PASS/)
     })
   })
@@ -342,13 +344,14 @@ describe('2.4-W6 N14 · lint-done slug 口径统一（meta 优先 · 文件名�
           '  - slug: meta_slug_x',
           '    reason: N14 fixture 豁免（meta slug 口径）',
           "    date: '2026-09-14'",
-          '    authorized_by: 00（fixture）',
+          // 3.0-W4 A1 重锚（20 审 advisory A1 ② · 与 loader 同 commit）
+          '    authorized_by: 00（2026-09-14 fixture 授权）',
           '',
         ].join('\n'),
       )
       const good = runCli(['task', 'lint-done', '--target', dir])
       assert.equal(good.status, 0, good.combined)
-      assert.match(good.combined, /豁免命中留痕: meta_slug_x（N14 fixture 豁免（meta slug 口径） · 2026-09-14 · 00（fixture））/)
+      assert.match(good.combined, /豁免命中留痕: meta_slug_x（N14 fixture 豁免（meta slug 口径） · 2026-09-14 · 00（2026-09-14 fixture 授权））/)
       assert.match(good.combined, /LINT-DONE: PASS/)
     })
   })
@@ -761,14 +764,22 @@ describe('2.3.1 N13 [P2] · 豁免四字段显式类型判（falsy 陷阱 · 验
       '',
     ].join('\n')
   }
-  it('authorized_by: 00（无引号 → YAML 整型 0）→ 条目无效+留痕不豁免；authorized_by: "00"（加引号）→ 豁免命中 PASS', async () => {
+  it('authorized_by: 00（无引号 → YAML 整型 0）→ 无效不豁免；"00"（加引号裸名）→ A1 有意反转 invalid 不豁免；A1 合规形态 → 豁免命中 PASS', async () => {
     await withTemp(async (dir) => {
       await seedHatGap(dir)
       await writeRel(dir, 'docs/harness/legacy-gate-exempt.yaml', exemptYaml('00'))
       const bad = runCli(['task', 'lint-done', '--target', dir])
       assert.equal(bad.status, 2, bad.combined)
       assert.match(bad.combined, /豁免条目无效（不豁免）/)
+      // 3.0-W4 A1 重锚（20 审 advisory A1 ③ · 与 loader 同 commit）：加引号裸名 "00" 原断言语义被 A1 有意反转 ——
+      // 裸名/裸号今后即假授权形态（无括号日期无出处词）→ invalid 不豁免；类型判层（未加引号 00 → 整型）保留在前
       await writeRel(dir, 'docs/harness/legacy-gate-exempt.yaml', exemptYaml('"00"'))
+      const bare = runCli(['task', 'lint-done', '--target', dir])
+      assert.equal(bare.status, 2, bare.combined)
+      assert.match(bare.combined, /豁免条目无效（不豁免）/)
+      assert.match(bare.combined, /A1 三元判/)
+      // A1 合规形态 → 豁免命中 PASS（保 N13 类型面绿径）
+      await writeRel(dir, 'docs/harness/legacy-gate-exempt.yaml', exemptYaml('00（2026-09-14 fixture 授权）'))
       const good = runCli(['task', 'lint-done', '--target', dir])
       assert.equal(good.status, 0, good.combined)
       assert.match(good.combined, /豁免命中留痕: n13_falsy/)
@@ -905,6 +916,101 @@ describe('3.0-W4 NEW-11 [范围③] · 否定词表广义化（五类 · 评审�
       await assertNeg(dir, 'w4n11_mix3', 'Verdict: not 通过。缺陷三项待修复后再审，范围已逐项核毕。')
       await assertNeg(dir, 'w4n11_mix4', 'Verdict: no 通过。缺陷三项待修复后再审，范围已逐项核毕。')
     })
+  })
+})
+
+describe('3.0-W4 NEW-10 [范围⑥] · exempt 授权真实性 A1 三元判 + U1 口径统一（评审文 §6 定稿 · OQ-2/OQ-3 采纳）', { concurrency: 1 }, () => {
+  // 红测先行（硬约束 6 · task S5.6 负向 fixture ①）：假授权形态（随手填名「张三」/ 裸号 "00" /
+  // 有日期无出处词 / 有出处词无 ISO 日期）修复前全部四字段齐即豁免生效（exit 0 真红漏网）；
+  // 修复后 A1 三元判入 invalid 留痕 warn · 不豁免（exit 2 缺口仍在）· 与缺四字段同处置面（exempt.ts 同通道）。
+  // 诚实边界（R-③ · 评审文 §6.1 末行）：A1 锁形态不锁事实 —— 真实性终局靠 S2 留痕 + 人审。
+  async function seedHatGap10(dir: string): Promise<void> {
+    await writeRel(dir, 'docs/tasks/done/task_new10_falsy_v1.md', taskMd('new10_falsy', 'done'))
+    await writeRel(dir, 'docs/harness/invokes/by-task/new10-falsy/invoke_20260901_30_x.md', '# invoke 30\n')
+  }
+  const exemptYaml10 = (authorizedBy: string): string =>
+    [
+      'version: "1"',
+      'invoke_hats:',
+      '  - slug: new10_falsy',
+      '    reason: NEW-10 A1 fixture',
+      "    date: '2026-09-17'",
+      `    authorized_by: ${authorizedBy}`,
+      '',
+    ].join('\n')
+
+  it('A1 负向四面：张三（裸名）/ "00"（裸号）/ 有日期无出处词 / 有出处词无 ISO 日期 → invalid warn + 不豁免（修复前全豁免真红）', async () => {
+    await withTemp(async (dir) => {
+      await seedHatGap10(dir)
+      for (const bad of ['张三', '"00"', '00（2026-09-14 fixture）', '00（fixture 授权）']) {
+        await writeRel(dir, 'docs/harness/legacy-gate-exempt.yaml', exemptYaml10(bad))
+        const r = runCli(['task', 'lint-done', '--target', dir])
+        assert.equal(r.status, 2, `假授权形态 ${bad} 须不豁免: ${r.combined}`)
+        assert.match(r.combined, /豁免条目无效（不豁免）/)
+        assert.match(r.combined, /A1 三元判/)
+      }
+    })
+  })
+
+  it('A1 正向对照：「00（2026-09-14 fixture 授权）」三元齐 → 豁免命中 PASS + 留痕', async () => {
+    await withTemp(async (dir) => {
+      await seedHatGap10(dir)
+      await writeRel(dir, 'docs/harness/legacy-gate-exempt.yaml', exemptYaml10('00（2026-09-14 fixture 授权）'))
+      const r = runCli(['task', 'lint-done', '--target', dir])
+      assert.equal(r.status, 0, r.combined)
+      assert.match(r.combined, /豁免命中留痕: new10_falsy/)
+      assert.match(r.combined, /LINT-DONE: PASS/)
+    })
+  })
+
+  it('U1 双向钉死：verify --task done 面有豁免 → exempted 留痕（exit 0 · 命名对齐裸 verify · 不再 warn）· 无豁免 → 维持 warn 降级不挡', async () => {
+    await withTemp(async (dir) => {
+      const rel = 'docs/tasks/done/task_u1_done_v1.md'
+      await writeRel(dir, rel, taskMd('u1_done', 'done'))
+      await writeRel(dir, 'docs/harness/invokes/by-task/u1-done/invoke_20260901_10_x.md', '# invoke 10\n')
+      await writeRel(dir, 'docs/harness/reviews/task_u1_done_audit_R1_20260917.md',
+        '# R1 fixture\n\n## 结论\n\n本任务不予通过。缺陷清单见探针表，须修复后重审再签，范围已核毕。\n')
+      // 无豁免 → 维持 D-23-W4-TRANSITION warn 降级（现状不变 · 反向锁）
+      const noExempt = runCli(['verify', '--task', rel, '--target', dir])
+      assert.equal(noExempt.status, 0, noExempt.combined)
+      assert.match(noExempt.combined, /verify: warn · task_u1_done_audit_R1_20260917\.md 结论不可机读通过/)
+      assert.match(noExempt.combined, /done 目录降级 · 不挡/)
+      // 有豁免 → exempted 留痕（OQ-3 字段命名对齐裸 verify exempted）
+      await writeRel(dir, 'docs/harness/legacy-gate-exempt.yaml', [
+        'version: "1"',
+        'reviews:',
+        '  - slug: u1_done',
+        '    reason: U1 fixture 豁免（done 面补消费）',
+        "    date: '2026-09-17'",
+        '    authorized_by: 00（2026-09-17 fixture 授权）',
+        '',
+      ].join('\n'))
+      const exempted = runCli(['verify', '--task', rel, '--target', dir])
+      assert.equal(exempted.status, 0, exempted.combined)
+      assert.match(exempted.combined, /exempted/)
+      assert.match(exempted.combined, /豁免命中留痕: u1_done（U1 fixture 豁免（done 面补消费） · 2026-09-17 · 00（2026-09-17 fixture 授权））/)
+      assert.doesNotMatch(exempted.combined, /done 目录降级 · 不挡/)
+      assert.match(exempted.combined, /VERIFY: PASS/)
+      // JSON 面契约：exempted 键出现且 waived 不出现（只增不改 · cli-verify-observability 契约兼容）
+      const j = runCli(['verify', '--task', rel, '--target', dir, '--json'])
+      assert.equal(j.status, 0, j.combined)
+      const payload = JSON.parse(j.stdout) as Record<string, unknown>
+      assert.ok(Array.isArray(payload.exempted), `exempted 须为数组: ${j.stdout}`)
+      assert.ok((payload.exempted as string[]).some((x) => x.includes('u1_done')), `exempted 须留痕 slug: ${j.stdout}`)
+      assert.equal('waived' in payload, false)
+    })
+  })
+
+  it('U1 helper 单源 grep 断言：slug→exempt 条目解析仅 exempt.ts resolveExemptEntry 一处 · close 不对称显式注释在案', () => {
+    const here = path.dirname(fileURLToPath(import.meta.url))
+    const v = readFileSync(path.join(here, '..', 'src', 'cli', 'verify.ts'), 'utf8')
+    const t = readFileSync(path.join(here, '..', 'src', 'cli-task-extra.ts'), 'utf8')
+    const e = readFileSync(path.join(here, '..', 'src', 'checks', 'exempt.ts'), 'utf8')
+    const cg = readFileSync(path.join(here, '..', 'src', 'checks', 'close-guards.ts'), 'utf8')
+    assert.doesNotMatch(v, /\.(reviews|invoke_hats)\.get\(/, 'verify.ts 不得再直查 Map（U1 单源）')
+    assert.doesNotMatch(t, /\.(reviews|invoke_hats)\.get\(/, 'cli-task-extra.ts 不得再直查 Map（U1 单源）')
+    assert.match(e, /export function resolveExemptEntry/)
+    assert.match(cg, /设计性不对称/)
   })
 })
 

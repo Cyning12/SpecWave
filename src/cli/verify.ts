@@ -9,6 +9,7 @@ import {
   findReview,
   findSpecReview,
   loadLegacyGateExempt,
+  resolveExemptEntry,
   runTestCheck,
   shouldSkipSpecAudit,
   type LegacyGateExemptEntry,
@@ -165,7 +166,7 @@ async function verifyBareReviewsMode(
       if (!verdict.pass) reason = `审查文结论不可机读通过（${latest.name} · ${verdict.detail}）`
     }
     if (!reason) continue
-    const ent = exempt.reviews.get(normalizeSlug(slug))
+    const ent = resolveExemptEntry(exempt, 'reviews', slug) // U1 单源（3.0-W4 · checks/exempt.ts）
     if (ent) exempted.push({ slug, reason, entry: ent })
     else gaps.push({ slug, rel: f.rel, reason })
   }
@@ -272,6 +273,7 @@ export async function cmdVerify(args: string[]): Promise<void> {
   }
   const abs = resolveTaskPath(target, taskFile)
   const label = path.basename(abs)
+  const exempted: string[] = [] // U1：exempt.reviews 命中留痕（done 面 · OQ-3 命名对齐裸 verify · emitJson 闭包消费故须先声明）
   const emitJson = (blocked: boolean, waived?: string[], wikiLint?: WikiLintGateResult | null): void => {
     // obs 恒非空：emitJson 全部调用点均在 if (json) 守卫内（obs 仅 --json 时计算）
     const o = obs as VerifyObservability
@@ -287,6 +289,8 @@ export async function cmdVerify(args: string[]): Promise<void> {
       source: o.source,
       injectedFiles: o.injectedFiles,
       ...(waived && waived.length > 0 ? { waived } : {}),
+      // U1/OQ-3（3.0-W4 · 评审文 §6.2）：exempt 命中留痕键名与裸 verify 面对齐（exempted）· 契约只增不改（条件键）
+      ...(exempted.length > 0 ? { exempted } : {}),
       ...(wikiLint ? { wiki_lint: wikiLintJson(wikiLint) } : {}),
     })
   }
@@ -341,9 +345,22 @@ export async function cmdVerify(args: string[]): Promise<void> {
           console.log(`verify: 留痕 · ${latestReview.name} 结论不可机读通过（${verdict.detail}）· --allow-no-review 豁免生效`)
         }
       } else if (abs.split(path.sep).includes('done')) {
-        waived.push(`审查文结论不可机读通过（${latestReview.name} · done 目录审计降级 warn）`)
-        if (!json) {
-          console.log(`verify: warn · ${latestReview.name} 结论不可机读通过（${verdict.detail} · done 目录降级 · 不挡）`)
+        // U1（3.0-W4 · 评审文 §6.2 定稿）：done 面补消费 exempt.reviews —— 有豁免条目 → exempted 留痕
+        //（不再 warn · 字段命名与裸 verify 对齐 OQ-3）；无豁免 → 维持 D-23-W4-TRANSITION warn 降级不挡（现状不变）。
+        const exempt = loadLegacyGateExempt(target)
+        const taskSlug = parseHarnessMeta(content).task_slug ?? extractTaskSlug(abs)
+        const ent = resolveExemptEntry(exempt, 'reviews', taskSlug)
+        if (ent) {
+          exempted.push(`审查文结论不可机读通过（${latestReview.name} · 豁免命中留痕: ${taskSlug}）`)
+          if (!json) {
+            console.log(`verify: exempted · ${latestReview.name} 结论不可机读通过（${verdict.detail}）`)
+            console.log(`豁免命中留痕: ${taskSlug}（${ent.reason} · ${ent.date} · ${ent.authorized_by}）`)
+          }
+        } else {
+          waived.push(`审查文结论不可机读通过（${latestReview.name} · done 目录审计降级 warn）`)
+          if (!json) {
+            console.log(`verify: warn · ${latestReview.name} 结论不可机读通过（${verdict.detail} · done 目录降级 · 不挡）`)
+          }
         }
       } else {
         if (json) emitJson(true)

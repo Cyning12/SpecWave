@@ -237,7 +237,7 @@ describe('verify --spec · SPEC 审查文存在性真闸（spec_reviews_retentio
           '  - slug: bare_gap',
           '    reason: 2.3.0 前历史关账（fixture）',
           "    date: '2026-09-13'",
-          '    authorized_by: 00（fixture）',
+          '    authorized_by: 00（2026-09-13 fixture 授权）', // 3.0-W4 A1 重锚（20 审 advisory A1 ④ · 与 loader 同 commit）
           '',
         ].join('\n'),
       )
