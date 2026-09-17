@@ -270,14 +270,19 @@ describe('3.0-W3 S4.1 · graph ontology check（SHACL 语义子集校验器接�
     assert.match(r.combined, /graph ontology check \[--file PATH\] \[--json\]/)
   })
 
-  // 登记项（F-W3-08 · 验收 #2 接线前留证面）：本断言钉「接线后修复前」真值面 ——
-  // DisciplinePackage/BusinessRepository 补声明 + hasGate 追认登记后由 3 → 1（TraceArtifact 对账未答 · 处置独立 commit 后补）；
-  // 得答处置落地后须翻转为 0 Violation / exit 0。
-  it('登记项 · 仓内 assets/ontology.yaml 当前违规计数钉（S4.2 修复进度机械锁）', async () => {
+  // 登记项（F-W3-08 · 验收 #2 进度机械锁）：DisciplinePackage/BusinessRepository 补声明 + hasGate 追认登记
+  // 已落地（接线前 3 处 → 现余 1 处）；produces→TraceArtifact 对账问法已由 00 出示维护者、本棒开工时未得答
+  // （task S4.2 硬步骤：未得答不得二选一 · 处置独立 commit 后补）——得答处置落地后本断言须翻转为 0 Violation / exit 0。
+  it('登记项 · 仓内 assets/ontology.yaml 当前违规计数钉（3→1 · TraceArtifact 待对账）', async () => {
     const r = await runGraph(['ontology', 'check'])
     assert.equal(r.status, 2, r.combined)
-    assert.match(r.combined, /\[VIOLATION\] RelationShape @ relations\[0\]\.subject :: .*未声明的类: DisciplinePackage/)
-    assert.match(r.combined, /\[VIOLATION\] RelationShape @ relations\[0\]\.object :: .*未声明的类: BusinessRepository/)
     assert.match(r.combined, /\[VIOLATION\] RelationShape @ relations\[3\]\.object :: .*未声明的类: TraceArtifact/)
+    assert.doesNotMatch(r.combined, /DisciplinePackage|BusinessRepository/)
+    assert.match(r.combined, /ontology 校验未通过（Violation × 1）/)
+    const json = await runGraph(['ontology', 'check', '--json'])
+    assert.equal(json.status, 2, json.combined)
+    const report = JSON.parse(json.stdout) as { entities: Record<string, number>; violations: unknown[] }
+    assert.deepEqual(report.entities, { classes: 17, relations: 5, axioms: 6, gates: 4 })
+    assert.equal(report.violations.length, 1)
   })
 })

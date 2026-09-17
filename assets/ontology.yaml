@@ -19,6 +19,9 @@ classes:
     domain: Package
   - id: IDEFragment
     domain: Package
+  # 3.0-W3 S4.2 引用完整性真修（接线前 sh:class 违规 ① · 补声明）：纪律包嵌入业务仓的产品自指（embedsInto 主体）
+  - id: DisciplinePackage
+    domain: Package
   - id: AdoptedProfile
     domain: Instance
   - id: VersionManifest
@@ -39,6 +42,10 @@ classes:
     domain: Instance
   - id: VerifyArtifact
     domain: Instance
+  # 3.0-W3 S4.2 引用完整性真修（接线前 sh:class 违规 ② · 补声明）：HGM 活实例在先
+  # （buildSnapshot 把 RepositoryAdopted 主体建成 kind=BusinessRepository 节点 · src/cli-graph-hgm.ts）
+  - id: BusinessRepository
+    domain: Instance
 
 relations:
   - id: embedsInto
@@ -57,6 +64,11 @@ relations:
     subject: Hat
     object: TraceArtifact
     cardinality: "0..*"
+  # 3.0-W3 S4.5-2 追认登记（闸行裁决③ · 代码活边型在先）：HGM HAS_GATE 边（task→gate）的 TBox 对应
+  - id: hasGate
+    subject: Task
+    object: HumanGate
+    cardinality: "1..*"
 
 # 公理命名空间：ONTO- 前缀，独立于 graph axioms 代码公理（D2/D3/S2/rejected→draft，src/cli-graph-hgm.ts）
 axioms:
