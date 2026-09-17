@@ -1,6 +1,7 @@
 import { createHash } from 'node:crypto'
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
+import { packageRoot } from './cli-shared.ts'
 import { yamlLoad } from './yaml.ts'
 
 export const SCHEMA_VERSION = 'inform_graph.v3'
@@ -37,6 +38,71 @@ type YamlGraph = {
   notes?: unknown
   nodes?: YamlNode[]
   edges?: YamlEdge[]
+}
+
+// 3.0-W3 S4.5-3（F1 受限统一 · tech-graph 浅登记）：kind 枚举 / kind→class 映射 / 边型词表的唯一真值源 =
+// assets/tech-graph-vocab.yaml（tech: namespace 表现层词汇登记档 · 非产品本体类 · F-W3-10）。
+// 本函数是 src 内唯一加载点（单源校验 · 验收 #6 grep 断言锚）；原 kind 硬编码枚举（validateGraphYaml）
+// 与 KIND_TO_CLASS（generateMermaid · 20 审 R1-A3 点名的第二硬拷贝）双硬拷贝已同迁本档。
+// 档坏 = 随包资产损坏 → GraphYamlError fail-loud（不静默回退硬拷贝 —— 回退即双份真值回潮）。
+type TechGraphVocab = {
+  kinds: string[]
+  kindToClass: Record<string, 'phase' | 'doc' | 'infra'>
+  edgeTypes: string[]
+}
+
+let techGraphVocabCache: TechGraphVocab | null = null
+
+export function loadTechGraphVocab(): TechGraphVocab {
+  if (techGraphVocabCache) return techGraphVocabCache
+  const file = path.join(packageRoot(), 'assets', 'tech-graph-vocab.yaml')
+  let doc: unknown
+  try {
+    doc = yamlLoad(readFileSync(file, 'utf8'))
+  } catch (err) {
+    throw new GraphYamlError(`tech-graph-vocab.yaml 不可读或解析失败: ${(err as Error).message}`, { path: file })
+  }
+  const d = (doc ?? {}) as { version?: unknown; kinds?: unknown; edge_types?: unknown }
+  const MERMAID_CLASSES = ['phase', 'doc', 'infra'] as const
+  const kinds: string[] = []
+  const kindToClass: Record<string, 'phase' | 'doc' | 'infra'> = {}
+  for (const [i, k] of (Array.isArray(d.kinds) ? d.kinds : []).entries()) {
+    const entry = (k ?? {}) as { id?: unknown; class?: unknown }
+    if (typeof entry.id !== 'string' || !entry.id) {
+      throw new GraphYamlError(`tech-graph-vocab.yaml 校验失败: kinds[${i}] 缺 id`, { path: file })
+    }
+    if (typeof entry.class !== 'string' || !(MERMAID_CLASSES as readonly string[]).includes(entry.class)) {
+      throw new GraphYamlError(`tech-graph-vocab.yaml 校验失败: kinds[${i}].class 非法: ${String(entry.class)}`, { path: file })
+    }
+    kinds.push(entry.id)
+    kindToClass[entry.id] = entry.class as 'phase' | 'doc' | 'infra'
+  }
+  const edgeTypes = Array.isArray(d.edge_types) ? d.edge_types.map(String) : []
+  if (d.version !== '1' || kinds.length === 0 || edgeTypes.length === 0) {
+    throw new GraphYamlError('tech-graph-vocab.yaml 校验失败: 缺 version:"1"/kinds/edge_types', { path: file })
+  }
+  techGraphVocabCache = { kinds, kindToClass, edgeTypes }
+  return techGraphVocabCache
+}
+
+// 校验钩②（S4.5-3 · Warning 级新增 · 不咬 exit）：显式 edges[].type ∉ 登记档 edge_types → Warning 行。
+// 表现层开放惯例保留（::label 派生自定义 type 合法 · edgeToGraphV2）—— 登记 ≠ 封闭，浅登记只把隐式枚举变显式。
+export function collectTechVocabWarnings(data: YamlGraph, filePath: string | null = null): string[] {
+  const { edgeTypes } = loadTechGraphVocab()
+  const warnings: string[] = []
+  for (const [i, e] of (data.edges ?? []).entries()) {
+    if (e == null || typeof e !== 'object' || Array.isArray(e)) continue
+    if (e.type && !edgeTypes.includes(e.type)) {
+      warnings.push(
+        `edges[${i}].type 未在 tech-graph 词汇登记档（tech: namespace）: ${e.type}（表现层开放惯例 · Warning 不咬 exit）`,
+      )
+    }
+  }
+  return filePath ? warnings.map((w) => `${filePath}: ${w}`) : warnings
+}
+
+function printTechVocabWarnings(data: YamlGraph, filePath: string): void {
+  for (const w of collectTechVocabWarnings(data, filePath)) console.error(`[warning] ${w}`)
 }
 
 export function loadYaml(filePath: string): YamlGraph {
@@ -84,7 +150,8 @@ export function validateGraphYaml(data: YamlGraph | null | undefined, filePath: 
         if (!n.label) errors.push(`nodes[${i}] 缺少 label`)
         if (n.id && seen.has(n.id)) errors.push(`重复节点 id: ${n.id}`)
         if (n.id) seen.add(n.id)
-        if (n.kind != null && !['flow', 'struct', 'external'].includes(n.kind)) {
+        // 3.0-W3 S4.5-3：kind 枚举从登记档读（原硬编码数组已单源化 · 恒等 fixture 钉逐字等价）
+        if (n.kind != null && !loadTechGraphVocab().kinds.includes(n.kind)) {
           errors.push(`nodes[${i}].kind 非法: ${n.kind}`)
         }
       })
@@ -291,6 +358,7 @@ export function buildGraphPayload(
     const data = loadYaml(yamlPath)
     const validationErrors = validateGraphYaml(data, yamlPath)
     if (validationErrors.length > 0) throw new GraphYamlError(validationErrors.join('\n'))
+    printTechVocabWarnings(data, yamlPath) // 钩② · stderr Warning
     // DEF-032①（D2）：graph_id 真值源 = yaml 声明值（如 00_main）；
     // 路径命名空间 id（如 l0/00_main）仅作输入兼容定位，不写入输出。
     const declaredId = data.graph_id != null ? String(data.graph_id) : graphId
@@ -409,7 +477,8 @@ function generateMermaid(data: YamlGraph): string {
   lines.push('    classDef infra fill:#e8f5e9,stroke:#2e7d32,stroke-width:1px')
   // DEF-033（R6）：class 段以 nodes[].kind 为真值源（kind→class 映射，同 generateNodeTable 的 kind 读取）；
   // 无 kind（或未知 kind）时保留 id 推断作兜底（历史行为，仅供未标注 kind 的旧 yaml）。
-  const KIND_TO_CLASS: Record<string, 'phase' | 'doc' | 'infra'> = { flow: 'phase', struct: 'doc', external: 'infra' }
+  // 3.0-W3 S4.5-3（20 审 R1-A3）：KIND_TO_CLASS 第二硬拷贝同迁登记档（单源 · loadTechGraphVocab）
+  const KIND_TO_CLASS = loadTechGraphVocab().kindToClass
   // E5（noUncheckedIndexedAccess）：键集合钉死为三类，classGroups.X 访问免收窄（纯类型收紧 · 零运行时变化）
   const classGroups: Record<'phase' | 'doc' | 'infra', string[]> = { phase: [], doc: [], infra: [] }
   for (const [nid, node] of nodes) {
@@ -521,6 +590,7 @@ export function compileGraph(graphId: string, inputRoot: string, outputPath: str
   const data = loadYaml(yamlPath)
   const validationErrors = validateGraphYaml(data, yamlPath)
   if (validationErrors.length > 0) throw new GraphYamlError(validationErrors.join('\n'))
+  printTechVocabWarnings(data, yamlPath) // 钩② · stderr Warning · stdout/产物/exit 零漂移
   const md = generateMarkdown(data, {
     sourcePath: path.relative(inputRoot, yamlPath).replace(/\\/g, '/'),
     sourceRaw: raw,
@@ -551,6 +621,7 @@ export function checkGraph(
   const yamlData = loadYaml(yamlPath)
   const validationErrors = validateGraphYaml(yamlData, yamlPath)
   if (validationErrors.length > 0) throw new GraphYamlError(validationErrors.join('\n'))
+  printTechVocabWarnings(yamlData, yamlPath) // 钩② · stderr Warning
   if (!existsSync(graphJsonPath)) return { ok: false, diff: `graph.json 不存在: ${graphJsonPath}` }
   const graphJson = loadGraphJson(graphJsonPath)
   // DEF-032②（D3）：与 export 同一 id 真值源（yaml 声明值），路径 id 仅作输入兼容定位。

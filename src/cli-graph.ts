@@ -1,6 +1,14 @@
 import path from 'node:path'
 import { fail, packageRoot, printJson, resolveTarget, takeOption, toRel } from './cli-shared.ts'
-import { checkOntologyFile, OntologyCheckError } from './cli-graph-ontology.ts'
+import {
+  checkHgmAgainstTbox,
+  checkOntologyFile,
+  HGM_ONTOLOGY_SHAPES,
+  type HgmOntologyReport,
+  loadOntologyDocument,
+  ONTOLOGY_CHECK_PROFILE,
+  OntologyCheckError,
+} from './cli-graph-ontology.ts'
 import {
   allGraphIds,
   checkGraph,
@@ -30,6 +38,7 @@ export async function cmdGraph(args: string[]): Promise<void> {
   graph snapshot [--target PATH]
   graph axioms check [--target PATH] [--json]
   graph ontology check [--file PATH] [--json]
+  graph ontology check --hgm [--target PATH] [--file PATH] [--json]
 `)
     return
   }
@@ -195,12 +204,22 @@ async function cmdGraphOntology(args: string[]): Promise<void> {
   let remaining = rest
   const { value: fileArg, rest: r1 } = takeOption(remaining, '--file')
   remaining = r1
+  // 3.0-W3 S4.5-2：--hgm = HGM 全量适配面（事件轨 → buildSnapshot → 快照 ⊆ TBox 实例校验）
+  const hgm = remaining.includes('--hgm')
+  remaining = remaining.filter((a) => a !== '--hgm')
+  const { value: targetArg, rest: r2 } = takeOption(remaining, '--target')
+  remaining = r2
   const json = remaining.includes('--json')
   remaining = remaining.filter((a) => a !== '--json')
   if (remaining.length > 0) fail(`graph ontology check 未知参数: ${remaining.join(' ')}`)
   const file = fileArg
     ? path.resolve(process.cwd(), fileArg)
     : path.join(packageRoot(), 'assets', 'ontology.yaml')
+  if (hgm) {
+    await graphOntologyCheckHgm(file, targetArg, json)
+    return
+  }
+  if (targetArg) fail('graph ontology check：--target 仅与 --hgm 同用')
   let report
   try {
     report = checkOntologyFile(file)
@@ -224,6 +243,54 @@ async function cmdGraphOntology(args: string[]): Promise<void> {
   }
   const hard = report.violations.filter((v) => v.severity === 'Violation')
   if (hard.length > 0) fail(`ontology 校验未通过（Violation × ${hard.length}）`, 2)
+}
+
+// 3.0-W3 S4.5-2（F1 受限统一 · HGM 全量适配）：读 <target> 事件轨 → buildSnapshot（复用 cli-graph-hgm
+// 不重写）→ 实例校验（node.kind ⊆ TBox classes · edge.type ⊆ TBox relations 经单点映射表 · hat 词汇
+// 前缀段归一 Warning 面 F-W3-09）。Violation → exit 2；仅 Warning → exit 0（警示行点名不静默）。
+// 零 breaking：纯新增校验面 · graph axioms check / graph snapshot 输出与 exit 语义零变更。
+async function graphOntologyCheckHgm(
+  file: string,
+  targetArg: string | undefined,
+  json: boolean,
+): Promise<void> {
+  const target = resolveTarget(process.cwd(), targetArg)
+  let ontologyDoc
+  try {
+    ontologyDoc = loadOntologyDocument(file)
+  } catch (err) {
+    if (err instanceof OntologyCheckError) fail(err.message, 2)
+    throw err
+  }
+  const events = loadEvents(target)
+  const snapshot = buildSnapshot(events)
+  const violations = checkHgmAgainstTbox(snapshot, ontologyDoc)
+  const report: HgmOntologyReport = {
+    command: 'graph ontology check --hgm',
+    ontology: file,
+    target,
+    profile: ONTOLOGY_CHECK_PROFILE,
+    shapes: [...HGM_ONTOLOGY_SHAPES],
+    entities: { nodes: Object.keys(snapshot.nodes).length, edges: snapshot.edges.length },
+    conforms: violations.filter((v) => v.severity === 'Violation').length === 0,
+    violations,
+  }
+  if (json) {
+    printJson(process.cwd(), report)
+  } else {
+    console.log(`ontology: ${toRel(process.cwd(), file)}`)
+    console.log(`target: ${toRel(process.cwd(), target)}`)
+    console.log(`profile: ${report.profile}（HGM 实例 ⊆ TBox · SHACL 语义子集 · 不声称标准合规）`)
+    console.log(
+      `形状数: ${report.shapes.length} · 实体: nodes=${report.entities.nodes} edges=${report.entities.edges}`,
+    )
+    console.log(`conforms: ${report.conforms}`)
+    for (const v of report.violations) {
+      console.log(`  [${v.severity.toUpperCase()}] ${v.shape} @ ${v.where} :: ${v.message}`)
+    }
+  }
+  const hard = violations.filter((v) => v.severity === 'Violation')
+  if (hard.length > 0) fail(`HGM 实例校验未通过（Violation × ${hard.length}）`, 2)
 }
 
 async function cmdGraphAxioms(args: string[]): Promise<void> {

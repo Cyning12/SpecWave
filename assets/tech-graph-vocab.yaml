@@ -1,0 +1,24 @@
+# tech-graph 表现层词汇登记档（3.0-W3 S4.5-3 · F1 受限形态统一 · 研究文 §9.1 批准边界）
+# 定位：表现层词汇登记 · 非产品本体类 —— 本档词汇不入产品本体 ontology.yaml（同目录）的 classes（防臆造语义 · F-W3-10）。
+# 单源：公开 CLI（graph yaml compile|check|export）的 kind 枚举 / kind→class 映射 / 边型词表唯一真值源；
+#       src 内唯一加载点 = src/cli-graph-yaml.ts loadTechGraphVocab（验收 #6 单源 grep 断言锚 · 20 审 R1-A3）。
+# 登记 ≠ 封闭：::label 派生自定义边型合法（edgeToGraphV2 表现层开放惯例保留）；
+#       显式 edges[].type 未登记 → Warning 点名（不咬 exit · F-W3-09 同式可见性纪律）。
+version: "1"
+namespace: "tech:"
+
+# 节点 kind 三类 + mermaid classDef 映射（原 cli-graph-yaml.ts 硬编码枚举与 KIND_TO_CLASS 双硬拷贝同迁于此）
+kinds:
+  - id: flow
+    class: phase
+  - id: struct
+    class: doc
+  - id: external
+    class: infra
+
+# 边型四条（edgeToGraphV2 推断/显式共用的登记词表）
+edge_types:
+  - depends_on
+  - async_calls
+  - condition
+  - has_metadata

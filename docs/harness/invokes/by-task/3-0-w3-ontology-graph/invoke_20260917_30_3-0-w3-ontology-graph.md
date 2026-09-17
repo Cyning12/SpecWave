@@ -120,9 +120,64 @@ GATE_VERIFY 复跑：双闸 approved · VERIFY: PASS。
 2. a2 兜住面（未声明帽 Warning）归阶段三 S4.5 —— 本阶段仅钉 D2 边界行为 + 登记（task 定稿原文即如此分派）。
 3. 验收 #12「无 axioms check 保护 S2 叙事」文案负向 grep 归阶段四（ONTO-OPEN/文案面）—— 本阶段码注释登记先行。
 
+## 阶段三（F1 受限统一 · S4.5 · 验收 #6 · 00 放行）
+
+GATE_VERIFY 复跑：双闸 approved · VERIFY: PASS。
+
+### 交付
+
+1. **HGM 全量适配**（`graph ontology check --hgm [--target] [--file] [--json]` · src/cli-graph-ontology.ts 同模块）：
+   事件轨 → buildSnapshot（复用不重写）→ 三形状实例校验 —— HgmInstanceShape（node.kind ⊆ classes · Violation）·
+   HgmEdgeShape（edge.type 经 `HGM_EDGE_TO_TBOX` 单点映射 {HAS_GATE→hasGate, BLOCKS→blocks} ⊆ relations · Violation）·
+   HgmHatVocabShape（BLOCKS hat_id 前缀段归一 · 复用阶段二 hatIdMatchesSegment · 未命中 Warning 点名不咬 exit · F-W3-09）。
+   --json 键集钉死 {command, ontology, target, profile, shapes, entities:{nodes,edges}, conforms, violations}。
+2. **tech-graph 浅登记**：新档 `assets/tech-graph-vocab.yaml`（version:"1" · namespace tech: · kinds 三类+class 映射 ·
+   edge_types 四条 · 头注释「表现层词汇登记 · 非产品本体类」）；`loadTechGraphVocab` = src 唯一加载点（fail-loud ·
+   不回退硬拷贝）；**原 :87 kind 枚举与原 :412 KIND_TO_CLASS（20 审 R1-A3）双硬拷贝同迁**；钩② 显式 edges[].type
+   未登记 → stderr `[warning]` 行（compile/check/export 三调用点 · 不咬 exit · ::label 开放惯例保留）。
+3. **单源校验**（test/f1-unify.test.ts 13 用例 · 红测补证：stash 隔离旧码整件红 → 恢复全绿）：
+   grep 断言 src 内 `'flow'|'struct'|'external'` 字面量**零残留**；HGM_EDGE_TO_TBOX 定义+消费同文件单点；
+   TBox 唯一读入口 loadOntologyDocument（ontology check 与 --hgm 共用）。
+
+### 恒等 fixture 证据（零 breaking 机械证明 · 三方逐字等）
+
+改码前用旧 lib 采集基线（5 份 compile md + export graph.json + stdout）→ 改码后重跑比对：
+**tracked 产物 ≡ 旧码基线 ≡ 新码产物** —— 5 份 md 逐字等 · shared/graph.json 逐字等 · stdout（路径归一）逐字等 ·
+exit 全 0。测试内锚 = tracked 产物（docs/_tech_graph/*.md · shared/graph.json）。
+stderr 新增 7 条 `[warning]`（00_main triggers×4 · 10_flow_task_close ×2 · 10_flow_verify ×1）—— 钩②设计内
+可见性产出（仓内语料 ::label 开放惯例显式化）· stderr 面 · stdout/产物/exit 零漂移（划界登记备 20 复核）。
+
+### 锁逐项（阶段三）
+
+| 锁 | 结果 |
+|----|------|
+| npm test | 767/144/766 pass/0 fail/1 skip（754 + 新增 13 · 零回退） |
+| typecheck / build / test:lib | 0 错 · PASS · 6/6 |
+| pins / verify | 17/17 · VERIFY: PASS |
+| assets verify | 111/111（新档入包 manifest rebuild · 110→111） |
+| HGM 本仓冒烟 | --hgm --target . （无仓内事件轨 → 空快照）conforms: true exit 0 |
+| graph yaml 三面 | 恒等 fixture 逐字等（上节）· cli-g1g7 烟测全绿 · snapshot/timeline 消费面零改动 |
+
+### 偏差登记（阶段三）
+
+1. 钩② stderr Warning 对仓内既有语料产出 7 条（triggers 等 ::label 惯例显式 type）—— task S4.5-3 明示「Warning 级新增」
+   的设计内面；验收 #6「输出零漂移」按 stdout/产物/exit 划界（stderr 新增 = 新增面非漂移）· 备 20 复核。
+2. edgeToGraphV2 的 4 边型字面量留存 src —— 属 label 协议**推断规则**的构成（非词汇表拷贝 · task A3 口径只点名
+   kinds 两硬拷贝）；登记档 edge_types 与推断产出的关系 = 「产出应 ∈ 词表」，未加运行时自洽断言（过度工程）· 备 20 复核。
+3. 仓内无 .coding-kit/events（无真实事件轨）—— HGM PASS fixture 以 tmp 仓 seed+ingest 构造真实轨道 · 本仓冒烟为空快照面。
+4. 红测先行顺序偏差：本阶段实现先于测试落笔 —— 以 stash 隔离法补证（旧码整件红：导出不存在 · 恢复后 13/13 绿）。
+5. def009 拦截实证：登记档头注释初稿含 `assets/ontology.yaml` token 被判悬空引用（assets/ 相对解析）→ 措辞改
+   「产品本体 ontology.yaml（同目录）」—— 既有测试零改动 · 修己方新档。
+
+### 提交（阶段三 · 一笔 · 逐文件显式 add · 不 push 不 tag）
+
+- commit 5（本批）feat(3.0-W3): F1 受限统一 —— src/cli-graph-yaml.ts · src/cli-graph-ontology.ts · src/cli-graph.ts ·
+  assets/tech-graph-vocab.yaml（新档）· assets/sha256.manifest · test/f1-unify.test.ts · 本 invoke 追加
+
 ## 修订记录
 
 | 日期 | 说明 |
 |------|------|
 | 2026-09-17 | 30 阶段一落档：A4 接线 + 引用完整性补声明（TraceArtifact 待答挂起登记）· 锁逐项实测 · A4 断言登记 diff |
 | 2026-09-17 | 30 阶段二追加：F2 真口径 + 判据加固六项 · 附录 A 修复前后复跑留证 · 既有面盘点零自改 · 偏差三条登记 |
+| 2026-09-17 | 30 阶段三追加：F1 受限统一（HGM 适配 + tech-graph 浅登记 + 单源断言）· 恒等三方逐字等 · A3 双硬拷贝同迁 · 偏差五条登记 |
