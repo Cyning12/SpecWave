@@ -29,6 +29,10 @@ const ASSETS_USAGE =
 function isExcludedBasename(basename: string): boolean {
   if (basename === 'sha256.manifest') return true
   if (basename === '.DS_Store') return true
+  // 3.0-W5 NEW-6 同族盘点（登记级 · 不同步通配）：本面为资产 manifest 排除面（D-23-W5-EXCLUDE），
+  // 与发布卫生门（scripts/check-pack-hygiene.mjs · 已通配化）显式分叉 —— 资产命名由本仓自控
+  // （合法资产不含 .bak 衍生族），精确后缀已足且不通配到语义模糊面（F-W5-04 白名单口径）；
+  // 卫生门面拦的是工作树任意残留（发布面 · 威胁模型不同）→ 通配。
   if (basename.endsWith('.bak')) return true
   if (basename.endsWith('~')) return true
   return false

@@ -32,7 +32,8 @@
     "GLOSSARY.md",
     "MIGRATION.md",
     "LICENSE",
-    "!assets/**/*.bak"
+    "!**/*.bak",
+    "!**/*.bak.*"
   ],
   "scripts": {
     "build": "tsc -p tsconfig.json",
