@@ -1,6 +1,6 @@
 # Task：3.0 W6 · 可观测与审计（C6 结构化审计日志落盘 + F4 S2 公理接真实触发源 + G2/G4 闸接线 + N2-C verify 补 lint + G7 执行证据 + coverage 回写）
 
-> **状态**：`draft`（2026-09-17 10-task 起草 · HG-TASK-DRAFT / HG-AUDIT-R1 双 approved（00 代签 · 授权真值：维护者本窗「授权00代签」· 依据审查文 docs/harness/reviews/task_3_0_w6_observability_audit_audit_R1_20260917.md · R1 PASS-with-issues blocking 0 · advisory A1–A4 带入 30 执行要求 · G7 warn-only 诚实口径 00 裁定接受）· 30 可开工）
+> **状态**：`done`（2026-09-17 10-task 起草 · HG-TASK-DRAFT / HG-AUDIT-R1 双 approved（00 代签 · 授权真值：维护者本窗「授权00代签」· 依据审查文 docs/harness/reviews/task_3_0_w6_observability_audit_audit_R1_20260917.md · R1 PASS-with-issues blocking 0 · advisory A1–A4 带入 30 执行要求 · G7 warn-only 诚实口径 00 裁定接受）· 2026-09-17 全三阶段落地（C6+F4 → G2+G4 → N2-C+G7+coverage）· 40 复核 PASS-with-issues（blocking 0 · advisory 3 · 40 留档 ea7d31c）· 00 收官裁定 Task_KPI%: 96 · 验收 14/14 勾选 · 关账）
 > **SPEC 真值**：[`docs/spec/3_0-architecture-leap/07_w6_observability_audit_v1.md`](../../spec/3_0-architecture-leap/07_w6_observability_audit_v1.md)（signed · HG-SPEC-SIGNOFF=approved 2026-09-16 · 范围 ①–⑦ · 验收 1–6 · F-W6-01–05 · §5 设计要点）
 > **上游 PLAN**：[`PLAN_3_0_architecture_leap_v1_zh.md`](../../roadmap/PLAN_3_0_architecture_leap_v1_zh.md) W6 节（:281-286）+ 硬约束 **1**（S2 永不覆写 · :330）/ **2**（禁新绕过参数 · :331）/ **6**（修严配负向 fixture · :335）/ **7**（不追溯存量 · :336）/ **10**（环境依赖可诊断 · :339）/ **14**（证据入库 · :343）/ **15**（闸不落表即虚设 · :344）
 > **前置已兑现**：W0–W5 全 done（W5 锁终态 810/154/809 pass/0 fail/1 skip · [`task_3_0_w5_mechanical_cleanup.md`](../done/task_3_0_w5_mechanical_cleanup.md)）· SPEC signed · W2 hooks 执行面已交付（hook-guard 分发 + shell-hook 物化 · `src/host/hookguard.ts` / `src/host/hooks.ts`）
@@ -184,20 +184,20 @@ SPEC 07 三路可观测债：① C6 —— `audit` 不落痕（`src/cli/gates.ts
 
 ## 验收标准（必须自证，不接受「我改完了」）
 
-- [ ] **#1 C6 字段 schema 快照断言**（SPEC 验收 1 · S6.1）：fixture 跑 audit/verify --task → audit.jsonl 事件逐键断言（必填五键 `schema_version/event/ts/verdict/exit_code` 存在 + 类型 + `schema_version==="1"` + event 枚举值域 + 可选键类型）· `Object.keys` 快照在案 · append-only 断言（两次运行行数递增 · 无覆写 · 首行内容逐字不变）
-- [ ] **#2 C6 三产出点接线**（S6.1）：cmdAudit / cmdVerify --task / cmdTaskClose 三面各落事件（同一 appendAuditEvent 单一实现源 · fixture 三面断言）· 闸态快照 gates[] 在有 --task 时非空
-- [ ] **#3 F-W6-01 降级 fixture**：落盘目录不可写（chmod 000 / 只读模拟）→ stderr warning 点名 + 主流程 verdict 与 exit code 零变更断言（修复前后对照）
-- [ ] **#4 F-W6-02 S2 拒写 fixture**：`--audit-file` 分别指向 docs/tasks/ · docs/harness/reviews/ · docs/harness/invokes/by-task/ 三域 → 逐一拒写点名（exit 非 0 · 无豁免参数可绕）
-- [ ] **#5 G2 回归锁 + 负向 fixture 实证**（SPEC 验收 2 前半 · S6.3）：temp 仓 task 无审查文 → verify --task `BLOCKED · missing R<n> review` 点名 exit 2 · task close `close_review` fail 点名 · 现态复跑输出入自检结论（防回退锁 · 闸被移除 fixture 即红）
-- [ ] **#6 G4 负向 fixture 红转绿**（SPEC 验收 2 后半 · S6.4）：有思考轮节缺控制表 fixture → 接线前 verify PASS（warn-only）真红留证 → 接线后 `BLOCKED` 点名缺项 · done 目录同 fixture warn 不挡对照 · 无思考轮节豁免 fixture 不挡
-- [ ] **#7 N2-C FAIL 率前后数字**（SPEC 验收 3 · S6.5 · **不降不得完成**）：lint 步入链（lintTaskFile 复用 · errors→BLOCKED 点名 E 规则 · warnings 不挡）· 负向 fixture 红转绿 · **前 = 逃逸率 100%（27/27）· 后 = active 面 0%** 同口径复跑对照表入自检结论 · done 存量 27 件 warn 降级逐条登记 · `--allow-lint-fail` 豁免留痕 fixture
-- [ ] **#8 G7 执行证据 fixture**（S6.6）：hook-guard 跑门禁 → 审计轨 `hook_guard` 事件存在且 exit_code 吻合断言 · verify/close 事件 exit_code 在轨 · close warn 对照正/负 fixture（不挡 close）
-- [ ] **#9 coverage 回写机检**（SPEC 验收 4 · S6.7）：C1/C2/D3 → mechanical · N2-C → closed · A5/B2/G7 按落地档（warn-only 则 partial + 偏差登记）· G6 不动 · 失效锚点刷新登记 · `discipline show` status 计数快照断言与 yaml 一致 · `discipline check` 登记条目全绿（unreachable 分档不误报）
-- [ ] **#10 审计落点不在 S2 机械断言**（SPEC 验收 5）：默认落点 `docs/harness/audit/audit.jsonl` 对 `S2_TRUTH_PREFIXES` 三前缀逐一否定断言（isS2RelPath 单测）+ #4 拒写 fixture 联动
-- [ ] **#11 平台锁**（SPEC 验收 6）：`npm run typecheck` 0 错 · `npm test` 全绿（基线 810/154/809/0/1 + 新增用例数 · 零意外红 · skip 数变化逐条归因）· pins **17/17** · 依赖零新增（dependencies diff 空）
-- [ ] **#12 既有面零意外改动**（F-W2-13 同式纪律）：除登记项外既有断言零改动全绿 · 登记项逐条列明于自检结论（预期登记面：verify.ts 链插两步 · lint.ts G4 判定升级面 · gates.ts cmdAudit 落盘 · task-cmd.ts verdict 落盘 · hookguard.ts 事件落盘 · cli-lifecycle.ts discipline check · usage.ts 用法串 · yaml 回写 · .gitignore 一行）
-- [ ] **#13 结构闸**：`npx spec-wave task lint --file docs/tasks/active/task_3_0_w6_observability_audit.md` PASS
-- [ ] **#14 执行粒度**：提交逐文件显式 add（禁 `git add -A`）· 每 commit 独立可回退 · 每 commit 前后 npm test 同绿 · 未执行 tag/push/publish/deprecate · 波末 `npx spec-wave gate-check --task docs/tasks/active/task_3_0_w6_observability_audit.md` → exit 0 + `task close --yes` 闭环（待 40 复核后另行 · 00 口径）
+- [x] **#1 C6 字段 schema 快照断言**（SPEC 验收 1 · S6.1）：fixture 跑 audit/verify --task → audit.jsonl 事件逐键断言（必填五键 `schema_version/event/ts/verdict/exit_code` 存在 + 类型 + `schema_version==="1"` + event 枚举值域 + 可选键类型）· `Object.keys` 快照在案 · append-only 断言（两次运行行数递增 · 无覆写 · 首行内容逐字不变）
+- [x] **#2 C6 三产出点接线**（S6.1）：cmdAudit / cmdVerify --task / cmdTaskClose 三面各落事件（同一 appendAuditEvent 单一实现源 · fixture 三面断言）· 闸态快照 gates[] 在有 --task 时非空
+- [x] **#3 F-W6-01 降级 fixture**：落盘目录不可写（chmod 000 / 只读模拟）→ stderr warning 点名 + 主流程 verdict 与 exit code 零变更断言（修复前后对照）
+- [x] **#4 F-W6-02 S2 拒写 fixture**：`--audit-file` 分别指向 docs/tasks/ · docs/harness/reviews/ · docs/harness/invokes/by-task/ 三域 → 逐一拒写点名（exit 非 0 · 无豁免参数可绕）
+- [x] **#5 G2 回归锁 + 负向 fixture 实证**（SPEC 验收 2 前半 · S6.3）：temp 仓 task 无审查文 → verify --task `BLOCKED · missing R<n> review` 点名 exit 2 · task close `close_review` fail 点名 · 现态复跑输出入自检结论（防回退锁 · 闸被移除 fixture 即红）
+- [x] **#6 G4 负向 fixture 红转绿**（SPEC 验收 2 后半 · S6.4）：有思考轮节缺控制表 fixture → 接线前 verify PASS（warn-only）真红留证 → 接线后 `BLOCKED` 点名缺项 · done 目录同 fixture warn 不挡对照 · 无思考轮节豁免 fixture 不挡
+- [x] **#7 N2-C FAIL 率前后数字**（SPEC 验收 3 · S6.5 · **不降不得完成**）：lint 步入链（lintTaskFile 复用 · errors→BLOCKED 点名 E 规则 · warnings 不挡）· 负向 fixture 红转绿 · **前 = 逃逸率 100%（27/27）· 后 = active 面 0%** 同口径复跑对照表入自检结论 · done 存量 27 件 warn 降级逐条登记 · `--allow-lint-fail` 豁免留痕 fixture
+- [x] **#8 G7 执行证据 fixture**（S6.6）：hook-guard 跑门禁 → 审计轨 `hook_guard` 事件存在且 exit_code 吻合断言 · verify/close 事件 exit_code 在轨 · close warn 对照正/负 fixture（不挡 close）
+- [x] **#9 coverage 回写机检**（SPEC 验收 4 · S6.7）：C1/C2/D3 → mechanical · N2-C → closed · A5/B2/G7 按落地档（warn-only 则 partial + 偏差登记）· G6 不动 · 失效锚点刷新登记 · `discipline show` status 计数快照断言与 yaml 一致 · `discipline check` 登记条目全绿（unreachable 分档不误报）
+- [x] **#10 审计落点不在 S2 机械断言**（SPEC 验收 5）：默认落点 `docs/harness/audit/audit.jsonl` 对 `S2_TRUTH_PREFIXES` 三前缀逐一否定断言（isS2RelPath 单测）+ #4 拒写 fixture 联动
+- [x] **#11 平台锁**（SPEC 验收 6）：`npm run typecheck` 0 错 · `npm test` 全绿（基线 810/154/809/0/1 + 新增用例数 · 零意外红 · skip 数变化逐条归因）· pins **17/17** · 依赖零新增（dependencies diff 空）
+- [x] **#12 既有面零意外改动**（F-W2-13 同式纪律）：除登记项外既有断言零改动全绿 · 登记项逐条列明于自检结论（预期登记面：verify.ts 链插两步 · lint.ts G4 判定升级面 · gates.ts cmdAudit 落盘 · task-cmd.ts verdict 落盘 · hookguard.ts 事件落盘 · cli-lifecycle.ts discipline check · usage.ts 用法串 · yaml 回写 · .gitignore 一行）
+- [x] **#13 结构闸**：`npx spec-wave task lint --file docs/tasks/active/task_3_0_w6_observability_audit.md` PASS
+- [x] **#14 执行粒度**：提交逐文件显式 add（禁 `git add -A`）· 每 commit 独立可回退 · 每 commit 前后 npm test 同绿 · 未执行 tag/push/publish/deprecate · 波末 `npx spec-wave gate-check --task docs/tasks/active/task_3_0_w6_observability_audit.md` → exit 0 + `task close --yes` 闭环（待 40 复核后另行 · 00 口径）
 
 ---
 
@@ -288,7 +288,7 @@ S2 只新增（本 task 文件 + 30 执行留档）· **审计轨永不入 S2 �
 
 各阶段同绿锁：typecheck 0 错 · build ✓ · test:lib 6/6 · pins 17/17 · assets verify 111/111（yaml 回写随单 manifest rebuild）· 依赖零新增（dependencies 仍仅 js-yaml）· duration ≈98s（基线 ≈96s · 加性克制达成）。
 
-**验收逐项**：#1 ✓ schema 快照断言（assertEventSchema · Object.keys 键序逐产出点钉死 + 必填五键 + event 枚举 + append-only 首行逐字不变 · test/w6-audit-log.test.ts）· #2 ✓ 三产出点 + hook_guard（cmdAudit/verify --task/task close 三态/hook_guard 各落事件 · 同一 appendAuditEvent）· #3 ✓ F-W6-01 降级 fixture（落点目录被文件占据 · PASS/BLOCKED 双对照 exit 零变更 + stderr 降级 warn）· #4 ✓ F-W6-02 S2 三域逐一拒写点名 exit 2 零落盘 + F-W6-07 仓外拒 exit 1 · #5 ✓ G2 回归锁三例（verify 存在级/close close_review/结论级 · test/w6-g2-g4-gates.test.ts）· #6 ✓ G4 红转绿（接线前 warn-only 实证 = cli-w4-gate-wiring W5–W7 在案 · 接线后 active BLOCKED 点名三向 + done warn 对照 + 无节豁免 + 正向齐备）· #7 ✓ N2-C 逃逸率（下段硬数字）· #8 ✓ G7 fixture（hook_guard 事件 exit_code 吻合 + close warn 对照正/负/诚实边界三例 · test/w6-n2c-g7.test.ts）· #9 ✓ coverage 回写（C1/C2/D3→mechanical · N2-C→closed · A5/B2→partial（warn-only 档不虚标）· gaps G7 保持 deferred · G6 未动 · discipline show 计数快照一致 not_wired=0 · discipline check 10/10 全绿含 unreachable 分档不误报）· #10 ✓ 落点否定断言（isS2RelPath 逐前缀）· #11 ✓ 平台锁（上表）· #12 登记项逐条：verify.ts 链插 lint/G4 两步 + C6 旁路 · gates.ts/task-cmd.ts/hookguard.ts 落盘点 · cli-lifecycle.ts discipline check · checks/lint.ts helper 抽出（文案零 diff）· checks/close-guards.ts evalCloseExecEvidence · checks/discipline-check.ts 新模块 · cli-checks.ts 重导出 · 既有 fixture 补 wiki_delta 六文件（cli-flags/cli-p0/cli-security-closure/cli-verify-invoke-hats/cli-verify-observability/cli-verify-review/cli-w4-gate-wiring/cli-verify-with-wiki-lint · E8 lint-clean 化）· cli-flags 拒绝清单移出 --allow-lint-fail · C1 notes 措辞（DEF-003 词表闸误伤处置）· verify --help 行补两旗标 · discipline-check 测试断言随回写翻（9→10 条）· .gitignore 一行 · 此外既有断言零改动全绿 · #13 ✓ task lint PASS · #14 ✓ 逐文件显式 add（三 commit 均无 -A）· 未 tag/push/publish/deprecate · 波末 gate-check + task close 待 40 复核后 00 节奏另行。
+**验收逐项**：#1 ✓ schema 快照断言（assertEventSchema · Object.keys 键序逐产出点钉死 + 必填五键 + event 枚举 + append-only 首行逐字不变 · test/w6-audit-log.test.ts）· #2 ✓ 三产出点 + hook_guard（cmdAudit/verify --task/task close 三态/hook_guard 各落事件 · 同一 appendAuditEvent）· #3 ✓ F-W6-01 降级 fixture（落点目录被文件占据 · PASS/BLOCKED 双对照 exit 零变更 + stderr 降级 warn）· #4 ✓ F-W6-02 S2 三域逐一拒写点名 exit 2 零落盘 + F-W6-07 仓外拒 exit 1 · #5 ✓ G2 回归锁三例（verify 存在级/close close_review/结论级 · test/w6-g2-g4-gates.test.ts）· #6 ✓ G4 红转绿（接线前 warn-only 实证 = cli-w4-gate-wiring W5–W7 在案 · 接线后 active BLOCKED 点名三向 + done warn 对照 + 无节豁免 + 正向齐备）· #7 ✓ N2-C 逃逸率（下段硬数字）· #8 ✓ G7 fixture（hook_guard 事件 exit_code 吻合 + close warn 对照正/负/诚实边界三例 · test/w6-n2c-g7.test.ts）· #9 ✓ coverage 回写（C1/C2/D3→mechanical · N2-C→closed · A5/B2→partial（warn-only 档不虚标）· gaps G7 保持 deferred · G6 未动 · discipline show 计数快照一致 not_wired=0 · discipline check 10/10 全绿含 unreachable 分档不误报）· #10 ✓ 落点否定断言（isS2RelPath 逐前缀）· #11 ✓ 平台锁（上表）· #12 登记项逐条：verify.ts 链插 lint/G4 两步 + C6 旁路 · gates.ts/task-cmd.ts/hookguard.ts 落盘点 · cli-lifecycle.ts discipline check · checks/lint.ts helper 抽出（文案零 diff）· checks/close-guards.ts evalCloseExecEvidence · checks/discipline-check.ts 新模块 · cli-checks.ts 重导出 · 既有 fixture 补 wiki_delta 八文件（cli-flags/cli-p0/cli-security-closure/cli-verify-invoke-hats/cli-verify-observability/cli-verify-review/cli-w4-gate-wiring/cli-verify-with-wiki-lint · E8 lint-clean 化）· cli-flags 拒绝清单移出 --allow-lint-fail · C1 notes 措辞（DEF-003 词表闸误伤处置）· verify --help 行补两旗标 · discipline-check 测试断言随回写翻（9→10 条）· .gitignore 一行 · 此外既有断言零改动全绿 · #13 ✓ task lint PASS · #14 ✓ 逐文件显式 add（三 commit 均无 -A）· 未 tag/push/publish/deprecate · 波末 gate-check + task close 待 40 复核后 00 节奏另行。
 
 **N2-C 逃逸率硬判据（验收 #7 · 不降不得完成 · 同脚本同语料 · scripts/w6-lint-escape-rate.mjs · 命令：`node --experimental-strip-types scripts/w6-lint-escape-rate.mjs`）**：
 
@@ -307,4 +307,8 @@ S2 只新增（本 task 文件 + 30 执行留档）· **审计轨永不入 S2 �
 
 ### KPI（00）
 
-（待 00 收官裁定回填）
+**00 收官裁定**（rubric `KPI_RUBRIC_v1_2` · 40 复核 PASS-with-issues（blocking 0 · advisory 3 · 40 留档 ea7d31c）· close_kpi 存在性口径）：**Task_KPI%: 96**
+
+- 验收 14/14 落地 · 逃逸率硬判据 **100% → 0.0%** 独立复现（同脚本同语料 · active 投影面 27/27 全被 lint 步点名 · done 原位 79/79 零意外 BLOCKED）· C6 三产出点 + F-W6-01 降级 / F-W6-02 S2 拒写边界全 fixture 自证 · G2 回归锁 / G4 failClosed / N2-C 入链 / G7 warn-only / coverage 回写逐项落地 · 硬约束 1/2/6/7/10/14/15 全兑现 · 40 独立构造 fixture 42/42 断言属实。
+- 质量门：锁计数 810→825→835→841 纯加性零回退 · typecheck 0 错 · pins 17/17 · assets 111/111 · test:lib 6/6 · discipline check 10/10 · coverage not_wired=0 · 零越权（发布四动作零触碰 · 禁 add -A 遵守 · 未 push/tag）。
+- 扣 4：过程瑕疵两处（步序纠偏 · 自检结论 #12 既有 fixture 计数笔误「六文件」实为八件）—— 计数笔误随关账顺手订正并登记，未流入交付面（src/test 机械面正确 · 40 advisory A2）。
