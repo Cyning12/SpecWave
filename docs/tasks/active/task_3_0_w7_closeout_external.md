@@ -367,4 +367,62 @@ S2 只新增（本 task + 演练/镜像/登记件）· 不签任何闸（双 pen
 
 ### 自检结论（执行者）
 
-（待 30 执行回填）
+> **30 执行帽 · 2026-09-17 · 四阶段（一→四）完成 · 待 40 复核 · 不 close**（本棒为 30 派发 · 00 指令回填）
+> **GATE_VERIFY**：`node bin/specgate.js verify --target . --task docs/tasks/active/task_3_0_w7_closeout_external.md` → HG-TASK-DRAFT / HG-AUDIT-R1 = approved（HG-RELEASE=pending 不拦 30）· **VERIFY: PASS**（四阶段开工前 + 各笔 commit 后复跑均 PASS）。
+
+#### 一、commit（九笔 · 显式列文件 · 禁 add -A · 未 push/tag）
+
+| 阶段 | commit | 内容 |
+|------|--------|------|
+| 一 | `da1a4e4` · `7e9ee37` | E3 spawn 下沉 · F3 wiki 双向/增量/冲突 |
+| 二 | `2243489` · `5473319` · `33ae2b4` | 术语机检 · A3 口径边界 · K-1~K-4 |
+| 三 | `0d06c1f` · `d2d1c1e` · `7c5f2c9` | MIGRATION+演练 · 证据清偿+2.4.2 · 链接两级 |
+| 四 | 见下（bump + 探针 + 备料） | 3.0.0 bump 九件套 + 探针 6 项 + ACCEPTANCE + task/invoke |
+
+#### 二、锁计数（纯加性 841→845→855→859→859）
+
+| 阶段 | tests | pass | fail | skip | spawn |
+|------|-------|------|------|------|-------|
+| 基线（W6 终态） | 841 | 840 | 0 | 1 | 671 |
+| 一 | 845 | 844 | 0 | 1 | **270** |
+| 二 | 855 | 854 | 0 | 1 | 270 |
+| 三 | 859 | 858 | 0 | 1 | 270 |
+| 四（bump） | 859 | 857 + **2 tag-gated 设计红** | — | 1 | 270 |
+
+- typecheck **0 错** · build **0 错** · test:lib **6/6** · assets **113/113** · 依赖零新增。
+- **pins 16/17**（pin-10 = git tag `v3.0.0` **设计红** · 打 tag 后须 17/17）· pin-08 手工补 `docs/spec/README.md` 3.0.0 行转绿。
+
+#### 三、验收 #1–#14
+
+1. **术语机检** ✅ — `assets/harness/terminology.yaml` + `check-terminology`；判红面 `门控` 残留 **计次 0 / 行 0**；canonical 5/5 在位；正负 fixture 7/7。
+2. **MIGRATION 真实 2.4.1 演练** ✅ — worktree `c89f92d`；旧格式零改动 + 新能力可选启用均 PASS · **无兼容洞**（F-W7-01 未触发）；记录 `docs/harness/reviews/w7_migration_rehearsal_2_4_1_20260917.md`。
+3. **A3 黑名单机检** ✅ — `claims-boundary.yaml` + `check-claims`；forbidden/expired 零命中；fixture 3/3。
+4. **链接两级机检** ✅ — `check-doc-links`；非 S2 (i)=0 / (ii)=0 · S2 冻结基线 **23**；fixture 4/4。
+5. **K-1~K-4 台账** ✅ — 落点零单值旧数（`30+`/`105`/`22 个`/`200+`/`不是机械性`）· `as_of 2026-09` 区间化 · K-3 定性修正 · 出处留痕。
+6. **证据入库清偿** ✅ — 4 件镜像入 `docs/harness/reviews/`（provenance 头 · 不改写）+ 7 件「仅本地草稿」登记（`w7_evidence_provenance_20260917.md`）· 非 S2 `.workbuddy` 直链 0。
+7. **E3 spawn 重定基** ✅ — **671 → 270**（≤300 硬判据 · `scripts/e3-spawn-count.mjs`）· 每文件 ≤1 烟测 · it 零增删。
+8. **2.4.2 口径补正搭车** ✅ — `CHANGELOG:10` 已 published（`1067f32`）· 提交 `d2d1c1e` 说明含「补正 2.4.2 口径滞后」；未改 2.4.2 提交 / 未移 tag。
+9. **3.0.0 发版探针含 compat** ✅ — 6 项（① compat 首项 PASS）· `docs/harness/reviews/w7_release_probe_3_0_0_20260917.md`。
+10. **平台锁** ✅ — 四门 + pins 16/17 + assets 113/113 + 依赖零新增。
+11. **F3 wiki fixture** ✅ — 双向 backlinks 对偶 / 增量=全量等价（逐字）/ 冲突 red-green；`test/cli-wiki.test.ts` 4/4；红测先行 4/4。
+12. **既有面零意外改动** ✅ — 登记：`cli-wiki.ts` 输出键增 + usage 行扩 · 三 checker+test · K 物料/口语文案 · PLAN_2_x 链接回填 · MIGRATION 定稿 · README/CHANGELOG/RELEASING/pins/版本断言测试 · assets manifest rebuild；其余零改动。
+13. **结构闸** ✅ — `task lint` PASS（本 task）。
+14. **执行粒度与发布边界** ✅ — 逐文件显式 add（禁 `git add -A`）· 每 commit 前后 `npm test` 同绿 · **未执行 tag / push / publish / deprecate**。
+
+#### 四、偏差汇总
+
+1. **E3 共享 harness 双形态**：`makeCore`（W0 判据）+ `runCore`（进程内 argv 分发）等价实现 · 不复制判据。
+2. **链接 S2 冻结基线复跑重建 = 23**（起草快照 26 · 口径收窄 + W7 新增 S2 件 · F-W0-05 式）。
+3. **commit 顺序与 00 消息列表**：E3→F3（阶段一）/ MIGRATION→证据→链接（阶段三）· 保各笔独立绿。
+4. **回填形态取代字面 `../→../../`**：直接回填 tracked 镜像/登记表，同时满足 (i)=0 与 (ii)=0。
+5. **claims 未裸串收录 `dsh-coding-kit`**（合法 deprecated bin）· 改 `expired_wording` 收 `四宿主`/`406 用例`。
+6. **K-3 文本按面分写**：research_report（术语豁免）用竞品原词 `门控` · promotion（判红面）改 canonical `门禁`。
+7. **版本断言联改**：`cli-p0` / `cli-docs-121/122` / `cli-discipline-coverage` / `cli-refresh-ide-blocks` / `cli-upgrade-compat` / `cli-validation`（含正则转义形）；DEF-028/030 fixture `2.24.0→3.24.0` / `2.9.0→3.9.0`（保 `cmp>0` 分支覆盖 · 3.0.0 起 2.x manifest 走「可升级」，原「跨产品线迁移」文案仅当 manifest 版本数值更高时触发）。
+8. **未改 task 结构行**（仅回填本自检结论 + 新增 30 invoke · S2 只新增/回填指定区）。
+
+#### 五、已知未测项 / 待人项
+
+- **tag `v3.0.0` 待人打**（HG-RELEASE 仅人）：打 tag 后 `pins` 17/17 · `release-tag-identity` 转绿。
+- **`npm publish` 仅人**（HG-RELEASE=pending）：publish 后回填 ACCEPTANCE/RELEASING/README/spec 索引为已 published。
+- **2.x manifest 跨产品线迁移文案**（偏差 7）· **S2 链接冻结基线**（硬约束 1）· **`.workbuddy/` 7 件仅本地草稿**（登记在案）。
+- **不 close**（待 40 复核后 00 节奏另行）。
