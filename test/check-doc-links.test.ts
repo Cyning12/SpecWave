@@ -16,6 +16,12 @@ function run(root: string, extra: string[] = []): { status: number | null; combi
   return { status: r.status, combined: `${r.stdout ?? ''}\n${r.stderr ?? ''}` }
 }
 
+/** 在临时 root 初始化 git 并显式入库（tracked-based (i) 判据要求目标已入库 · F-HOT2-06）。 */
+function execGit(cwd: string, args: string[]): void {
+  const r = spawnSync('git', args, { cwd, encoding: 'utf8' })
+  if (r.status !== 0) throw new Error(`git ${args.join(' ')} failed: ${r.stderr ?? ''}`)
+}
+
 async function withTemp(fn: (dir: string) => Promise<void>): Promise<void> {
   const dir = await mkdtemp(path.join(os.tmpdir(), 'dsh-ck-links-'))
   try {
@@ -32,11 +38,11 @@ async function writeRel(root: string, rel: string, body: string): Promise<void> 
 }
 
 describe('3.0-W7 S7.7 · check-doc-links（两级机检 failClosed）', { concurrency: 1 }, () => {
-  it('正向：真实仓 非S2(i)=0 非S2(ii)=0 · S2 冻结基线 23 · exit 0', () => {
+  it('正向：真实仓 非S2(i)=0 非S2(ii)=0 · S2 冻结基线 34 · exit 0', () => {
     const r = run(KIT)
     assert.equal(r.status, 0, r.combined)
     assert.match(r.combined, /非S2\(i\)=0 非S2\(ii\)=0/)
-    assert.match(r.combined, /冻结基线 23/)
+    assert.match(r.combined, /冻结基线 34/)
   })
 
   it('负向 (i) red→green：非 S2 注入 ./nope.md → exit 2 点名；删除复绿', async () => {
@@ -61,6 +67,9 @@ describe('3.0-W7 S7.7 · check-doc-links（两级机检 failClosed）', { concur
       assert.match(bad.combined, /\(ii\)/)
       await writeRel(dir, 'docs/roadmap/y.md', '# y\n\n[w](./tracked.md)\n')
       await writeRel(dir, 'docs/roadmap/tracked.md', '# t\n')
+      // tracked-based (i) 判据下「写在临时目录但未入库」不再算可解析 → 须 git init + git add（F-HOT2-06）
+      execGit(dir, ['init', '-q'])
+      execGit(dir, ['add', 'docs/roadmap/tracked.md'])
       const good = run(dir, ['--s2-baseline', '0'])
       assert.equal(good.status, 0, good.combined)
     })
@@ -71,6 +80,20 @@ describe('3.0-W7 S7.7 · check-doc-links（两级机检 failClosed）', { concur
       await writeRel(dir, 'docs/tasks/a.md', '# a\n\n[bad](./nope.md)\n')
       const r = run(dir, ['--s2-baseline', '0'])
       assert.equal(r.status, 2, r.combined)
+    })
+  })
+
+  it('环境无关：gitignore 但实体在的 .workbuddy 链仍计 S2 (i) 坏链（FS 存在性掩盖已消除）', async () => {
+    await withTemp(async (dir) => {
+      await writeRel(dir, '.gitignore', '.workbuddy/\n')
+      await writeRel(dir, '.workbuddy/x.md', '# x\n')
+      await writeRel(dir, 'docs/tasks/s2.md', '# s2\n\n[w](../../.workbuddy/x.md)\n')
+      execGit(dir, ['init', '-q'])
+      // post-fix：目标实体在但未入库 ⇒ S2 (i)=1（pre-fix existsSync 掩盖 ⇒ S2=0 · baseline 0 假绿 exit 0）
+      const hit = run(dir, ['--s2-baseline', '1'])
+      assert.equal(hit.status, 0, hit.combined)
+      const miss = run(dir, ['--s2-baseline', '0'])
+      assert.equal(miss.status, 2, miss.combined)
     })
   })
 })

@@ -1,8 +1,12 @@
 #!/usr/bin/env node
 // 3.0 W7 · S7.7 文档链接两级机检（task_3_0_w7_closeout_external · 验收 #4 · 硬约束 1/14）
+// 3.0 W7 CI hotfix（task_3_0_w7_ci_hotfix · 验收 #1/#2 · 硬约束 6/10）：(i) 判据改「入库状态而非文件系统状态」——
+//   本机 `.workbuddy/`（.gitignore 忽略但实体在）曾使 11 处冻结坏链被 existsSync 掩盖（本地 23 假绿 / CI 干净 clone 34 真红）。
+//   inRepo 目标 = tracked 文件 ∪ tracked 目录前缀（git 不跟踪目录 · 目录链须命中）；仓外目标维持 existsSync。
+//   tracked 集合以 `-z` 原样读取（避免非 ASCII 路径 quotePath 八进制转义）。冻结基线按修后本地/干净 clone 双跑实测重建 23 → 34。
 //
 // 两级判据（SPEC 08 §5.2）：
-//   (i)  可解析：docs/**/*.md 的 Markdown 相对链接（inline + reference-definition + <a href>）解析后目标须存在。
+//   (i)  可解析：docs/**/*.md 的 Markdown 相对链接（inline + reference-definition + <a href>）解析后目标须**已入库**（仓外目标须存在）。
 //   (ii) 目标已入库：docs/ 内指向 `.workbuddy/…` 的链接目标须 `git ls-files` 命中（可解析但未入库 = 坏链）。
 // S2 域（docs/tasks/ · docs/harness/reviews/ · docs/harness/invokes/by-task/）整体豁免 + 冻结基线
 //   （永不覆写 · 历史 stale 链接不可修 · 硬约束 1）：S2 (i) 处数须 == 冻结基线（参数化排除 current task 路径）
@@ -16,12 +20,12 @@ import { pathToFileURL } from 'node:url'
 
 // S2 过程域前缀（与 src/cli-shared.ts S2_TRUTH_PREFIXES 同口径的 docs/ 视角）
 export const S2_PREFIXES = ['docs/tasks/', 'docs/harness/reviews/', 'docs/harness/invokes/by-task/']
-// 冻结基线（F-W0-05 式复跑重建）：30 复跑实测 = 23（参数化排除 current task 路径后）。
-// 起草快照口径 = 26（task 基线节 · 含 fenced/inline code 样例 .md 链接）；本脚本跳过代码块口径更窄
-// + W7 新增 S2 镜像/演练/登记件进入 S2 域 ⇒ 重建为 23。新增 S2 坏链使计数 >23 即红。
-export const S2_FROZEN_BASELINE = 23
-// 参数化排除 current task 路径（本 W7 task · 其自身坏链不计入冻结基线）
-export const S2_PARAM_EXCLUDE = ['docs/tasks/active/task_3_0_w7_closeout_external.md']
+// 冻结基线（F-W0-05 式复跑重建）：2026-09-17 CI hotfix 复跑实测 = 34（参数化排除 current task 路径后）。
+// 历史值 23 系「文件系统存在性」判据下的本机假绿口径（本机 .workbuddy/ 实体在 ⇒ 少计 11 · CI 干净 clone 34 真红）；
+// 判据改入库状态后本地/干净 clone 双跑同值 34（S2 (i) 集合逐条 IDENTICAL）· 环境无关。新增 S2 坏链使计数 >34 即红。
+export const S2_FROZEN_BASELINE = 34
+// 参数化排除 current task 路径（本 W7 CI hotfix task · 其自身坏链不计入冻结基线 · 防 in-flight 过程件增链）
+export const S2_PARAM_EXCLUDE = ['docs/tasks/active/task_3_0_w7_ci_hotfix.md']
 
 export function isS2(rel) {
   const n = rel.replace(/\\/g, '/')
@@ -65,7 +69,21 @@ function isExternal(t) {
   return /^(#|https?:\/\/|mailto:|tel:|data:|\/\/)/i.test(t)
 }
 
+/** 由 tracked 文件集推导全部祖先目录（git 只跟踪文件 · 目录链须以祖先前缀命中 · F-HOT2-04）。 */
+export function deriveTrackedDirs(gitTracked) {
+  const dirs = new Set()
+  for (const f of gitTracked) {
+    let d = path.posix.dirname(f)
+    while (d && d !== '.' && d !== '/') {
+      dirs.add(d)
+      d = path.posix.dirname(d)
+    }
+  }
+  return dirs
+}
+
 export function checkDocLinks({ root, gitTracked, s2Baseline = S2_FROZEN_BASELINE }) {
+  const trackedDirs = deriveTrackedDirs(gitTracked)
   const docsDir = path.join(root, 'docs')
   const mdFiles = []
   const walk = (d) => {
@@ -93,7 +111,8 @@ export function checkDocLinks({ root, gitTracked, s2Baseline = S2_FROZEN_BASELIN
       const targetRel = path.relative(root, targetAbs).split(path.sep).join('/')
       const inRepo = !targetRel.startsWith('..') && !path.isAbsolute(targetRel)
       const isWorkbuddy = /(^|\/)\.workbuddy\//.test(targetRel) || clean.includes('.workbuddy/')
-      const exists = existsSync(targetAbs)
+      // (i) 可解析 = 入库状态：inRepo 须 tracked 文件或 tracked 目录前缀；仓外才看文件系统（F-HOT2-02）
+      const exists = inRepo ? gitTracked.has(targetRel) || trackedDirs.has(targetRel) : existsSync(targetAbs)
       const entry = { file: rel, line, target: clean, resolve: targetRel }
       const bucket = isS2(rel) ? broken.s2 : broken.nonS2
       if (!exists) bucket.i.push(entry)
@@ -114,8 +133,9 @@ function main() {
   const root = path.resolve(opt('--root', process.cwd()))
   const json = args.includes('--json')
   const top = Number(opt('--top', '0'))
-  const ls = spawnSync('git', ['ls-files'], { cwd: root, encoding: 'utf8' })
-  const gitTracked = new Set((ls.stdout || '').split('\n').filter(Boolean))
+  // tracked 集合原样读取：-z + core.quotepath=false 防非 ASCII 路径八进制转义（F-HOT2-05）
+  const ls = spawnSync('git', ['-c', 'core.quotepath=false', 'ls-files', '-z'], { cwd: root, encoding: 'utf8' })
+  const gitTracked = new Set((ls.stdout || '').split('\0').filter(Boolean))
   const s2Baseline = Number(opt('--s2-baseline', String(S2_FROZEN_BASELINE)))
   const res = checkDocLinks({ root, gitTracked, s2Baseline })
   if (json) {
