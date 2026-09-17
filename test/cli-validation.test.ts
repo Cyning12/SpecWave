@@ -6,6 +6,7 @@ import os from 'node:os'
 import path from 'node:path'
 import { describe, it } from 'node:test'
 import { fileURLToPath } from 'node:url'
+import { runCore } from './_helpers/core-harness.ts'
 
 const KIT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const CLI_TS = path.join(KIT, 'src', 'cli.ts')
@@ -85,7 +86,7 @@ describe('DEF-013 init/upgrade/check 取值与版本校验（D1 钉 harness-only
 
   it('T1 正例: init --preset harness-only → status 0 且 manifest.preset 钉 harness-only', async () => {
     await withTemp(async (dir) => {
-      const r = runCli(
+      const r = await runCore(
         ['init', '--preset', 'harness-only', '--tools', 'none', '--yes', '--target', dir],
         dir,
       )
@@ -99,7 +100,7 @@ describe('DEF-013 init/upgrade/check 取值与版本校验（D1 钉 harness-only
 
   it('T1 缺省: init 不带 --preset → status 0 且 manifest.preset 缺省 harness-only', async () => {
     await withTemp(async (dir) => {
-      const r = runCli(['init', '--tools', 'none', '--yes', '--target', dir], dir)
+      const r = await runCore(['init', '--tools', 'none', '--yes', '--target', dir], dir)
       assert.equal(r.status, 0, r.combined)
       const mf = JSON.parse(await readFile(path.join(dir, MANIFEST_REL), 'utf8')) as {
         preset: string
@@ -112,7 +113,7 @@ describe('DEF-013 init/upgrade/check 取值与版本校验（D1 钉 harness-only
   it('T2: upgrade --force --yes → status 非 0，输出含 force，manifest.version 不被改写', async () => {
     await withTemp(async (dir) => {
       await seedManifest(dir, '1.2.0')
-      const r = runCli(['upgrade', '--force', '--yes'], dir)
+      const r = await runCore(['upgrade', '--force', '--yes'], dir)
       assert.notEqual(r.status, 0, r.combined)
       assert.match(r.combined, /force/)
       assert.match(r.combined, /未知参数|未支持/)
@@ -126,7 +127,7 @@ describe('DEF-013 init/upgrade/check 取值与版本校验（D1 钉 harness-only
   it('T2 回归: upgrade --yes → status 0，version 钉包版本', async () => {
     await withTemp(async (dir) => {
       await seedManifest(dir, '1.2.0')
-      const r = runCli(['upgrade', '--yes'], dir)
+      const r = await runCore(['upgrade', '--yes'], dir)
       assert.equal(r.status, 0, r.combined)
       const mf = JSON.parse(await readFile(path.join(dir, MANIFEST_REL), 'utf8')) as {
         version: string
@@ -141,7 +142,7 @@ describe('DEF-013 init/upgrade/check 取值与版本校验（D1 钉 harness-only
   it('T3 高版本: manifest 99.0.0 > 包版本 → status 0，不含「可升级」，含高版本提示', async () => {
     await withTemp(async (dir) => {
       await seedManifest(dir, '99.0.0')
-      const r = runCli(['check'], dir)
+      const r = await runCore(['check'], dir)
       assert.equal(r.status, 0, r.combined)
       assert.doesNotMatch(r.combined, /可升级/)
       assert.match(r.combined, /高于包版本/)
@@ -152,7 +153,7 @@ describe('DEF-013 init/upgrade/check 取值与版本校验（D1 钉 harness-only
   it('T3 低版本回归: manifest 1.2.0 < 包版本 → status 0，含「可升级」', async () => {
     await withTemp(async (dir) => {
       await seedManifest(dir, '1.2.0')
-      const r = runCli(['check'], dir)
+      const r = await runCore(['check'], dir)
       assert.equal(r.status, 0, r.combined)
       assert.match(r.combined, /可升级/)
     })
@@ -161,7 +162,7 @@ describe('DEF-013 init/upgrade/check 取值与版本校验（D1 钉 harness-only
   it('T3 等版本回归: manifest 2.4.2 = 包版本 → status 0，含「已是最新」', async () => {
     await withTemp(async (dir) => {
       await seedManifest(dir, '2.4.2')
-      const r = runCli(['check'], dir)
+      const r = await runCore(['check'], dir)
       assert.equal(r.status, 0, r.combined)
       assert.match(r.combined, /已是最新/)
     })
@@ -171,7 +172,7 @@ describe('DEF-013 init/upgrade/check 取值与版本校验（D1 钉 harness-only
   it('init --help / upgrade --help / check --help → exit 0 usage', async () => {
     await withTemp(async (dir) => {
       for (const cmd of ['init', 'upgrade', 'check']) {
-        const r = runCli([cmd, '--help'], dir)
+        const r = await runCore([cmd, '--help'], dir)
         assert.equal(r.status, 0, r.combined)
         assert.match(r.combined, new RegExp(`${cmd} \\[`))
       }
@@ -183,7 +184,7 @@ describe('DEF-028 check 跨产品线迁移语义（from_version 非 null + 版�
   it('D28-1: version=2.24.0 + from_version=2.24.0（旧包迁来）→ 跨产品线迁移文案、建议 upgrade、无降级警告', async () => {
     await withTemp(async (dir) => {
       await seedManifest(dir, '2.24.0', '2.24.0')
-      const r = runCli(['check'], dir)
+      const r = await runCore(['check'], dir)
       assert.equal(r.status, 0, r.combined)
       assert.match(r.combined, /跨产品线迁移/, r.combined)
       assert.match(r.combined, /@cyning\/harness 2\.24\.0/, r.combined)
@@ -196,7 +197,7 @@ describe('DEF-028 check 跨产品线迁移语义（from_version 非 null + 版�
   it('D28-2: version=2.24.0 + from_version=null → 保留原「可能为降级安装」三向判定', async () => {
     await withTemp(async (dir) => {
       await seedManifest(dir, '2.24.0')
-      const r = runCli(['check'], dir)
+      const r = await runCore(['check'], dir)
       assert.equal(r.status, 0, r.combined)
       assert.match(r.combined, /高于包版本（可能为降级安装）/, r.combined)
       assert.doesNotMatch(r.combined, /跨产品线迁移/, 'from_version=null 不得走迁移分支')
@@ -207,12 +208,12 @@ describe('DEF-028 check 跨产品线迁移语义（from_version 非 null + 版�
   it('D28-3: from_version 非 null 但版本相等/低于 → 走原「已是最新 / 可升级」分支', async () => {
     await withTemp(async (dir) => {
       await seedManifest(dir, '2.4.2', '1.2.0')
-      const r1 = runCli(['check'], dir)
+      const r1 = await runCore(['check'], dir)
       assert.equal(r1.status, 0, r1.combined)
       assert.match(r1.combined, /已是最新/, r1.combined)
       assert.doesNotMatch(r1.combined, /跨产品线迁移/)
       await seedManifest(dir, '1.2.0', '1.1.0')
-      const r2 = runCli(['check'], dir)
+      const r2 = await runCore(['check'], dir)
       assert.equal(r2.status, 0, r2.combined)
       assert.match(r2.combined, /可升级/, r2.combined)
       assert.doesNotMatch(r2.combined, /跨产品线迁移/)
@@ -224,7 +225,7 @@ describe('DEF-030 check 跨产品线判据收窄（仅旧包 2.x 产品线 from_
   it('D30-1: version=2.24.0 + from_version=2.20.0（旧包 2.x 产品线）→ 跨产品线迁移文案', async () => {
     await withTemp(async (dir) => {
       await seedManifest(dir, '2.24.0', '2.20.0')
-      const r = runCli(['check'], dir)
+      const r = await runCore(['check'], dir)
       assert.equal(r.status, 0, r.combined)
       assert.match(r.combined, /跨产品线迁移/, r.combined)
       assert.match(r.combined, /npx spec-wave upgrade --yes/, '迁移分支须建议 upgrade')
@@ -236,7 +237,7 @@ describe('DEF-030 check 跨产品线判据收窄（仅旧包 2.x 产品线 from_
     await withTemp(async (dir) => {
       // 钉高于现行包 2.4.2 的 kit 线版本，验证「降级」语义（非跨产品线迁移）
       await seedManifest(dir, '2.9.0', '1.5.1')
-      const r = runCli(['check'], dir)
+      const r = await runCore(['check'], dir)
       assert.equal(r.status, 0, r.combined)
       assert.match(r.combined, /高于包版本（可能为降级安装）/, r.combined)
       assert.doesNotMatch(r.combined, /跨产品线迁移/, 'kit 线 from_version 不得走迁移分支')

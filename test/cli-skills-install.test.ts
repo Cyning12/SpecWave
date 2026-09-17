@@ -8,6 +8,7 @@ import path from 'node:path'
 import { describe, it } from 'node:test'
 import { fileURLToPath } from 'node:url'
 import { generateSkills } from '../src/cli-skills.ts'
+import { runCore } from './_helpers/core-harness.ts'
 
 const KIT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const CLI_TS = path.join(KIT, 'src', 'cli.ts')
@@ -155,11 +156,11 @@ describe('1.2.1 skills install I1–I12', { concurrency: 1 }, () => {
     await withTemp(async (dir) => {
       const rel = '.dsh/skills/harness-10-spec/SKILL.md'
       await writeRel(dir, rel, 'USER-OWNED\n')
-      const noForce = runCli(['skills', 'install', '--target', dir])
+      const noForce = await runCore(['skills', 'install', '--target', dir])
       assert.equal(noForce.status, 0, noForce.combined)
       assert.match(noForce.combined, /skipped=[1-9]/)
       assert.equal(await readFile(path.join(dir, rel), 'utf8'), 'USER-OWNED\n')
-      const forced = runCli(['skills', 'install', '--target', dir, '--force'])
+      const forced = await runCore(['skills', 'install', '--target', dir, '--force'])
       assert.equal(forced.status, 0, forced.combined)
       const now = await readFile(path.join(dir, rel), 'utf8')
       assert.notEqual(now, 'USER-OWNED\n')
@@ -170,7 +171,7 @@ describe('1.2.1 skills install I1–I12', { concurrency: 1 }, () => {
   it('I3: dest 旁路用户文件在无 --force 时不被整树删除', async () => {
     await withTemp(async (dir) => {
       await writeRel(dir, '.dsh/skills/user-keep.txt', 'KEEP-ME\n')
-      const r = runCli(['skills', 'install', '--target', dir])
+      const r = await runCore(['skills', 'install', '--target', dir])
       assert.equal(r.status, 0, r.combined)
       assert.equal(await readFile(path.join(dir, '.dsh', 'skills', 'user-keep.txt'), 'utf8'), 'KEEP-ME\n')
     })
@@ -179,7 +180,7 @@ describe('1.2.1 skills install I1–I12', { concurrency: 1 }, () => {
   it('I4: --global + 注入 HOME 写入 $HOME/.dsh/skills（绝对路径，无字面 ~）', async () => {
     await withTemp(async (home) => {
       await withTemp(async (cwd) => {
-        const r = runCli(['skills', 'install', '--global'], { cwd, env: { HOME: home } })
+        const r = await runCore(['skills', 'install', '--global'], { cwd, env: { HOME: home } })
         assert.equal(r.status, 0, r.combined)
         const dest = path.join(home, '.dsh', 'skills')
         assert.equal(existsSync(path.join(dest, 'harness-10-spec', 'SKILL.md')), true)
@@ -194,12 +195,12 @@ describe('1.2.1 skills install I1–I12', { concurrency: 1 }, () => {
   it('I5: --global 与 --out / --target 互斥 exit 1', async () => {
     await withTemp(async (home) => {
       await withTemp(async (dir) => {
-        const withOut = runCli(['skills', 'install', '--global', '--out', path.join(dir, 'out')], {
+        const withOut = await runCore(['skills', 'install', '--global', '--out', path.join(dir, 'out')], {
           cwd: dir,
           env: { HOME: home },
         })
         assert.equal(withOut.status, 1, withOut.combined)
-        const withTarget = runCli(['skills', 'install', '--global', '--target', dir], {
+        const withTarget = await runCore(['skills', 'install', '--global', '--target', dir], {
           cwd: dir,
           env: { HOME: home },
         })
@@ -211,7 +212,7 @@ describe('1.2.1 skills install I1–I12', { concurrency: 1 }, () => {
 
   it('I5b: --out 与 --target 同时出现 → exit 1', async () => {
     await withTemp(async (dir) => {
-      const r = runCli([
+      const r = await runCore([
         'skills',
         'install',
         '--target',
@@ -229,7 +230,7 @@ describe('1.2.1 skills install I1–I12', { concurrency: 1 }, () => {
     await withTemp(async (dir) => {
       for (const rel of ['.dsh/coding-kit', '.coding-kit'] as const) {
         const dest = path.join(dir, rel)
-        const r = runCli(['skills', 'install', '--out', dest], { cwd: dir })
+        const r = await runCore(['skills', 'install', '--out', dest], { cwd: dir })
         assert.notEqual(r.status, 0, r.combined)
         assert.equal(existsSync(path.join(dest, 'harness-10-spec')), false)
       }
@@ -243,7 +244,7 @@ describe('1.2.1 skills install I1–I12', { concurrency: 1 }, () => {
         await mkdir(dest, { recursive: true })
         const marker = path.join(dest, 'keep.md')
         await writeFile(marker, 'S2-KEEP\n', 'utf8')
-        const r = runCli(['skills', 'install', '--out', dest], { cwd: dir })
+        const r = await runCore(['skills', 'install', '--out', dest], { cwd: dir })
         assert.notEqual(r.status, 0, r.combined)
         assert.equal(await readFile(marker, 'utf8'), 'S2-KEEP\n')
         assert.equal(existsSync(path.join(dest, 'harness-10-spec')), false)
@@ -254,7 +255,7 @@ describe('1.2.1 skills install I1–I12', { concurrency: 1 }, () => {
   it('I8: 源 assets/skills 缺失 → 非 0 + 可读原因（env 指向不存在目录，DEF-018）', async () => {
     await withTemp(async (dir) => {
       const missingSrc = path.join(dir, 'no-such-skills-src')
-      const r = runCli(['skills', 'install', '--target', dir], {
+      const r = await runCore(['skills', 'install', '--target', dir], {
         env: { DSH_CK_SKILLS_SRC: missingSrc },
       })
       assert.notEqual(r.status, 0, r.combined)
@@ -268,7 +269,7 @@ describe('1.2.1 skills install I1–I12', { concurrency: 1 }, () => {
       const srcCopy = await seedSkillsSrcCopy(dir)
       const target = path.join(dir, 'target')
       await mkdir(target, { recursive: true })
-      const r = runCli(['skills', 'install', '--target', target], {
+      const r = await runCore(['skills', 'install', '--target', target], {
         env: { DSH_CK_SKILLS_SRC: srcCopy },
       })
       assert.equal(r.status, 0, r.combined)
@@ -286,10 +287,10 @@ describe('1.2.1 skills install I1–I12', { concurrency: 1 }, () => {
 
   it('I13: --out 指到产品包自身 assets/skills（或其子目录）→ 拒写非 0（DEBT R-05）', async () => {
     const before = hashTree(SKILLS_SRC)
-    const root = runCli(['skills', 'install', '--out', SKILLS_SRC])
+    const root = await runCore(['skills', 'install', '--out', SKILLS_SRC])
     assert.notEqual(root.status, 0, root.combined)
     assert.match(root.combined, /拒写/)
-    const sub = runCli(['skills', 'install', '--out', path.join(SKILLS_SRC, 'harness-10-spec')])
+    const sub = await runCore(['skills', 'install', '--out', path.join(SKILLS_SRC, 'harness-10-spec')])
     assert.notEqual(sub.status, 0, sub.combined)
     assert.match(sub.combined, /拒写/)
     assert.equal(hashTree(SKILLS_SRC), before, '拒写后包内 assets/skills 不得变化')
@@ -297,7 +298,7 @@ describe('1.2.1 skills install I1–I12', { concurrency: 1 }, () => {
 
   it('I10: --out 以 ~ 开头 → exit 1；cwd 下无名为 ~ 的目录', async () => {
     await withTemp(async (dir) => {
-      const r = runCli(['skills', 'install', '--out', '~/.something'], { cwd: dir })
+      const r = await runCore(['skills', 'install', '--out', '~/.something'], { cwd: dir })
       assert.equal(r.status, 1, r.combined)
       assert.equal(existsSync(path.join(dir, '~')), false)
       const names = existsSync(dir) ? readdirSync(dir) : []
@@ -305,8 +306,8 @@ describe('1.2.1 skills install I1–I12', { concurrency: 1 }, () => {
     })
   })
 
-  it('I11: skills --help / 根 --help 列出 skills install，与 build/check 分列', () => {
-    const skillsHelp = runCli(['skills', '--help'])
+  it('I11: skills --help / 根 --help 列出 skills install，与 build/check 分列', async () => {
+    const skillsHelp = await runCore(['skills', '--help'])
     assert.equal(skillsHelp.status, 0, skillsHelp.combined)
     assert.match(skillsHelp.combined, /skills install/)
     assert.match(skillsHelp.combined, /skills build/)
@@ -318,7 +319,7 @@ describe('1.2.1 skills install I1–I12', { concurrency: 1 }, () => {
     assert.equal(/lifecycle dry-run/.test(skillsHelp.combined), false, 'skills --help 输出了根 usage（含 lifecycle dry-run）')
     // 负向：skills --help 不得输出根 usage 头（改名后须钉现名，否则恒真失效）
     assert.equal(/SpecWave CLI \(v/.test(skillsHelp.combined), false, 'skills --help 输出了根 usage 头')
-    const rootHelp = runCli(['--help'])
+    const rootHelp = await runCore(['--help'])
     assert.equal(rootHelp.status, 0, rootHelp.combined)
     assert.match(rootHelp.combined, /SpecWave CLI \(v/, '根 --help 须含现名 SpecWave CLI 头')
     assert.match(rootHelp.combined, /skills install/)
@@ -335,12 +336,12 @@ describe('1.2.1 skills install I1–I12', { concurrency: 1 }, () => {
       const target = path.join(dir, 'target')
       await mkdir(target, { recursive: true })
       const env = { DSH_CK_SKILLS_SRC: srcCopy }
-      const skipped = runCli(['skills', 'install', '--target', target], { env })
+      const skipped = await runCore(['skills', 'install', '--target', target], { env })
       assert.equal(skipped.status, 0, skipped.combined)
       for (const name of EXECUTE_DIRS) {
         assert.equal(existsSync(path.join(target, '.dsh', 'skills', name)), false)
       }
-      const included = runCli(['skills', 'install', '--target', target, '--with-execute-hats'], {
+      const included = await runCore(['skills', 'install', '--target', target, '--with-execute-hats'], {
         env,
       })
       assert.equal(included.status, 0, included.combined)
@@ -357,7 +358,7 @@ describe('1.2.1 skills install I1–I12', { concurrency: 1 }, () => {
   it('I-BUILD: skills build 默认 dest 仍为产品包 assets/skills；不得 rm 消费者 .dsh/skills', async () => {
     await withTemp(async (dir) => {
       await writeRel(dir, '.dsh/skills/user-keep.txt', 'KEEP-BUILD\n')
-      const built = runCli(['skills', 'build'])
+      const built = await runCore(['skills', 'build'])
       assert.equal(built.status, 0, built.combined)
       assert.match(built.combined, /SKILLS BUILD: PASS/)
       assert.match(built.combined, /assets\/skills/)
@@ -374,25 +375,25 @@ describe('1.2.1 skills install I1–I12', { concurrency: 1 }, () => {
     await withTemp(async (dir) => {
       const dest = path.join(dir, 'skills-as-file')
       await writeFile(dest, 'not-a-dir\n', 'utf8')
-      const r = runCli(['skills', 'install', '--out', dest], { cwd: dir })
+      const r = await runCore(['skills', 'install', '--out', dest], { cwd: dir })
       assert.notEqual(r.status, 0, r.combined)
       assert.equal(await readFile(dest, 'utf8'), 'not-a-dir\n')
       assert.equal(statSync(dest).isFile(), true)
     })
   })
 
-  it('未知子命令 / 未知旗标 → exit 1 + usage 含 install', () => {
-    const unknownSub = runCli(['skills', 'explode'])
+  it('未知子命令 / 未知旗标 → exit 1 + usage 含 install', async () => {
+    const unknownSub = await runCore(['skills', 'explode'])
     assert.equal(unknownSub.status, 1, unknownSub.combined)
     assert.match(unknownSub.combined, /未知/)
     assert.match(unknownSub.combined, /install/)
-    const unknownFlag = runCli(['skills', 'install', '--bogus'])
+    const unknownFlag = await runCore(['skills', 'install', '--bogus'])
     assert.equal(unknownFlag.status, 1, unknownFlag.combined)
     assert.match(unknownFlag.combined, /未知/)
     assert.match(unknownFlag.combined, /install/)
   })
 
-  it('默认 generateSkills 含 re-anchor / 00-delegate；不含 00 全文与 30/40', () => {
+  it('默认 generateSkills 含 re-anchor / 00-delegate；不含 00 全文与 30/40', async () => {
     const promptsDir = path.join(KIT, 'assets', 'harness', 'prompts')
     const { files, skills } = generateSkills({ promptsDir })
     const names = skills.map((s) => s.frontmatter.name)

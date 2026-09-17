@@ -5,6 +5,7 @@ import os from 'node:os'
 import path from 'node:path'
 import { describe, it } from 'node:test'
 import { fileURLToPath } from 'node:url'
+import { runCore } from './_helpers/core-harness.ts'
 
 const KIT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const CLI_TS = path.join(KIT, 'src', 'cli.ts')
@@ -85,7 +86,7 @@ describe('verify --spec · SPEC 审查文存在性真闸（spec_reviews_retentio
     await withTemp(async (dir) => {
       await seedSpec(dir)
       await writeRel(dir, 'docs/harness/reviews/spec_foo_audit_R1_2026-08-25.md', '# R1 fixture')
-      const r = runCli(['verify', '--spec', SPEC_REL, '--target', dir])
+      const r = await runCore(['verify', '--spec', SPEC_REL, '--target', dir])
       assert.equal(r.status, 0, r.combined)
       assert.match(r.combined, /VERIFY: PASS · SPEC-foo_v1\.md/)
     })
@@ -95,7 +96,7 @@ describe('verify --spec · SPEC 审查文存在性真闸（spec_reviews_retentio
     await withTemp(async (dir) => {
       await seedSpec(dir)
       await writeRel(dir, 'reviews/spec_foo_audit_R2_x.md', '# R2 fixture')
-      const r = runCli(['verify', '--spec', SPEC_REL, '--target', dir])
+      const r = await runCore(['verify', '--spec', SPEC_REL, '--target', dir])
       assert.equal(r.status, 0, r.combined)
       assert.match(r.combined, /VERIFY: PASS/)
     })
@@ -105,13 +106,13 @@ describe('verify --spec · SPEC 审查文存在性真闸（spec_reviews_retentio
     await withTemp(async (dir) => {
       await seedSpec(dir)
       await writeRel(dir, 'docs/harness/reviews/spec_foo_ACCEPT_R1_x.md', '# ACCEPT fixture')
-      const r = runCli(['verify', '--spec', SPEC_REL, '--target', dir])
+      const r = await runCore(['verify', '--spec', SPEC_REL, '--target', dir])
       assert.equal(r.status, 0, r.combined)
     })
     await withTemp(async (dir) => {
       await seedSpec(dir)
       await writeRel(dir, 'docs/harness/reviews/task_foo_spec_ACCEPT_R1_x.md', '# ACCEPT fixture')
-      const r = runCli(['verify', '--spec', SPEC_REL, '--target', dir])
+      const r = await runCore(['verify', '--spec', SPEC_REL, '--target', dir])
       assert.equal(r.status, 0, r.combined)
     })
   })
@@ -120,7 +121,7 @@ describe('verify --spec · SPEC 审查文存在性真闸（spec_reviews_retentio
     await withTemp(async (dir) => {
       await writeRel(dir, 'docs/spec/SPEC-bar_v2.md', '# SPEC bar\n\n## 范围\n\n- fixture\n')
       await writeRel(dir, 'docs/harness/reviews/spec_bar_audit_R1_x.md', '# R1 fixture')
-      const r = runCli(['verify', '--spec', 'docs/spec/SPEC-bar_v2.md', '--target', dir])
+      const r = await runCore(['verify', '--spec', 'docs/spec/SPEC-bar_v2.md', '--target', dir])
       assert.equal(r.status, 0, r.combined)
     })
   })
@@ -128,7 +129,7 @@ describe('verify --spec · SPEC 审查文存在性真闸（spec_reviews_retentio
   it('--allow-no-spec-review 真豁免：exit 0 · VERIFY: PASS · 文本留痕', async () => {
     await withTemp(async (dir) => {
       await seedSpec(dir)
-      const r = runCli(['verify', '--spec', SPEC_REL, '--target', dir, '--allow-no-spec-review'])
+      const r = await runCore(['verify', '--spec', SPEC_REL, '--target', dir, '--allow-no-spec-review'])
       assert.equal(r.status, 0, r.combined)
       assert.match(r.combined, /VERIFY: PASS/)
       assert.match(r.combined, /--allow-no-spec-review/)
@@ -139,7 +140,7 @@ describe('verify --spec · SPEC 审查文存在性真闸（spec_reviews_retentio
   it('--allow-no-review 在 --spec 模式作豁免别名（与 T4 口径一致）：exit 0 · 留痕', async () => {
     await withTemp(async (dir) => {
       await seedSpec(dir)
-      const r = runCli(['verify', '--spec', SPEC_REL, '--target', dir, '--allow-no-review'])
+      const r = await runCore(['verify', '--spec', SPEC_REL, '--target', dir, '--allow-no-review'])
       assert.equal(r.status, 0, r.combined)
       assert.match(r.combined, /VERIFY: PASS/)
       assert.match(r.combined, /--allow-no-review/)
@@ -149,14 +150,14 @@ describe('verify --spec · SPEC 审查文存在性真闸（spec_reviews_retentio
   it('--json 缺审查文 → exit 2 · blocked=true · verdict=BLOCKED；--allow-no-spec-review → waived[] 留痕', async () => {
     await withTemp(async (dir) => {
       await seedSpec(dir)
-      const blocked = runCli(['verify', '--spec', SPEC_REL, '--target', dir, '--json'])
+      const blocked = await runCore(['verify', '--spec', SPEC_REL, '--target', dir, '--json'])
       assert.equal(blocked.status, 2, blocked.combined)
       const b = JSON.parse(blocked.stdout) as Record<string, unknown>
       assert.equal(b.command, 'verify')
       assert.equal(b.spec, SPEC_REL)
       assert.equal(b.blocked, true)
       assert.equal(b.verdict, 'BLOCKED')
-      const waived = runCli(['verify', '--spec', SPEC_REL, '--target', dir, '--json', '--allow-no-spec-review'])
+      const waived = await runCore(['verify', '--spec', SPEC_REL, '--target', dir, '--json', '--allow-no-spec-review'])
       assert.equal(waived.status, 0, waived.combined)
       const w = JSON.parse(waived.stdout) as Record<string, unknown>
       assert.equal(w.blocked, false)
@@ -170,7 +171,7 @@ describe('verify --spec · SPEC 审查文存在性真闸（spec_reviews_retentio
   it('skip_spec_audit 元信息豁免 → INFO + PASS exit 0（无需审查文）', async () => {
     await withTemp(async (dir) => {
       await seedSpec(dir, SPEC_REL, 'foo', '| **skip_spec_audit** | `true` |')
-      const r = runCli(['verify', '--spec', SPEC_REL, '--target', dir])
+      const r = await runCore(['verify', '--spec', SPEC_REL, '--target', dir])
       assert.equal(r.status, 0, r.combined)
       assert.match(r.combined, /skip SPEC review gate（bugfix \/ skip_spec_audit）/)
       assert.match(r.combined, /VERIFY: PASS/)
@@ -180,27 +181,27 @@ describe('verify --spec · SPEC 审查文存在性真闸（spec_reviews_retentio
   it('track=bugfix 元信息豁免 → PASS exit 0；正文说明文字不得豁免（旧包 shouldSkipSpecAudit 口径）', async () => {
     await withTemp(async (dir) => {
       await seedSpec(dir, 'docs/spec/SPEC-bug_v1.md', 'bug', '| **track** | `bugfix` |')
-      const r = runCli(['verify', '--spec', 'docs/spec/SPEC-bug_v1.md', '--target', dir])
+      const r = await runCore(['verify', '--spec', 'docs/spec/SPEC-bug_v1.md', '--target', dir])
       assert.equal(r.status, 0, r.combined)
     })
     await withTemp(async (dir) => {
       // 正文出现 track: bugfix 说明文字但无元信息/文首 track 行 → 不豁免
       await writeRel(dir, 'docs/spec/SPEC-txt_v1.md', '# SPEC txt\n\n豁免写法：track: bugfix 即可跳过。\n')
-      const r = runCli(['verify', '--spec', 'docs/spec/SPEC-txt_v1.md', '--target', dir])
+      const r = await runCore(['verify', '--spec', 'docs/spec/SPEC-txt_v1.md', '--target', dir])
       assert.equal(r.status, 2, r.combined)
       assert.match(r.combined, /missing spec R<n> review/)
     })
   })
 
   it('--task 与 --spec 互斥 → exit 1（旧包语义）', async () => {
-    const r = runCli(['verify', '--task', 'whatever.md', '--spec', 'foo.md'])
+    const r = await runCore(['verify', '--task', 'whatever.md', '--spec', 'foo.md'])
     assert.equal(r.status, 1, r.combined)
     assert.match(r.combined, /--task 与 --spec 互斥/)
   })
 
   it('--spec 文件不存在 → exit 1（用法错误 · 旧包语义）', async () => {
     await withTemp(async (dir) => {
-      const r = runCli(['verify', '--spec', 'docs/spec/SPEC-none_v1.md', '--target', dir])
+      const r = await runCore(['verify', '--spec', 'docs/spec/SPEC-none_v1.md', '--target', dir])
       assert.equal(r.status, 1, r.combined)
       assert.match(r.combined, /未找到 --spec 文件/)
     })
@@ -209,7 +210,7 @@ describe('verify --spec · SPEC 审查文存在性真闸（spec_reviews_retentio
   it('不再 fail-loud：--spec 路径不得出现「本包未交付」文案', async () => {
     await withTemp(async (dir) => {
       await seedSpec(dir)
-      const r = runCli(['verify', '--spec', SPEC_REL, '--target', dir])
+      const r = await runCore(['verify', '--spec', SPEC_REL, '--target', dir])
       assert.equal(/未交付|不支持/.test(r.combined), false, `仍走 notDelivered: ${r.combined}`)
     })
   })
@@ -217,12 +218,12 @@ describe('verify --spec · SPEC 审查文存在性真闸（spec_reviews_retentio
   it('2.3-W4 FULL-reviews：裸 verify = 仓级 reviews 扫描（原「须指定」用法错语义由本模式取代 · 行为变更）', async () => {
     await withTemp(async (dir) => {
       // 空仓（无 task）→ PASS exit 0
-      const empty = runCli(['verify', '--target', dir])
+      const empty = await runCore(['verify', '--target', dir])
       assert.equal(empty.status, 0, empty.combined)
       assert.match(empty.combined, /VERIFY: PASS（裸 verify · 仓级 reviews 扫描）/)
       // done task 缺审查文 → BLOCKED exit 2 点名缺口与豁免指引
       await writeRel(dir, 'docs/tasks/done/task_bare_gap_v1.md', '# Task bare_gap\n\n> **状态**：`done`\n')
-      const blocked = runCli(['verify', '--target', dir])
+      const blocked = await runCore(['verify', '--target', dir])
       assert.equal(blocked.status, 2, blocked.combined)
       assert.match(blocked.combined, /VERIFY: BLOCKED · 仓级 reviews 缺口 1/)
       assert.match(blocked.combined, /missing R<n> review/)
@@ -241,7 +242,7 @@ describe('verify --spec · SPEC 审查文存在性真闸（spec_reviews_retentio
           '',
         ].join('\n'),
       )
-      const waived = runCli(['verify', '--target', dir])
+      const waived = await runCore(['verify', '--target', dir])
       assert.equal(waived.status, 0, waived.combined)
       assert.match(waived.combined, /豁免命中留痕: bare_gap/)
       assert.match(waived.combined, /VERIFY: PASS/)
@@ -252,14 +253,14 @@ describe('verify --spec · SPEC 审查文存在性真闸（spec_reviews_retentio
   it('lifecycle dry-run to_00：spec_reviews_retention 真求值（--task 携带 SPEC 路径）· 缺审查文 fail 挡 · --allow-no-spec-review 转 warn 留痕', async () => {
     await withTemp(async (dir) => {
       await seedSpec(dir)
-      const blocked = runCli([
+      const blocked = await runCore([
         'lifecycle', 'dry-run', '--transition', 'to_00', '--from', 'draft',
         '--task', SPEC_REL, '--target', dir,
       ])
       assert.equal(blocked.status, 2, blocked.combined)
       assert.match(blocked.combined, /spec_reviews_retention: fail · missing spec R<n> review/)
       assert.match(blocked.combined, /blocked: true/)
-      const waived = runCli([
+      const waived = await runCore([
         'lifecycle', 'dry-run', '--transition', 'to_00', '--from', 'draft',
         '--task', SPEC_REL, '--target', dir, '--allow-no-spec-review',
       ])
@@ -267,7 +268,7 @@ describe('verify --spec · SPEC 审查文存在性真闸（spec_reviews_retentio
       assert.match(waived.combined, /spec_reviews_retention: warn/)
       assert.match(waived.combined, /--allow-no-spec-review 豁免/)
       await writeRel(dir, 'docs/harness/reviews/spec_foo_audit_R1_x.md', '# R1 fixture')
-      const pass = runCli([
+      const pass = await runCore([
         'lifecycle', 'dry-run', '--transition', 'to_00', '--from', 'draft',
         '--task', SPEC_REL, '--target', dir,
       ])
@@ -279,7 +280,7 @@ describe('verify --spec · SPEC 审查文存在性真闸（spec_reviews_retentio
   it('lifecycle dry-run to_00：skip_spec_audit SPEC → 守卫 pass（元信息豁免）', async () => {
     await withTemp(async (dir) => {
       await seedSpec(dir, SPEC_REL, 'foo', '| **skip_spec_audit** | `true` |')
-      const r = runCli([
+      const r = await runCore([
         'lifecycle', 'dry-run', '--transition', 'to_00', '--from', 'draft',
         '--task', SPEC_REL, '--target', dir,
       ])
@@ -300,7 +301,7 @@ describe('verify --spec · 目录型 slug 推导（D-23-SPEC-SLUG · 2.3-W1）',
     await withTemp(async (dir) => {
       await writeRel(dir, DIR_SPEC, body)
       await writeRel(dir, 'docs/harness/reviews/spec_foo-bar_audit_R1_x.md', '# R1 fixture')
-      const r = runCli(['verify', '--spec', DIR_SPEC, '--target', dir])
+      const r = await runCore(['verify', '--spec', DIR_SPEC, '--target', dir])
       assert.equal(r.status, 0, r.combined)
       assert.match(r.combined, /VERIFY: PASS · README\.md/)
     })
@@ -310,7 +311,7 @@ describe('verify --spec · 目录型 slug 推导（D-23-SPEC-SLUG · 2.3-W1）',
     await withTemp(async (dir) => {
       await writeRel(dir, 'docs/spec/foo-bar/index.md', body)
       await writeRel(dir, 'docs/harness/reviews/spec_foo-bar_audit_R1_x.md', '# R1 fixture')
-      const r = runCli(['verify', '--spec', 'docs/spec/foo-bar/index.md', '--target', dir])
+      const r = await runCore(['verify', '--spec', 'docs/spec/foo-bar/index.md', '--target', dir])
       assert.equal(r.status, 0, r.combined)
     })
   })
@@ -320,8 +321,8 @@ describe('verify --spec · 目录型 slug 推导（D-23-SPEC-SLUG · 2.3-W1）',
       await writeRel(dir, DIR_SPEC, body)
       await writeRel(dir, FILE_SPEC, body)
       await writeRel(dir, 'docs/harness/reviews/spec_foo-bar_audit_R1_x.md', '# R1 fixture')
-      const a = runCli(['verify', '--spec', DIR_SPEC, '--target', dir])
-      const b = runCli(['verify', '--spec', FILE_SPEC, '--target', dir])
+      const a = await runCore(['verify', '--spec', DIR_SPEC, '--target', dir])
+      const b = await runCore(['verify', '--spec', FILE_SPEC, '--target', dir])
       assert.equal(a.status, 0, a.combined)
       assert.equal(b.status, 0, b.combined)
     })
@@ -332,12 +333,12 @@ describe('verify --spec · 目录型 slug 推导（D-23-SPEC-SLUG · 2.3-W1）',
       await writeRel(dir, DIR_SPEC, body)
       // 放一个 slug=readme 的审查文：修复后不再误命中（findSpecReview 按 foo-bar 找）
       await writeRel(dir, 'docs/harness/reviews/spec_readme_audit_R1_x.md', '# wrong-slug fixture')
-      const r = runCli(['verify', '--spec', DIR_SPEC, '--target', dir])
+      const r = await runCore(['verify', '--spec', DIR_SPEC, '--target', dir])
       assert.equal(r.status, 2, r.combined)
       assert.match(r.combined, /VERIFY: BLOCKED · missing spec R<n> review/)
       // 补上正确 slug 审查文后转 PASS（查找口径确为父目录名）
       await writeRel(dir, 'docs/harness/reviews/spec_foo-bar_audit_R1_x.md', '# R1 fixture')
-      const ok = runCli(['verify', '--spec', DIR_SPEC, '--target', dir])
+      const ok = await runCore(['verify', '--spec', DIR_SPEC, '--target', dir])
       assert.equal(ok.status, 0, ok.combined)
     })
   })
@@ -346,14 +347,14 @@ describe('verify --spec · 目录型 slug 推导（D-23-SPEC-SLUG · 2.3-W1）',
     await withTemp(async (dir) => {
       await writeRel(dir, 'docs/spec/Foo_Bar/README.md', body)
       await writeRel(dir, 'docs/harness/reviews/spec_foo-bar_audit_R1_x.md', '# R1 fixture')
-      const r = runCli(['verify', '--spec', 'docs/spec/Foo_Bar/README.md', '--target', dir])
+      const r = await runCore(['verify', '--spec', 'docs/spec/Foo_Bar/README.md', '--target', dir])
       assert.equal(r.status, 2, r.combined)
       assert.match(r.combined, /missing spec R<n> review/)
     })
     await withTemp(async (dir) => {
       await writeRel(dir, 'docs/spec/foo_bar/README.md', body)
       await writeRel(dir, 'docs/harness/reviews/spec_foo-bar_audit_R1_x.md', '# R1 fixture')
-      const r = runCli(['verify', '--spec', 'docs/spec/foo_bar/README.md', '--target', dir])
+      const r = await runCore(['verify', '--spec', 'docs/spec/foo_bar/README.md', '--target', dir])
       assert.equal(r.status, 0, r.combined)
     })
   })
@@ -361,7 +362,7 @@ describe('verify --spec · 目录型 slug 推导（D-23-SPEC-SLUG · 2.3-W1）',
   it('F-W1-05：--spec 传目录路径本身 → 干净「用法错」exit 1（非 EISDIR 裸崩溃 · 不新增目录直读能力）', async () => {
     await withTemp(async (dir) => {
       await writeRel(dir, DIR_SPEC, body)
-      const r = runCli(['verify', '--spec', 'docs/spec/foo-bar', '--target', dir])
+      const r = await runCore(['verify', '--spec', 'docs/spec/foo-bar', '--target', dir])
       assert.equal(r.status, 1, r.combined)
       assert.match(r.combined, /须为 SPEC 文件（收到目录）/)
       assert.equal(/EISDIR/.test(r.combined), false, '不得裸崩溃: ' + r.combined)
@@ -372,7 +373,7 @@ describe('verify --spec · 目录型 slug 推导（D-23-SPEC-SLUG · 2.3-W1）',
     await withTemp(async (dir) => {
       await writeRel(dir, 'docs/spec/foo-bar/README.md', specMd('custom-slug'))
       await writeRel(dir, 'docs/harness/reviews/spec_custom-slug_audit_R1_x.md', '# R1 fixture')
-      const r = runCli(['verify', '--spec', 'docs/spec/foo-bar/README.md', '--target', dir])
+      const r = await runCore(['verify', '--spec', 'docs/spec/foo-bar/README.md', '--target', dir])
       assert.equal(r.status, 0, r.combined)
     })
   })

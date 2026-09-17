@@ -7,7 +7,7 @@ import os from 'node:os'
 import path from 'node:path'
 import { describe, it } from 'node:test'
 import { fileURLToPath } from 'node:url'
-import { CliError } from '../src/cli-shared.ts'
+import { makeCore, type RunResult } from './_helpers/core-harness.ts'
 import { cmdStatus, cmdTimeline } from '../src/cli-status.ts'
 import { cmdLifecycle } from '../src/cli-lifecycle.ts'
 import { cmdGraph } from '../src/cli-graph.ts'
@@ -23,13 +23,6 @@ const S2_FILES = [
   ['reviews/keep.md', 'S2-REVIEW-BODY-g1g7\n'],
   ['invokes/by-task/keep.md', 'S2-INVOKE-BODY-g1g7\n'],
 ] as const
-
-type RunResult = {
-  status: number | null
-  stdout: string
-  stderr: string
-  combined: string
-}
 
 function runCli(args: string[], cwd = KIT): RunResult {
   const result = spawnSync(
@@ -47,48 +40,9 @@ function runCli(args: string[], cwd = KIT): RunResult {
   }
 }
 
-// E3（3.0 W0 第一批 · task_3_0_w0_refactor_prep）：spawn 型断言下沉 —— 进程内直调
-// 被测 cmd* 核心实现（零子进程），断言逐字保留。输出捕获与 exit 码映射对齐
-// bin/exitWithCliError 行为（CliError.exitCode → status · message → stderr）。
-// 标注「烟测」的用例保留 runCli spawn（bin→CLI 全链 · 每文件 ≤5 条）。
-function makeCore(fn: (args: string[]) => Promise<void>): (args: string[]) => Promise<RunResult> {
-  return async (args) => {
-    const out: string[] = []
-    const err: string[] = []
-    const origLog = console.log
-    const origError = console.error
-    const origWrite = process.stdout.write
-    console.log = (...a: unknown[]) => {
-      out.push(a.map(String).join(' '))
-    }
-    console.error = (...a: unknown[]) => {
-      err.push(a.map(String).join(' '))
-    }
-    process.stdout.write = ((chunk: unknown) => {
-      out.push(String(chunk).replace(/\n$/, ''))
-      return true
-    }) as typeof process.stdout.write
-    let status = 0
-    try {
-      await fn(args)
-    } catch (e) {
-      if (e instanceof CliError) {
-        status = e.exitCode
-        if (e.message) err.push(e.message)
-      } else {
-        throw e
-      }
-    } finally {
-      console.log = origLog
-      console.error = origError
-      process.stdout.write = origWrite
-    }
-    const stdout = out.length > 0 ? out.join('\n') + '\n' : ''
-    const stderr = err.length > 0 ? err.join('\n') + '\n' : ''
-    return { status, stdout, stderr, combined: `${stdout}\n${stderr}` }
-  }
-}
-
+// E3（3.0 W0 第一批 → 3.0 W7 收敛）：makeCore 已抽为共享单实现源
+//（test/_helpers/core-harness.ts · W0 判据逐字保留），本文件只消费不复制。
+// 标注「烟测」的用例保留 runCli spawn（bin→CLI 全链）。
 const runStatus = makeCore(cmdStatus)
 const runTimeline = makeCore(cmdTimeline)
 const runLifecycle = makeCore(cmdLifecycle)

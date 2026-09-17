@@ -6,6 +6,7 @@ import os from 'node:os'
 import path from 'node:path'
 import { describe, it } from 'node:test'
 import { fileURLToPath } from 'node:url'
+import { runCore } from './_helpers/core-harness.ts'
 
 // 2.3-W4 · A5+A6 闸语义接线（SPEC 04 修订重签#2 · 评审文 w4_gate_wiring_plan_review_20260913 定稿口径）：
 // G2 结论级（close/verify）· G4 W5–W7 warn-only · FULL-reviews 裸 verify · INVOKE-HATS lint-done 帽级 ·
@@ -151,12 +152,12 @@ describe('2.3-W4 G2 · 结论级 R1 通过判定（verify --task）', { concurre
       assert.equal(bad.status, 2, bad.combined)
       assert.match(bad.combined, /VERIFY: BLOCKED · 审查文结论不可机读通过/)
       // --allow-no-review 同豁结论级（无新旗标 · 留痕）
-      const waived = runCli(['verify', '--task', rel, '--target', dir, '--allow-no-review'])
+      const waived = await runCore(['verify', '--task', rel, '--target', dir, '--allow-no-review'])
       assert.equal(waived.status, 0, waived.combined)
       assert.match(waived.combined, /--allow-no-review 豁免生效/)
       // 补通过词 → PASS
       await writeRel(dir, 'docs/harness/reviews/task_w4v_ok_audit_R1_20260913.md', REVIEW_PASS)
-      const good = runCli(['verify', '--task', rel, '--target', dir])
+      const good = await runCore(['verify', '--task', rel, '--target', dir])
       assert.equal(good.status, 0, good.combined)
       assert.match(good.combined, /VERIFY: PASS/)
     })
@@ -168,7 +169,7 @@ describe('2.3-W4 G2 · 结论级 R1 通过判定（verify --task）', { concurre
       await writeRel(dir, rel, taskMd('w4v_legacy', 'done'))
       await writeRel(dir, 'docs/harness/invokes/by-task/w4v-legacy/invoke_20260901_10_x.md', '# invoke 10\n')
       await writeRel(dir, 'docs/harness/reviews/task_w4v_legacy_audit_R1_20260901.md', REVIEW_NO_PASS)
-      const r = runCli(['verify', '--task', rel, '--target', dir])
+      const r = await runCore(['verify', '--task', rel, '--target', dir])
       assert.equal(r.status, 0, r.combined)
       assert.match(r.combined, /verify: warn · task_w4v_legacy_audit_R1_20260901\.md 结论不可机读通过/)
       assert.match(r.combined, /VERIFY: PASS/)
@@ -180,17 +181,17 @@ describe('2.3-W4 G2 · 结论级（task close）', { concurrency: 1 }, () => {
   it('审查文无通过词 → close BLOCKED 点名 close_review；--allow-no-review 豁免留痕 → READY', async () => {
     await withTemp(async (dir) => {
       const rel = await seedCloseable(dir, 'w4c_ok', REVIEW_NO_PASS)
-      const bad = runCli(['task', 'close', '--file', rel], dir)
+      const bad = await runCore(['task', 'close', '--file', rel], dir)
       assert.equal(bad.status, 2, bad.combined)
       assert.match(bad.combined, /CLOSE: BLOCKED/)
       assert.match(bad.combined, /close_review: 审查文结论不可机读通过/)
-      const waived = runCli(['task', 'close', '--file', rel, '--allow-no-review'], dir)
+      const waived = await runCore(['task', 'close', '--file', rel, '--allow-no-review'], dir)
       assert.equal(waived.status, 0, waived.combined)
       assert.match(waived.combined, /留痕 · close_review/)
       assert.match(waived.combined, /CLOSE: READY/)
       // 补通过词 → READY（无豁免）
       await writeRel(dir, 'docs/harness/reviews/task_w4c_ok_audit_R1_20260913.md', REVIEW_PASS)
-      const good = runCli(['task', 'close', '--file', rel], dir)
+      const good = await runCore(['task', 'close', '--file', rel], dir)
       assert.equal(good.status, 0, good.combined)
       assert.match(good.combined, /CLOSE: READY/)
     })
@@ -238,7 +239,7 @@ describe('2.3-W4 G4 · 思考轮结构 W5–W7（warn-only 过渡 · exit 码不
         'docs/tasks/active/task_w4g_v1.md',
         base(['## 思考轮（10-task）', '', '### R0 · 证据', '', 'x', '', '### R1 · 范围', '', 'y']),
       )
-      const r = runCli(['task', 'lint', '--file', rel], dir)
+      const r = await runCore(['task', 'lint', '--file', rel], dir)
       assert.equal(r.status, 0, r.combined)
       assert.match(r.combined, /\[W5\]/)
       assert.match(r.combined, /缺 R2\/R3\/R4\/R5/)
@@ -250,7 +251,7 @@ describe('2.3-W4 G4 · 思考轮结构 W5–W7（warn-only 过渡 · exit 码不
     await withTemp(async (dir) => {
       const slots = ['R0', 'R1', 'R2', 'R3', 'R4', 'R5'].flatMap((x) => [`### ${x}`, '', 'x', ''])
       const rel = await writeRel(dir, 'docs/tasks/active/task_w4g_v1.md', base(['## 思考轮（10-task）', '', ...slots]))
-      const r = runCli(['task', 'lint', '--file', rel], dir)
+      const r = await runCore(['task', 'lint', '--file', rel], dir)
       assert.equal(r.status, 0, r.combined)
       assert.doesNotMatch(r.combined, /\[W5\]/)
       assert.match(r.combined, /\[W6\]/)
@@ -266,7 +267,7 @@ describe('2.3-W4 G4 · 思考轮结构 W5–W7（warn-only 过渡 · exit 码不
         '| R5 | 派工就绪 | **yes** |',
       ])
       await writeRel(dir, 'docs/tasks/active/task_w4g_v1.md', withYes)
-      const r2 = runCli(['task', 'lint', '--file', rel], dir)
+      const r2 = await runCore(['task', 'lint', '--file', rel], dir)
       assert.equal(r2.status, 0, r2.combined)
       assert.doesNotMatch(r2.combined, /\[W6\]/)
       assert.match(r2.combined, /\[W7\]/)
@@ -276,7 +277,7 @@ describe('2.3-W4 G4 · 思考轮结构 W5–W7（warn-only 过渡 · exit 码不
   it('无思考轮节 → 维持 W4（不新增 W5–W7 · SPEC 承载/bugfix 豁免口径回归）', async () => {
     await withTemp(async (dir) => {
       const rel = await writeRel(dir, 'docs/tasks/active/task_w4g_v1.md', base([]))
-      const r = runCli(['task', 'lint', '--file', rel], dir)
+      const r = await runCore(['task', 'lint', '--file', rel], dir)
       assert.equal(r.status, 0, r.combined)
       assert.match(r.combined, /\[W4\]/)
       assert.doesNotMatch(r.combined, /\[W5\]|\[W6\]|\[W7\]/)
@@ -289,7 +290,7 @@ describe('2.3-W4 INVOKE-HATS · lint-done 帽级（failClosed + 数据豁免）'
     await withTemp(async (dir) => {
       await writeRel(dir, 'docs/tasks/done/task_w4l_ok_v1.md', taskMd('w4l_ok', 'done'))
       await writeRel(dir, 'docs/harness/invokes/by-task/w4l-ok/invoke_20260901_30_x.md', '# invoke 30\n')
-      const bad = runCli(['task', 'lint-done', '--target', dir])
+      const bad = await runCore(['task', 'lint-done', '--target', dir])
       assert.equal(bad.status, 2, bad.combined)
       assert.match(bad.combined, /missing invoke hats: 10,40/)
       assert.match(bad.combined, /LINT-DONE: FAIL · missing 0 · hat-gaps 1/)
@@ -299,7 +300,7 @@ describe('2.3-W4 INVOKE-HATS · lint-done 帽级（failClosed + 数据豁免）'
         'docs/harness/legacy-gate-exempt.yaml',
         ['version: "1"', 'invoke_hats:', '  - slug: w4l_ok', '    reason: 缺 date/authorized_by', ''].join('\n'),
       )
-      const invalid = runCli(['task', 'lint-done', '--target', dir])
+      const invalid = await runCore(['task', 'lint-done', '--target', dir])
       assert.equal(invalid.status, 2, invalid.combined)
       assert.match(invalid.combined, /豁免条目无效（不豁免）/)
       // 四字段齐 → 豁免生效 PASS + 留痕（谁/何时/理由）
@@ -317,7 +318,7 @@ describe('2.3-W4 INVOKE-HATS · lint-done 帽级（failClosed + 数据豁免）'
           '',
         ].join('\n'),
       )
-      const good = runCli(['task', 'lint-done', '--target', dir])
+      const good = await runCore(['task', 'lint-done', '--target', dir])
       assert.equal(good.status, 0, good.combined)
       assert.match(good.combined, /豁免命中留痕: w4l_ok（2\.3\.0 前历史关账（fixture） · 2026-09-13 · 00（2026-09-13 fixture 授权））/)
       assert.match(good.combined, /LINT-DONE: PASS/)
@@ -331,7 +332,7 @@ describe('2.4-W6 N14 · lint-done slug 口径统一（meta 优先 · 文件名�
       // 文件名 task_file_name_slug_v1.md（文件名 slug = file-name-slug）· meta task_slug = meta_slug_x（归一 meta-slug-x）
       await writeRel(dir, 'docs/tasks/done/task_file_name_slug_v1.md', taskMd('meta_slug_x', 'done'))
       // 无豁免 → FAIL · 缺口点名为 meta slug（声明口径 = meta 优先）· 不得点名文件名 slug
-      const noExempt = runCli(['task', 'lint-done', '--target', dir])
+      const noExempt = await runCore(['task', 'lint-done', '--target', dir])
       assert.equal(noExempt.status, 2, noExempt.combined)
       assert.match(noExempt.combined, /- meta-slug-x/)
       assert.doesNotMatch(noExempt.combined, /file-name-slug/)
@@ -350,7 +351,7 @@ describe('2.4-W6 N14 · lint-done slug 口径统一（meta 优先 · 文件名�
           '',
         ].join('\n'),
       )
-      const good = runCli(['task', 'lint-done', '--target', dir])
+      const good = await runCore(['task', 'lint-done', '--target', dir])
       assert.equal(good.status, 0, good.combined)
       assert.match(good.combined, /豁免命中留痕: meta_slug_x（N14 fixture 豁免（meta slug 口径） · 2026-09-14 · 00（2026-09-14 fixture 授权））/)
       assert.match(good.combined, /LINT-DONE: PASS/)
@@ -363,7 +364,7 @@ describe('2.4-W6 N14 · lint-done slug 口径统一（meta 优先 · 文件名�
       for (const hat of ['10', '30', '40']) {
         await writeRel(dir, `docs/harness/invokes/by-task/meta-slug-x/invoke_20260914_${hat}_x.md`, `# invoke ${hat}\n`)
       }
-      const r = runCli(['task', 'lint-done', '--target', dir])
+      const r = await runCore(['task', 'lint-done', '--target', dir])
       assert.equal(r.status, 0, r.combined)
       assert.match(r.combined, /done slugs: 1 · invoke dirs: 1/)
       assert.doesNotMatch(r.combined, /file-name-slug/)
@@ -371,8 +372,8 @@ describe('2.4-W6 N14 · lint-done slug 口径统一（meta 优先 · 文件名�
     })
   })
 
-  it('生产数据零行为变化回归：真实仓 lint-done PASS（命名合规 · meta==文件名 slug）', () => {
-    const r = runCli(['task', 'lint-done'])
+  it('生产数据零行为变化回归：真实仓 lint-done PASS（命名合规 · meta==文件名 slug）', async () => {
+    const r = await runCore(['task', 'lint-done'])
     assert.equal(r.status, 0, r.combined)
     assert.match(r.combined, /LINT-DONE: PASS/)
   })
@@ -384,13 +385,13 @@ describe('2.3-W4 FULL-reviews · 裸 verify（仓级 reviews 扫描）', { concu
       await writeRel(dir, 'docs/tasks/active/task_w4b_draft_v1.md', taskMd('w4b_draft'))
       await writeRel(dir, 'docs/tasks/done/task_w4b_noparse_v1.md', taskMd('w4b_noparse', 'done'))
       await writeRel(dir, 'docs/harness/reviews/task_w4b_noparse_audit_R1_20260901.md', REVIEW_NO_PASS)
-      const r = runCli(['verify', '--target', dir])
+      const r = await runCore(['verify', '--target', dir])
       assert.equal(r.status, 2, r.combined)
       assert.match(r.combined, /warn: active 缺 R<n> 审查文（draft 期合法 · 不闸）: w4b_draft/)
       assert.match(r.combined, /task_w4b_noparse_v1\.md · 审查文结论不可机读通过/)
       assert.match(r.combined, /VERIFY: BLOCKED · 仓级 reviews 缺口 1/)
       // --json：键集含 reviews_scan · exitCode=2
-      const j = runCli(['verify', '--target', dir, '--json'])
+      const j = await runCore(['verify', '--target', dir, '--json'])
       assert.equal(j.status, 2, j.combined)
       const payload = JSON.parse(j.stdout) as {
         command: string
@@ -407,7 +408,7 @@ describe('2.3-W4 FULL-reviews · 裸 verify（仓级 reviews 扫描）', { concu
       assert.equal(payload.reviews_scan.gaps.length, 1)
       // 修复 done 缺口（补通过词）→ PASS（active 缺审查文仍仅 warn）
       await writeRel(dir, 'docs/harness/reviews/task_w4b_noparse_audit_R1_20260901.md', REVIEW_PASS)
-      const good = runCli(['verify', '--target', dir])
+      const good = await runCore(['verify', '--target', dir])
       assert.equal(good.status, 0, good.combined)
       assert.match(good.combined, /VERIFY: PASS（裸 verify · 仓级 reviews 扫描）/)
     })
@@ -423,18 +424,18 @@ describe('2.3.1 N11 [P1] · 结论级闸强制结论节（禁止回退全文 · 
       await writeRel(dir, 'docs/harness/invokes/by-task/n11-a2/invoke_20260901_10_x.md', '# invoke 10\n')
       // A2：通过词在全文但无结论/签收节 → 禁止回退全文 → 红
       await writeRel(dir, 'docs/harness/reviews/task_n11_a2_audit_R1_20260914.md', REVIEW_PASS_NO_SECTION)
-      const bad = runCli(['verify', '--task', rel, '--target', dir])
+      const bad = await runCore(['verify', '--task', rel, '--target', dir])
       assert.equal(bad.status, 2, bad.combined)
       assert.match(bad.combined, /VERIFY: BLOCKED · 审查文结论不可机读通过/)
       assert.match(bad.combined, /无结论/)
       // 通过词落结论节内 → 绿
       await writeRel(dir, 'docs/harness/reviews/task_n11_a2_audit_R1_20260914.md', REVIEW_PASS)
-      const good = runCli(['verify', '--task', rel, '--target', dir])
+      const good = await runCore(['verify', '--task', rel, '--target', dir])
       assert.equal(good.status, 0, good.combined)
       assert.match(good.combined, /VERIFY: PASS/)
       // 结论节内 通过+未通过 → 负向守卫仍红
       await writeRel(dir, 'docs/harness/reviews/task_n11_a2_audit_R1_20260914.md', '# R1 fixture\n\n## 结论\n\n整体通过但局部未通过项待修\n')
-      const neg = runCli(['verify', '--task', rel, '--target', dir])
+      const neg = await runCore(['verify', '--task', rel, '--target', dir])
       assert.equal(neg.status, 2, neg.combined)
       assert.match(neg.combined, /VERIFY: BLOCKED · 审查文结论不可机读通过/)
     })
@@ -443,12 +444,12 @@ describe('2.3.1 N11 [P1] · 结论级闸强制结论节（禁止回退全文 · 
   it('task close 同口径：无结论节 → CLOSE BLOCKED 点名 close_review', async () => {
     await withTemp(async (dir) => {
       const rel = await seedCloseable(dir, 'n11c_a2', '# R1 fixture\n\n通过\n')
-      const bad = runCli(['task', 'close', '--file', rel], dir)
+      const bad = await runCore(['task', 'close', '--file', rel], dir)
       assert.equal(bad.status, 2, bad.combined)
       assert.match(bad.combined, /CLOSE: BLOCKED/)
       assert.match(bad.combined, /close_review: 审查文结论不可机读通过/)
       await writeRel(dir, 'docs/harness/reviews/task_n11c_a2_audit_R1_20260913.md', REVIEW_PASS)
-      const good = runCli(['task', 'close', '--file', rel], dir)
+      const good = await runCore(['task', 'close', '--file', rel], dir)
       assert.equal(good.status, 0, good.combined)
       assert.match(good.combined, /CLOSE: READY/)
     })
@@ -468,7 +469,7 @@ describe('2.4-W2 · 结论级闸强度增强（S1·N=20 · 评审文 w2_conclusi
   it('① A2 收窄形态：结论节只写「通过」二字 → BLOCKED exit 2 点名 S1·N=20', async () => {
     await withTemp(async (dir) => {
       const rel = await seedW2(dir, 'w2_a2', '# R1 fixture\n\n## 结论\n\n通过\n')
-      const r = runCli(['verify', '--task', rel, '--target', dir])
+      const r = await runCore(['verify', '--task', rel, '--target', dir])
       assert.equal(r.status, 2, r.combined)
       assert.match(r.combined, /VERIFY: BLOCKED · 审查文结论不可机读通过/)
       assert.match(r.combined, /内容量不足（去通过词后非空白 4<20 字符/)
@@ -479,11 +480,11 @@ describe('2.4-W2 · 结论级闸强度增强（S1·N=20 · 评审文 w2_conclusi
   it('② 单通行词变体：## 签收\\nPASS / ## 结论\\n零阻塞 → BLOCKED exit 2', async () => {
     await withTemp(async (dir) => {
       const rel = await seedW2(dir, 'w2_var', '# R1 fixture\n\n## 签收\n\nPASS\n')
-      const a = runCli(['verify', '--task', rel, '--target', dir])
+      const a = await runCore(['verify', '--task', rel, '--target', dir])
       assert.equal(a.status, 2, a.combined)
       assert.match(a.combined, /内容量不足/)
       await writeRel(dir, 'docs/harness/reviews/task_w2_var_audit_R1_20260914.md', '# R1 fixture\n\n## 结论\n\n零阻塞\n')
-      const b = runCli(['verify', '--task', rel, '--target', dir])
+      const b = await runCore(['verify', '--task', rel, '--target', dir])
       assert.equal(b.status, 2, b.combined)
       assert.match(b.combined, /内容量不足/)
     })
@@ -492,7 +493,7 @@ describe('2.4-W2 · 结论级闸强度增强（S1·N=20 · 评审文 w2_conclusi
   it('③ 合规正向：实质结论节 exit 0 · 存量最低容量代表样本（2_1_1-host-tools-ux w1 审查文原文 · substance=40）回归 exit 0', async () => {
     await withTemp(async (dir) => {
       const rel = await seedW2(dir, 'w2_ok', '# R1 fixture\n\n## 结论\n\nPASS · 零内容阻塞。审查项逐条核对，范围与验收一致，无阻塞遗留，准予关账。\n')
-      const good = runCli(['verify', '--task', rel, '--target', dir])
+      const good = await runCore(['verify', '--task', rel, '--target', dir])
       assert.equal(good.status, 0, good.combined)
       assert.match(good.combined, /VERIFY: PASS/)
       // 存量代表样本：docs/harness/reviews/task_2_1_1_host_tools_ux_w1_sticky_audit_R1_20260910.md 原文（存量 48 份中节内容量最低档 min=40）
@@ -513,7 +514,7 @@ describe('2.4-W2 · 结论级闸强度增强（S1·N=20 · 评审文 w2_conclusi
         '',
       ].join('\n')
       await writeRel(dir, 'docs/harness/reviews/task_w2_ok_audit_R1_20260914.md', legacy)
-      const reg = runCli(['verify', '--task', rel, '--target', dir])
+      const reg = await runCore(['verify', '--task', rel, '--target', dir])
       assert.equal(reg.status, 0, reg.combined)
       assert.match(reg.combined, /VERIFY: PASS/)
     })
@@ -522,13 +523,13 @@ describe('2.4-W2 · 结论级闸强度增强（S1·N=20 · 评审文 w2_conclusi
   it('④ 阈值边界探针：去通过词后恰 19 → exit 2 · 恰 20 → exit 0（N=20 两侧钉死）', async () => {
     await withTemp(async (dir) => {
       const rel = await seedW2(dir, 'w2_edge', '# R1 fixture\n\n## 结论\n\n通过 abcdefghijklmno\n')
-      const under = runCli(['verify', '--task', rel, '--target', dir])
+      const under = await runCore(['verify', '--task', rel, '--target', dir])
       assert.equal(under.status, 2, under.combined)
       assert.match(under.combined, /内容量不足（去通过词后非空白 19<20 字符/)
       // 3.0-W4 登记（验收 #11）：恰 20 侧由裸 ASCII 填充重锚为语义合规等长文本（去通过词后非空白恰 20 ·
       // 裸填充形态已被 NEW-5 档 M 逐出合规面 —— 即本波 ① 号负向 fixture 的攻击面本体）；恰 19 侧不动（仍内容量不足先闸）。
       await writeRel(dir, 'docs/harness/reviews/task_w2_edge_audit_R1_20260914.md', '# R1 fixture\n\n## 结论\n\n本审查核对验收范围，通过。abcde\n')
-      const at = runCli(['verify', '--task', rel, '--target', dir])
+      const at = await runCore(['verify', '--task', rel, '--target', dir])
       assert.equal(at.status, 0, at.combined)
       assert.match(at.combined, /VERIFY: PASS/)
     })
@@ -537,7 +538,7 @@ describe('2.4-W2 · 结论级闸强度增强（S1·N=20 · 评审文 w2_conclusi
   it('⑤ 否定守卫回归：通过词 + 实质内容 + 未否定「退回」→ 仍 exit 2（守卫优先 · 2.3-W4 B2 形态不回退）', async () => {
     await withTemp(async (dir) => {
       const rel = await seedW2(dir, 'w2_neg', '# R1 fixture\n\n## 结论\n\n整体通过，但有一处需退回修改后再审，审查项逐条核对完毕。\n')
-      const r = runCli(['verify', '--task', rel, '--target', dir])
+      const r = await runCore(['verify', '--task', rel, '--target', dir])
       assert.equal(r.status, 2, r.combined)
       assert.match(r.combined, /VERIFY: BLOCKED · 审查文结论不可机读通过/)
       assert.match(r.combined, /含否定结论词/)
@@ -547,7 +548,7 @@ describe('2.4-W2 · 结论级闸强度增强（S1·N=20 · 评审文 w2_conclusi
   it('done 目录降级不回退：薄结论节 done task → exit 0 + warn（D-24-W2-NO-RETRO 不追溯存量）', async () => {
     await withTemp(async (dir) => {
       const rel = await seedW2(dir, 'w2_legacy', '# R1 fixture\n\n## 结论\n\n通过\n', true)
-      const r = runCli(['verify', '--task', rel, '--target', dir])
+      const r = await runCore(['verify', '--task', rel, '--target', dir])
       assert.equal(r.status, 0, r.combined)
       assert.match(r.combined, /verify: warn · task_w2_legacy_audit_R1_20260914\.md 结论不可机读通过/)
       assert.match(r.combined, /VERIFY: PASS/)
@@ -570,7 +571,7 @@ describe('2.4.1 NEW-1 [P1] · 否定守卫语义判据放宽（B/D/E 形态 · �
   it('B 形态「不予通过」→ BLOCKED exit 2（否定先于通过 · 插字断链封堵）', async () => {
     await withTemp(async (dir) => {
       const rel = await seedNew1(dir, 'new1_b', NEG('本任务不予通过。缺陷清单见探针表 B 行，须修复后重审再签。'))
-      const r = runCli(['verify', '--task', rel, '--target', dir])
+      const r = await runCore(['verify', '--task', rel, '--target', dir])
       assert.equal(r.status, 2, r.combined)
       assert.match(r.combined, /VERIFY: BLOCKED · 审查文结论不可机读通过/)
       assert.match(r.combined, /含否定结论词/)
@@ -580,7 +581,7 @@ describe('2.4.1 NEW-1 [P1] · 否定守卫语义判据放宽（B/D/E 形态 · �
   it('D 形态「不 通过」（空格断链）→ BLOCKED exit 2', async () => {
     await withTemp(async (dir) => {
       const rel = await seedNew1(dir, 'new1_d', NEG('本任务不 通过。缺陷清单见探针表 D 行（空格断链形态），须修复后重审再签。'))
-      const r = runCli(['verify', '--task', rel, '--target', dir])
+      const r = await runCore(['verify', '--task', rel, '--target', dir])
       assert.equal(r.status, 2, r.combined)
       assert.match(r.combined, /VERIFY: BLOCKED · 审查文结论不可机读通过/)
       assert.match(r.combined, /含否定结论词/)
@@ -590,12 +591,12 @@ describe('2.4.1 NEW-1 [P1] · 否定守卫语义判据放宽（B/D/E 形态 · �
   it('E 形态「NO PASS」（英文否定）→ BLOCKED exit 2；Reject 同拦', async () => {
     await withTemp(async (dir) => {
       const rel = await seedNew1(dir, 'new1_e', NEG('NO PASS. Defects listed in probe table row E, must be reworked before signoff.'))
-      const r = runCli(['verify', '--task', rel, '--target', dir])
+      const r = await runCore(['verify', '--task', rel, '--target', dir])
       assert.equal(r.status, 2, r.combined)
       assert.match(r.combined, /VERIFY: BLOCKED · 审查文结论不可机读通过/)
       assert.match(r.combined, /含否定结论词/)
       await writeRel(dir, 'docs/harness/reviews/task_new1_e_audit_R1_20260914.md', NEG('Rejected: defect list pending rework, do not sign off this round.'))
-      const r2 = runCli(['verify', '--task', rel, '--target', dir])
+      const r2 = await runCore(['verify', '--task', rel, '--target', dir])
       assert.equal(r2.status, 2, r2.combined)
       assert.match(r2.combined, /含否定结论词/)
     })
@@ -604,7 +605,7 @@ describe('2.4.1 NEW-1 [P1] · 否定守卫语义判据放宽（B/D/E 形态 · �
   it('task close 同口径：B 形态 → CLOSE BLOCKED 点名 close_review', async () => {
     await withTemp(async (dir) => {
       const rel = await seedCloseable(dir, 'new1_close', NEG('本任务不予通过。缺陷清单待修，close 面与裸 verify 同用 evalReviewConclusion，须同病同治。'))
-      const r = runCli(['task', 'close', '--file', rel], dir)
+      const r = await runCore(['task', 'close', '--file', rel], dir)
       assert.equal(r.status, 2, r.combined)
       assert.match(r.combined, /CLOSE: BLOCKED/)
       assert.match(r.combined, /close_review: 审查文结论不可机读通过/)
@@ -614,13 +615,13 @@ describe('2.4.1 NEW-1 [P1] · 否定守卫语义判据放宽（B/D/E 形态 · �
   it('对照零回退：A（实质通过）exit 0 · C（未通过字面连续）exit 2 · F（只写通过二字）exit 2（S1·N=20 前闸）', async () => {
     await withTemp(async (dir) => {
       const rel = await seedNew1(dir, 'new1_ctrl', NEG('PASS · 零内容阻塞。审查项逐条核对，范围与验收一致，无阻塞遗留，准予关账。'))
-      const a = runCli(['verify', '--task', rel, '--target', dir])
+      const a = await runCore(['verify', '--task', rel, '--target', dir])
       assert.equal(a.status, 0, a.combined)
       await writeRel(dir, 'docs/harness/reviews/task_new1_ctrl_audit_R1_20260914.md', NEG('整体通过但局部未通过项待修，审查项逐条核对完毕。'))
-      const c = runCli(['verify', '--task', rel, '--target', dir])
+      const c = await runCore(['verify', '--task', rel, '--target', dir])
       assert.equal(c.status, 2, c.combined)
       await writeRel(dir, 'docs/harness/reviews/task_new1_ctrl_audit_R1_20260914.md', NEG('通过\n'))
-      const f = runCli(['verify', '--task', rel, '--target', dir])
+      const f = await runCore(['verify', '--task', rel, '--target', dir])
       assert.equal(f.status, 2, f.combined)
       assert.match(f.combined, /内容量不足/)
     })
@@ -639,7 +640,7 @@ describe('2.4.2 R-2 [P2] · 否定词表补 not\\s*pass + 同句共现窗口（�
   }
   const NEG = (line: string): string => `# R1 fixture\n\n## 结论\n\n${line}\n`
   const assertBlocked = async (dir: string, rel: string): Promise<void> => {
-    const r = runCli(['verify', '--task', rel, '--target', dir])
+    const r = await runCore(['verify', '--task', rel, '--target', dir])
     assert.equal(r.status, 2, r.combined)
     assert.match(r.combined, /VERIFY: BLOCKED · 审查文结论不可机读通过/)
     assert.match(r.combined, /含否定结论词/)
@@ -664,7 +665,7 @@ describe('2.4.2 R-2 [P2] · 否定词表补 not\\s*pass + 同句共现窗口（�
       const rel = await seedR2(dir, 'r2_j', NEG('本任务未能够予以通过。缺陷清单见探针表 J 行，须修复后重审再签。'))
       await assertBlocked(dir, rel)
       const rel2 = await seedCloseable(dir, 'r2_jc', NEG('本任务不最终予以通过。缺陷清单待修，close 面与裸 verify 同用 evalReviewConclusion。'))
-      const c = runCli(['task', 'close', '--file', rel2], dir)
+      const c = await runCore(['task', 'close', '--file', rel2], dir)
       assert.equal(c.status, 2, c.combined)
       assert.match(c.combined, /CLOSE: BLOCKED/)
       assert.match(c.combined, /close_review: 审查文结论不可机读通过/)
@@ -674,7 +675,7 @@ describe('2.4.2 R-2 [P2] · 否定词表补 not\\s*pass + 同句共现窗口（�
   it('对照零回退：A PASS · B/D/E/L（不予通过/不 通过/NO PASS/rejected）FAIL · F FAIL · M（否定+通过并存）FAIL', async () => {
     await withTemp(async (dir) => {
       const rel = await seedR2(dir, 'r2_ctrl', NEG('PASS · 零内容阻塞。审查项逐条核对，范围与验收一致，无阻塞遗留，准予关账。'))
-      const a = runCli(['verify', '--task', rel, '--target', dir])
+      const a = await runCore(['verify', '--task', rel, '--target', dir])
       assert.equal(a.status, 0, a.combined)
       const cases: Array<[string, string]> = [
         ['B', '本任务不予通过。缺陷清单见探针表 B 行，须修复后重审再签。'],
@@ -685,12 +686,12 @@ describe('2.4.2 R-2 [P2] · 否定词表补 not\\s*pass + 同句共现窗口（�
       ]
       for (const [label, line] of cases) {
         await writeRel(dir, 'docs/harness/reviews/task_r2_ctrl_audit_R1_20260915.md', NEG(line))
-        const r = runCli(['verify', '--task', rel, '--target', dir])
+        const r = await runCore(['verify', '--task', rel, '--target', dir])
         assert.equal(r.status, 2, `${label} 形态须仍判未通过: ${r.combined}`)
       }
       // F（只写「通过」二字）→ S1·N=20 内容量前闸不回退
       await writeRel(dir, 'docs/harness/reviews/task_r2_ctrl_audit_R1_20260915.md', NEG('通过\n'))
-      const f = runCli(['verify', '--task', rel, '--target', dir])
+      const f = await runCore(['verify', '--task', rel, '--target', dir])
       assert.equal(f.status, 2, f.combined)
       assert.match(f.combined, /内容量不足/)
     })
@@ -700,7 +701,7 @@ describe('2.4.2 R-2 [P2] · 否定词表补 not\\s*pass + 同句共现窗口（�
     await withTemp(async (dir) => {
       // 判据改造与断言翻向同 commit（F-W4-09 硬锁 · 验收 #5）：同一 fixture exit 0→2 即「修复后转绿」回归锁语义
       const rel = await seedR2(dir, 'r2_k', '# R1 fixture\n\n## 结论\n\n本任务经逐项核对不\n通过式检查均已完成，审查项合规，准予签收。\n')
-      const r = runCli(['verify', '--task', rel, '--target', dir])
+      const r = await runCore(['verify', '--task', rel, '--target', dir])
       assert.equal(r.status, 2, `K 换行形态须封堵（R-5 窄邻接式 · 3.0-W4）: ${r.combined}`)
       assert.match(r.combined, /VERIFY: BLOCKED · 审查文结论不可机读通过/)
       assert.match(r.combined, /含否定结论词/)
@@ -731,7 +732,7 @@ describe('3.0-W4 R-5 [范围②] · 跨行否定封堵（窄邻接式：单换�
       ]
       for (const [slug, line] of cases) {
         const rel = await seedW4r5(dir, slug, R5(line))
-        const r = runCli(['verify', '--task', rel, '--target', dir])
+        const r = await runCore(['verify', '--task', rel, '--target', dir])
         assert.equal(r.status, 2, `${slug} 跨行否定须封堵: ${r.combined}`)
         assert.match(r.combined, /VERIFY: BLOCKED · 审查文结论不可机读通过/)
         assert.match(r.combined, /含否定结论词/)
@@ -742,7 +743,7 @@ describe('3.0-W4 R-5 [范围②] · 跨行否定封堵（窄邻接式：单换�
   it('跨段反向锁：「不\\n\\n通过」（跨段空行）维持 PASS（窄式不跨段 · 08_w7:85 误中案例固化 · 禁顺手改宽窗口）', async () => {
     await withTemp(async (dir) => {
       const rel = await seedW4r5(dir, 'w4r5_span', R5('本任务经逐项核对不\n\n通过式检查均已完成，审查项合规，验收范围一致，准予签收。'))
-      const r = runCli(['verify', '--task', rel, '--target', dir])
+      const r = await runCore(['verify', '--task', rel, '--target', dir])
       assert.equal(r.status, 0, `跨段形态须维持 PASS（窄邻接式不跨段）: ${r.combined}`)
       assert.match(r.combined, /VERIFY: PASS/)
     })
@@ -769,19 +770,19 @@ describe('2.3.1 N13 [P2] · 豁免四字段显式类型判（falsy 陷阱 · 验
     await withTemp(async (dir) => {
       await seedHatGap(dir)
       await writeRel(dir, 'docs/harness/legacy-gate-exempt.yaml', exemptYaml('00'))
-      const bad = runCli(['task', 'lint-done', '--target', dir])
+      const bad = await runCore(['task', 'lint-done', '--target', dir])
       assert.equal(bad.status, 2, bad.combined)
       assert.match(bad.combined, /豁免条目无效（不豁免）/)
       // 3.0-W4 A1 重锚（20 审 advisory A1 ③ · 与 loader 同 commit）：加引号裸名 "00" 原断言语义被 A1 有意反转 ——
       // 裸名/裸号今后即假授权形态（无括号日期无出处词）→ invalid 不豁免；类型判层（未加引号 00 → 整型）保留在前
       await writeRel(dir, 'docs/harness/legacy-gate-exempt.yaml', exemptYaml('"00"'))
-      const bare = runCli(['task', 'lint-done', '--target', dir])
+      const bare = await runCore(['task', 'lint-done', '--target', dir])
       assert.equal(bare.status, 2, bare.combined)
       assert.match(bare.combined, /豁免条目无效（不豁免）/)
       assert.match(bare.combined, /A1 三元判/)
       // A1 合规形态 → 豁免命中 PASS（保 N13 类型面绿径）
       await writeRel(dir, 'docs/harness/legacy-gate-exempt.yaml', exemptYaml('00（2026-09-14 fixture 授权）'))
-      const good = runCli(['task', 'lint-done', '--target', dir])
+      const good = await runCore(['task', 'lint-done', '--target', dir])
       assert.equal(good.status, 0, good.combined)
       assert.match(good.combined, /豁免命中留痕: n13_falsy/)
       assert.match(good.combined, /LINT-DONE: PASS/)
@@ -791,7 +792,7 @@ describe('2.3.1 N13 [P2] · 豁免四字段显式类型判（falsy 陷阱 · 验
     await withTemp(async (dir) => {
       await seedHatGap(dir)
       await writeRel(dir, 'docs/harness/legacy-gate-exempt.yaml', exemptYaml('123'))
-      const bad = runCli(['task', 'lint-done', '--target', dir])
+      const bad = await runCore(['task', 'lint-done', '--target', dir])
       assert.equal(bad.status, 2, bad.combined)
       assert.match(bad.combined, /豁免条目无效（不豁免）/)
     })
@@ -812,7 +813,7 @@ describe('3.0-W4 NEW-5 [范围①] · 结论闸语义化（档 M：VERB∧SUBJ�
   }
   const N5 = (line: string): string => `# R1 fixture\n\n## 结论\n\n${line}\n`
   const assertBlocked5 = async (dir: string, rel: string, dim: RegExp): Promise<void> => {
-    const r = runCli(['verify', '--task', rel, '--target', dir])
+    const r = await runCore(['verify', '--task', rel, '--target', dir])
     assert.equal(r.status, 2, r.combined)
     assert.match(r.combined, /VERIFY: BLOCKED · 审查文结论不可机读通过/)
     assert.match(r.combined, dim)
@@ -844,7 +845,7 @@ describe('3.0-W4 NEW-5 [范围①] · 结论闸语义化（档 M：VERB∧SUBJ�
   it('④ 诚实边界对照：成段合规构造「本审查核对验收标准与范围，无阻塞，通过。」维持 PASS（机械判据不防成段伪造 · R-① 登记面 · 由 invoke 留痕 + HG-AUDIT-R1 人签兜底 · 评审文 §2.4 末行）', async () => {
     await withTemp(async (dir) => {
       const rel = await seedW4n5(dir, 'w4n5_honest', N5('本审查核对验收标准与范围，无阻塞，通过。逐项核毕。'))
-      const r = runCli(['verify', '--task', rel, '--target', dir])
+      const r = await runCore(['verify', '--task', rel, '--target', dir])
       assert.equal(r.status, 0, r.combined)
       assert.match(r.combined, /VERIFY: PASS/)
     })
@@ -853,7 +854,7 @@ describe('3.0-W4 NEW-5 [范围①] · 结论闸语义化（档 M：VERB∧SUBJ�
   it('⑤ substance≥20 地板保留对照：「通过\\n」仍内容量不足 FAIL（语义组合判在地板之后 · 既有 F 形态零回退）', async () => {
     await withTemp(async (dir) => {
       const rel = await seedW4n5(dir, 'w4n5_floor', N5('通过\n'))
-      const r = runCli(['verify', '--task', rel, '--target', dir])
+      const r = await runCore(['verify', '--task', rel, '--target', dir])
       assert.equal(r.status, 2, r.combined)
       assert.match(r.combined, /内容量不足/)
     })
@@ -879,7 +880,7 @@ describe('3.0-W4 NEW-11 [范围③] · 否定词表广义化（五类 · 评审�
   const N11 = (line: string): string => `# R1 fixture\n\n## 结论\n\n${line}\n`
   const assertNeg = async (dir: string, slug: string, line: string): Promise<void> => {
     const rel = await seedW4n11(dir, slug, N11(line))
-    const r = runCli(['verify', '--task', rel, '--target', dir])
+    const r = await runCore(['verify', '--task', rel, '--target', dir])
     assert.equal(r.status, 2, r.combined)
     assert.match(r.combined, /VERIFY: BLOCKED · 审查文结论不可机读通过/)
     assert.match(r.combined, /含否定结论词/)
@@ -945,7 +946,7 @@ describe('3.0-W4 NEW-10 [范围⑥] · exempt 授权真实性 A1 三元判 + U1 
       await seedHatGap10(dir)
       for (const bad of ['张三', '"00"', '00（2026-09-14 fixture）', '00（fixture 授权）']) {
         await writeRel(dir, 'docs/harness/legacy-gate-exempt.yaml', exemptYaml10(bad))
-        const r = runCli(['task', 'lint-done', '--target', dir])
+        const r = await runCore(['task', 'lint-done', '--target', dir])
         assert.equal(r.status, 2, `假授权形态 ${bad} 须不豁免: ${r.combined}`)
         assert.match(r.combined, /豁免条目无效（不豁免）/)
         assert.match(r.combined, /A1 三元判/)
@@ -957,7 +958,7 @@ describe('3.0-W4 NEW-10 [范围⑥] · exempt 授权真实性 A1 三元判 + U1 
     await withTemp(async (dir) => {
       await seedHatGap10(dir)
       await writeRel(dir, 'docs/harness/legacy-gate-exempt.yaml', exemptYaml10('00（2026-09-14 fixture 授权）'))
-      const r = runCli(['task', 'lint-done', '--target', dir])
+      const r = await runCore(['task', 'lint-done', '--target', dir])
       assert.equal(r.status, 0, r.combined)
       assert.match(r.combined, /豁免命中留痕: new10_falsy/)
       assert.match(r.combined, /LINT-DONE: PASS/)
@@ -972,7 +973,7 @@ describe('3.0-W4 NEW-10 [范围⑥] · exempt 授权真实性 A1 三元判 + U1 
       await writeRel(dir, 'docs/harness/reviews/task_u1_done_audit_R1_20260917.md',
         '# R1 fixture\n\n## 结论\n\n本任务不予通过。缺陷清单见探针表，须修复后重审再签，范围已核毕。\n')
       // 无豁免 → 维持 D-23-W4-TRANSITION warn 降级（现状不变 · 反向锁）
-      const noExempt = runCli(['verify', '--task', rel, '--target', dir])
+      const noExempt = await runCore(['verify', '--task', rel, '--target', dir])
       assert.equal(noExempt.status, 0, noExempt.combined)
       assert.match(noExempt.combined, /verify: warn · task_u1_done_audit_R1_20260917\.md 结论不可机读通过/)
       assert.match(noExempt.combined, /done 目录降级 · 不挡/)
@@ -986,14 +987,14 @@ describe('3.0-W4 NEW-10 [范围⑥] · exempt 授权真实性 A1 三元判 + U1 
         '    authorized_by: 00（2026-09-17 fixture 授权）',
         '',
       ].join('\n'))
-      const exempted = runCli(['verify', '--task', rel, '--target', dir])
+      const exempted = await runCore(['verify', '--task', rel, '--target', dir])
       assert.equal(exempted.status, 0, exempted.combined)
       assert.match(exempted.combined, /exempted/)
       assert.match(exempted.combined, /豁免命中留痕: u1_done（U1 fixture 豁免（done 面补消费） · 2026-09-17 · 00（2026-09-17 fixture 授权））/)
       assert.doesNotMatch(exempted.combined, /done 目录降级 · 不挡/)
       assert.match(exempted.combined, /VERIFY: PASS/)
       // JSON 面契约：exempted 键出现且 waived 不出现（只增不改 · cli-verify-observability 契约兼容）
-      const j = runCli(['verify', '--task', rel, '--target', dir, '--json'])
+      const j = await runCore(['verify', '--task', rel, '--target', dir, '--json'])
       assert.equal(j.status, 0, j.combined)
       const payload = JSON.parse(j.stdout) as Record<string, unknown>
       assert.ok(Array.isArray(payload.exempted), `exempted 须为数组: ${j.stdout}`)
@@ -1002,7 +1003,7 @@ describe('3.0-W4 NEW-10 [范围⑥] · exempt 授权真实性 A1 三元判 + U1 
     })
   })
 
-  it('U1 helper 单源 grep 断言：slug→exempt 条目解析仅 exempt.ts resolveExemptEntry 一处 · close 不对称显式注释在案', () => {
+  it('U1 helper 单源 grep 断言：slug→exempt 条目解析仅 exempt.ts resolveExemptEntry 一处 · close 不对称显式注释在案', async () => {
     const here = path.dirname(fileURLToPath(import.meta.url))
     const v = readFileSync(path.join(here, '..', 'src', 'cli', 'verify.ts'), 'utf8')
     const t = readFileSync(path.join(here, '..', 'src', 'cli-task-extra.ts'), 'utf8')

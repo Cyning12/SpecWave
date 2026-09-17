@@ -6,6 +6,7 @@ import path from 'node:path'
 import { describe, it } from 'node:test'
 import { fileURLToPath } from 'node:url'
 import { toRel } from '../src/cli-shared.ts'
+import { runCore } from './_helpers/core-harness.ts'
 
 const KIT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const CLI_TS = path.join(KIT, 'src', 'cli.ts')
@@ -129,7 +130,7 @@ describe('DEF-011 verify/gate-check 旗标不再静默吞（D1 fail-fast · D2 -
   it('gate-check --task <f> --graph → exit 1 且含「未知参数」', async () => {
     await withTemp(async (dir) => {
       await seedFixtures(dir)
-      const r = runCli(['gate-check', '--task', APPROVED_REL, '--target', dir, '--graph'])
+      const r = await runCore(['gate-check', '--task', APPROVED_REL, '--target', dir, '--graph'])
       assert.equal(r.status, 1, r.combined)
       assert.match(r.combined, /未知参数|未支持/)
       assert.match(r.combined, /--graph/)
@@ -140,8 +141,8 @@ describe('DEF-011 verify/gate-check 旗标不再静默吞（D1 fail-fast · D2 -
   it('verify --task approved --json → exit 0，stdout JSON 五字段，verdict=PASS', async () => {
     await withTemp(async (dir) => {
       await seedFixtures(dir)
-      const text = runCli(['verify', '--task', APPROVED_REL, '--target', dir])
-      const r = runCli(['verify', '--task', APPROVED_REL, '--target', dir, '--json'])
+      const text = await runCore(['verify', '--task', APPROVED_REL, '--target', dir])
+      const r = await runCore(['verify', '--task', APPROVED_REL, '--target', dir, '--json'])
       assert.equal(r.status, text.status, `exit 码应与文本模式一致: ${r.combined}`)
       assert.equal(r.status, 0, r.combined)
       const payload = JSON.parse(r.stdout) as Record<string, unknown>
@@ -158,8 +159,8 @@ describe('DEF-011 verify/gate-check 旗标不再静默吞（D1 fail-fast · D2 -
   it('verify --task pending --json → exit 2，JSON blocked=true verdict=BLOCKED', async () => {
     await withTemp(async (dir) => {
       await seedFixtures(dir)
-      const text = runCli(['verify', '--task', PENDING_REL, '--target', dir])
-      const r = runCli(['verify', '--task', PENDING_REL, '--target', dir, '--json'])
+      const text = await runCore(['verify', '--task', PENDING_REL, '--target', dir])
+      const r = await runCore(['verify', '--task', PENDING_REL, '--target', dir, '--json'])
       assert.equal(r.status, text.status, `exit 码应与文本模式一致: ${r.combined}`)
       assert.equal(r.status, 2, r.combined)
       const payload = JSON.parse(r.stdout) as Record<string, unknown>
@@ -172,8 +173,8 @@ describe('DEF-011 verify/gate-check 旗标不再静默吞（D1 fail-fast · D2 -
   it('gate-check --task approved --json → exit 0，stdout JSON 五字段，verdict=PASS', async () => {
     await withTemp(async (dir) => {
       await seedFixtures(dir)
-      const text = runCli(['gate-check', '--task', APPROVED_REL, '--target', dir])
-      const r = runCli(['gate-check', '--task', APPROVED_REL, '--target', dir, '--json'])
+      const text = await runCore(['gate-check', '--task', APPROVED_REL, '--target', dir])
+      const r = await runCore(['gate-check', '--task', APPROVED_REL, '--target', dir, '--json'])
       assert.equal(r.status, text.status, `exit 码应与文本模式一致: ${r.combined}`)
       assert.equal(r.status, 0, r.combined)
       const payload = JSON.parse(r.stdout) as Record<string, unknown>
@@ -190,8 +191,8 @@ describe('DEF-011 verify/gate-check 旗标不再静默吞（D1 fail-fast · D2 -
   it('gate-check --task pending --json → exit 2，JSON blocked=true verdict=BLOCKED', async () => {
     await withTemp(async (dir) => {
       await seedFixtures(dir)
-      const text = runCli(['gate-check', '--task', PENDING_REL, '--target', dir])
-      const r = runCli(['gate-check', '--task', PENDING_REL, '--target', dir, '--json'])
+      const text = await runCore(['gate-check', '--task', PENDING_REL, '--target', dir])
+      const r = await runCore(['gate-check', '--task', PENDING_REL, '--target', dir, '--json'])
       assert.equal(r.status, text.status, `exit 码应与文本模式一致: ${r.combined}`)
       assert.equal(r.status, 2, r.combined)
       const payload = JSON.parse(r.stdout) as Record<string, unknown>
@@ -202,9 +203,9 @@ describe('DEF-011 verify/gate-check 旗标不再静默吞（D1 fail-fast · D2 -
   })
 
   // --help 不得被 fail-fast 拦截（DEF-010 交互）
-  it('verify --help / gate-check --help → exit 0 usage，不被未知参数 fail-fast 拦截', () => {
+  it('verify --help / gate-check --help → exit 0 usage，不被未知参数 fail-fast 拦截', async () => {
     for (const cmd of ['verify', 'gate-check']) {
-      const r = runCli([cmd, '--help'])
+      const r = await runCore([cmd, '--help'])
       assert.equal(r.status, 0, r.combined)
       assert.match(r.combined, new RegExp(`${cmd} \\[--target PATH\\]`))
       assert.equal(/未知参数/.test(r.combined), false)
@@ -215,10 +216,10 @@ describe('DEF-011 verify/gate-check 旗标不再静默吞（D1 fail-fast · D2 -
   it('回归：不带旗标 verify approved → exit 0 VERIFY: PASS；pending → exit 2 VERIFY: BLOCKED', async () => {
     await withTemp(async (dir) => {
       await seedFixtures(dir)
-      const ok = runCli(['verify', '--task', APPROVED_REL, '--target', dir])
+      const ok = await runCore(['verify', '--task', APPROVED_REL, '--target', dir])
       assert.equal(ok.status, 0, ok.combined)
       assert.match(ok.combined, /VERIFY: PASS/)
-      const bad = runCli(['verify', '--task', PENDING_REL, '--target', dir])
+      const bad = await runCore(['verify', '--task', PENDING_REL, '--target', dir])
       assert.equal(bad.status, 2, bad.combined)
       assert.match(bad.combined, /VERIFY: BLOCKED/)
     })

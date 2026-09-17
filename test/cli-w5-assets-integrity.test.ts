@@ -6,6 +6,7 @@ import os from 'node:os'
 import path from 'node:path'
 import { describe, it } from 'node:test'
 import { fileURLToPath } from 'node:url'
+import { runCore } from './_helpers/core-harness.ts'
 
 // 2.3-W5 · A2 资产完整性校验（SPEC 05 · 蓝本 docs/spec/2_3-wiring-completion/05_w5_assets_integrity_v1.md）：
 // assets verify（ok/mismatch/missing/extra 四态 · failClosed exit 2）· assets manifest rebuild（dry-run 默认 ·
@@ -68,10 +69,10 @@ describe('2.3-W5 · assets 资产完整性校验（SPEC 05）', { concurrency: 1
       assert.match(mf, /^[0-9a-f]{64}  prompts\/hat\.md$/m, '嵌套路径 posix 化（/ 分隔）')
       assert.ok(!mf.includes('\\\\'), 'manifest 不得含反斜杠（F-W5-04）')
       assert.ok(!mf.includes('sha256.manifest'), 'manifest 自身不入清单（SPEC §3①）')
-      const v = runCli(['assets', 'verify', '--target', dir])
+      const v = await runCore(['assets', 'verify', '--target', dir])
       assert.equal(v.status, 0, v.combined)
       assert.match(v.combined, /ASSETS: PASS · 2\/2 文件一致/)
-      const j = runCli(['assets', 'verify', '--target', dir, '--json'])
+      const j = await runCore(['assets', 'verify', '--target', dir, '--json'])
       assert.equal(j.status, 0, j.combined)
       const payload = JSON.parse(j.stdout) as Record<string, unknown>
       assert.equal(payload.status, 'pass')
@@ -86,11 +87,11 @@ describe('2.3-W5 · assets 资产完整性校验（SPEC 05）', { concurrency: 1
       await seedAssets(dir)
       await rebuildYes(dir)
       await writeRel(dir, 'assets/README.md', '# fixture assets TAMPERED\n')
-      const v = runCli(['assets', 'verify', '--target', dir])
+      const v = await runCore(['assets', 'verify', '--target', dir])
       assert.equal(v.status, 2, v.combined)
       assert.match(v.combined, /\[mismatch\] README\.md/)
       assert.match(v.combined, /ASSETS: BLOCKED · 1 偏差 \/ 2 登记/)
-      const j = runCli(['assets', 'verify', '--target', dir, '--json'])
+      const j = await runCore(['assets', 'verify', '--target', dir, '--json'])
       assert.equal(j.status, 2, j.combined)
       const payload = JSON.parse(j.stdout) as { status: string; counts: { mismatch: number }; files: Array<{ path: string; status: string }> }
       assert.equal(payload.status, 'blocked')
@@ -104,7 +105,7 @@ describe('2.3-W5 · assets 资产完整性校验（SPEC 05）', { concurrency: 1
       await seedAssets(dir)
       await rebuildYes(dir)
       await unlink(path.join(dir, 'assets', 'prompts', 'hat.md'))
-      const v1 = runCli(['assets', 'verify', '--target', dir])
+      const v1 = await runCore(['assets', 'verify', '--target', dir])
       assert.equal(v1.status, 2, v1.combined)
       assert.match(v1.combined, /\[missing\] prompts\/hat\.md/)
     })
@@ -112,7 +113,7 @@ describe('2.3-W5 · assets 资产完整性校验（SPEC 05）', { concurrency: 1
       await seedAssets(dir)
       await rebuildYes(dir)
       await writeRel(dir, 'assets/stray.md', 'unregistered\n')
-      const v2 = runCli(['assets', 'verify', '--target', dir])
+      const v2 = await runCore(['assets', 'verify', '--target', dir])
       assert.equal(v2.status, 2, v2.combined)
       assert.match(v2.combined, /\[extra\] stray\.md/)
     })
@@ -121,7 +122,7 @@ describe('2.3-W5 · assets 资产完整性校验（SPEC 05）', { concurrency: 1
   it('F-W5-01 failClosed：manifest 缺失 / 语法坏 / 重复路径 → exit 2 指 manifest 本身', async () => {
     await withTemp(async (dir) => {
       await seedAssets(dir)
-      const v = runCli(['assets', 'verify', '--target', dir])
+      const v = await runCore(['assets', 'verify', '--target', dir])
       assert.equal(v.status, 2, v.combined)
       assert.match(v.combined, /manifest 缺失: assets\/sha256\.manifest/)
       assert.match(v.combined, /F-W5-01/)
@@ -129,7 +130,7 @@ describe('2.3-W5 · assets 资产完整性校验（SPEC 05）', { concurrency: 1
     await withTemp(async (dir) => {
       await seedAssets(dir)
       await writeRel(dir, 'assets/sha256.manifest', 'not-a-valid-line\n')
-      const v = runCli(['assets', 'verify', '--target', dir])
+      const v = await runCore(['assets', 'verify', '--target', dir])
       assert.equal(v.status, 2, v.combined)
       assert.match(v.combined, /manifest 语法错误.*第 1 行/)
     })
@@ -137,7 +138,7 @@ describe('2.3-W5 · assets 资产完整性校验（SPEC 05）', { concurrency: 1
       await seedAssets(dir)
       const h = 'a'.repeat(64)
       await writeRel(dir, 'assets/sha256.manifest', `${h}  README\.md\n${h}  README\.md\n`)
-      const v = runCli(['assets', 'verify', '--target', dir])
+      const v = await runCore(['assets', 'verify', '--target', dir])
       assert.equal(v.status, 2, v.combined)
       assert.match(v.combined, /manifest 路径重复/)
     })
@@ -145,7 +146,7 @@ describe('2.3-W5 · assets 资产完整性校验（SPEC 05）', { concurrency: 1
       await seedAssets(dir)
       const h = 'b'.repeat(64)
       await writeRel(dir, 'assets/sha256.manifest', `${h}  \.\./package\.json\n`)
-      const v = runCli(['assets', 'verify', '--target', dir])
+      const v = await runCore(['assets', 'verify', '--target', dir])
       assert.equal(v.status, 2, v.combined)
       assert.match(v.combined, /manifest 路径越界/)
     })
@@ -153,10 +154,10 @@ describe('2.3-W5 · assets 资产完整性校验（SPEC 05）', { concurrency: 1
 
   it('F-W5-02 failClosed：assets 目录缺失 → verify / rebuild 均 exit 2 不静默', async () => {
     await withTemp(async (dir) => {
-      const v = runCli(['assets', 'verify', '--target', dir])
+      const v = await runCore(['assets', 'verify', '--target', dir])
       assert.equal(v.status, 2, v.combined)
       assert.match(v.combined, /assets 目录缺失/)
-      const rb = runCli(['assets', 'manifest', 'rebuild', '--target', dir, '--yes'])
+      const rb = await runCore(['assets', 'manifest', 'rebuild', '--target', dir, '--yes'])
       assert.equal(rb.status, 2, rb.combined)
       assert.match(rb.combined, /assets 目录缺失/)
       assert.equal(existsSync(path.join(dir, 'assets', 'sha256.manifest')), false, '不得生成空 manifest 伪装绿')
@@ -169,17 +170,17 @@ describe('2.3-W5 · assets 资产完整性校验（SPEC 05）', { concurrency: 1
       await rebuildYes(dir)
       const mfBefore = await readFile(path.join(dir, 'assets', 'sha256.manifest'), 'utf8')
       await writeRel(dir, 'assets/README.md', '# changed content\n') // 篡改制造偏差
-      const dry = runCli(['assets', 'manifest', 'rebuild', '--target', dir])
+      const dry = await runCore(['assets', 'manifest', 'rebuild', '--target', dir])
       assert.equal(dry.status, 0, dry.combined)
       assert.match(dry.combined, /dry-run · 以上为将写计划/)
       assert.match(dry.combined, /~1 变更/)
       const mfAfterDry = await readFile(path.join(dir, 'assets', 'sha256.manifest'), 'utf8')
       assert.equal(mfAfterDry, mfBefore, 'dry-run 零写盘')
-      const v1 = runCli(['assets', 'verify', '--target', dir])
+      const v1 = await runCore(['assets', 'verify', '--target', dir])
       assert.equal(v1.status, 2, 'dry-run 后偏差仍在（未被静默修复）')
       const yes = await rebuildYes(dir)
       assert.equal(yes.status, 0, yes.combined)
-      const v2 = runCli(['assets', 'verify', '--target', dir])
+      const v2 = await runCore(['assets', 'verify', '--target', dir])
       assert.equal(v2.status, 0, v2.combined)
       const again = await rebuildYes(dir)
       assert.equal(again.status, 0, again.combined)
@@ -198,23 +199,23 @@ describe('2.3-W5 · assets 资产完整性校验（SPEC 05）', { concurrency: 1
       assert.match(rb.combined, /登记 2 文件 /)
       const mf = await readFile(path.join(dir, 'assets', 'sha256.manifest'), 'utf8')
       assert.ok(!mf.includes('.bak') && !mf.includes('.DS_Store') && !mf.includes('draft~'), '排除项不入清单')
-      const v = runCli(['assets', 'verify', '--target', dir])
+      const v = await runCore(['assets', 'verify', '--target', dir])
       assert.equal(v.status, 0, v.combined + '（排除项不得判 extra）')
     })
   })
 
   it('用法错 exit 1：未知子命令 / 未知参数 · --json 信封（D-23-W3-ENVELOPE 同口径）', async () => {
     await withTemp(async (dir) => {
-      const u1 = runCli(['assets', 'bogus', '--target', dir])
+      const u1 = await runCore(['assets', 'bogus', '--target', dir])
       assert.equal(u1.status, 1, u1.combined)
       assert.match(u1.combined, /assets 子命令未知/)
-      const u2 = runCli(['assets', 'manifest', 'bogus', '--target', dir])
+      const u2 = await runCore(['assets', 'manifest', 'bogus', '--target', dir])
       assert.equal(u2.status, 1, u2.combined)
       assert.match(u2.combined, /assets manifest 动作未知/)
-      const u3 = runCli(['assets', 'verify', '--frobnicate', '--target', dir])
+      const u3 = await runCore(['assets', 'verify', '--frobnicate', '--target', dir])
       assert.equal(u3.status, 1, u3.combined)
       assert.match(u3.combined, /assets 未知参数/)
-      const j = runCli(['assets', 'bogus', '--json'])
+      const j = await runCore(['assets', 'bogus', '--json'])
       assert.equal(j.status, 1, j.combined)
       const payload = JSON.parse(j.stdout) as { command: string; exitCode: number }
       assert.equal(payload.command, 'assets')
@@ -222,8 +223,8 @@ describe('2.3-W5 · assets 资产完整性校验（SPEC 05）', { concurrency: 1
     })
   })
 
-  it('本仓 dogfood：assets verify 仓根 exit 0 · 110+ 文件一致（src 面 · bin 面见 lib-smoke S5）', () => {
-    const v = runCli(['assets', 'verify'])
+  it('本仓 dogfood：assets verify 仓根 exit 0 · 110+ 文件一致（src 面 · bin 面见 lib-smoke S5）', async () => {
+    const v = await runCore(['assets', 'verify'])
     assert.equal(v.status, 0, v.combined)
     assert.match(v.combined, /ASSETS: PASS · (\d+)\/\1 文件一致/)
   })
@@ -235,20 +236,20 @@ describe('2.4-W4 · 资产门禁可观测补全（SPEC 04 · D-24-W4-WARN-ONLY�
       await seedAssets(dir)
       await writeRel(dir, 'assets/prompts/leak.bak', 'leaked\n')
       await rebuildYes(dir)
-      const v = runCli(['assets', 'verify', '--target', dir])
+      const v = await runCore(['assets', 'verify', '--target', dir])
       assert.equal(v.status, 0, v.combined + '（排除项为 warning 级 · 不升 exit 2）')
       assert.match(v.combined, /WARN: 排除项 1 个（不参与哈希校验 · D-23-W5-EXCLUDE）: prompts\/leak\.bak/)
       assert.match(v.combined, /ASSETS: PASS · 2\/2 文件一致/, 'warning 不干扰 PASS 判读（F-W4-04）')
-      const j = runCli(['assets', 'verify', '--target', dir, '--json'])
+      const j = await runCore(['assets', 'verify', '--target', dir, '--json'])
       assert.equal(j.status, 0, j.combined)
       const payload = JSON.parse(j.stdout) as Record<string, unknown>
       assert.equal(payload.status, 'pass')
       assert.deepEqual(payload.excluded, ['prompts/leak.bak'], '--json 面独立 excluded 字段（键集只增）')
       await unlink(path.join(dir, 'assets', 'prompts', 'leak.bak'))
-      const v2 = runCli(['assets', 'verify', '--target', dir])
+      const v2 = await runCore(['assets', 'verify', '--target', dir])
       assert.equal(v2.status, 0, v2.combined)
       assert.ok(!v2.combined.includes('WARN: 排除项'), '删除排除项后 warning 消失')
-      const j2 = JSON.parse(runCli(['assets', 'verify', '--target', dir, '--json']).stdout) as Record<string, unknown>
+      const j2 = JSON.parse((await runCore(['assets', 'verify', '--target', dir, '--json'])).stdout) as Record<string, unknown>
       assert.deepEqual(j2.excluded, [], '无排除项时 excluded 为空数组')
     })
   })
@@ -260,11 +261,11 @@ describe('2.4-W4 · 资产门禁可观测补全（SPEC 04 · D-24-W4-WARN-ONLY�
         await writeRel(dir, `assets/${n}.bak`, 'x\n')
       }
       await rebuildYes(dir)
-      const v = runCli(['assets', 'verify', '--target', dir])
+      const v = await runCore(['assets', 'verify', '--target', dir])
       assert.equal(v.status, 0, v.combined)
       assert.match(v.combined, /WARN: 排除项 7 个（不参与哈希校验 · D-23-W5-EXCLUDE）: a\.bak, b\.bak, c\.bak, d\.bak, e\.bak … 共 7 个/)
       assert.ok(!/f\.bak/.test(v.combined.split('\n').find((l) => l.startsWith('WARN')) ?? ''), 'WARN 行截断不含第 6 条')
-      const j = JSON.parse(runCli(['assets', 'verify', '--target', dir, '--json']).stdout) as { excluded: string[] }
+      const j = JSON.parse((await runCore(['assets', 'verify', '--target', dir, '--json'])).stdout) as { excluded: string[] }
       assert.equal(j.excluded.length, 7, '--json 面 excluded 携带全量清单')
     })
   })
@@ -275,11 +276,11 @@ describe('2.4-W4 · 资产门禁可观测补全（SPEC 04 · D-24-W4-WARN-ONLY�
       await writeRel(dir, 'assets/x.bak', 'backup\n')
       await rebuildYes(dir)
       await writeRel(dir, 'assets/README.md', '# TAMPERED\n')
-      const v = runCli(['assets', 'verify', '--target', dir])
+      const v = await runCore(['assets', 'verify', '--target', dir])
       assert.equal(v.status, 2, v.combined + '（真实篡改仍 exit 2 · warning 不削弱 failClosed）')
       assert.match(v.combined, /\[mismatch\] README\.md/)
       assert.match(v.combined, /WARN: 排除项 1 个/)
-      const j = runCli(['assets', 'verify', '--target', dir, '--json'])
+      const j = await runCore(['assets', 'verify', '--target', dir, '--json'])
       assert.equal(j.status, 2, j.combined)
       const payload = JSON.parse(j.stdout) as { status: string; excluded: string[] }
       assert.equal(payload.status, 'blocked')
@@ -292,16 +293,16 @@ describe('2.4-W4 · 资产门禁可观测补全（SPEC 04 · D-24-W4-WARN-ONLY�
       await seedAssets(dir)
       await rebuildYes(dir)
       await writeRel(dir, 'assets/README.md', '# changed\n') // 制造偏差使两路均非幂等空转
-      const dry = runCli(['assets', 'manifest', 'rebuild', '--target', dir])
+      const dry = await runCore(['assets', 'manifest', 'rebuild', '--target', dir])
       assert.equal(dry.status, 0, dry.combined)
       assert.match(dry.combined, /WARN: 本操作将当前资产状态追认为真值——若资产曾被篡改，篡改将随本次 rebuild 被合法化；防投毒依赖 provenance（未启用）/, 'dry-run 路追认警示')
       assert.match(dry.combined, /追认/)
       assert.match(dry.combined, /provenance（未启用）/)
-      const yes = runCli(['assets', 'manifest', 'rebuild', '--target', dir, '--yes'])
+      const yes = await runCore(['assets', 'manifest', 'rebuild', '--target', dir, '--yes'])
       assert.equal(yes.status, 0, yes.combined)
       assert.match(yes.combined, /WARN: 本操作将当前资产状态追认为真值——若资产曾被篡改，篡改将随本次 rebuild 被合法化；防投毒依赖 provenance（未启用）/, '--yes 写盘路追认警示')
       assert.match(yes.combined, /\[written\] assets\/sha256\.manifest/)
-      const v = runCli(['assets', 'verify', '--target', dir])
+      const v = await runCore(['assets', 'verify', '--target', dir])
       assert.equal(v.status, 0, v.combined)
     })
   })

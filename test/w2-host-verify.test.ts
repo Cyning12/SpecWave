@@ -6,6 +6,7 @@ import os from 'node:os'
 import path from 'node:path'
 import { describe, it } from 'node:test'
 import { fileURLToPath } from 'node:url'
+import { runCore } from './_helpers/core-harness.ts'
 
 const KIT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const CLI_TS = path.join(KIT, 'src', 'cli.ts')
@@ -64,7 +65,7 @@ describe('3.0 W2 阶段二 · host verify 绿径（S3.4 · 验收 #2 正 fixture
   it('合规仓（apply 后未篡改）→ exit 0 · HOST VERIFY: PASS · degraded-none 降级行 · 输出不含 L3', async () => {
     await withTemp(async (dir) => {
       applyAll(dir)
-      const r = runCli(['host', 'verify', '--tools', 'all', '--target', dir])
+      const r = await runCore(['host', 'verify', '--tools', 'all', '--target', dir])
       assert.equal(r.status, 0, r.combined)
       assert.match(r.combined, /HOST VERIFY:\s*PASS/)
       assert.match(r.combined, /degraded-none（L1\+L2 · 宿主无 hook 机制 · 门禁仅 CLI 侧）/)
@@ -75,7 +76,7 @@ describe('3.0 W2 阶段二 · host verify 绿径（S3.4 · 验收 #2 正 fixture
   it('--json 键集钉死（command/target/hosts/checks/verdict）· verify 节声明已被消费（kind/bin 随报告）', async () => {
     await withTemp(async (dir) => {
       applyAll(dir)
-      const r = runCli(['host', 'verify', '--tools', 'all', '--target', dir, '--json'])
+      const r = await runCore(['host', 'verify', '--tools', 'all', '--target', dir, '--json'])
       assert.equal(r.status, 0, r.combined)
       const obj = JSON.parse(r.stdout) as VerifyJson
       assert.deepEqual(Object.keys(obj).sort(), ['checks', 'command', 'hosts', 'target', 'verdict'])
@@ -107,7 +108,7 @@ describe('3.0 W2 阶段二 · host verify 绿径（S3.4 · 验收 #2 正 fixture
       const settings = JSON.parse(await readFile(settingsAbs, 'utf8')) as Record<string, unknown>
       settings.userExtraKey = { nested: true }
       await writeFile(settingsAbs, JSON.stringify(settings, null, 2) + '\n')
-      const r = runCli(['host', 'verify', '--tools', 'all', '--target', dir])
+      const r = await runCore(['host', 'verify', '--tools', 'all', '--target', dir])
       assert.equal(r.status, 0, r.combined)
       assert.match(r.combined, /HOST VERIFY:\s*PASS/)
     })
@@ -115,9 +116,9 @@ describe('3.0 W2 阶段二 · host verify 绿径（S3.4 · 验收 #2 正 fixture
 
   it('v1 表（2.4.2 fixture）apply + verify 全绿 · checks 零 degraded-none（未声明静默裁决）', async () => {
     await withTemp(async (dir) => {
-      const a = runCli(['host', 'apply', '--tools', 'all', '--file', V1_FIXTURE, '--target', dir, '--yes'])
+      const a = await runCore(['host', 'apply', '--tools', 'all', '--file', V1_FIXTURE, '--target', dir, '--yes'])
       assert.equal(a.status, 0, a.combined)
-      const r = runCli(['host', 'verify', '--tools', 'all', '--file', V1_FIXTURE, '--target', dir, '--json'])
+      const r = await runCore(['host', 'verify', '--tools', 'all', '--file', V1_FIXTURE, '--target', dir, '--json'])
       assert.equal(r.status, 0, r.combined)
       const obj = JSON.parse(r.stdout) as VerifyJson
       assert.equal(obj.verdict, 'PASS')
@@ -127,14 +128,14 @@ describe('3.0 W2 阶段二 · host verify 绿径（S3.4 · 验收 #2 正 fixture
 
   it('粘性缺省：apply 后无 --tools 走粘性 → PASS · 无粘性无 --tools → exit 1 提示', async () => {
     await withTemp(async (dir) => {
-      const a = runCli(['host', 'apply', '--tools', 'cursor,claude', '--target', dir, '--yes'])
+      const a = await runCore(['host', 'apply', '--tools', 'cursor,claude', '--target', dir, '--yes'])
       assert.equal(a.status, 0, a.combined)
-      const sticky = runCli(['host', 'verify', '--target', dir])
+      const sticky = await runCore(['host', 'verify', '--target', dir])
       assert.equal(sticky.status, 0, sticky.combined)
       assert.match(sticky.combined, /HOST VERIFY:\s*PASS/)
     })
     await withTemp(async (dir) => {
-      const r = runCli(['host', 'verify', '--target', dir])
+      const r = await runCore(['host', 'verify', '--target', dir])
       assert.equal(r.status, 1, r.combined)
       assert.match(r.combined, /粘性|--tools/)
     })
@@ -147,7 +148,7 @@ describe('3.0 W2 阶段二 · host verify 红径四类（验收 #2 负 fixture �
       applyAll(dir)
       const victim = path.join(dir, '.cursor', 'commands', 'kit-verify.md')
       await appendFile(victim, '\nTAMPERED\n')
-      const r = runCli(['host', 'verify', '--tools', 'all', '--target', dir, '--json'])
+      const r = await runCore(['host', 'verify', '--tools', 'all', '--target', dir, '--json'])
       assert.equal(r.status, 2, r.combined)
       const obj = JSON.parse(r.stdout) as VerifyJson
       assert.equal(obj.verdict, 'FAIL')
@@ -160,7 +161,7 @@ describe('3.0 W2 阶段二 · host verify 红径四类（验收 #2 负 fixture �
     await withTemp(async (dir) => {
       applyAll(dir)
       await unlink(path.join(dir, '.claude', 'commands', 'kit', 'verify.md'))
-      const r = runCli(['host', 'verify', '--tools', 'all', '--target', dir, '--json'])
+      const r = await runCore(['host', 'verify', '--tools', 'all', '--target', dir, '--json'])
       assert.equal(r.status, 2, r.combined)
       const obj = JSON.parse(r.stdout) as VerifyJson
       assert.equal(obj.verdict, 'FAIL')
@@ -176,7 +177,7 @@ describe('3.0 W2 阶段二 · host verify 红径四类（验收 #2 负 fixture �
       const settings = JSON.parse(await readFile(abs, 'utf8')) as { hooks: { PreToolUse: unknown[] } }
       settings.hooks.PreToolUse = settings.hooks.PreToolUse.slice(1) // 删 pre-commit 产品条目
       await writeFile(abs, JSON.stringify(settings, null, 2) + '\n')
-      const r = runCli(['host', 'verify', '--tools', 'all', '--target', dir, '--json'])
+      const r = await runCore(['host', 'verify', '--tools', 'all', '--target', dir, '--json'])
       assert.equal(r.status, 2, r.combined)
       const obj = JSON.parse(r.stdout) as VerifyJson
       assert.equal(obj.verdict, 'FAIL')
@@ -189,7 +190,7 @@ describe('3.0 W2 阶段二 · host verify 红径四类（验收 #2 负 fixture �
       const s2 = JSON.parse(await readFile(abs, 'utf8')) as { hooks: { PreToolUse: { matcher: string; hooks: { type: string; command: string }[] }[] } }
       s2.hooks.PreToolUse[0]!.hooks[0]!.command = 'npx spec-wave hook-guard --trigger pre-commit --evil'
       await writeFile(abs, JSON.stringify(s2, null, 2) + '\n')
-      const r2 = runCli(['host', 'verify', '--tools', 'all', '--target', dir])
+      const r2 = await runCore(['host', 'verify', '--tools', 'all', '--target', dir])
       assert.equal(r2.status, 2, r2.combined)
       assert.match(r2.combined, /\.claude\/settings\.json/)
       assert.match(r2.combined, /HOST VERIFY:\s*FAIL/)
@@ -203,7 +204,7 @@ describe('3.0 W2 阶段二 · host verify 红径四类（验收 #2 负 fixture �
       const body = await readFile(abs, 'utf8')
       assert.ok(body.includes('cyning-harness:begin'))
       await writeFile(abs, body.replace('单源真值', 'TAMPERED-真值'))
-      const r = runCli(['host', 'verify', '--tools', 'all', '--target', dir, '--json'])
+      const r = await runCore(['host', 'verify', '--tools', 'all', '--target', dir, '--json'])
       assert.equal(r.status, 2, r.combined)
       const obj = JSON.parse(r.stdout) as VerifyJson
       assert.equal(obj.verdict, 'FAIL')
@@ -222,7 +223,7 @@ describe('3.0 W2 阶段二 · host verify 红径四类（验收 #2 负 fixture �
       const victim = path.join(dir, '.cursor', 'commands', 'kit-gate-status.md')
       await chmod(victim, 0o000)
       try {
-        const r = runCli(['host', 'verify', '--tools', 'all', '--target', dir, '--json'])
+        const r = await runCore(['host', 'verify', '--tools', 'all', '--target', dir, '--json'])
         assert.equal(r.status, 2, r.combined)
         const obj = JSON.parse(r.stdout) as VerifyJson
         assert.equal(obj.verdict, 'FAIL')

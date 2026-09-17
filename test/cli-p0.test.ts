@@ -6,6 +6,7 @@ import os from 'node:os'
 import path from 'node:path'
 import { describe, it } from 'node:test'
 import { fileURLToPath } from 'node:url'
+import { runCore } from './_helpers/core-harness.ts'
 
 const KIT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const CLI_TS = path.join(KIT, 'src', 'cli.ts')
@@ -133,7 +134,7 @@ describe('C* CLI P0 runtime', { concurrency: 1 }, () => {
     }
   })
 
-  it('R-HELP: --help 列出 P0 与 G1–G7，含 spec-wave，无「未交付（1.2.0）」', () => {
+  it('R-HELP: --help 列出 P0 与 G1–G7，含 spec-wave，无「未交付（1.2.0）」', async () => {
     const r = runCli(['--help'])
     assert.equal(r.status, 0)
     const help = r.combined
@@ -240,10 +241,10 @@ describe('C* CLI P0 runtime', { concurrency: 1 }, () => {
   })
 
   it('upgrade 已注册：--help 可见且调用不是 §2.2 失败口', async () => {
-    const help = runCli(['--help'])
+    const help = await runCore(['--help'])
     assert.match(help.combined, /\bupgrade\b/)
     await withTemp(async (dir) => {
-      const r = runCli(['upgrade', '--yes', '--target', dir])
+      const r = await runCore(['upgrade', '--yes', '--target', dir])
       assert.notEqual(r.status, 0)
       assert.equal(/未交付（1\.2\.0）/.test(r.combined), false)
       assert.match(r.combined, /init|manifest|未接入/)
@@ -252,7 +253,7 @@ describe('C* CLI P0 runtime', { concurrency: 1 }, () => {
 
   it('C1: init --preset harness-only --yes 写出 version=2.4.2 且不写 S2', async () => {
     await withTemp(async (dir) => {
-      const r = runCli([
+      const r = await runCore([
         'init',
         '--preset',
         'harness-only',
@@ -277,7 +278,7 @@ describe('C* CLI P0 runtime', { concurrency: 1 }, () => {
     await withTemp(async (dir) => {
       const rel = 'docs/tasks/active/task_pending_gate_v1.md'
       await writeRel(dir, rel, taskMd({ slug: 'pending_gate', audit: 'pending', draft: 'pending' }))
-      const r = runCli(['verify', '--task', rel, '--target', dir])
+      const r = await runCore(['verify', '--task', rel, '--target', dir])
       assert.equal(r.status, 2, r.combined)
       assert.match(r.combined, /VERIFY: BLOCKED/)
     })
@@ -301,7 +302,7 @@ describe('C* CLI P0 runtime', { concurrency: 1 }, () => {
       await writeRel(dir, 'docs/harness/reviews/task_approved_ok_audit_R1_2026-08-20.md', '# R1 fixture\n\n## 结论\n\nPASS · 零内容阻塞（fixture）\n\n审查结论：fixture 范围与验收全项合规，无阻塞遗留，准予关账。\n')
       // DEF-003 T5：verify 查 pre-30 invoke hats（default required=10,30,40 · ∩{10,20,00}={10} 须落盘才 PASS）
       await writeRel(dir, 'docs/harness/invokes/by-task/approved_ok/invoke_20260801_10_approved_ok.md', '# invoke 10 fixture')
-      const r = runCli(['verify', '--task', rel, '--target', dir])
+      const r = await runCore(['verify', '--task', rel, '--target', dir])
       assert.equal(r.status, 0, r.combined)
       assert.match(r.combined, /VERIFY: PASS/)
     })
@@ -311,10 +312,10 @@ describe('C* CLI P0 runtime', { concurrency: 1 }, () => {
     await withTemp(async (dir) => {
       const rel = 'docs/tasks/active/task_pending_gate_v1.md'
       await writeRel(dir, rel, taskMd({ slug: 'pending_gate', audit: 'pending' }))
-      const g = runCli(['gate-check', '--task', rel, '--target', dir])
+      const g = await runCore(['gate-check', '--task', rel, '--target', dir])
       assert.notEqual(g.status, 0, g.combined)
       assert.match(g.combined, /→ 30 不可开工|BLOCKED/)
-      const a = runCli(['audit', '--task', rel, '--target', dir])
+      const a = await runCore(['audit', '--task', rel, '--target', dir])
       assert.notEqual(a.status, 0, a.combined)
       assert.match(a.combined, /→ 30 不可开工|BLOCKED/)
     })
@@ -333,10 +334,10 @@ describe('C* CLI P0 runtime', { concurrency: 1 }, () => {
           testStrategy: 'required',
         }),
       )
-      const v = runCli(['verify', '--task', rel, '--target', dir])
+      const v = await runCore(['verify', '--task', rel, '--target', dir])
       assert.notEqual(v.status, 0, v.combined)
       assert.match(v.combined, /D5|test_strategy/)
-      const a = runCli(['audit', '--task', rel, '--target', dir])
+      const a = await runCore(['audit', '--task', rel, '--target', dir])
       assert.notEqual(a.status, 0, a.combined)
       assert.match(a.combined, /D5|test_strategy/)
     })
@@ -360,11 +361,11 @@ describe('C* CLI P0 runtime', { concurrency: 1 }, () => {
       await writeRel(dir, 'docs/harness/reviews/task_d5_pyproject_audit_R1_2026-08-20.md', '# R1 fixture\n\n## 结论\n\nPASS · 零内容阻塞（fixture）\n\n审查结论：fixture 范围与验收全项合规，无阻塞遗留，准予关账。\n')
       // DEF-003 T5：verify 查 pre-30 invoke hats（default required=10,30,40 · ∩{10,20,00}={10} 须落盘才 PASS）
       await writeRel(dir, 'docs/harness/invokes/by-task/d5_pyproject/invoke_20260801_10_d5_pyproject.md', '# invoke 10 fixture')
-      const v = runCli(['verify', '--task', rel, '--target', dir])
+      const v = await runCore(['verify', '--task', rel, '--target', dir])
       assert.equal(v.status, 2, v.combined)
       assert.doesNotMatch(v.combined, /WARN/, v.combined)
       assert.match(v.combined, /D5: test_strategy=required/, v.combined)
-      const a = runCli(['audit', '--task', rel, '--target', dir])
+      const a = await runCore(['audit', '--task', rel, '--target', dir])
       assert.notEqual(a.status, 0, a.combined)
       assert.doesNotMatch(a.combined, /WARN/, a.combined)
       assert.match(a.combined, /D5/, a.combined)
@@ -404,7 +405,7 @@ describe('C* CLI P0 runtime', { concurrency: 1 }, () => {
       await writeRel(dir, 'docs/harness/reviews/task_d5_lintci_audit_R1_2026-08-20.md', '# R1 fixture\n\n## 结论\n\nPASS · 零内容阻塞（fixture）\n\n审查结论：fixture 范围与验收全项合规，无阻塞遗留，准予关账。\n')
       // DEF-003 T5：verify 查 pre-30 invoke hats（default required=10,30,40 · ∩{10,20,00}={10} 须落盘才 PASS）
       await writeRel(dir, 'docs/harness/invokes/by-task/d5_lintci/invoke_20260801_10_d5_lintci.md', '# invoke 10 fixture')
-      const v = runCli(['verify', '--task', rel, '--target', dir])
+      const v = await runCore(['verify', '--task', rel, '--target', dir])
       assert.equal(v.status, 2, v.combined)
       assert.doesNotMatch(v.combined, /WARN/, v.combined)
       assert.match(v.combined, /D5: test_strategy=required/, v.combined)
@@ -444,7 +445,7 @@ describe('C* CLI P0 runtime', { concurrency: 1 }, () => {
       await writeRel(dir, 'docs/harness/reviews/task_d5_pytestci_audit_R1_2026-08-20.md', '# R1 fixture\n\n## 结论\n\nPASS · 零内容阻塞（fixture）\n\n审查结论：fixture 范围与验收全项合规，无阻塞遗留，准予关账。\n')
       // DEF-003 T5：verify 查 pre-30 invoke hats（default required=10,30,40 · ∩{10,20,00}={10} 须落盘才 PASS）
       await writeRel(dir, 'docs/harness/invokes/by-task/d5_pytestci/invoke_20260801_10_d5_pytestci.md', '# invoke 10 fixture')
-      const v = runCli(['verify', '--task', rel, '--target', dir])
+      const v = await runCore(['verify', '--task', rel, '--target', dir])
       assert.equal(v.status, 0, v.combined)
       assert.doesNotMatch(v.combined, /WARN/, v.combined)
       assert.match(v.combined, /VERIFY: PASS/, v.combined)
@@ -469,7 +470,7 @@ describe('C* CLI P0 runtime', { concurrency: 1 }, () => {
       await writeRel(dir, 'docs/harness/reviews/task_d5_pyfile_audit_R1_2026-08-20.md', '# R1 fixture\n\n## 结论\n\nPASS · 零内容阻塞（fixture）\n\n审查结论：fixture 范围与验收全项合规，无阻塞遗留，准予关账。\n')
       // DEF-003 T5：verify 查 pre-30 invoke hats（default required=10,30,40 · ∩{10,20,00}={10} 须落盘才 PASS）
       await writeRel(dir, 'docs/harness/invokes/by-task/d5_pyfile/invoke_20260801_10_d5_pyfile.md', '# invoke 10 fixture')
-      const v = runCli(['verify', '--task', rel, '--target', dir])
+      const v = await runCore(['verify', '--task', rel, '--target', dir])
       assert.equal(v.status, 0, v.combined)
       assert.doesNotMatch(v.combined, /WARN/, v.combined)
       assert.match(v.combined, /VERIFY: PASS/, v.combined)
@@ -488,7 +489,7 @@ describe('C* CLI P0 runtime', { concurrency: 1 }, () => {
         }),
         'utf8',
       )
-      const fail = runCli(['task', 'lint', '--file', missing], dir)
+      const fail = await runCore(['task', 'lint', '--file', missing], dir)
       assert.notEqual(fail.status, 0, fail.combined)
       assert.match(fail.combined, /LINT: FAIL|E3|验收标准/)
 
@@ -504,7 +505,7 @@ describe('C* CLI P0 runtime', { concurrency: 1 }, () => {
         }),
         'utf8',
       )
-      const warn = runCli(['task', 'lint', '--file', warnFile], dir)
+      const warn = await runCore(['task', 'lint', '--file', warnFile], dir)
       assert.equal(warn.status, 0, warn.combined)
       assert.match(warn.combined, /warn:|W2|W3|LINT: PASS/)
     })
@@ -524,7 +525,7 @@ describe('C* CLI P0 runtime', { concurrency: 1 }, () => {
           checked: false,
         }),
       )
-      const blocked = runCli(['task', 'close', '--file', failAbs, '--yes', '--target', dir])
+      const blocked = await runCore(['task', 'close', '--file', failAbs, '--yes', '--target', dir])
       assert.notEqual(blocked.status, 0, blocked.combined)
       assert.equal(existsSync(failAbs), true)
       assert.equal(existsSync(path.join(dir, 'docs/tasks/done/task_close_fail_v1.md')), false)
@@ -544,7 +545,7 @@ describe('C* CLI P0 runtime', { concurrency: 1 }, () => {
       )
       // DEF-003 T6：close 守卫接线后，legacy fixture（无 invoke/review/wiki_delta/KPI 制品）
       // 须显式豁免旗标才过；graph_delta 缺字段为 warn 不挡（lifecycle.yaml 口径）
-      const pass = runCli([
+      const pass = await runCore([
         'task', 'close', '--file', okAbs, '--yes',
         '--allow-invoke-gap', '--allow-no-review', '--allow-kpi-gap', '--allow-wiki-gap',
         '--allow-no-pr-merge',
@@ -574,14 +575,14 @@ edges:
     label: "->"
 `,
       )
-      const r = runCli(
+      const r = await runCore(
         ['graph', 'yaml', 'compile', '--graph-id', 'g1', '--input', input, '--target', dir],
         dir,
       )
       assert.equal(r.status, 0, r.combined)
       assert.equal(/未交付/.test(r.combined), false)
     })
-    const s = runCli(['skills', 'check'])
+    const s = await runCore(['skills', 'check'])
     assert.equal(s.status, 0, s.combined)
     assert.equal(/未交付/.test(s.combined), false)
   })

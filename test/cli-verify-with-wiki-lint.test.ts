@@ -6,6 +6,7 @@ import os from 'node:os'
 import path from 'node:path'
 import { describe, it } from 'node:test'
 import { fileURLToPath } from 'node:url'
+import { runCore } from './_helpers/core-harness.ts'
 
 const KIT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const CLI_TS = path.join(KIT, 'src', 'cli.ts')
@@ -101,7 +102,7 @@ async function seed(dir: string, opts: { withGap?: boolean } = {}): Promise<void
 // 复用 lintWikiDeltaMissing（默认档 · scope=all）；fail → BLOCKED + issues + 与 CI 同命令复跑行。
 // 红→绿钉死：交付前 --with-wiki-lint 走「verify 未知参数」fail-fast（exit 1）。
 describe('verify --with-wiki-lint（K3 · lint-wiki-delta 并入 verify）', { concurrency: 1 }, () => {
-  it('复跑命令字面量与 CI sample L33 锁步（assets 真值钉死）', () => {
+  it('复跑命令字面量与 CI sample L33 锁步（assets 真值钉死）', async () => {
     const sample = readFileSync(path.join(KIT, 'assets/ci/samples/lint-wiki-delta.yml.example'), 'utf8')
     assert.ok(
       sample.includes(`run: ${RERUN_CMD}`),
@@ -126,7 +127,7 @@ describe('verify --with-wiki-lint（K3 · lint-wiki-delta 并入 verify）', { c
   it('有缺口 + 无旗标 → PASS（1.7.1 非破坏回归 · 默认行为逐字不变）', async () => {
     await withTemp(async (dir) => {
       await seed(dir, { withGap: true })
-      const r = runCli(['verify', '--task', TASK_REL, '--target', dir])
+      const r = await runCore(['verify', '--task', TASK_REL, '--target', dir])
       assert.equal(r.status, 0, r.combined)
       assert.match(r.combined, /VERIFY: PASS/)
       assert.equal(r.combined.includes('wiki_delta'), false, '无旗标输出不得出现 wiki_delta 字样')
@@ -137,8 +138,8 @@ describe('verify --with-wiki-lint（K3 · lint-wiki-delta 并入 verify）', { c
   it('无缺口 + 旗标 → PASS · 与无旗标同 verdict（附 wiki-lint PASS 信息行）', async () => {
     await withTemp(async (dir) => {
       await seed(dir)
-      const off = runCli(['verify', '--task', TASK_REL, '--target', dir])
-      const on = runCli(['verify', '--task', TASK_REL, '--target', dir, '--with-wiki-lint'])
+      const off = await runCore(['verify', '--task', TASK_REL, '--target', dir])
+      const on = await runCore(['verify', '--task', TASK_REL, '--target', dir, '--with-wiki-lint'])
       assert.equal(off.status, 0, off.combined)
       assert.equal(on.status, 0, on.combined)
       assert.match(on.combined, /VERIFY: PASS/)
@@ -150,7 +151,7 @@ describe('verify --with-wiki-lint（K3 · lint-wiki-delta 并入 verify）', { c
   it('--json 有缺口 → exit 2 · blocked=true · wiki_lint{ok:false,issues,scanned}', async () => {
     await withTemp(async (dir) => {
       await seed(dir, { withGap: true })
-      const r = runCli(['verify', '--task', TASK_REL, '--target', dir, '--with-wiki-lint', '--json'])
+      const r = await runCore(['verify', '--task', TASK_REL, '--target', dir, '--with-wiki-lint', '--json'])
       assert.equal(r.status, 2, r.combined)
       const payload = JSON.parse(r.stdout) as Record<string, unknown>
       assert.equal(payload.blocked, true)
@@ -169,7 +170,7 @@ describe('verify --with-wiki-lint（K3 · lint-wiki-delta 并入 verify）', { c
   it('--json 无缺口 → exit 0 · wiki_lint{ok:true,issues:[],scanned:1}', async () => {
     await withTemp(async (dir) => {
       await seed(dir)
-      const r = runCli(['verify', '--task', TASK_REL, '--target', dir, '--with-wiki-lint', '--json'])
+      const r = await runCore(['verify', '--task', TASK_REL, '--target', dir, '--with-wiki-lint', '--json'])
       assert.equal(r.status, 0, r.combined)
       const payload = JSON.parse(r.stdout) as Record<string, unknown>
       assert.equal(payload.verdict, 'PASS')
@@ -186,10 +187,10 @@ describe('verify --with-wiki-lint（K3 · lint-wiki-delta 并入 verify）', { c
       // 3.0-W6 N2-C 登记项：lint 入链后 fixture 须 lint-clean（E8 补 wiki_delta=none）
       await writeRel(dir, 'task_wlw_solo_v1.md', taskMd({ slug: 'wlw_solo', wikiDelta: 'none' }))
       await writeRel(dir, REVIEW_REL.replace('wlw_ok', 'wlw_solo'), '# R1 fixture\n\n## 结论\n\nPASS · 零内容阻塞（fixture）\n\n审查结论：fixture 范围与验收全项合规，无阻塞遗留，准予关账。\n')
-      const text = runCli(['verify', '--task', 'task_wlw_solo_v1.md', '--target', dir, '--with-wiki-lint'])
+      const text = await runCore(['verify', '--task', 'task_wlw_solo_v1.md', '--target', dir, '--with-wiki-lint'])
       assert.equal(text.status, 0, text.combined)
       assert.match(text.combined, /VERIFY: PASS/)
-      const r = runCli(['verify', '--task', 'task_wlw_solo_v1.md', '--target', dir, '--with-wiki-lint', '--json'])
+      const r = await runCore(['verify', '--task', 'task_wlw_solo_v1.md', '--target', dir, '--with-wiki-lint', '--json'])
       assert.equal(r.status, 0, r.combined)
       const payload = JSON.parse(r.stdout) as Record<string, unknown>
       const wl = payload.wiki_lint as { ok: boolean; scanned: number }
@@ -219,14 +220,14 @@ describe('verify --with-wiki-lint（K3 · lint-wiki-delta 并入 verify）', { c
       ].join('\n'))
       await writeRel(dir, 'docs/harness/reviews/spec_wlw_audit_R1_x.md', '# R1 fixture\n\n## 结论\n\nPASS · 零内容阻塞（fixture）\n\n审查结论：fixture 范围与验收全项合规，无阻塞遗留，准予关账。\n')
       await writeRel(dir, GAP_REL, taskMd({ slug: 'wlw_gap' }))
-      const off = runCli(['verify', '--spec', SPEC_REL, '--target', dir])
+      const off = await runCore(['verify', '--spec', SPEC_REL, '--target', dir])
       assert.equal(off.status, 0, off.combined)
       assert.match(off.combined, /VERIFY: PASS/)
-      const on = runCli(['verify', '--spec', SPEC_REL, '--target', dir, '--with-wiki-lint'])
+      const on = await runCore(['verify', '--spec', SPEC_REL, '--target', dir, '--with-wiki-lint'])
       assert.equal(on.status, 2, on.combined)
       assert.match(on.combined, /VERIFY: BLOCKED/)
       assert.ok(on.combined.includes(RERUN_CMD), `stdout 全串须含 ${RERUN_CMD}: ${on.combined}`)
-      const js = runCli(['verify', '--spec', SPEC_REL, '--target', dir, '--with-wiki-lint', '--json'])
+      const js = await runCore(['verify', '--spec', SPEC_REL, '--target', dir, '--with-wiki-lint', '--json'])
       assert.equal(js.status, 2, js.combined)
       const payload = JSON.parse(js.stdout) as Record<string, unknown>
       assert.equal(payload.blocked, true)
@@ -239,17 +240,17 @@ describe('verify --with-wiki-lint（K3 · lint-wiki-delta 并入 verify）', { c
   it('--task 与 --spec 互斥等既有规则不动（带旗标仍互斥 · exit 1）', async () => {
     await withTemp(async (dir) => {
       await seed(dir)
-      const r = runCli(['verify', '--task', TASK_REL, '--spec', 'x.md', '--target', dir, '--with-wiki-lint'])
+      const r = await runCore(['verify', '--task', TASK_REL, '--spec', 'x.md', '--target', dir, '--with-wiki-lint'])
       assert.equal(r.status, 1, r.combined)
       assert.match(r.combined, /--task 与 --spec 互斥/)
     })
   })
 
   it('verify --help 与总 usage 均列出 --with-wiki-lint', async () => {
-    const help = runCli(['verify', '--help'])
+    const help = await runCore(['verify', '--help'])
     assert.equal(help.status, 0, help.combined)
     assert.ok(help.combined.includes('--with-wiki-lint'), help.combined)
-    const top = runCli(['--help'])
+    const top = await runCore(['--help'])
     assert.ok(top.combined.includes('--with-wiki-lint'), top.combined)
   })
 })

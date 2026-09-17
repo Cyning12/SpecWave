@@ -7,6 +7,7 @@ import path from 'node:path'
 import { describe, it } from 'node:test'
 import { fileURLToPath } from 'node:url'
 import { CliError, findGitRoot, resolveTaskPath, resolveTarget, toRel } from '../src/cli-shared.ts'
+import { runCore } from './_helpers/core-harness.ts'
 
 // 2.2-W2 · C1 路径穿越收口 + C3 停止输出绝对路径（红→绿钉死 · task_2_2_closed_loop_w2_security_closure）
 // D-W2-ABS-PATH-UX 冻结：拒止 + 迁移指引 · exit 1（用法错误档）
@@ -100,13 +101,13 @@ async function seedPassingTask(dir: string): Promise<void> {
 }
 
 describe('2.2-W2 C1 · resolveTaskPath 单点收口（单元）', () => {
-  it('target 内绝对路径放行（存量合法用法不误伤）', () => {
+  it('target 内绝对路径放行（存量合法用法不误伤）', async () => {
     const target = path.join(os.tmpdir(), 'w2sec-unit-target')
     const inside = path.join(target, 'docs', 'tasks', 'active', 't.md')
     assert.equal(resolveTaskPath(target, inside), path.normalize(inside))
   })
 
-  it('target 外绝对路径拒止 · CliError exit 1 · 文案含迁移指引', () => {
+  it('target 外绝对路径拒止 · CliError exit 1 · 文案含迁移指引', async () => {
     const target = path.join(os.tmpdir(), 'w2sec-unit-target')
     assert.throws(
       () => resolveTaskPath(target, '/etc/hosts'),
@@ -120,13 +121,13 @@ describe('2.2-W2 C1 · resolveTaskPath 单点收口（单元）', () => {
     )
   })
 
-  it('相对路径 .. 逃逸 target 拒止（F-W2-03）', () => {
+  it('相对路径 .. 逃逸 target 拒止（F-W2-03）', async () => {
     const target = path.join(os.tmpdir(), 'w2sec-unit-target')
     assert.throws(() => resolveTaskPath(target, '../escape.md'), /相对路径/)
     assert.throws(() => resolveTaskPath(target, 'docs/../../escape.md'), /相对路径/)
   })
 
-  it('合法相对路径归卡 target 内', () => {
+  it('合法相对路径归卡 target 内', async () => {
     const target = path.join(os.tmpdir(), 'w2sec-unit-target')
     assert.equal(
       resolveTaskPath(target, 'docs/tasks/active/t.md'),
@@ -171,7 +172,7 @@ describe('2.2-W2 C1 · findGitRoot / resolveTarget git-root 归属（单元）',
 })
 
 describe('2.2-W2 C3 · toRel 输出口径（单元）', () => {
-  it('target==cwd → 「.」；仓内 → 相对；仓外 → .. 相对形（均非绝对路径）', () => {
+  it('target==cwd → 「.」；仓内 → 相对；仓外 → .. 相对形（均非绝对路径）', async () => {
     const cwd = path.join(os.tmpdir(), 'w2sec-torel-cwd')
     assert.equal(toRel(cwd, cwd), '.')
     assert.equal(toRel(cwd, path.join(cwd, 'sub', 'dir')), 'sub/dir')
@@ -182,7 +183,7 @@ describe('2.2-W2 C3 · toRel 输出口径（单元）', () => {
 })
 
 describe('2.2-W2 C1 · CLI 负向（/etc/hosts 类 · 不留读痕）', () => {
-  it('verify --task /etc/hosts → 非 0 · 输出不含目标文件内容', () => {
+  it('verify --task /etc/hosts → 非 0 · 输出不含目标文件内容', async () => {
     if (!existsSync('/etc/hosts')) return
     const r = runCli(['verify', '--target', '.', '--task', '/etc/hosts'])
     assert.notEqual(r.status, 0, r.combined)
@@ -195,7 +196,7 @@ describe('2.2-W2 C1 · CLI 负向（/etc/hosts 类 · 不留读痕）', () => {
     await withTempRepo(async (repo) => {
       await withTemp(async (outside) => {
         const secret = await writeRel(outside, 'secret.md', SENTINEL)
-        const r = runCli(['verify', '--target', repo, '--task', secret])
+        const r = await runCore(['verify', '--target', repo, '--task', secret])
         assert.equal(r.status, 1, r.combined)
         assert.equal(r.combined.includes(SENTINEL), false, '不得读取 target 外文件内容')
         assert.match(r.combined, /相对路径/)
@@ -207,7 +208,7 @@ describe('2.2-W2 C1 · CLI 负向（/etc/hosts 类 · 不留读痕）', () => {
     await withTempRepo(async (repo) => {
       await withTemp(async (outside) => {
         const secret = await writeRel(outside, 'spec.md', SENTINEL)
-        const r = runCli(['verify', '--target', repo, '--spec', secret])
+        const r = await runCore(['verify', '--target', repo, '--spec', secret])
         assert.equal(r.status, 1, r.combined)
         assert.equal(r.combined.includes(SENTINEL), false)
         assert.match(r.combined, /相对路径/)
@@ -220,7 +221,7 @@ describe('2.2-W2 C1 · CLI 负向（/etc/hosts 类 · 不留读痕）', () => {
       await withTemp(async (outside) => {
         const secret = await writeRel(outside, 'secret.md', SENTINEL)
         for (const cmd of ['audit', 'gate-check']) {
-          const r = runCli([cmd, '--target', repo, '--task', secret])
+          const r = await runCore([cmd, '--target', repo, '--task', secret])
           assert.equal(r.status, 1, `${cmd}: ${r.combined}`)
           assert.equal(r.combined.includes(SENTINEL), false, `${cmd} 不得读取 target 外文件`)
         }
@@ -233,7 +234,7 @@ describe('2.2-W2 C1 · CLI 负向（/etc/hosts 类 · 不留读痕）', () => {
       const escapeAbs = path.join(repo, '..', `escape-${path.basename(repo)}.md`)
       await writeFile(escapeAbs, SENTINEL, 'utf8')
       try {
-        const r = runCli(['verify', '--target', repo, '--task', `../escape-${path.basename(repo)}.md`])
+        const r = await runCore(['verify', '--target', repo, '--task', `../escape-${path.basename(repo)}.md`])
         assert.equal(r.status, 1, r.combined)
         assert.equal(r.combined.includes(SENTINEL), false)
         assert.match(r.combined, /相对路径/)
@@ -245,7 +246,7 @@ describe('2.2-W2 C1 · CLI 负向（/etc/hosts 类 · 不留读痕）', () => {
 
   it('verify --target <非 git 仓> → 非 0 · 明确 git 仓报错（F-W2-02）', async () => {
     await withTemp(async (dir) => {
-      const r = runCli(['verify', '--target', dir, '--task', 'docs/tasks/active/t.md'])
+      const r = await runCore(['verify', '--target', dir, '--task', 'docs/tasks/active/t.md'])
       assert.notEqual(r.status, 0, r.combined)
       assert.match(r.combined, /git/)
     })
@@ -254,7 +255,7 @@ describe('2.2-W2 C1 · CLI 负向（/etc/hosts 类 · 不留读痕）', () => {
   it('audit / gate-check --target <非 git 仓> → 非 0（同口径）', async () => {
     await withTemp(async (dir) => {
       for (const cmd of ['audit', 'gate-check']) {
-        const r = runCli([cmd, '--target', dir, '--task', 'docs/tasks/active/t.md'])
+        const r = await runCore([cmd, '--target', dir, '--task', 'docs/tasks/active/t.md'])
         assert.notEqual(r.status, 0, `${cmd}: ${r.combined}`)
         assert.match(r.combined, /git/, `${cmd}: ${r.combined}`)
       }
@@ -276,7 +277,7 @@ describe('2.2.1 · P0 C1 symlink 穿透封堵（验收报告 §2 W2 D 行复现 
           ['verify', '--spec'],
         ]
         for (const [cmd, flag] of points) {
-          const r = runCli([cmd, '--target', repo, flag, 'docs/tasks/active/link.md'])
+          const r = await runCore([cmd, '--target', repo, flag, 'docs/tasks/active/link.md'])
           const label = cmd + ' ' + flag
           assert.notEqual(r.status, 0, label + ': ' + r.combined)
           assert.equal(r.combined.includes(SENTINEL), false, label + ' 不得读取仓外文件内容')
@@ -302,11 +303,11 @@ describe('2.2.1 · P0 C1 symlink 穿透封堵（验收报告 §2 W2 D 行复现 
       await mkdir(path.join(repo, 'docs', 'tasks', 'active'), { recursive: true })
       await symlink('no-such-target.md', path.join(repo, 'docs', 'tasks', 'active', 'dangling.md'))
       // verify：缺失文件口径 exit 2 BLOCKED「文件不存在」（不得漂移成他种报错）
-      const v = runCli(['verify', '--target', repo, '--task', 'docs/tasks/active/dangling.md'])
+      const v = await runCore(['verify', '--target', repo, '--task', 'docs/tasks/active/dangling.md'])
       assert.equal(v.status, 2, v.combined)
       assert.match(v.combined, /文件不存在|未找到/)
       // gate-check：exit 1「未找到」
-      const g = runCli(['gate-check', '--target', repo, '--task', 'docs/tasks/active/dangling.md'])
+      const g = await runCore(['gate-check', '--target', repo, '--task', 'docs/tasks/active/dangling.md'])
       assert.equal(g.status, 1, g.combined)
       assert.match(g.combined, /未找到|文件不存在/)
     })
@@ -319,7 +320,7 @@ describe('2.2.1 · P0 C1 symlink 穿透封堵（验收报告 §2 W2 D 行复现 
       // 单点收口：symlink 解析后仍归卡仓内 → 不拒（gate-check 无 review/invoke 依赖，纯闸面放行证据）
       const abs = resolveTaskPath(repo, 'docs/tasks/active/link_ok.md')
       assert.equal(abs, path.join(repo, 'docs', 'tasks', 'active', 'link_ok.md'))
-      const r = runCli(['gate-check', '--target', repo, '--task', 'docs/tasks/active/link_ok.md'])
+      const r = await runCore(['gate-check', '--target', repo, '--task', 'docs/tasks/active/link_ok.md'])
       assert.equal(r.status, 0, r.combined)
     })
   })
@@ -329,7 +330,7 @@ describe('2.2-W2 回归 · 合法用法不破', () => {
   it('verify 合法相对路径 + git 仓 target → VERIFY: PASS', async () => {
     await withTempRepo(async (repo) => {
       await seedPassingTask(repo)
-      const r = runCli(['verify', '--target', repo, '--task', TASK_REL])
+      const r = await runCore(['verify', '--target', repo, '--task', TASK_REL])
       assert.equal(r.status, 0, r.combined)
       assert.match(r.combined, /VERIFY: PASS/)
     })
@@ -338,9 +339,9 @@ describe('2.2-W2 回归 · 合法用法不破', () => {
   it('gate-check 合法相对路径 → PASS（target 内绝对路径亦放行）', async () => {
     await withTempRepo(async (repo) => {
       await seedPassingTask(repo)
-      const rel = runCli(['gate-check', '--target', repo, '--task', TASK_REL])
+      const rel = await runCore(['gate-check', '--target', repo, '--task', TASK_REL])
       assert.equal(rel.status, 0, rel.combined)
-      const abs = runCli(['gate-check', '--target', repo, '--task', path.join(repo, TASK_REL)])
+      const abs = await runCore(['gate-check', '--target', repo, '--task', path.join(repo, TASK_REL)])
       assert.equal(abs.status, 0, `target 内绝对路径存量用法不得误伤: ${abs.combined}`)
     })
   })
@@ -354,8 +355,8 @@ describe('2.2-W2 C3 · stdout 无绝对目标路径（断言）', () => {
       await seedPassingTask(repo)
       for (const cmd of ['gate-check', 'audit', 'check']) {
         const args = cmd === 'check' ? [cmd, '--target'] : [cmd, '--target']
-        const r1 = runCli([...args, '.', ...(cmd === 'check' ? [] : ['--task', TASK_REL])], repo)
-        const r2 = runCli([...args, repo, ...(cmd === 'check' ? [] : ['--task', TASK_REL])], repo)
+        const r1 = await runCore([...args, '.', ...(cmd === 'check' ? [] : ['--task', TASK_REL])], repo)
+        const r2 = await runCore([...args, repo, ...(cmd === 'check' ? [] : ['--task', TASK_REL])], repo)
         assert.equal(r1.status, 0, `${cmd} --target .: ${r1.combined}`)
         assert.equal(r2.status, 0, `${cmd} --target abs: ${r2.combined}`)
         assert.equal(

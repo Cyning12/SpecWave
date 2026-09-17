@@ -6,6 +6,7 @@ import os from 'node:os'
 import path from 'node:path'
 import { describe, it } from 'node:test'
 import { fileURLToPath } from 'node:url'
+import { runCore } from './_helpers/core-harness.ts'
 
 const KIT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const CLI_TS = path.join(KIT, 'src', 'cli.ts')
@@ -82,7 +83,7 @@ describe('3.0 W2 阶段二 · hooks 物化（config-hook 三宿主落点 · S3.3
       assert.ok(dryParsed.planned.includes(CLAUDE_SETTINGS), JSON.stringify(dryParsed.planned))
       assert.equal(existsSync(path.join(dir, CLAUDE_SETTINGS)), false)
 
-      const r = runCli(['host', 'apply', '--tools', 'claude', '--target', dir, '--yes', '--json'])
+      const r = await runCore(['host', 'apply', '--tools', 'claude', '--target', dir, '--yes', '--json'])
       assert.equal(r.status, 0, r.combined)
       const parsed = JSON.parse(r.stdout) as ApplyJson
       assert.ok(parsed.written.includes(CLAUDE_SETTINGS), JSON.stringify(parsed.written))
@@ -101,7 +102,7 @@ describe('3.0 W2 阶段二 · hooks 物化（config-hook 三宿主落点 · S3.3
         path.join(dir, CLAUDE_SETTINGS),
         JSON.stringify({ userRootKey: true, hooks: { PreToolUse: [userEntry], SessionStart: [{ matcher: '*', hooks: [{ type: 'command', command: 'user-session' }] }] } }, null, 2) + '\n',
       )
-      const r = runCli(['host', 'apply', '--tools', 'claude', '--target', dir, '--yes', '--json'])
+      const r = await runCore(['host', 'apply', '--tools', 'claude', '--target', dir, '--yes', '--json'])
       assert.equal(r.status, 0, r.combined)
       const parsed = JSON.parse(r.stdout) as ApplyJson
       assert.ok(parsed.written.includes(CLAUDE_SETTINGS))
@@ -119,8 +120,8 @@ describe('3.0 W2 阶段二 · hooks 物化（config-hook 三宿主落点 · S3.3
 
   it('claude：幂等 —— 二次 apply skipped 含落点 · written 不再含', async () => {
     await withTemp(async (dir) => {
-      runCli(['host', 'apply', '--tools', 'claude', '--target', dir, '--yes'])
-      const second = runCli(['host', 'apply', '--tools', 'claude', '--target', dir, '--yes', '--json'])
+      await runCore(['host', 'apply', '--tools', 'claude', '--target', dir, '--yes'])
+      const second = await runCore(['host', 'apply', '--tools', 'claude', '--target', dir, '--yes', '--json'])
       assert.equal(second.status, 0, second.combined)
       const parsed = JSON.parse(second.stdout) as ApplyJson
       assert.ok(parsed.skipped.includes(CLAUDE_SETTINGS), JSON.stringify(parsed))
@@ -130,12 +131,12 @@ describe('3.0 W2 阶段二 · hooks 物化（config-hook 三宿主落点 · S3.3
 
   it('claude：本包管理条目被篡改 → apply 原位修复回声明逐字（marker = hook-guard 命令串识别）', async () => {
     await withTemp(async (dir) => {
-      runCli(['host', 'apply', '--tools', 'claude', '--target', dir, '--yes'])
+      await runCore(['host', 'apply', '--tools', 'claude', '--target', dir, '--yes'])
       const abs = path.join(dir, CLAUDE_SETTINGS)
       const tampered = JSON.parse(await readFile(abs, 'utf8')) as { hooks: { PreToolUse: { matcher: string; hooks: { type: string; command: string }[] }[] } }
       tampered.hooks.PreToolUse[0]!.matcher = 'Tampered'
       await writeFile(abs, JSON.stringify(tampered, null, 2) + '\n')
-      const r = runCli(['host', 'apply', '--tools', 'claude', '--target', dir, '--yes', '--json'])
+      const r = await runCore(['host', 'apply', '--tools', 'claude', '--target', dir, '--yes', '--json'])
       assert.equal(r.status, 0, r.combined)
       const settings = JSON.parse(await readFile(abs, 'utf8')) as { hooks: { PreToolUse: unknown[] } }
       assert.deepEqual(settings.hooks.PreToolUse, expectedClaudeEntries(), '被篡改条目须修复回声明逐字')
@@ -148,7 +149,7 @@ describe('3.0 W2 阶段二 · hooks 物化（config-hook 三宿主落点 · S3.3
       const abs = path.join(dir, CLAUDE_SETTINGS)
       const badShape = JSON.stringify({ hooks: 'user-string-not-object' }) + '\n'
       await writeFile(abs, badShape)
-      const r = runCli(['host', 'apply', '--tools', 'claude', '--target', dir, '--yes', '--json'])
+      const r = await runCore(['host', 'apply', '--tools', 'claude', '--target', dir, '--yes', '--json'])
       assert.equal(r.status, 0, r.combined)
       const parsed = JSON.parse(r.stdout) as ApplyJson
       assert.ok(parsed.conflict.includes(CLAUDE_SETTINGS), JSON.stringify(parsed))
@@ -156,7 +157,7 @@ describe('3.0 W2 阶段二 · hooks 物化（config-hook 三宿主落点 · S3.3
 
       const broken = '{not-json\n'
       await writeFile(abs, broken)
-      const r2 = runCli(['host', 'apply', '--tools', 'claude', '--target', dir, '--yes', '--json'])
+      const r2 = await runCore(['host', 'apply', '--tools', 'claude', '--target', dir, '--yes', '--json'])
       assert.equal(r2.status, 0, r2.combined)
       const parsed2 = JSON.parse(r2.stdout) as ApplyJson
       assert.ok(parsed2.conflict.includes(CLAUDE_SETTINGS))
@@ -166,7 +167,7 @@ describe('3.0 W2 阶段二 · hooks 物化（config-hook 三宿主落点 · S3.3
 
   it('cursor：物化 .cursor/hooks.json（version 1 + beforeShellExecution × 2 · exit 2=deny 语义归 hook-guard）', async () => {
     await withTemp(async (dir) => {
-      const r = runCli(['host', 'apply', '--tools', 'cursor', '--target', dir, '--yes', '--json'])
+      const r = await runCore(['host', 'apply', '--tools', 'cursor', '--target', dir, '--yes', '--json'])
       assert.equal(r.status, 0, r.combined)
       const parsed = JSON.parse(r.stdout) as ApplyJson
       assert.ok(parsed.written.includes(CURSOR_HOOKS), JSON.stringify(parsed.written))
@@ -184,7 +185,7 @@ describe('3.0 W2 阶段二 · hooks 物化（config-hook 三宿主落点 · S3.3
 
   it('gemini：物化 .gemini/settings.json（BeforeTool matcher run_shell_command × 2）', async () => {
     await withTemp(async (dir) => {
-      const r = runCli(['host', 'apply', '--tools', 'gemini', '--target', dir, '--yes', '--json'])
+      const r = await runCore(['host', 'apply', '--tools', 'gemini', '--target', dir, '--yes', '--json'])
       assert.equal(r.status, 0, r.combined)
       const parsed = JSON.parse(r.stdout) as ApplyJson
       assert.ok(parsed.written.includes(GEMINI_SETTINGS), JSON.stringify(parsed.written))
@@ -200,12 +201,12 @@ describe('3.0 W2 阶段二 · hooks 物化（config-hook 三宿主落点 · S3.3
 
   it('update：hooks 落点幂等（二次 update skipped 含落点 · 用户键随合并保留）', async () => {
     await withTemp(async (dir) => {
-      runCli(['host', 'apply', '--tools', 'claude', '--target', dir, '--yes'])
+      await runCore(['host', 'apply', '--tools', 'claude', '--target', dir, '--yes'])
       const abs = path.join(dir, CLAUDE_SETTINGS)
       const cur = JSON.parse(await readFile(abs, 'utf8')) as Record<string, unknown>
       cur.userLaterKey = 'kept'
       await writeFile(abs, JSON.stringify(cur, null, 2) + '\n')
-      const r = runCli(['host', 'update', '--tools', 'claude', '--target', dir, '--yes', '--json'])
+      const r = await runCore(['host', 'update', '--tools', 'claude', '--target', dir, '--yes', '--json'])
       assert.equal(r.status, 0, r.combined)
       const parsed = JSON.parse(r.stdout) as ApplyJson
       assert.ok(parsed.skipped.includes(CLAUDE_SETTINGS), JSON.stringify(parsed))
@@ -238,7 +239,7 @@ describe('3.0 W2 阶段二 · hooks 物化（config-hook 三宿主落点 · S3.3
       await writeFile(tableAbs, table)
       const targetDir = path.join(dir, 'target')
       await mkdir(targetDir, { recursive: true })
-      const r = runCli(['host', 'apply', '--tools', 'acme-cfg', '--file', tableAbs, '--target', targetDir, '--yes'])
+      const r = await runCore(['host', 'apply', '--tools', 'acme-cfg', '--file', tableAbs, '--target', targetDir, '--yes'])
       assert.equal(r.status, 2, r.combined)
       assert.match(r.combined, /acme-cfg/)
       assert.match(r.combined, /config-hook.*落点|落点.*config-hook|无物化落点/)
@@ -249,12 +250,12 @@ describe('3.0 W2 阶段二 · hooks 物化（config-hook 三宿主落点 · S3.3
 describe('3.0 W2 阶段二 · none 宿主降级留痕（验收 #6 · S3.5 · 硬约束 9）', { concurrency: 1 }, () => {
   it('显式 none（内置表 dsh）：apply human 含 degraded-none 降级行 · --json degraded_none 同键 · 输出不含 L3（负向断言）', async () => {
     await withTemp(async (dir) => {
-      const human = runCli(['host', 'apply', '--tools', 'dsh', '--target', dir])
+      const human = await runCore(['host', 'apply', '--tools', 'dsh', '--target', dir])
       assert.equal(human.status, 0, human.combined)
       assert.match(human.combined, /dsh · hooks: degraded-none（L1\+L2 · 宿主无 hook 机制 · 门禁仅 CLI 侧）/)
       assert.ok(!human.combined.includes('L3'), '输出不得暗示 L3（硬约束 9）')
 
-      const json = runCli(['host', 'apply', '--tools', 'dsh', '--target', dir, '--json'])
+      const json = await runCore(['host', 'apply', '--tools', 'dsh', '--target', dir, '--json'])
       assert.equal(json.status, 0, json.combined)
       const parsed = JSON.parse(json.stdout) as ApplyJson
       assert.deepEqual(parsed.degraded_none, ['dsh'])
@@ -264,11 +265,11 @@ describe('3.0 W2 阶段二 · none 宿主降级留痕（验收 #6 · S3.5 · 硬
 
   it('外部 v1 表未声明 hooks → degraded 静默（裁决④：仅显式声明 none 留痕 · 外部表零行为变化）', async () => {
     await withTemp(async (dir) => {
-      const human = runCli(['host', 'apply', '--tools', 'dsh', '--file', V1_FIXTURE, '--target', dir])
+      const human = await runCore(['host', 'apply', '--tools', 'dsh', '--file', V1_FIXTURE, '--target', dir])
       assert.equal(human.status, 0, human.combined)
       assert.ok(!human.combined.includes('degraded-none'), 'v1 未声明缺省 none 不得打印降级行')
 
-      const json = runCli(['host', 'apply', '--tools', 'dsh', '--file', V1_FIXTURE, '--target', dir, '--json'])
+      const json = await runCore(['host', 'apply', '--tools', 'dsh', '--file', V1_FIXTURE, '--target', dir, '--json'])
       assert.equal(json.status, 0, json.combined)
       const parsed = JSON.parse(json.stdout) as ApplyJson
       assert.deepEqual(parsed.degraded_none, [])
@@ -277,7 +278,7 @@ describe('3.0 W2 阶段二 · none 宿主降级留痕（验收 #6 · S3.5 · 硬
 
   it('config-hook 宿主不出现 degraded 注记（claude apply → degraded_none 空）', async () => {
     await withTemp(async (dir) => {
-      const json = runCli(['host', 'apply', '--tools', 'claude', '--target', dir, '--json'])
+      const json = await runCore(['host', 'apply', '--tools', 'claude', '--target', dir, '--json'])
       assert.equal(json.status, 0, json.combined)
       const parsed = JSON.parse(json.stdout) as ApplyJson
       assert.deepEqual(parsed.degraded_none, [])

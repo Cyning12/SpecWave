@@ -7,6 +7,7 @@ import path from 'node:path'
 import { describe, it } from 'node:test'
 import { fileURLToPath } from 'node:url'
 import { listSyncPromptEntries, SYNC_PROMPT_FILES } from '../src/cli-sync-prompts.ts'
+import { runCore } from './_helpers/core-harness.ts'
 
 const KIT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const CLI_TS = path.join(KIT, 'src', 'cli.ts')
@@ -61,20 +62,20 @@ describe('sync prompts · 前置与 help', { concurrency: 1 }, () => {
     })
   })
 
-  it('sync --help 与 sync prompts --help 列出子命令', () => {
-    const root = runCli(['sync', '--help'])
+  it('sync --help 与 sync prompts --help 列出子命令', async () => {
+    const root = await runCore(['sync', '--help'])
     assert.equal(root.status, 0)
     assert.match(root.combined, /sync prompts/)
     assert.match(root.combined, /sync index/)
 
-    const sub = runCli(['sync', 'prompts', '--help'])
+    const sub = await runCore(['sync', 'prompts', '--help'])
     assert.equal(sub.status, 0)
     assert.match(sub.combined, /sync prompts/)
     assert.doesNotMatch(sub.combined, /gate-check/)
   })
 
-  it('根 usage 含 sync prompts', () => {
-    const r = runCli(['--help'])
+  it('根 usage 含 sync prompts', async () => {
+    const r = await runCore(['--help'])
     assert.match(r.combined, /sync prompts/)
   })
 })
@@ -83,7 +84,7 @@ describe('sync prompts · 三分与 dry-run', { concurrency: 1 }, () => {
   it('dry-run 默认：全 add · 零写入', async () => {
     await withTemp(async (dir) => {
       await seedManifest(dir)
-      const r = runCli(['sync', 'prompts', '--target', dir], KIT)
+      const r = await runCore(['sync', 'prompts', '--target', dir], KIT)
       assert.equal(r.status, 0)
       assert.match(r.combined, /dry-run/)
       assert.match(r.combined, /add \(/)
@@ -97,7 +98,7 @@ describe('sync prompts · 三分与 dry-run', { concurrency: 1 }, () => {
   it('--yes 写入 add · 目标目录不存在时 mkdir', async () => {
     await withTemp(async (dir) => {
       await seedManifest(dir)
-      const r = runCli(['sync', 'prompts', '--target', dir, '--yes'], KIT)
+      const r = await runCore(['sync', 'prompts', '--target', dir, '--yes'], KIT)
       assert.equal(r.status, 0)
       for (const entry of listSyncPromptEntries()) {
         const dest = path.join(dir, entry.targetRel)
@@ -111,8 +112,8 @@ describe('sync prompts · 三分与 dry-run', { concurrency: 1 }, () => {
   it('二跑 --yes 全 skip（幂等）', async () => {
     await withTemp(async (dir) => {
       await seedManifest(dir)
-      assert.equal(runCli(['sync', 'prompts', '--target', dir, '--yes'], KIT).status, 0)
-      const second = runCli(['sync', 'prompts', '--target', dir, '--yes'], KIT)
+      assert.equal((await runCore(['sync', 'prompts', '--target', dir, '--yes'], KIT)).status, 0)
+      const second = await runCore(['sync', 'prompts', '--target', dir, '--yes'], KIT)
       assert.equal(second.status, 0)
       assert.match(second.combined, /skip \(/)
       assert.match(second.combined, /add \(0\)/)
@@ -124,13 +125,13 @@ describe('sync prompts · 三分与 dry-run', { concurrency: 1 }, () => {
       await seedManifest(dir)
       const entry = listSyncPromptEntries()[0]
       await writeRel(dir, entry.targetRel, 'LOCAL-MODIFIED-BODY\n')
-      const dry = runCli(['sync', 'prompts', '--target', dir], KIT)
+      const dry = await runCore(['sync', 'prompts', '--target', dir], KIT)
       assert.equal(dry.status, 0)
       assert.match(dry.combined, /conflict \(/)
       assert.match(dry.combined, /本地已改 · 未覆盖/)
       assert.match(dry.combined, new RegExp(entry.packageRel.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')))
 
-      const apply = runCli(['sync', 'prompts', '--target', dir, '--yes'], KIT)
+      const apply = await runCore(['sync', 'prompts', '--target', dir, '--yes'], KIT)
       assert.equal(apply.status, 1)
       assert.equal(await readFile(path.join(dir, entry.targetRel), 'utf8'), 'LOCAL-MODIFIED-BODY\n')
     })
@@ -142,7 +143,7 @@ describe('sync prompts · 三分与 dry-run', { concurrency: 1 }, () => {
       const entry = listSyncPromptEntries()[0]
       await writeRel(dir, entry.targetRel, 'LOCAL-MODIFIED-BODY\n')
       const pkgBody = readFileSync(path.join(KIT, entry.packageRel), 'utf8')
-      const r = runCli(['sync', 'prompts', '--target', dir, '--yes', '--force'], KIT)
+      const r = await runCore(['sync', 'prompts', '--target', dir, '--yes', '--force'], KIT)
       assert.equal(r.status, 0)
       assert.equal(await readFile(path.join(dir, entry.targetRel), 'utf8'), pkgBody)
     })
@@ -153,7 +154,7 @@ describe('sync prompts · --json', { concurrency: 1 }, () => {
   it('dry-run JSON 形状', async () => {
     await withTemp(async (dir) => {
       await seedManifest(dir)
-      const r = runCli(['sync', 'prompts', '--target', dir, '--json'], KIT)
+      const r = await runCore(['sync', 'prompts', '--target', dir, '--json'], KIT)
       assert.equal(r.status, 0)
       const body = JSON.parse(r.stdout) as {
         dry_run: boolean
@@ -174,7 +175,7 @@ describe('sync prompts · --json', { concurrency: 1 }, () => {
       await seedManifest(dir)
       const first = listSyncPromptEntries()[0]
       await writeRel(dir, first.targetRel, readFileSync(path.join(KIT, first.packageRel), 'utf8'))
-      const r = runCli(['sync', 'prompts', '--target', dir, '--yes', '--json'], KIT)
+      const r = await runCore(['sync', 'prompts', '--target', dir, '--yes', '--json'], KIT)
       assert.equal(r.status, 0)
       const body = JSON.parse(r.stdout) as {
         dry_run: boolean
@@ -194,7 +195,7 @@ describe('sync prompts · upgrade 提示行', { concurrency: 1 }, () => {
   it('upgrade 成功 stdout 含 sync prompts 提示', async () => {
     await withTemp(async (dir) => {
       await seedManifest(dir)
-      const r = runCli(['upgrade', '--target', dir, '--yes'], KIT)
+      const r = await runCore(['upgrade', '--target', dir, '--yes'], KIT)
       assert.equal(r.status, 0)
       assert.match(r.combined, /sync prompts --yes/)
     })
@@ -202,7 +203,7 @@ describe('sync prompts · upgrade 提示行', { concurrency: 1 }, () => {
 })
 
 describe('sync prompts · 白名单钉死', { concurrency: 1 }, () => {
-  it('Starter 11 文件 + TASK_TEMPLATE 共 12 项', () => {
+  it('Starter 11 文件 + TASK_TEMPLATE 共 12 项', async () => {
     assert.equal(listSyncPromptEntries().length, 12)
     assert.ok(listSyncPromptEntries().every((e) => e.targetRel.startsWith('docs/harness/')))
     assert.ok(SYNC_PROMPT_FILES.includes('FRAGMENT_hat_reanchor_v1_zh.md'))

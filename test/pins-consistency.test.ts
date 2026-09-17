@@ -7,6 +7,7 @@ import path from 'node:path'
 import { describe, it } from 'node:test'
 import { fileURLToPath } from 'node:url'
 import { load as yamlLoad } from 'js-yaml'
+import { runCore } from './_helpers/core-harness.ts'
 
 const KIT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const CLI_TS = path.join(KIT, 'src', 'cli.ts')
@@ -307,7 +308,7 @@ describe('W1-A1 release pins · B组 fixture 仓行为', { concurrency: 1 }, () 
   it('B1 干净 fixture：check exit 0；--json 每落点含 path/expected/actual/status 且全 ok', async () => {
     await withTemp(async (dir) => {
       await makeFixture(dir)
-      const r = runCli(['pins', 'check', '--json'], dir)
+      const r = await runCore(['pins', 'check', '--json'], dir)
       assert.equal(r.status, 0, r.combined)
       const doc = JSON.parse(r.stdout) as {
         truth_version: string
@@ -330,12 +331,12 @@ describe('W1-A1 release pins · B组 fixture 仓行为', { concurrency: 1 }, () 
     await withTemp(async (dir) => {
       await makeFixture(dir)
       await writeRel(dir, 'assets/ontology.yaml', BROKEN_ONTOLOGY)
-      const r = runCli(['pins', 'check'], dir)
+      const r = await runCore(['pins', 'check'], dir)
       assert.equal(r.status, 2, r.combined)
       assert.match(r.combined, /assets\/ontology\.yaml:1/)
       assert.match(r.combined, /9\.9\.9/)
       assert.match(r.combined, /3\.1\.4/)
-      const j = runCli(['pins', 'check', '--json'], dir)
+      const j = await runCore(['pins', 'check', '--json'], dir)
       assert.equal(j.status, 2, j.combined)
       const doc = JSON.parse(j.stdout) as {
         pins: Array<{ path: string; status: string; line: number | null }>
@@ -351,7 +352,7 @@ describe('W1-A1 release pins · B组 fixture 仓行为', { concurrency: 1 }, () 
     await withTemp(async (dir) => {
       await makeFixture(dir)
       await writeRel(dir, 'assets/ontology.yaml', BROKEN_ONTOLOGY)
-      const r = runCli(['pins', 'fix'], dir)
+      const r = await runCore(['pins', 'fix'], dir)
       assert.equal(r.status, 0, r.combined)
       assert.match(r.combined, /dry-run/)
       assert.match(r.combined, /assets\/ontology\.yaml/)
@@ -369,7 +370,7 @@ describe('W1-A1 release pins · B组 fixture 仓行为', { concurrency: 1 }, () 
     await withTemp(async (dir) => {
       await makeFixture(dir)
       await writeRel(dir, 'assets/ontology.yaml', BROKEN_ONTOLOGY)
-      const r = runCli(['pins', 'fix', '--yes'], dir)
+      const r = await runCore(['pins', 'fix', '--yes'], dir)
       assert.equal(r.status, 0, r.combined)
       const fixed = await readFile(path.join(dir, 'assets/ontology.yaml'), 'utf8')
       assert.equal(fixed, GOOD_ONTOLOGY)
@@ -378,9 +379,9 @@ describe('W1-A1 release pins · B组 fixture 仓行为', { concurrency: 1 }, () 
         false,
         'fix 成功后 .bak 须自动清理（2.3.1 N1-d · 防 .bak 随包发布）',
       )
-      const check = runCli(['pins', 'check'], dir)
+      const check = await runCore(['pins', 'check'], dir)
       assert.equal(check.status, 0, check.combined)
-      const again = runCli(['pins', 'fix', '--yes'], dir)
+      const again = await runCore(['pins', 'fix', '--yes'], dir)
       assert.equal(again.status, 0, again.combined)
       assert.match(again.combined, /0 处|无偏差|nothing/i)
       assert.equal(
@@ -398,7 +399,7 @@ describe('W1-A1 release pins · B组 fixture 仓行为', { concurrency: 1 }, () 
       // 预置用户自有同名 .bak（内容 marker）——修复前旧码 copyFileSync 静默覆盖 + unlinkSync 删除 = 零预警损失（真红面）
       const userBak = path.join(dir, 'assets/ontology.yaml.bak')
       await writeFile(userBak, 'USER-OWNED-BACKUP-MARKER' + '\n', 'utf8')
-      const r = runCli(['pins', 'fix', '--yes'], dir)
+      const r = await runCore(['pins', 'fix', '--yes'], dir)
       assert.equal(r.status, 0, r.combined)
       assert.equal(
         await readFile(userBak, 'utf8'),
@@ -421,7 +422,7 @@ describe('W1-A1 release pins · B组 fixture 仓行为', { concurrency: 1 }, () 
       await writeRel(dir, 'assets/ontology.yaml', BROKEN_ONTOLOGY)
       await writeFile(path.join(dir, 'assets/ontology.yaml.bak'), 'USER-BAK' + '\n', 'utf8')
       await writeFile(path.join(dir, 'assets/ontology.yaml.pins-fix-backup'), 'STALE-BACKUP' + '\n', 'utf8')
-      const r = runCli(['pins', 'fix', '--yes'], dir)
+      const r = await runCore(['pins', 'fix', '--yes'], dir)
       assert.equal(r.status, 2, r.combined)
       assert.match(r.combined, /ontology\.yaml/, '点名被跳过文件')
       assert.match(r.combined, /请手动处置后重跑/, 'A2：点名文案须含手动处置指引')
@@ -458,7 +459,7 @@ describe('W1-A1 release pins · B组 fixture 仓行为', { concurrency: 1 }, () 
       ].join('\n')
       await writeRel(dir, 'assets/release-pins.yaml', FIXTURE_PINS_YAML + s2pin)
       await writeRel(dir, 'docs/tasks/evil.md', 'version: "0.0.0"' + '\n')
-      const r = runCli(['pins', 'fix', '--yes'], dir)
+      const r = await runCore(['pins', 'fix', '--yes'], dir)
       assert.equal(r.status, 2, r.combined)
       assert.match(r.combined, /S2/)
       assert.match(r.combined, /拒写|拒绝|REFUSED/i)
@@ -477,7 +478,7 @@ describe('W1-A1 release pins · B组 fixture 仓行为', { concurrency: 1 }, () 
     await withTemp(async (dir) => {
       await makeFixture(dir)
       await rm(path.join(dir, 'README.md'))
-      const j = runCli(['pins', 'check', '--json'], dir)
+      const j = await runCore(['pins', 'check', '--json'], dir)
       assert.equal(j.status, 2, j.combined)
       const doc = JSON.parse(j.stdout) as { pins: Array<{ path: string; status: string }> }
       assert.equal(doc.pins.find((p) => p.path === 'README.md')!.status, 'missing')
@@ -488,7 +489,7 @@ describe('W1-A1 release pins · B组 fixture 仓行为', { concurrency: 1 }, () 
     await withTemp(async (dir) => {
       await makeFixture(dir)
       await writeRel(dir, 'README.md', 'no pin mention at all' + '\n')
-      const j = runCli(['pins', 'check', '--json'], dir)
+      const j = await runCore(['pins', 'check', '--json'], dir)
       assert.equal(j.status, 2, j.combined)
       const doc = JSON.parse(j.stdout) as { pins: Array<{ path: string; status: string }> }
       assert.equal(doc.pins.find((p) => p.path === 'README.md')!.status, 'extract_error')
@@ -499,7 +500,7 @@ describe('W1-A1 release pins · B组 fixture 仓行为', { concurrency: 1 }, () 
     await withTemp(async (dir) => {
       await makeFixture(dir)
       await rm(path.join(dir, 'assets/release-pins.yaml'))
-      const r = runCli(['pins', 'check'], dir)
+      const r = await runCore(['pins', 'check'], dir)
       assert.equal(r.status, 2, r.combined)
       assert.match(r.combined, /assets\/release-pins\.yaml/)
     })
@@ -517,7 +518,7 @@ describe('W1-A1 release pins · B组 fixture 仓行为', { concurrency: 1 }, () 
           2,
         ) + '\n',
       )
-      const r = runCli(['pins', 'fix', '--yes'], dir)
+      const r = await runCore(['pins', 'fix', '--yes'], dir)
       assert.equal(r.status, 2, r.combined)
       assert.match(r.combined, /不可修|unfixable|仅人/)
       const pkg = JSON.parse(await readFile(path.join(dir, 'package.json'), 'utf8')) as {
@@ -532,16 +533,16 @@ describe('W1-A1 release pins · B组 fixture 仓行为', { concurrency: 1 }, () 
       await makeFixture(dir)
       await writeRel(dir, 'assets/release-pins.yaml', DUAL_PINS_YAML)
       await writeRel(dir, 'assets/ide/host-adapt/README.md', DUAL_GOOD)
-      const ok = runCli(['pins', 'check'], dir)
+      const ok = await runCore(['pins', 'check'], dir)
       assert.equal(ok.status, 0, '基线双钉面应绿: ' + ok.combined)
       // 同时破坏 pin-11（regex-all 两处）与 pin-12（regex 标题行）
       await writeRel(dir, 'assets/ide/host-adapt/README.md', DUAL_BROKEN)
-      const bad = runCli(['pins', 'check'], dir)
+      const bad = await runCore(['pins', 'check'], dir)
       assert.equal(bad.status, 2, bad.combined)
       assert.match(bad.combined, /pin-11/)
       assert.match(bad.combined, /pin-12/)
       // 单次 fix --yes 必须一次收敛（聚合写盘 · 后写不覆盖先写）
-      const fix = runCli(['pins', 'fix', '--yes'], dir)
+      const fix = await runCore(['pins', 'fix', '--yes'], dir)
       assert.equal(fix.status, 0, fix.combined)
       const after = await readFile(path.join(dir, 'assets/ide/host-adapt/README.md'), 'utf8')
       assert.equal(after, DUAL_GOOD, '同文件双钉面须全部写回真值（不得静默部分修复）')
@@ -550,7 +551,7 @@ describe('W1-A1 release pins · B组 fixture 仓行为', { concurrency: 1 }, () 
         false,
         'fix 成功后 .bak 须自动清理（2.3.1 N1-d · 同文件聚合写盘语义保持：单条 [written]）',
       )
-      const check = runCli(['pins', 'check'], dir)
+      const check = await runCore(['pins', 'check'], dir)
       assert.equal(check.status, 0, '一次 fix 后 check 须转绿（exit 0 自称全修 = 实际全修）: ' + check.combined)
       assert.match(check.combined, /PINS: PASS/)
     })
@@ -559,9 +560,9 @@ describe('W1-A1 release pins · B组 fixture 仓行为', { concurrency: 1 }, () 
   it('B10 未知子命令/未知参数：exit 1 用法错误档', async () => {
     await withTemp(async (dir) => {
       await makeFixture(dir)
-      const r1 = runCli(['pins', 'wat'], dir)
+      const r1 = await runCore(['pins', 'wat'], dir)
       assert.equal(r1.status, 1, r1.combined)
-      const r2 = runCli(['pins', 'check', '--bogus'], dir)
+      const r2 = await runCore(['pins', 'check', '--bogus'], dir)
       assert.equal(r2.status, 1, r2.combined)
     })
   })
@@ -571,7 +572,7 @@ describe('2.3-W1 pins hardening · 失配 fixture 补全（[A]#14）+ 三面入�
   it('W1-B1 扩展 fixture 基线全绿（pin-04/06/07/13/14/15 入钉后 check exit 0 · PINS: PASS）', async () => {
     await withTemp(async (dir) => {
       await makeExtFixture(dir)
-      const r = runCli(['pins', 'check'], dir)
+      const r = await runCore(['pins', 'check'], dir)
       assert.equal(r.status, 0, r.combined)
       assert.match(r.combined, /PINS: PASS · 12\/12 落点一致/)
     })
@@ -581,7 +582,7 @@ describe('2.3-W1 pins hardening · 失配 fixture 补全（[A]#14）+ 三面入�
     await withTemp(async (dir) => {
       await makeExtFixture(dir)
       await writeRel(dir, 'assets/harness/discipline-coverage.yaml', 'as_of_package_version: "9.9.9"' + '\n')
-      const r = runCli(['pins', 'check'], dir)
+      const r = await runCore(['pins', 'check'], dir)
       assert.equal(r.status, 2, r.combined)
       assert.match(r.combined, /\[mismatch\] pin-04 assets\/harness\/discipline-coverage\.yaml:1/)
       assert.match(r.combined, /9\.9\.9/)
@@ -592,7 +593,7 @@ describe('2.3-W1 pins hardening · 失配 fixture 补全（[A]#14）+ 三面入�
     await withTemp(async (dir) => {
       await makeExtFixture(dir)
       await writeRel(dir, 'README.zh-CN.md', '中文钉 spec-wave@9.9.9 处' + '\n')
-      const r = runCli(['pins', 'check'], dir)
+      const r = await runCore(['pins', 'check'], dir)
       assert.equal(r.status, 2, r.combined)
       assert.match(r.combined, /\[mismatch\] pin-06 README\.zh-CN\.md:1/)
     })
@@ -606,7 +607,7 @@ describe('2.3-W1 pins hardening · 失配 fixture 补全（[A]#14）+ 三面入�
         'RELEASING.md',
         '| **工作树 / registry `latest`** | **`spec-wave@9.9.9`**（已 published） |' + '\n',
       )
-      const r = runCli(['pins', 'check'], dir)
+      const r = await runCore(['pins', 'check'], dir)
       assert.equal(r.status, 2, r.combined)
       assert.match(r.combined, /\[mismatch\] pin-07 RELEASING\.md:1/)
     })
@@ -631,7 +632,7 @@ describe('2.3-W1 pins hardening · 失配 fixture 补全（[A]#14）+ 三面入�
       await writeRel(dir, 'assets/release-pins.yaml', EXT_PINS_YAML + gitPin)
       const init = spawnSync('git', ['init', '-q'], { cwd: dir, encoding: 'utf8' })
       assert.equal(init.status, 0, (init.stderr ?? '') + '（测试环境须可用 git）')
-      const j = runCli(['pins', 'check', '--json'], dir)
+      const j = await runCore(['pins', 'check', '--json'], dir)
       assert.equal(j.status, 2, j.combined)
       const doc = JSON.parse(j.stdout) as {
         pins: Array<{ id: string; status: string; detail?: string; error_kind?: string }>
@@ -642,7 +643,7 @@ describe('2.3-W1 pins hardening · 失配 fixture 补全（[A]#14）+ 三面入�
       assert.match(p10!.detail ?? '', /git 操作仅人/)
       // 3.0-W5 R-6 skip/fail 边界负向对照：git 可用但 tag 缺失 = 钉面真偏差 → 维持 missing 态 · 不挂 error_kind（与环境三态可区分）
       assert.equal(p10!.error_kind, undefined, '真偏差不挂 error_kind（环境不具备三态专属 additive 键）')
-      const r = runCli(['pins', 'check'], dir)
+      const r = await runCore(['pins', 'check'], dir)
       assert.equal(r.status, 2, r.combined)
       assert.match(r.combined, /\[missing\] pin-10 git/)
       assert.match(r.combined, /v3\.1\.4/)
@@ -659,7 +660,7 @@ describe('2.3-W1 pins hardening · 失配 fixture 补全（[A]#14）+ 三面入�
         'assets/ide/host-adapt/README.md',
         DUAL_GOOD.split('spec-wave@' + FIXTURE_VERSION).join('spec-wave@9.9.9'),
       )
-      const r = runCli(['pins', 'check'], dir)
+      const r = await runCore(['pins', 'check'], dir)
       assert.equal(r.status, 2, r.combined)
       assert.match(r.combined, /\[mismatch\] pin-11 assets\/ide\/host-adapt\/README\.md:3/)
       assert.match(r.combined, /\[ok\] pin-12 /)
@@ -675,7 +676,7 @@ describe('2.3-W1 pins hardening · 失配 fixture 补全（[A]#14）+ 三面入�
         'assets/ide/host-adapt/README.md',
         DUAL_GOOD.split('（' + FIXTURE_VERSION + '）').join('（9.9.9）'),
       )
-      const r = runCli(['pins', 'check'], dir)
+      const r = await runCore(['pins', 'check'], dir)
       assert.equal(r.status, 2, r.combined)
       assert.match(r.combined, /\[mismatch\] pin-12 assets\/ide\/host-adapt\/README\.md:1/)
       assert.match(r.combined, /\[ok\] pin-11 /)
@@ -693,7 +694,7 @@ describe('2.3-W1 pins hardening · 失配 fixture 补全（[A]#14）+ 三面入�
           '| `9.9.9`（patch 收尾行） | — | **`9.9.9` published** | z |' + '\n' +
           '| x-y | — | signed | 叙事顺带提及 spec-wave@' + FIXTURE_VERSION + ' |' + '\n',
       )
-      const r = runCli(['pins', 'check'], dir)
+      const r = await runCore(['pins', 'check'], dir)
       assert.equal(r.status, 2, r.combined)
       assert.match(r.combined, /\[mismatch\] pin-08 docs\/spec\/README\.md/)
       assert.match(r.combined, /兜底嫌疑行/)
@@ -706,14 +707,14 @@ describe('2.3-W1 pins hardening · 失配 fixture 补全（[A]#14）+ 三面入�
       await makeExtFixture(dir)
       const broken = GOOD_CHANGELOG.replace('## [' + FIXTURE_VERSION + ']', '## [9.9.9]')
       await writeRel(dir, 'CHANGELOG.md', broken)
-      const r = runCli(['pins', 'check'], dir)
+      const r = await runCore(['pins', 'check'], dir)
       assert.equal(r.status, 2, r.combined)
       assert.match(r.combined, /\[mismatch\] pin-13 CHANGELOG\.md:7/)
-      const fix = runCli(['pins', 'fix', '--yes'], dir)
+      const fix = await runCore(['pins', 'fix', '--yes'], dir)
       assert.equal(fix.status, 0, fix.combined)
       const after = await readFile(path.join(dir, 'CHANGELOG.md'), 'utf8')
       assert.equal(after, GOOD_CHANGELOG, 'fix 只回写版本号 · 日期行与其余不动')
-      const check = runCli(['pins', 'check'], dir)
+      const check = await runCore(['pins', 'check'], dir)
       assert.equal(check.status, 0, check.combined)
     })
   })
@@ -722,7 +723,7 @@ describe('2.3-W1 pins hardening · 失配 fixture 补全（[A]#14）+ 三面入�
     await withTemp(async (dir) => {
       await makeExtFixture(dir)
       await writeRel(dir, 'CHANGELOG.md', '# Changelog\n\n## [Unreleased]\n\n（空 · 无发布头）\n')
-      const j = runCli(['pins', 'check', '--json'], dir)
+      const j = await runCore(['pins', 'check', '--json'], dir)
       assert.equal(j.status, 2, j.combined)
       const doc = JSON.parse(j.stdout) as { pins: Array<{ id: string; status: string }> }
       assert.equal(doc.pins.find((p) => p.id === 'pin-13')!.status, 'extract_error')
@@ -733,10 +734,10 @@ describe('2.3-W1 pins hardening · 失配 fixture 补全（[A]#14）+ 三面入�
     await withTemp(async (dir) => {
       await makeExtFixture(dir)
       await writeRel(dir, 'MIGRATION.md', '> 请钉 spec-wave@9.9.9\n')
-      const r = runCli(['pins', 'check'], dir)
+      const r = await runCore(['pins', 'check'], dir)
       assert.equal(r.status, 2, r.combined)
       assert.match(r.combined, /\[mismatch\] pin-14 MIGRATION\.md:1/)
-      const fix = runCli(['pins', 'fix', '--yes'], dir)
+      const fix = await runCore(['pins', 'fix', '--yes'], dir)
       assert.equal(fix.status, 0, fix.combined)
       assert.equal(await readFile(path.join(dir, 'MIGRATION.md'), 'utf8'), GOOD_MIGRATION)
     })
@@ -746,10 +747,10 @@ describe('2.3-W1 pins hardening · 失配 fixture 补全（[A]#14）+ 三面入�
     await withTemp(async (dir) => {
       await makeExtFixture(dir)
       await writeRel(dir, 'AGENTS.md', GOOD_AGENTS.split('spec-wave@' + FIXTURE_VERSION).join('spec-wave@9.9.9'))
-      const r = runCli(['pins', 'check'], dir)
+      const r = await runCore(['pins', 'check'], dir)
       assert.equal(r.status, 2, r.combined)
       assert.match(r.combined, /\[mismatch\] pin-15 AGENTS\.md:6/)
-      const fix = runCli(['pins', 'fix', '--yes'], dir)
+      const fix = await runCore(['pins', 'fix', '--yes'], dir)
       assert.equal(fix.status, 0, fix.combined)
       const after = await readFile(path.join(dir, 'AGENTS.md'), 'utf8')
       assert.equal(after, GOOD_AGENTS, 'fix 只替换版本串 capture group')
@@ -761,7 +762,7 @@ describe('2.3-W1 pins hardening · 失配 fixture 补全（[A]#14）+ 三面入�
       ]) {
         assert.ok(after.includes(marker), '产品块标记须完整: ' + marker)
       }
-      const check = runCli(['pins', 'check'], dir)
+      const check = await runCore(['pins', 'check'], dir)
       assert.equal(check.status, 0, check.combined)
     })
   })
@@ -790,14 +791,14 @@ describe('3.0-W5 R-6 · git 依赖分档诊断（error_kind 三态 additive · e
       const emptyBin = path.join(dir, 'empty-bin')
       await mkdir(emptyBin, { recursive: true })
       const env = { ...process.env, PATH: emptyBin }
-      const j = runCli(['pins', 'check', '--json'], dir, env)
+      const j = await runCore(['pins', 'check', '--json'], dir, env)
       assert.equal(j.status, 2, 'exit code 零变更：环境不具备仍 exit 2 · ' + j.combined)
       const p10 = (JSON.parse(j.stdout) as PinDoc).pins.find((p) => p.id === 'pin-10')
       assert.ok(p10)
       assert.equal(p10!.status, 'extract_error')
       assert.equal(p10!.error_kind, 'git_missing')
       assert.match(p10!.detail ?? '', /环境不具备 · 硬约束 10/)
-      const r = runCli(['pins', 'check'], dir, env)
+      const r = await runCore(['pins', 'check'], dir, env)
       assert.equal(r.status, 2, r.combined)
       assert.match(r.combined, /环境不具备 · 硬约束 10/, '人读输出同步带分档文案')
       assert.match(r.combined, /PINS: BLOCKED/)
@@ -819,7 +820,7 @@ describe('3.0-W5 R-6 · git 依赖分档诊断（error_kind 三态 additive · e
         { mode: 0o755 },
       )
       const env = { ...process.env, PATH: fakeBin }
-      const j = runCli(['pins', 'check', '--json'], dir, env)
+      const j = await runCore(['pins', 'check', '--json'], dir, env)
       assert.equal(j.status, 2, j.combined)
       const p10 = (JSON.parse(j.stdout) as PinDoc).pins.find((p) => p.id === 'pin-10')
       assert.ok(p10)
@@ -837,7 +838,7 @@ describe('3.0-W5 R-6 · git 依赖分档诊断（error_kind 三态 additive · e
     }
     await withTemp(async (dir) => {
       await makeGitPinFixture(dir)
-      const j = runCli(['pins', 'check', '--json'], dir)
+      const j = await runCore(['pins', 'check', '--json'], dir)
       assert.equal(j.status, 2, j.combined)
       const p10 = (JSON.parse(j.stdout) as PinDoc).pins.find((p) => p.id === 'pin-10')
       assert.ok(p10)
@@ -864,7 +865,7 @@ describe('2.3-W2 钉面维度扩展 · pin-16 文档↔files / pin-17 宿主↔�
   it('W2-B1 基线全绿：pin-16/17 双 ok · PINS: PASS', async () => {
     await withTemp(async (dir) => {
       await makeW2Fixture(dir)
-      const r = runCli(['pins', 'check'], dir)
+      const r = await runCore(['pins', 'check'], dir)
       assert.equal(r.status, 0, r.combined)
       assert.match(r.combined, /\[ok\] pin-16 package\.json = 扫描 3 个 markdown · 0 失配/)
       assert.match(r.combined, /\[ok\] pin-17 assets\/hosts\.yaml = 1 宿主校验 · 1 双语命中/)
@@ -877,7 +878,7 @@ describe('2.3-W2 钉面维度扩展 · pin-16 文档↔files / pin-17 宿主↔�
       await makeW2Fixture(dir)
       await writeRel(dir, 'FOO.md', '# F\n')
       await writeRel(dir, 'README.md', W2_README_EN + 'see [F](FOO.md)\n')
-      const bad = runCli(['pins', 'check'], dir)
+      const bad = await runCore(['pins', 'check'], dir)
       assert.equal(bad.status, 2, bad.combined)
       assert.match(bad.combined, /\[mismatch\] pin-16 package\.json/)
       assert.match(bad.combined, /README\.md:8 -> FOO\.md/)
@@ -888,7 +889,7 @@ describe('2.3-W2 钉面维度扩展 · pin-16 文档↔files / pin-17 宿主↔�
       }
       pkg.files.push('FOO.md')
       await writeRel(dir, 'package.json', JSON.stringify(pkg, null, 2) + '\n')
-      const good = runCli(['pins', 'check'], dir)
+      const good = await runCore(['pins', 'check'], dir)
       assert.equal(good.status, 0, good.combined)
       assert.match(good.combined, /\[ok\] pin-16 /)
     })
@@ -912,7 +913,7 @@ describe('2.3-W2 钉面维度扩展 · pin-16 文档↔files / pin-17 宿主↔�
         'README.md',
         '# T\n\n[简体中文](README.zh-CN.md) | English\n\n| Host | X |\n| --- | --- |\n| **Alpha** | .a/ |\n\nsee [G](GLOSSARY.md)\n',
       )
-      const r = runCli(['pins', 'check'], dir)
+      const r = await runCore(['pins', 'check'], dir)
       assert.equal(r.status, 0, r.combined)
       assert.match(r.combined, /\[ok\] pin-16 /)
     })
@@ -931,7 +932,7 @@ describe('2.3-W2 钉面维度扩展 · pin-16 文档↔files / pin-17 宿主↔�
       await writeRel(dir, 'README.zh-CN.md', W2_README_ZH)
       await writeRel(dir, 'FOO.md', '# F\n')
       await writeRel(dir, 'assets/a.md', 'link [F](../FOO.md)\n')
-      const bad = runCli(['pins', 'check'], dir)
+      const bad = await runCore(['pins', 'check'], dir)
       assert.equal(bad.status, 2, bad.combined)
       assert.match(bad.combined, /assets\/a\.md:1 -> FOO\.md/)
       const pkg = JSON.parse(await readFile(path.join(dir, 'package.json'), 'utf8')) as {
@@ -939,7 +940,7 @@ describe('2.3-W2 钉面维度扩展 · pin-16 文档↔files / pin-17 宿主↔�
       }
       pkg.files.push('FOO.md')
       await writeRel(dir, 'package.json', JSON.stringify(pkg, null, 2) + '\n')
-      const good = runCli(['pins', 'check'], dir)
+      const good = await runCore(['pins', 'check'], dir)
       assert.equal(good.status, 0, good.combined)
     })
   })
@@ -961,12 +962,12 @@ describe('2.3-W2 钉面维度扩展 · pin-16 文档↔files / pin-17 宿主↔�
         W2_README_EN +
           '[a](FOO.md#sec) [b](<BAR.md>) ![i](BAZ.md) [x](https://e.com/Q.md) [y](#frag)\n',
       )
-      const good = runCli(['pins', 'check'], dir)
+      const good = await runCore(['pins', 'check'], dir)
       assert.equal(good.status, 0, good.combined)
       // 图片链接的 BAZ.md 移出 files → 同口径判失配
       pkg.files = pkg.files.filter((f) => f !== 'BAZ.md')
       await writeRel(dir, 'package.json', JSON.stringify(pkg, null, 2) + '\n')
-      const bad = runCli(['pins', 'check'], dir)
+      const bad = await runCore(['pins', 'check'], dir)
       assert.equal(bad.status, 2, bad.combined)
       assert.match(bad.combined, /README\.md:8 -> BAZ\.md/)
     })
@@ -976,7 +977,7 @@ describe('2.3-W2 钉面维度扩展 · pin-16 文档↔files / pin-17 宿主↔�
     await withTemp(async (dir) => {
       await makeW2Fixture(dir)
       await writeRel(dir, 'README.md', W2_README_EN + 'see [g](GONE.md)\n')
-      const r = runCli(['pins', 'check'], dir)
+      const r = await runCore(['pins', 'check'], dir)
       assert.equal(r.status, 0, r.combined)
       assert.match(r.combined, /\[ok\] pin-16 /)
     })
@@ -987,7 +988,7 @@ describe('2.3-W2 钉面维度扩展 · pin-16 文档↔files / pin-17 宿主↔�
       await makeW2Fixture(dir)
       await writeRel(dir, 'assets/release-pins.yaml', W2_PINS_YAML_HOSTS)
       await writeRel(dir, 'assets/hosts.yaml', 'version: "1"\nhosts:\n  - host_id: alpha\n  - host_id: beta\n  - host_id: delta\n')
-      const bad = runCli(['pins', 'check'], dir)
+      const bad = await runCore(['pins', 'check'], dir)
       assert.equal(bad.status, 2, bad.combined)
       assert.match(bad.combined, /\[mismatch\] pin-17 assets\/hosts\.yaml/)
       assert.match(bad.combined, /beta · 缺 README\.md（EN 侧适配表行）/)
@@ -995,7 +996,7 @@ describe('2.3-W2 钉面维度扩展 · pin-16 文档↔files / pin-17 宿主↔�
       // 仅 EN 补行 → 仍 exit 2 且只剩 ZH 侧缺失
       // 3.0-W4 登记（验收 #11）：补行由文末脱表追加改为表内插入（NEW-4 表头签名+主键列双判下脱表行不构成表成员）
       await writeRel(dir, 'README.md', W2_README_EN.replace('| **Alpha** | .a/ |\n', '| **Alpha** | .a/ |\n| **Beta** | .b/ |\n'))
-      const half = runCli(['pins', 'check'], dir)
+      const half = await runCore(['pins', 'check'], dir)
       assert.equal(half.status, 2, half.combined)
       assert.doesNotMatch(half.combined, /beta · 缺 README\.md（EN 侧适配表行）/)
       assert.match(half.combined, /beta · 缺 README\.zh-CN\.md（ZH 侧适配表行）/)
@@ -1007,7 +1008,7 @@ describe('2.3-W2 钉面维度扩展 · pin-16 文档↔files / pin-17 宿主↔�
       await makeW2Fixture(dir)
       await writeRel(dir, 'assets/release-pins.yaml', W2_PINS_YAML_HOSTS)
       await writeRel(dir, 'assets/hosts.yaml', 'version: "1"\nhosts:\n  - host_id: alpha\n  - host_id: delta\n  - host_id: gamma\n')
-      const r = runCli(['pins', 'check'], dir)
+      const r = await runCore(['pins', 'check'], dir)
       assert.equal(r.status, 2, r.combined)
       assert.match(r.combined, /host gamma 无 host_hits 映射数据（F-W2-06 failClosed/)
     })
@@ -1018,7 +1019,7 @@ describe('2.3-W2 钉面维度扩展 · pin-16 文档↔files / pin-17 宿主↔�
       await makeW2Fixture(dir)
       await writeRel(dir, 'assets/release-pins.yaml', W2_PINS_YAML_HOSTS)
       await writeRel(dir, 'assets/hosts.yaml', 'version: "1"\nhosts:\n  - host_id: alpha\n  - host_id: delta\n')
-      const r = runCli(['pins', 'check'], dir)
+      const r = await runCore(['pins', 'check'], dir)
       assert.equal(r.status, 0, r.combined)
       assert.match(r.combined, /2 宿主校验 · 1 双语命中 · 过渡豁免 delta@W7/)
     })
@@ -1033,14 +1034,14 @@ describe('2.3-W2 钉面维度扩展 · pin-16 文档↔files / pin-17 宿主↔�
       // 3.0-W4 登记（验收 #11）：EN 侧补行同改为表内插入（NEW-4 双判下脱表行不计 · ZH 侧原文末即连表）
       await writeRel(dir, 'README.md', W2_README_EN.replace('| **Alpha** | .a/ |\n', '| **Alpha** | .a/ |\n| **Delta** | .d/ |\n'))
       await writeRel(dir, 'README.zh-CN.md', W2_README_ZH + '| **Delta** | .d/ |\n')
-      const stale = runCli(['pins', 'check'], dir)
+      const stale = await runCore(['pins', 'check'], dir)
       assert.equal(stale.status, 2, stale.combined)
       assert.match(stale.combined, /delta（双语已双双命中 · W7① 落地 · 豁免失陈债 F-W2-05 · 须移除豁免条目）/)
       // (b) 豁免含适配表外 host → 失陈债
       await writeRel(dir, 'assets/hosts.yaml', W2_HOSTS_ALPHA)
       await writeRel(dir, 'README.md', W2_README_EN)
       await writeRel(dir, 'README.zh-CN.md', W2_README_ZH)
-      const ghost = runCli(['pins', 'check'], dir)
+      const ghost = await runCore(['pins', 'check'], dir)
       assert.equal(ghost.status, 2, ghost.combined)
       assert.match(ghost.combined, /delta（已不在适配表 · 须移除豁免条目）/)
     })
@@ -1113,7 +1114,7 @@ describe('2.4-W1 pins 提取修正 · N7 refstyle / N8 表行锚定 / N9 语义�
         W1_24_README_EN +
           '\n[r1]: FOO.md\n[r2]: <BAR.md>\n[r3]: https://e.com/Q.md\n[r4]: #frag\n',
       )
-      const bad = runCli(['pins', 'check'], dir)
+      const bad = await runCore(['pins', 'check'], dir)
       assert.equal(bad.status, 2, bad.combined)
       assert.match(bad.combined, /\[mismatch\] pin-16 package\.json/)
       assert.match(bad.combined, /README\.md:\d+ -> FOO\.md/)
@@ -1125,7 +1126,7 @@ describe('2.4-W1 pins 提取修正 · N7 refstyle / N8 表行锚定 / N9 语义�
       }
       pkg.files.push('FOO.md', 'BAR.md')
       await writeRel(dir, 'package.json', JSON.stringify(pkg, null, 2) + '\n')
-      const good = runCli(['pins', 'check'], dir)
+      const good = await runCore(['pins', 'check'], dir)
       assert.equal(good.status, 0, good.combined)
       assert.match(good.combined, /\[ok\] pin-16 /)
     })
@@ -1134,12 +1135,12 @@ describe('2.4-W1 pins 提取修正 · N7 refstyle / N8 表行锚定 / N9 语义�
   it('24W1-N8 pin-17 表行锚定负向（D-24-PIN17-TABLEROW · 复现 §3.I）：删适配表行留 tagline 枚举句 → exit 2 · 连枚举词也删对照仍 exit 2 · 补表行转绿', async () => {
     await withTemp(async (dir) => {
       await make24W1Fixture(dir)
-      const base = runCli(['pins', 'check'], dir)
+      const base = await runCore(['pins', 'check'], dir)
       assert.equal(base.status, 0, '双语表行齐时基线须绿: ' + base.combined)
       // §3.I 决定性构造：删 beta 适配表行 · 保留 tagline 枚举句 → 新口径 exit 2（修复前旧码此处 exit 0 = 顶包）
       await writeRel(dir, 'README.md', W1_24_README_EN.replace('| **Beta** | .b/ |\n', ''))
       await writeRel(dir, 'README.zh-CN.md', W1_24_README_ZH.replace('| **Beta** | .b/ |\n', ''))
-      const bad = runCli(['pins', 'check'], dir)
+      const bad = await runCore(['pins', 'check'], dir)
       assert.equal(bad.status, 2, bad.combined)
       assert.match(bad.combined, /\[mismatch\] pin-17 assets\/hosts\.yaml/)
       assert.match(bad.combined, /beta · 缺 README\.md（EN 侧适配表行）/)
@@ -1147,13 +1148,13 @@ describe('2.4-W1 pins 提取修正 · N7 refstyle / N8 表行锚定 / N9 语义�
       // 对照（§3.I 对照组）：连枚举句里 Beta 也删 → 仍 exit 2
       await writeRel(dir, 'README.md', W1_24_README_EN.replace('| **Beta** | .b/ |\n', '').replace('Alpha, Beta, Zed', 'Alpha, Zed'))
       await writeRel(dir, 'README.zh-CN.md', W1_24_README_ZH.replace('| **Beta** | .b/ |\n', '').replace('Alpha、Beta、Zed', 'Alpha、Zed'))
-      const stripped = runCli(['pins', 'check'], dir)
+      const stripped = await runCore(['pins', 'check'], dir)
       assert.equal(stripped.status, 2, stripped.combined)
       assert.match(stripped.combined, /beta · 缺 README\.md（EN 侧适配表行）/)
       // 正向：表行恢复 → 转绿
       await writeRel(dir, 'README.md', W1_24_README_EN)
       await writeRel(dir, 'README.zh-CN.md', W1_24_README_ZH)
-      const good = runCli(['pins', 'check'], dir)
+      const good = await runCore(['pins', 'check'], dir)
       assert.equal(good.status, 0, good.combined)
       assert.match(good.combined, /\[ok\] pin-17 /)
     })
@@ -1170,17 +1171,17 @@ describe('2.4-W1 pins 提取修正 · N7 refstyle / N8 表行锚定 / N9 语义�
         '| x-y | — | signed | 叙事顺带提及 spec-wave@' + FIXTURE_VERSION + ' |' + '\n'
       await writeRel(dir, 'docs/spec/README.md', brokenStatus)
       // §3.J lead 实验：状态格 9.9.9 · 同行归档链接 3_1_4 + 别行 prose 3.1.4 仍在 → 新口径 exit 2（修复前旧码 exit 0）
-      const bad = runCli(['pins', 'check'], dir)
+      const bad = await runCore(['pins', 'check'], dir)
       assert.equal(bad.status, 2, bad.combined)
       assert.match(bad.combined, /\[mismatch\] pin-08 docs\/spec\/README\.md/)
       // 改回状态格点式版本串（同行归档链接 X_Y_Z 保留 · 证明状态格点式串即真值）→ 转绿
       await writeRel(dir, 'docs/spec/README.md', brokenStatus.replace('`9.9.9` published', '`' + FIXTURE_VERSION + '` published'))
-      const good = runCli(['pins', 'check'], dir)
+      const good = await runCore(['pins', 'check'], dir)
       assert.equal(good.status, 0, good.combined)
       assert.match(good.combined, /\[ok\] pin-08 /)
       // 回归锁：状态格只写下划线式 X_Y_Z → 不计入版本串（slug/文件名顶包排除）→ exit 2
       await writeRel(dir, 'docs/spec/README.md', brokenStatus.replace('`9.9.9` published', FIXTURE_VERSION.replace(/\./g, '_') + ' published'))
-      const under = runCli(['pins', 'check'], dir)
+      const under = await runCore(['pins', 'check'], dir)
       assert.equal(under.status, 2, under.combined)
       assert.match(under.combined, /\[mismatch\] pin-08 docs\/spec\/README\.md/)
     })
@@ -1220,7 +1221,7 @@ describe('2.4-W6 N10 · pin-16 白名单大小写口径统一（D-24-W6-N10 · �
       await makeW6Fixture(dir, ['README.md', 'FOO.md'])
       await writeRel(dir, 'FOO.md', '# F\n')
       await writeRel(dir, 'README.md', '# T\n\nsee [f](foo.md)\n')
-      const r = runCli(['pins', 'check'], dir)
+      const r = await runCore(['pins', 'check'], dir)
       assert.equal(r.status, 0, '大小写差异合法样本不得假红（§3.K）: ' + r.combined)
       assert.match(r.combined, /\[ok\] pin-16 /)
       assert.match(r.combined, /PINS: PASS/)
@@ -1229,7 +1230,7 @@ describe('2.4-W6 N10 · pin-16 白名单大小写口径统一（D-24-W6-N10 · �
       await makeW6Fixture(dir, ['README.md', 'bar.md'])
       await writeRel(dir, 'bar.md', '# B\n')
       await writeRel(dir, 'README.md', '# T\n\nsee [b](BAR.md)\n')
-      const r = runCli(['pins', 'check'], dir)
+      const r = await runCore(['pins', 'check'], dir)
       assert.equal(r.status, 0, '反向大小写差异（链接大写 · 盘上小写）同口径放行: ' + r.combined)
       assert.match(r.combined, /\[ok\] pin-16 /)
     })
@@ -1239,7 +1240,7 @@ describe('2.4-W6 N10 · pin-16 白名单大小写口径统一（D-24-W6-N10 · �
     await withTemp(async (dir) => {
       await makeW6Fixture(dir, ['README.md', 'GHOST.md'])
       await writeRel(dir, 'README.md', '# T\n\nsee [g](ghost.md)\n')
-      const r = runCli(['pins', 'check'], dir)
+      const r = await runCore(['pins', 'check'], dir)
       assert.equal(r.status, 2, '白名单命中但盘上无变体 → 不放行（磁盘存在性为最终判据）: ' + r.combined)
       assert.match(r.combined, /\[mismatch\] pin-16 package\.json/)
       assert.match(r.combined, /README\.md:3 -> ghost\.md/)
@@ -1264,7 +1265,7 @@ describe('2.4.1 NEW-3 [P2] · pin-16 HTML 锚点入扫描面（验收报告-Spec
           '\n<a href="FOO.md">foo</a>\n<a href=\'BAR.md\'>bar</a>\n' +
           '<a href="https://e.com/Q.md">ext</a>\n<a href="#frag">anchor</a>\n',
       )
-      const bad = runCli(['pins', 'check'], dir)
+      const bad = await runCore(['pins', 'check'], dir)
       assert.equal(bad.status, 2, bad.combined)
       assert.match(bad.combined, /\[mismatch\] pin-16 package\.json/)
       assert.match(bad.combined, /README\.md:\d+ -> FOO\.md/)
@@ -1276,7 +1277,7 @@ describe('2.4.1 NEW-3 [P2] · pin-16 HTML 锚点入扫描面（验收报告-Spec
       }
       pkg.files.push('FOO.md', 'BAR.md')
       await writeRel(dir, 'package.json', JSON.stringify(pkg, null, 2) + '\n')
-      const good = runCli(['pins', 'check'], dir)
+      const good = await runCore(['pins', 'check'], dir)
       assert.equal(good.status, 0, good.combined)
       assert.match(good.combined, /\[ok\] pin-16 /)
     })
@@ -1285,7 +1286,7 @@ describe('2.4.1 NEW-3 [P2] · pin-16 HTML 锚点入扫描面（验收报告-Spec
   it('回归：无 HTML 锚点的基线仓仍全绿（inline/refstyle 两形态既有判据零回退）', async () => {
     await withTemp(async (dir) => {
       await make24W1Fixture(dir)
-      const r = runCli(['pins', 'check'], dir)
+      const r = await runCore(['pins', 'check'], dir)
       assert.equal(r.status, 0, r.combined)
       assert.match(r.combined, /PINS: PASS/)
     })
@@ -1304,7 +1305,7 @@ describe('2.4.2 R-3 [P2] · pin-16 HTML 锚点无引号属性值（验收报告-
         'README.md',
         W1_24_README_EN + '\n<a href=AGENTS.md>agents</a>\n',
       )
-      const bad = runCli(['pins', 'check'], dir)
+      const bad = await runCore(['pins', 'check'], dir)
       assert.equal(bad.status, 2, bad.combined)
       assert.match(bad.combined, /\[mismatch\] pin-16 package\.json/)
       assert.match(bad.combined, /README\.md:\d+ -> AGENTS\.md/)
@@ -1314,7 +1315,7 @@ describe('2.4.2 R-3 [P2] · pin-16 HTML 锚点无引号属性值（验收报告-
       }
       pkg.files.push('AGENTS.md')
       await writeRel(dir, 'package.json', JSON.stringify(pkg, null, 2) + '\n')
-      const good = runCli(['pins', 'check'], dir)
+      const good = await runCore(['pins', 'check'], dir)
       assert.equal(good.status, 0, good.combined)
       assert.match(good.combined, /\[ok\] pin-16 /)
     })
@@ -1336,7 +1337,7 @@ describe('2.4.2 R-3 [P2] · pin-16 HTML 锚点无引号属性值（验收报告-
           '<a target="_blank" href="QUX.md">attr-order</a>\n' + // 属性序（捕获组 1）
           '<a href=AGENTS.md>bare</a>\n',        // 无引号（捕获组 3）
       )
-      const bad = runCli(['pins', 'check'], dir)
+      const bad = await runCore(['pins', 'check'], dir)
       assert.equal(bad.status, 2, bad.combined)
       for (const f of ['FOO.md', 'BAR.md', 'BAZ.md', 'QUX.md', 'AGENTS.md']) {
         assert.match(bad.combined, new RegExp('README\\.md:\\d+ -> ' + f.replace('.', '\\.')), `${f} 形态须报红指行号`)
@@ -1359,17 +1360,17 @@ describe('2.4.1 NEW-9/N9 [P2] · pin-08 状态格精确版本锁定（边界正�
       await makeFixture(dir)
       // ① N9 原构造：状态格 9.9.9 改坏 · 同格保留 tag `v3.1.4`（裸子串顶包面）
       await writeRel(dir, 'docs/spec/README.md', SPEC_README('**`9.9.9` published · tag `v' + FIXTURE_VERSION + '`**'))
-      const n9 = runCli(['pins', 'check'], dir)
+      const n9 = await runCore(['pins', 'check'], dir)
       assert.equal(n9.status, 2, n9.combined)
       assert.match(n9.combined, /\[mismatch\] pin-08 docs\/spec\/README\.md/)
       // ② v 前缀形态：状态格 `v3.1.4` published（左边界拦 v）
       await writeRel(dir, 'docs/spec/README.md', SPEC_README('**`v' + FIXTURE_VERSION + '` published**'))
-      const vprefix = runCli(['pins', 'check'], dir)
+      const vprefix = await runCore(['pins', 'check'], dir)
       assert.equal(vprefix.status, 2, vprefix.combined)
       assert.match(vprefix.combined, /\[mismatch\] pin-08 docs\/spec\/README\.md/)
       // ③ 修饰符形态：状态格 `3.1.4-beta`（右边界拦 -）
       await writeRel(dir, 'docs/spec/README.md', SPEC_README('**`' + FIXTURE_VERSION + '-beta` published**'))
-      const beta = runCli(['pins', 'check'], dir)
+      const beta = await runCore(['pins', 'check'], dir)
       assert.equal(beta.status, 2, beta.combined)
       assert.match(beta.combined, /\[mismatch\] pin-08 docs\/spec\/README\.md/)
     })
@@ -1378,14 +1379,14 @@ describe('2.4.1 NEW-9/N9 [P2] · pin-08 状态格精确版本锁定（边界正�
   it('正向零回退：状态格 `3.1.4` published（反引号/星号包裹）→ PASS；加长版本号 3.1.4.1 / 3.1.4rc1 拦', async () => {
     await withTemp(async (dir) => {
       await makeFixture(dir)
-      const good = runCli(['pins', 'check'], dir)
+      const good = await runCore(['pins', 'check'], dir)
       assert.equal(good.status, 0, good.combined)
       assert.match(good.combined, /\[ok\] pin-08 /)
       await writeRel(dir, 'docs/spec/README.md', SPEC_README('**`' + FIXTURE_VERSION + '.1` published**'))
-      const longer = runCli(['pins', 'check'], dir)
+      const longer = await runCore(['pins', 'check'], dir)
       assert.equal(longer.status, 2, longer.combined)
       await writeRel(dir, 'docs/spec/README.md', SPEC_README('**`' + FIXTURE_VERSION + 'rc1` published**'))
-      const rc = runCli(['pins', 'check'], dir)
+      const rc = await runCore(['pins', 'check'], dir)
       assert.equal(rc.status, 2, rc.combined)
     })
   })
@@ -1403,7 +1404,7 @@ describe('3.0-W4 NEW-4 pin-17 表行语义判 + pin-08 发布态绑定 [范围�
       await writeRel(dir, 'README.md',
         W1_24_README_EN.replace('| **Alpha** | .a/ |\n', '') +
           '\n| Topic | Y |\n| --- | --- |\n| **Alpha** | .a/ |\n')
-      const r = runCli(['pins', 'check'], dir)
+      const r = await runCore(['pins', 'check'], dir)
       assert.equal(r.status, 2, r.combined)
       assert.match(r.combined, /\[mismatch\] pin-17/)
       assert.match(r.combined, /alpha · 缺 README\.md（EN 侧适配表行）/)
@@ -1415,7 +1416,7 @@ describe('3.0-W4 NEW-4 pin-17 表行语义判 + pin-08 发布态绑定 [范围�
     await withTemp(async (dir) => {
       await make24W1Fixture(dir)
       await writeRel(dir, 'README.md', W1_24_README_EN.replace('| **Alpha** | .a/ |', '| .a/ | **Alpha** |'))
-      const r = runCli(['pins', 'check'], dir)
+      const r = await runCore(['pins', 'check'], dir)
       assert.equal(r.status, 2, r.combined)
       assert.match(r.combined, /alpha · 缺 README\.md（EN 侧适配表行）/)
     })
@@ -1428,7 +1429,7 @@ describe('3.0-W4 NEW-4 pin-17 表行语义判 + pin-08 发布态绑定 [范围�
       await writeRel(dir, 'README.md',
         W1_24_README_EN.replace('| **Alpha** | .a/ |\n', '').replace('| **Beta** | .b/ |\n', '') +
           '\n' + HOST_TABLE + '| **Alpha** | .a/ |\n| **Beta** | .b/ |\n')
-      const r = runCli(['pins', 'check'], dir)
+      const r = await runCore(['pins', 'check'], dir)
       assert.equal(r.status, 0, r.combined)
       assert.match(r.combined, /\[ok\] pin-17 /)
     })
@@ -1443,7 +1444,7 @@ describe('3.0-W4 NEW-4 pin-17 表行语义判 + pin-08 发布态绑定 [范围�
     await withTemp(async (dir) => {
       await makeFixture(dir)
       await writeRel(dir, 'docs/spec/README.md', SPEC8('**`' + FIXTURE_VERSION + '`**'))
-      const r = runCli(['pins', 'check'], dir)
+      const r = await runCore(['pins', 'check'], dir)
       assert.equal(r.status, 2, r.combined)
       assert.match(r.combined, /\[mismatch\] pin-08 docs\/spec\/README\.md/)
       assert.match(r.combined, /无发布态措辞/)
@@ -1454,7 +1455,7 @@ describe('3.0-W4 NEW-4 pin-17 表行语义判 + pin-08 发布态绑定 [范围�
     await withTemp(async (dir) => {
       await makeFixture(dir)
       await writeRel(dir, 'docs/spec/README.md', SPEC8('**`' + FIXTURE_VERSION + '`**', 'published 见描述格'))
-      const r = runCli(['pins', 'check'], dir)
+      const r = await runCore(['pins', 'check'], dir)
       assert.equal(r.status, 2, r.combined)
       assert.match(r.combined, /\[mismatch\] pin-08/)
       assert.match(r.combined, /无发布态措辞/)
@@ -1466,7 +1467,7 @@ describe('3.0-W4 NEW-4 pin-17 表行语义判 + pin-08 发布态绑定 [范围�
       await makeFixture(dir)
       for (const cell of ['**`' + FIXTURE_VERSION + '` published**', '**`' + FIXTURE_VERSION + '`** · **CLOSED**', '**`' + FIXTURE_VERSION + '`** · 规划中']) {
         await writeRel(dir, 'docs/spec/README.md', SPEC8(cell))
-        const r = runCli(['pins', 'check'], dir)
+        const r = await runCore(['pins', 'check'], dir)
         assert.equal(r.status, 0, 'S_mid 态「' + cell + '」须合规: ' + r.combined)
         assert.match(r.combined, /\[ok\] pin-08 /)
       }

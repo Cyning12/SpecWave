@@ -6,6 +6,7 @@ import path from 'node:path'
 import { describe, it } from 'node:test'
 import { fileURLToPath } from 'node:url'
 import { toRel } from '../src/cli-shared.ts'
+import { runCore } from './_helpers/core-harness.ts'
 
 const KIT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const CLI_TS = path.join(KIT, 'src', 'cli.ts')
@@ -131,7 +132,7 @@ describe('2.2-W3 C2 · verify --json 可观测四字段', { concurrency: 1 }, ()
   it('BLOCKED 态（缺 R<n> 审查文）：exitCode=2=进程退出码 · 四字段仍在', async () => {
     await withTemp(async (dir) => {
       await seedTask(dir)
-      const r = runCli(['verify', '--task', TASK_REL, '--target', dir, '--json'])
+      const r = await runCore(['verify', '--task', TASK_REL, '--target', dir, '--json'])
       assert.equal(r.status, 2, r.combined)
       const payload = JSON.parse(r.stdout) as Record<string, unknown>
       assert.equal(payload.blocked, true)
@@ -144,7 +145,7 @@ describe('2.2-W3 C2 · verify --json 可观测四字段', { concurrency: 1 }, ()
     await withTemp(async (dir) => {
       await seedTask(dir)
       await writeRel(dir, REVIEW_REL, '# R1 fixture\n\n## 结论\n\nPASS · 零内容阻塞（fixture）\n\n审查结论：fixture 范围与验收全项合规，无阻塞遗留，准予关账。\n')
-      const r = runCli(['verify', '--task', TASK_REL, '--target', dir, '--json'])
+      const r = await runCore(['verify', '--task', TASK_REL, '--target', dir, '--json'])
       assert.equal(r.status, 0, r.combined)
       const payload = JSON.parse(r.stdout) as Record<string, unknown>
       assert.equal(payload.command, 'verify')
@@ -165,8 +166,8 @@ describe('2.2-W3 C2 · verify --json 可观测四字段', { concurrency: 1 }, ()
     await withTemp(async (dir) => {
       await seedTask(dir)
       await writeRel(dir, REVIEW_REL, '# R1 fixture\n\n## 结论\n\nPASS · 零内容阻塞（fixture）\n\n审查结论：fixture 范围与验收全项合规，无阻塞遗留，准予关账。\n')
-      const r1 = runCli(['verify', '--task', TASK_REL, '--target', dir, '--json'])
-      const r2 = runCli(['verify', '--task', TASK_REL, '--target', dir, '--json'])
+      const r1 = await runCore(['verify', '--task', TASK_REL, '--target', dir, '--json'])
+      const r2 = await runCore(['verify', '--task', TASK_REL, '--target', dir, '--json'])
       assert.equal(r1.status, 0, r1.combined)
       assert.equal(r2.status, 0, r2.combined)
       const t1 = (JSON.parse(r1.stdout) as Record<string, unknown>).traceId
@@ -188,7 +189,7 @@ describe('2.2-W3 C2 · verify --json 可观测四字段', { concurrency: 1 }, ()
         '',
       ].join('\n')
       await writeRel(dir, 'docs/spec/SPEC-vobs-fixture_v1.md', spec)
-      const r = runCli(['verify', '--spec', 'docs/spec/SPEC-vobs-fixture_v1.md', '--target', dir, '--json'])
+      const r = await runCore(['verify', '--spec', 'docs/spec/SPEC-vobs-fixture_v1.md', '--target', dir, '--json'])
       assert.equal(r.status, 0, r.combined)
       const payload = JSON.parse(r.stdout) as Record<string, unknown>
       assert.equal(payload.command, 'verify')
@@ -222,7 +223,7 @@ describe('2.3-W3-B · --json target 相对化 + 错误面零泄漏 + exit 1 信�
     await withTemp(async (dir) => {
       await seedTask(dir)
       await writeRel(dir, REVIEW_REL, '# R1 fixture\n\n## 结论\n\nPASS · 零内容阻塞（fixture）\n\n审查结论：fixture 范围与验收全项合规，无阻塞遗留，准予关账。\n')
-      const pass = runCli(['verify', '--task', TASK_REL, '--target', dir, '--json'])
+      const pass = await runCore(['verify', '--task', TASK_REL, '--target', dir, '--json'])
       assert.equal(pass.status, 0, pass.combined)
       const p1 = JSON.parse(pass.stdout) as Record<string, unknown>
       assert.equal(p1.target, toRel(KIT, dir))
@@ -230,7 +231,7 @@ describe('2.3-W3-B · --json target 相对化 + 错误面零泄漏 + exit 1 信�
     })
     await withTemp(async (dir) => {
       await seedTask(dir)
-      const blocked = runCli(['verify', '--task', TASK_REL, '--target', dir, '--json'])
+      const blocked = await runCore(['verify', '--task', TASK_REL, '--target', dir, '--json'])
       assert.equal(blocked.status, 2, blocked.combined)
       const p2 = JSON.parse(blocked.stdout) as Record<string, unknown>
       assert.equal(p2.target, toRel(KIT, dir))
@@ -241,7 +242,7 @@ describe('2.3-W3-B · --json target 相对化 + 错误面零泄漏 + exit 1 信�
   it('① 错误面零泄漏：target 非 git 仓 · task 未找到 · 路径越界 均无绝对 token', async () => {
     // 面 1：target 非 git 仓（resolveTarget 拒止 · exit 1）
     await withTempNoGit(async (dir) => {
-      const r = runCli(['verify', '--task', TASK_REL, '--target', dir])
+      const r = await runCore(['verify', '--task', TASK_REL, '--target', dir])
       assert.equal(r.status, 1, r.combined)
       assert.match(r.combined, /git/)
       assert.equal(absTokenHit(r.combined, dir), false, '非 git 仓报错不得含 target 绝对 token: ' + r.combined)
@@ -250,12 +251,12 @@ describe('2.3-W3-B · --json target 相对化 + 错误面零泄漏 + exit 1 信�
       await seedTask(dir)
       // 面 2：task 未找到（gate-check · exit 1 · 未找到 --task 文件）
       const missing = 'docs/tasks/active/task_vobs_missing.md'
-      const r2 = runCli(['gate-check', '--task', missing, '--target', dir])
+      const r2 = await runCore(['gate-check', '--task', missing, '--target', dir])
       assert.equal(r2.status, 1, r2.combined)
       assert.match(r2.combined, /未找到 --task 文件/)
       assert.equal(absTokenHit(r2.combined, dir), false, 'task 未找到报错不得含 target 绝对 token: ' + r2.combined)
       // 面 3：路径越界（resolveTaskPath 拒止 · exit 1 · 用户输入绝对路径相对化为 ../ 形 · F-W3-01）
-      const r3 = runCli(['verify', '--task', '/etc/hosts', '--target', dir])
+      const r3 = await runCore(['verify', '--task', '/etc/hosts', '--target', dir])
       assert.equal(r3.status, 1, r3.combined)
       assert.match(r3.combined, /拒绝 target 之外/)
       assert.equal(absTokenHit(r3.combined, '/etc/hosts'), false, '越界报错不得含绝对输入 token: ' + r3.combined)
@@ -266,7 +267,7 @@ describe('2.3-W3-B · --json target 相对化 + 错误面零泄漏 + exit 1 信�
     await withTemp(async (dir) => {
       await seedTask(dir)
       // 互斥用法错
-      const r = runCli(['verify', '--task', TASK_REL, '--spec', 'docs/spec/x.md', '--target', dir, '--json'])
+      const r = await runCore(['verify', '--task', TASK_REL, '--spec', 'docs/spec/x.md', '--target', dir, '--json'])
       assert.equal(r.status, 1, r.combined)
       const payload = JSON.parse(r.stdout) as Record<string, unknown>
       assert.equal(payload.command, 'verify')
@@ -278,7 +279,7 @@ describe('2.3-W3-B · --json target 相对化 + 错误面零泄漏 + exit 1 信�
       assert.match(r.stderr, /互斥/, 'stderr 人类文案保持')
       assert.equal(r.stdout.trimStart().startsWith('{'), true, 'stdout 纯 JSON 无人类文本污染')
       // 未知参数用法错
-      const r2 = runCli(['verify', '--task', TASK_REL, '--target', dir, '--json', '--bogus'])
+      const r2 = await runCore(['verify', '--task', TASK_REL, '--target', dir, '--json', '--bogus'])
       assert.equal(r2.status, 1, r2.combined)
       const p2 = JSON.parse(r2.stdout) as Record<string, unknown>
       assert.equal(p2.command, 'verify')
@@ -287,8 +288,8 @@ describe('2.3-W3-B · --json target 相对化 + 错误面零泄漏 + exit 1 信�
     })
   })
 
-  it('② 未知命令 + --json → 信封兜底（F-W3-02 · 参数解析前错误同覆盖）', () => {
-    const r = runCli(['nosuchcmd', '--json'])
+  it('② 未知命令 + --json → 信封兜底（F-W3-02 · 参数解析前错误同覆盖）', async () => {
+    const r = await runCore(['nosuchcmd', '--json'])
     assert.equal(r.status, 1, r.combined)
     const payload = JSON.parse(r.stdout) as Record<string, unknown>
     assert.equal(payload.command, 'nosuchcmd')
@@ -299,7 +300,7 @@ describe('2.3-W3-B · --json target 相对化 + 错误面零泄漏 + exit 1 信�
   it('② 不传 --json 时人类错误输出不变（无信封回归）', async () => {
     await withTemp(async (dir) => {
       await seedTask(dir)
-      const r = runCli(['verify', '--task', TASK_REL, '--spec', 'docs/spec/x.md', '--target', dir])
+      const r = await runCore(['verify', '--task', TASK_REL, '--spec', 'docs/spec/x.md', '--target', dir])
       assert.equal(r.status, 1, r.combined)
       assert.equal(r.stdout.trim(), '', '不传 --json 时 stdout 无信封')
       assert.match(r.stderr, /互斥/)
