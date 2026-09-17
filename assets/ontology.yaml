@@ -1,7 +1,7 @@
 # cyning-harness 产品设计本体 · 机器可读抽取（草案 v1.0.0）
 # 人类真值：DESIGN_ONTOLOGY_v1_zh.md（私仓 cyning-harness 工作区文档 · 不随 npm 包分发）
-# 冲突时以 Markdown 为准 · 机器校验请用 npx spec-wave graph axioms check
-# （该命令校验 HGM 公理，不校验本文件；独立的 ontology-check 本包未接线）
+# 冲突时以 Markdown 为准 · 本文件机器校验：npx spec-wave graph ontology check（3.0-W3 S4.1 已接线 · profile spec-wave-shacl-subset/v1 · SHACL 语义子集不声称标准合规）
+# （graph axioms check 校验 HGM 公理，不校验本文件 · 两命令分工）
 
 version: "1.3"
 product_semver: "2.4.2" # 自旧包 cyning-harness 2.0.4 迁移，对齐本包 package.json

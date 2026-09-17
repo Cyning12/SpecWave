@@ -1,5 +1,6 @@
 import path from 'node:path'
-import { fail, printJson, resolveTarget, takeOption, toRel } from './cli-shared.ts'
+import { fail, packageRoot, printJson, resolveTarget, takeOption, toRel } from './cli-shared.ts'
+import { checkOntologyFile, OntologyCheckError } from './cli-graph-ontology.ts'
 import {
   allGraphIds,
   checkGraph,
@@ -28,6 +29,7 @@ export async function cmdGraph(args: string[]): Promise<void> {
   graph ingest [--target PATH] [--actor ACTOR] [--dry-run]
   graph snapshot [--target PATH]
   graph axioms check [--target PATH] [--json]
+  graph ontology check [--file PATH] [--json]
 `)
     return
   }
@@ -46,6 +48,10 @@ export async function cmdGraph(args: string[]): Promise<void> {
   }
   if (sub === 'axioms') {
     await cmdGraphAxioms(subRest)
+    return
+  }
+  if (sub === 'ontology') {
+    await cmdGraphOntology(subRest)
     return
   }
   fail(`graph 子命令未知: ${sub ?? '(空)'}`)
@@ -176,6 +182,48 @@ async function cmdGraphSnapshot(args: string[]): Promise<void> {
   console.log(`nodes: ${Object.keys(snapshot.nodes).length}`)
   console.log(`edges: ${snapshot.edges.length}`)
   console.log(`snapshot: ${out}`)
+}
+
+// 3.0 W3 · S4.1：graph ontology check [--file PATH] [--json] —— 对 assets/ontology.yaml（--file 缺省 =
+// 包内件 · 显式给出则校验该文件 · 负向 fixture/消费者自查共用入口 · 校验器开放 ≠ 本体内容开放）跑
+// SHACL 语义子集校验。exit 语义（fail-closed）：conforms → 0；任一 Violation → 2 逐行点名
+// （`shape @ where :: message` · 与探针输出同源）；仅 Warning/Info → 0（报告含警示行）；
+// 不可读/解析失败 → 2（F-W3-01）。
+async function cmdGraphOntology(args: string[]): Promise<void> {
+  const [sub, ...rest] = args
+  if (sub !== 'check') fail(`graph ontology 动作未知: ${sub ?? '(空)'}`)
+  let remaining = rest
+  const { value: fileArg, rest: r1 } = takeOption(remaining, '--file')
+  remaining = r1
+  const json = remaining.includes('--json')
+  remaining = remaining.filter((a) => a !== '--json')
+  if (remaining.length > 0) fail(`graph ontology check 未知参数: ${remaining.join(' ')}`)
+  const file = fileArg
+    ? path.resolve(process.cwd(), fileArg)
+    : path.join(packageRoot(), 'assets', 'ontology.yaml')
+  let report
+  try {
+    report = checkOntologyFile(file)
+  } catch (err) {
+    if (err instanceof OntologyCheckError) fail(err.message, 2)
+    throw err
+  }
+  if (json) {
+    printJson(process.cwd(), report)
+  } else {
+    console.log(`ontology: ${toRel(process.cwd(), file)}`)
+    console.log(`profile: ${report.profile}（SHACL 语义子集 · 不声称标准合规）`)
+    console.log(
+      `形状数: ${report.shapes.length} · 实体: classes=${report.entities.classes} ` +
+        `relations=${report.entities.relations} axioms=${report.entities.axioms} gates=${report.entities.gates}`,
+    )
+    console.log(`conforms: ${report.conforms}`)
+    for (const v of report.violations) {
+      console.log(`  [${v.severity.toUpperCase()}] ${v.shape} @ ${v.where} :: ${v.message}`)
+    }
+  }
+  const hard = report.violations.filter((v) => v.severity === 'Violation')
+  if (hard.length > 0) fail(`ontology 校验未通过（Violation × ${hard.length}）`, 2)
 }
 
 async function cmdGraphAxioms(args: string[]): Promise<void> {

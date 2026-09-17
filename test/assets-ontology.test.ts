@@ -38,11 +38,14 @@ describe('D-DOC 1.2.4 DEF-004 · ontology.yaml 与包实物对齐', { concurrenc
     assert.equal(m![1], pkg.version, 'product_semver 须对齐 package.json version（DEF-004 D2-A）')
   })
 
-  it('③ 无 harness ontology-check 死命令字样，且指向真实命令 graph axioms check', () => {
+  it('③ 无 harness ontology-check 死命令字样，且指向真实命令 graph axioms check / graph ontology check', () => {
     const body = readFileSync(ONTO, 'utf8')
     assert.equal(body.includes('harness ontology-check'), false)
     assert.match(body, /graph axioms check/)
-    assert.match(body, /未接线/, '须明示 ontology-check 本包未接线')
+    // 3.0-W3 S4.1 接线（20 审 R1-A4 登记项 · F-W2-13 同式）：ontology-check 已接线，
+    // 原 /未接线/ 断言登记式翻转为钉已接线命令面 + 未接线自述零残留。
+    assert.match(body, /graph ontology check/, '头注释须指向已接线的 graph ontology check（3.0-W3 S4.1）')
+    assert.equal(body.includes('未接线'), false, 'ontology-check 已接线 · 不得残留未接线自述')
   })
 
   it('④ 公理 id 全带 ONTO- 前缀，无与代码公理撞名的裸 id', () => {
