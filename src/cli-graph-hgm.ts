@@ -1,6 +1,6 @@
 import { existsSync, mkdirSync, readdirSync, readFileSync, appendFileSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
-import { isS2RelPath, kitLayoutJoin, legacyLayoutJoin, parseHumanGates, resolveLayoutFile } from './cli-shared.ts'
+import { kitLayoutJoin, legacyLayoutJoin, parseHumanGates, resolveLayoutFile } from './cli-shared.ts'
 
 const EVENTS_DIR = 'events'
 const SNAPSHOT_FILE = 'graph/snapshot.json'
@@ -157,10 +157,15 @@ export function ingestRepo(
   // DEF-015 T4：GateStatusChanged.old_status 由既有事件轨推导（同 subject 最新 new_status），
   // 无历史才回退 'pending'；loadEvents 按 occurred_at+event_id 排序，后写覆盖先得最新态。
   const priorGateStatus = new Map<string, string>()
+  // 3.0-W3 S4.4（ADV-B 接真 (i)）：task_status 事件轨投影（TaskCreated.status / TaskStatusChanged.new_status
+  // 最新值 · loadEvents 已按 occurred_at+event_id 排序 · 后写覆盖）—— 供下方 task md status 漂移补发判定。
+  const priorTaskStatus = new Map<string, string>()
   for (const e of loadEvents(target)) {
     if (e.type === 'GateStatusChanged') {
       priorGateStatus.set(e.subject, String(e.data?.new_status ?? 'pending'))
     }
+    if (e.type === 'TaskCreated') priorTaskStatus.set(e.subject, String(e.data?.status ?? ''))
+    if (e.type === 'TaskStatusChanged') priorTaskStatus.set(e.subject, String(e.data?.new_status ?? ''))
   }
   const manifestHit = resolveLayoutFile(target, 'manifest.json')
   if (manifestHit.source !== 'none') {
@@ -209,6 +214,20 @@ export function ingestRepo(
         },
         source,
       })
+      // 3.0-W3 S4.4（接真 (i)）：task md status 与事件轨投影漂移 → 补发 TaskStatusChanged
+      // （清偿路径入公开管道 · rejected→draft 公理清偿后继① · 幂等键经 idempotencyKey 扩展兜底）。
+      const priorStatus = priorTaskStatus.get(taskSubject)
+      if (priorStatus !== undefined && priorStatus !== parsed.status) {
+        events.push({
+          event_id: eventId(new Date(occurredAt), seq++),
+          type: 'TaskStatusChanged',
+          occurred_at: occurredAt,
+          actor,
+          subject: taskSubject,
+          data: { task_slug: parsed.task_slug, old_status: priorStatus, new_status: parsed.status },
+          source,
+        })
+      }
       for (const g of parsed.gates) {
         events.push({
           event_id: eventId(new Date(occurredAt), seq++),
@@ -314,17 +333,24 @@ function checkRejectedToDraft(events: HgmEvent[] | null): { axiom: string; sever
     const taskSlug = rej.data?.task_slug
     if (!taskSlug) continue
     const taskSubject = `task:${String(taskSlug)}`
-    const hasDraftFollowUp = sorted.slice(i + 1).some(
+    // 3.0-W3 S4.4（ADV-B1/B2 接真 (i) · task 定稿自由度内 30 定稿）：清偿后继二选一 ——
+    // ① TaskStatusChanged(draft)（回退重修 · ingest 现已可产出 · 见 ingestRepo 漂移补发）；
+    // ② 同闸 GateStatusChanged(new_status ≠ rejected)（重审流转 · 公开管道可达）。
+    // rejected 后静默搁置（无任一清偿后继）仍 error 真红 —— 永久红仅余「不了了之」真场景。
+    const hasFollowUp = sorted.slice(i + 1).some(
       (e) =>
-        e.type === 'TaskStatusChanged' &&
-        e.subject === taskSubject &&
-        e.data?.new_status === 'draft',
+        (e.type === 'TaskStatusChanged' &&
+          e.subject === taskSubject &&
+          e.data?.new_status === 'draft') ||
+        (e.type === 'GateStatusChanged' &&
+          e.subject === rej.subject &&
+          e.data?.new_status !== 'rejected'),
     )
-    if (!hasDraftFollowUp) {
+    if (!hasFollowUp) {
       violations.push({
         axiom: 'rejected→draft',
         severity: 'error',
-        message: `gate rejected（${rej.event_id}）后缺少 TaskStatusChanged(draft) 回退`,
+        message: `gate rejected（${rej.event_id} · ${rej.subject}）后缺少 TaskStatusChanged(draft) 回退或同闸重审流转`,
         node: rej.subject,
       })
     }
@@ -332,18 +358,32 @@ function checkRejectedToDraft(events: HgmEvent[] | null): { axiom: string; sever
   return violations
 }
 
+// 3.0-W3 S4.4（ADV-A1/A2 必修 · 研究文 §5.3）：D2 裸子串 .includes('30') 双中（130-helper 过配 ·
+// execute-code 漏配）→ 段边界等值判：hat_id 按 '-' 切分首段等值（V2 全形 30-execute-code 与存量短形 30
+// 同归一）。未声明帽漂移形（execute-code 等）不归 D2 —— 由 S4.5 HGM 实例校验 hat 词汇面 Warning 兜住（F-W3-09）。
+export function hatIdMatchesSegment(hatId: unknown, segment: string): boolean {
+  return String(hatId).split('-')[0] === segment
+}
+
 export function checkAxioms(
   snapshot: HgmSnapshot,
   events: HgmEvent[] | null = null,
 ): { ok: boolean; violations: { axiom: string; severity: string; message: string; node: string }[] } {
   const violations: { axiom: string; severity: string; message: string; node: string }[] = []
-  const { nodes, edges, projections } = snapshot
+  // 3.0-W3 S4.4 判据加固 · 移除登记（研究文 §5.3 · 附录 A c1/c2 对抗实证 · 修复前真值面 §5.1 在案）：
+  // ① D3 公理已移除（原 for-projections.task_status 段）—— CHECKED 边在 buildSnapshot 无任何产出面
+  //    （不可构造）⇒ task in_progress 恒 warn 空转噪声 · 零消费者；接真（GateCheckRun 证据产 CHECKED 边）
+  //    归 W6 G7（3.x · 范围膨胀须 20/00 批准 · 本波移除+登记）。
+  // ② S2 公理已移除（原 for-edges SYNCED 段）—— SYNCED 边同样不可构造 ⇒ 恒绿假安全感；
+  //    S2 真保护在 sync 执行侧拦截面（isS2RelPath 等写前拦截 · cli-sync），非 axioms 事后判定；
+  //    对外文案不得声称 graph axioms check 保护 S2（验收 #12 文案面 · 假安全感红线）。
+  const { nodes, edges } = snapshot
   const nodeMap = new Map(Object.entries(nodes))
   const outgoing = (id: string, type: string) =>
     edges.filter((e) => e.from === id && e.type === type)
   for (const [id, node] of nodeMap) {
     if (node.kind === 'HumanGate' && node.status === 'pending') {
-      const blocks30 = outgoing(id, 'BLOCKS').some((e) => String(e.hat_id).includes('30'))
+      const blocks30 = outgoing(id, 'BLOCKS').some((e) => hatIdMatchesSegment(e.hat_id, '30'))
       if (blocks30) {
         violations.push({
           axiom: 'D2',
@@ -354,37 +394,7 @@ export function checkAxioms(
       }
     }
   }
-  for (const [taskId, status] of Object.entries(projections.task_status || {})) {
-    if (status === 'in_progress') {
-      const checked = edges.some(
-        (e) => e.to === taskId && e.type === 'CHECKED' && e.exit_code === 0,
-      )
-      if (!checked) {
-        violations.push({
-          axiom: 'D3',
-          severity: 'warn',
-          message: `task ${taskId} in_progress 但无通过 GateCheckRun`,
-          node: taskId,
-        })
-      }
-    }
-  }
   violations.push(...checkRejectedToDraft(events))
-  for (const edge of edges) {
-    if (edge.type === 'SYNCED') {
-      const files = (edge.files_touched as string[]) || []
-      for (const f of files) {
-        if (isS2RelPath(f)) {
-          violations.push({
-            axiom: 'S2',
-            severity: 'error',
-            message: `sync 事件 touch S2 保护域: ${f}`,
-            node: String(edge.from),
-          })
-        }
-      }
-    }
-  }
   return {
     ok: violations.filter((v) => v.severity === 'error').length === 0,
     violations,
@@ -405,6 +415,8 @@ function idempotencyKey(e: HgmEvent): string {
   const base = `${e.type}:${e.subject}`
   if (e.type === 'GateStatusChanged') return `${base}:${String(e.data?.new_status ?? '')}`
   if (e.type === 'TaskCreated') return `${base}:${String(e.data?.status ?? '')}`
+  // 3.0-W3 S4.4（接真 (i)）：TaskStatusChanged 幂等键照既有口径扩展（摘要取 data.new_status）。
+  if (e.type === 'TaskStatusChanged') return `${base}:${String(e.data?.new_status ?? '')}`
   return base
 }
 

@@ -61,8 +61,68 @@ task S4.1/S4.2 · 验收 #1/#2（部分）/#3（待答登记）/#7（本阶段�
 - commit 1 `d960bc8` feat(3.0-W3): ontology-check 接线 —— src/cli-graph-ontology.ts · src/cli-graph.ts · test/ontology-check.test.ts · assets/ontology.yaml（头注释）· test/assets-ontology.test.ts（A4 登记）· assets/sha256.manifest
 - commit 2（本 invoke 同批）fix(3.0-W3): ontology 引用完整性补声明 —— assets/ontology.yaml（classes +2 · relations +1）· test/ontology-check.test.ts（计数钉 3→1）· assets/sha256.manifest · 本 invoke
 
+## 阶段二（F2 真口径 + 判据加固六项 · 验收 #4/#8 · 00 放行）
+
+GATE_VERIFY 复跑：双闸 approved · VERIFY: PASS。
+
+### F2 真口径（S4.3 · src/cli-lifecycle.ts）
+
+- `discipline show` / `lifecycle show` 增 `[--target PATH]`（缺省 = cwd · resolveTarget · DEF-019 同口径）；
+  三层解析优先级：`<target>/assets/harness/<name>` → `<target>/.coding-kit/assets/harness/<name>` → `packageRoot()` 兜底；
+  human 输出首行 `source: <相对路径>` / `source: package-fallback（消费者资产未找到 · 显示包内自述口径）`；
+  `discipline show` SoT 尾注行按实际来源改写（fallback 标 `包内 …（package-fallback）`）。
+- 坏资产即红：消费者资产（1/2 层）解析/校验失败 → exit 2 点名路径（不静默回退）；三层均缺 → exit 2 fail-closed
+  （30 裁决登记：task「现状 :57 同口径延续」与「exit 2 fail-closed」字面冲突，采 fail-closed 统一 exit 2 ·
+  grep 实证无既有断言钉缺件 exit 1 面）。
+- dry-run 维持包内自述口径（S4.3 范围 = show 双命令 · 传 packageRoot() 走三层解析第 1 层即包内件 · 行为逐字等价现状）。
+- 机检一致（验收 #4 · test/cli-f2-asset-source.test.ts 8 用例 · 红测先行 8/8 先红后绿）：
+  --json 与所读 yaml deep-equal · human 计数重算一致 · sample ⊆ statements · 来源正（消费者版生效）/误（fallback 标注）
+  fixture · 坏资产 exit 2 fixture ×2 · 优先级 fixture · dogfood cwd 缺省钉。
+
+### 判据加固六项（S4.4 · src/cli-graph-hgm.ts · 附录 A 配方机械复现）
+
+修复前真值面：研究文 §5.1 在案 + 本棒开工复跑逐字一致（a1 误报 exit 2 · a2 漏报 · b1 永久红 · b2 PASS · c1 恒 warn · c2 恒绿）。
+修复后复跑（同配方）：六构造全 exit 0 —— a1 转绿 · a2 PASS（D2 正确不管）· b1 转绿 · b2 仍绿 · c1 violations 0 零 D3 噪声 · c2 violations 0（公理移除）。
+
+| 项 | 处置 | 修复后判据 fixture（test/graph-axioms-hardening.test.ts 9 用例 · 红测先行 6 红 3 对照绿） |
+|----|------|------|
+| ADV-A1/A2 · D2 裸子串 | **必修落地**：`.includes('30')` → `hatIdMatchesSegment`（split('-') 首段等值 '30' · 禁裸子串 · 导出供 S4.5 hat 词汇归一复用） | a1 转绿（130-helper PASS）· a2 PASS + 登记（execute-code 属未声明帽漂移 · 兜住面 = S4.5 hat 词汇 Warning · F-W3-09 · 阶段三）· 真阳性对照（30-execute-code / 短形 30 仍 FAIL exit 2 点名 D2 · 不削弱） |
+| ADV-B1/B2 · rejected→draft | **接真 (i) 落地**（task 定稿主选）：① ingestRepo 补发 TaskStatusChanged（md status ≠ 事件轨投影时 · 幂等键 idempotencyKey 扩展 new_status 摘要 · 重跑零重复 fixture 钉死）；② 公理新语义（task 定稿自由度「或按公理新语义判定」内 30 定稿）：清偿后继 = TaskStatusChanged(draft) ∨ 同闸 GateStatusChanged(≠rejected) | b1 转绿（rejected→approved PASS）· b2 仍绿（兼容面不收回）· b3 接真 fixture（漂移补发 → 清偿 PASS · 幂等）· 真红保留（rejected 后静默搁置仍 FAIL exit 2 点名） |
+| ADV-C1 · D3 空转 | **移除+登记落地**：删除公理 + 码注释登记（CHECKED 边不可构造 · 恒 warn 噪声 · 零消费者 · 接真归 W6 G7） | c1 violations 无 D3 项 PASS · 注释锚断言在案 |
+| ADV-C2 · S2 死判据 | **移除+登记落地**：删除公理 + 码注释登记（SYNCED 边不可构造 · 恒绿假安全感 · S2 真保护在 isS2RelPath 执行侧拦截 · 对外文案不得声称 axioms check 保护 S2 —— 文案负向 grep 归验收 #12 阶段四面） | c2 violations 无 S2 项 PASS · 注释锚断言在案 |
+
+### 既有面盘点（盯防结论 · F-W2-13 同式 · 除 A4 两件外零自改）
+
+- `cli-g1g7:354-380` PASS/FAIL 冒烟：fixture 闸表短形 `30` 经段边界判仍命中 D2 → 零破（全绿实证）；
+- `cli-json-no-abs-path:377-381`（axioms --json 相对化）与 :422-433（show --json 无绝对前缀 · fallback 层）零破；
+- `cli-discipline-coverage` ③（/as_of: 2.4.2/ · /status 口径 = 本包实接线/）零破（两行保留）；
+- dry-run 守卫系（cli-lifecycle-guards / cli-task-close-guards 等 tmp fixture 仓无 assets/harness → fallback 包内件）零破；
+- grep 实证 test/ 无 D3/S2/rejected→draft/TaskStatusChanged/CHECKED/SYNCED 公理断言面（assets-ontology ④ 的裸公理 id 正则是 ontology.yaml 面 · 不涉及 hgm）；
+- **timeline --task 全绿**（eventMatchesTaskSlug 未动 · snapshot 消费面零变更 · buildSnapshot 本阶段零改动）。
+
+### 锁逐项（阶段二）
+
+| 锁 | 结果 |
+|----|------|
+| npm test | 合并态 754/143/753 pass/0 fail/1 skip（duration 94.5s）· commit 3 独立态（stash 隔离）745/142/744/0 · commit 4 前 754 同绿 |
+| typecheck / build / test:lib | 0 错 · PASS · 6/6 |
+| pins / verify / assets verify | 17/17 · VERIFY: PASS · 110/110（本阶段未动 assets · 无需 rebuild） |
+| 附录 A 复跑 | 修复前六构造逐字一致在案 → 修复后六构造全 exit 0（真红残留面 = b1r/a3 对照 fixture 钉死） |
+
+### 提交（逐文件显式 add · 禁 add -A · 不 push 不 tag）
+
+- commit 3 `b710c0c` feat(3.0-W3): F2 真口径 —— src/cli-lifecycle.ts · test/cli-f2-asset-source.test.ts
+- commit 4（本批）fix(3.0-W3): graph axioms 判据加固六项 —— src/cli-graph-hgm.ts · test/graph-axioms-hardening.test.ts · 本 invoke 追加
+
+### 偏差登记（阶段二）
+
+1. task S4.3「三层均缺 → exit 2 fail-closed（现状 :57 同口径延续）」字面冲突（:57 现状 fail 默认 exit 1）—— 30 裁决采 fail-closed 统一 exit 2（仓内 fail-closed 语义 = exit 2 · 无既有断言钉 exit 1 缺件面 · grep 实证），登记备 20/00 复核。
+2. a2 兜住面（未声明帽 Warning）归阶段三 S4.5 —— 本阶段仅钉 D2 边界行为 + 登记（task 定稿原文即如此分派）。
+3. 验收 #12「无 axioms check 保护 S2 叙事」文案负向 grep 归阶段四（ONTO-OPEN/文案面）—— 本阶段码注释登记先行。
+
 ## 修订记录
 
 | 日期 | 说明 |
 |------|------|
 | 2026-09-17 | 30 阶段一落档：A4 接线 + 引用完整性补声明（TraceArtifact 待答挂起登记）· 锁逐项实测 · A4 断言登记 diff |
+| 2026-09-17 | 30 阶段二追加：F2 真口径 + 判据加固六项 · 附录 A 修复前后复跑留证 · 既有面盘点零自改 · 偏差三条登记 |
