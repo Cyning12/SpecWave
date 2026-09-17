@@ -4,6 +4,31 @@
 
 ## [Unreleased]
 
+## [3.0.0] - 2026-09-17
+
+> 主题：**major** —— **架构跃迁（architecture leap）**：**首次 schema breaking**（host-adapt 适配表 v1 → v2 **可选**跃迁 · 旧表零改动兼容）· 门禁随包内置 + 可多宿主物化 + 本体/图谱/可观测/审计全接线 · W7 收尾与对外口径统一。
+> **发布状态**：**待发版**（tag `v3.0.0` / `npm publish` **仅人** · `HG-RELEASE=pending` · 发布前探针 6 项见 [`docs/harness/reviews/w7_release_probe_3_0_0_20260917.md`](docs/harness/reviews/w7_release_probe_3_0_0_20260917.md) · 打 tag 后 `pins` 复跑须 17/17）。
+
+### Breaking
+
+- **host-adapt 适配表 schema v1 → v2（可选跃迁 · 旧表零改动）**：无 `schema_version` 键的旧表按 v1 旧扁平语义解析（缺省 = v1 · 语义等价映射入新内部模型：内建 `command_sets` 目录桥接 + hooks 缺省 `{mechanism: none}`）；欲用新能力（`defaults` / `extends` / `command_sets` / `surfaces.hooks`）时表首加 `schema_version: 2`。迁移指引见 [`MIGRATION.md`](MIGRATION.md)「2.4.2 → 3.0.0（breaking）」节（**经真实 v2.4.1 仓演练** · 旧格式零改动 + 新能力可选启用均 PASS）。
+
+### Added / Changed（W0–W7 八波）
+
+- **W0 重构预备**：god-file 拆分 barrel 化 + 六重锁（barrel/导出面/pins/assets/…）+ 独立验收文（**不迁 2.5.0**）· spawn 首轮下沉。
+- **W1 适配表 schema 跃迁 + 闸判定泛化（核心）**：schema v2（`defaults`/`extends`/`command_sets`/`surfaces.hooks`）+ v1 兼容桥（旧表零改动）+ blocks-30 全闸泛化（声明式全闸扫描）。
+- **W2 门禁入宿主 + B5 接入面**：hooks 物化（config-hook 3 宿主 / shell-hook = git 层宿主中立 / 无机制宿主显式降级 L1+L2）+ `host verify`（篡改报红 exit 2）+ `hook-guard` + host catalog。
+- **W3 本体图谱统一**：本体/图谱接线 + OWL 引入评估（**否决** · 3.x 复议触发条件）+ 研究文/探针入库（硬约束 14）。
+- **W4 防伪判据语义化**：结论级闸 + 自评类豁免（A1 三元判）+ 表行语义判（词锚 ∧ 表行双命中）。
+- **W5 机械清扫**：快照标注 / 口径对齐（R-1/R-2/R-3）/ basename 无关文件类型卫生。
+- **W6 可观测与审计**：审计事件轨 + G2/G4/G7 闸（failClosed）+ discipline check 收窄（逃逸率 100%→0%）。
+- **W7 收尾与对外**：F3 wiki 能力补全（`backlinks` 双向 / `--incremental` 增量等价 / `--check-conflicts` 冲突检测）· E3 spawn 下沉 **671 → 270**（同口径 · `scripts/e3-spawn-count.mjs`）· 术语机检（`assets/harness/terminology.yaml` + `check-terminology`）· A3 对外口径边界（`assets/harness/claims-boundary.yaml` + `check-claims`）· K-1~K-4 竞品口径「区间 + as_of」修订 · MIGRATION 定稿 + 真实 2.4.1 仓演练 · 链接两级机检（`check-doc-links` · 非 S2 坏链 0）+ 证据入库清偿（≥4 件镜像 `docs/harness/reviews/`）· 2.4.2 口径补正搭车 · 3.0.0 bump。
+
+### Tests
+
+- 测试基线 **841 → 859**（all pass + 1 环境 skip）；**tag-gated 设计红 ×2**（`release-tag-identity` / `pins-consistency` 真实仓 pin-10 = git tag `v3.0.0`）· **打 tag 后须全绿**。
+- 新增机械锁：`check-terminology` / `check-claims` / `check-doc-links`（各含正负 fixture）· F3 wiki fixture 三能力 · E3 计数脚本。
+
 ## [2.4.2] - 2026-09-15
 
 > 主题：**patch** —— 2.4.1 验收报告 **PASS-with-issues（无 P1）** 三条 P2 修复（§6.1「建议纳入 2.4.2」：R-1/R-2/R-3 · task `2-4-2-patch` · 覆盖面对齐收尾）。

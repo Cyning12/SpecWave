@@ -10,8 +10,8 @@
 
 | 项 | 值 |
 |----|-----|
-| **工作树 / registry `latest`** | **`spec-wave@2.4.2`**（**已 published** · 2026-09-15 · 人执行 publish · dist-tags `latest=2.4.2`（registry API 直查实核）· `time.2.4.2`=2026-09-15T08:28:17Z · tag **`v2.4.2`** ↔ bump commit `2557119`（tag+push 00 原子推代跑 · 维护者本窗授权「授权git+push」· main/tag CI 双 success 零竞态）· ⑨ 探针全过 · 明细见下「人 checklist · 2.4.2」） |
-| **前一 latest** | **`spec-wave@2.4.1`**（2.4.0 验收四项修复 patch · 2026-09-14 · tag **`v2.4.1`** ↔ `c89f92d`） |
+| **工作树 / registry `latest`** | **`spec-wave@3.0.0`**（**待发版** · 2026-09-17 bump · **tag `v3.0.0` 待人打** · `HG-RELEASE=pending` · registry `latest` 仍为 `2.4.2` 直至人 publish · 发布前探针 6 项见 [`docs/harness/reviews/w7_release_probe_3_0_0_20260917.md`](docs/harness/reviews/w7_release_probe_3_0_0_20260917.md) · 打 tag 前 17 落点 16/17（pin-10 设计红）） |
+| **前一 latest（已 published）** | **`spec-wave@2.4.2`**（2.4.1 验收三条 P2 修复 patch · 2026-09-15 · tag **`v2.4.2`** ↔ bump commit `2557119` · dist-tags `latest=2.4.2` · `time.2.4.2`=2026-09-15T08:28:17Z） |
 | **旧包名** | **`dsh-coding-kit`** · **已 deprecate**（文案 → `spec-wave`） |
 | **git（史实 · 2.1.1）** | tag **`v2.1.1`** · 改名前身份；**`v2.1.2` / `v2.1.3` / `v2.2.0` / `v2.2.1` / `v2.3.0`** 为 SpecWave 身份可溯源点（**禁止** `git tag -f`） |
 | **主题（已发 · 2.4.2）** | 2.4.1 验收报告三条 P2 修复：R-1 `host validate` 缺省基改取 `--file` 所在仓根（findGitRoot 上溯 · 仓外文件 `outside_repo` 占位不打绝对路径）+ R-2 否定词表补 `not\s*pass` + 同句共现窗口（G/I/J 封堵 · K 换行漏网维持登记 · 存量 67+77 份误伤实测 0 翻转）+ R-3 钉面 pin-16 HTML 锚点无引号属性值（三选一捕获组） |
@@ -66,6 +66,21 @@
 - [ ] **⑦ npm pack --dry-run 检查**：`npm pack --dry-run` 逐行核对 tarball 清单 —— 无 `test/` 泄漏、无工作区/私仓文件；仅 `package.json#files` 白名单（`bin` / `lib` / `assets` / `cordis.patch.yml` / `README.md` / `LICENSE`）内的内容入包。（Agent 可做）
 - [ ] **⑧ npm publish（仅人）**：`npm publish`（`prepublishOnly` 会自动重跑②四门；⑦已核对清单）。**Agent 不得执行本步。**
 - [ ] **⑨ publish 后核验 + 过程档状态更新**：`npm view spec-wave version`（及 `dist-tags`）确认新版本已生效；抽样验证；更新过程档状态为已发布。（人 publish 后 · Agent 可代核）
+
+### 人 checklist · `3.0.0` 发版（**待发版** · 2026-09-17 bump · tag/push/publish/deprecate **全仅人**）
+
+> 内容：**架构跃迁（major · 首次 schema breaking）** —— W0 重构预备 → W1 适配表 schema v1→v2 可选跃迁（旧表零改动）+ 闸判定泛化 → W2 门禁入宿主 → W3 本体图谱统一 → W4 防伪判据语义化 → W5 机械清扫 → W6 可观测审计 → W7 收尾对外（F3/E3/术语/A3/K 台账/链接/证据/迁移）+ 3.0.0 bump。task `3-0-w7-closeout-external`。
+> **探针**：[`docs/harness/reviews/w7_release_probe_3_0_0_20260917.md`](docs/harness/reviews/w7_release_probe_3_0_0_20260917.md)（6 项 · ① compat 首项 PASS）。
+> **验收素材**：[`docs/roadmap/ACCEPTANCE_3_0_architecture_leap_3_0_0_zh.md`](docs/roadmap/ACCEPTANCE_3_0_architecture_leap_3_0_0_zh.md)。
+
+1. [ ] 确认工作树已 commit（含 bump `3.0.0` · CHANGELOG `## [3.0.0] - 2026-09-17` · 17 钉面同步 · **pins 16/17**（pin-10 tag-gated 设计红 · 打 tag 后须 17/17）· 四门绿 · 探针 6 项）
+2. [ ] `git tag v3.0.0`（annotated · **仅人**）+ push（**原子推** `git push origin main v3.0.0` 单条 · 或 tag 先行 · 禁「先 main 后 tag」竞态）
+3. [ ] `npm publish`（包名 `spec-wave` · 版本 `3.0.0` · **仅人**；`prepublishOnly` 自动重跑四门 + 包内容卫生断言）
+4. [ ] 探针（人 publish 后 · Agent 可代核）：`npm view spec-wave version`（及 `dist-tags` · 绕缓存）→ `3.0.0`；`git show v3.0.0:package.json` → `version=3.0.0`；真 tarball `spec-wave@3.0.0` 无 `.bak`/`*~`/`.DS_Store`
+5. [ ] 打 tag 后复跑（仅人可打 tag）：`pins check` **17/17 PASS · exit 0**（设计红全转绿）· `npm test` 全绿（`release-tag-identity` / `pins-consistency` A 组转绿）
+6. [ ] 回填 ACCEPTANCE / 过程档为已 published（本表勾选 · RELEASING「最近一次发版」表 · README 双语现行包行 · spec 索引行状态 `待发版 → published`）
+
+> **⚠️ 本波 tag/push/publish/deprecate 四动作全仅人**（HG-RELEASE=pending · 无代跑授权；与 2.4.2 的 00 原子推代跑不同）。
 
 ### 人 checklist · `2.4.2` 发版（**已完成** · 2026-09-15 · 人执行 publish · tag/push 00 原子推代跑（维护者本窗授权「授权git+push」）· 探针/回填 00+release 棒代核）
 
