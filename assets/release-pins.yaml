@@ -73,8 +73,15 @@ pins:
         (?<![0-9A-Za-z._-])X\.Y\.Z(?![0-9A-Za-z._-]) 精确锁定（非裸子串包含）——左/右边界排除
         数字/字母/点/下划线/连字符，拦 `vX.Y.Z` v 前缀 / `X.Y.Z-beta` 修饰 / `X.Y.Z.N` 加长顶包，
         放行反引号/星号/@ 包裹形态（`X.Y.Z` published 等存量行零误伤）。
-        「X.Y.Z 规划中」类非发布态行：状态列含点式串即算行身份合格（F-W1-05 定稿 · 发布态
-        准确性归 pin-10 tag 闸分工）。X.Y.0 时 minor 主题夹行状态列含 X.Y.0 即满足，patch 时须
+        3.0-W4 发布态绑定（评审文 w4_semantic_criteria_review_20260917 §5 定稿 · 范围⑤）：状态格
+        （cells[2]）边界点式串 ∧ 发布态措辞集 S_mid = {published, 已发, released, CLOSED, 规划中,
+        planned} 同格共现（非同行非跨格 · 跨格会把 slug/描述格措辞卷入稀释语义）——裸版本串无态词
+        → mismatch 点名缺发布态措辞；S_narrow（published/已发/released）弃用——实测伤 L10
+        「CLOSED（1.12.0+1.12.1）」现行合法形态（1/15 · 评审文 §5 表）；IMPLEMENTED/deprecated/DONE/
+        CLOSE/draft 不入发布态集（生命周期/包态措辞与「该版本串已发布」无语义绑定 · 稀释判据）；
+        规划中/planned 入集（规划态亦是显式状态绑定 · F-W1-05 既定行形态）；规划中伪装已发行 →
+        行已自陈规划态 · 版本真实性归 pin-10 tag 闸分工（分工注释保持）。
+        X.Y.0 时 minor 主题夹行状态列含 X.Y.0 即满足，patch 时须
         X.Y.Z patch 收尾标注行（D-SPEC-213-ROW：2.1.3/2.2.1/2.3.1 先例 · 不建 X_Y_Z-* 夹）
     expected: { kind: package-version }
     required: true
@@ -184,7 +191,12 @@ pins:
         适配表 host 无映射数据 → failClosed 数据债（F-W2-06 · W6 新宿主落地即受约束）；
         known_gaps 过渡豁免（D-23-W2-W7-EXEMPTION · until_wave 截止）——豁免宿主双语
         双双命中（W7① 落地）或已不在适配表 → 豁免失陈债 exit 2（F-W2-05 机检自执行 ·
-        豁免移除由 W7 task 关账强制）
+        豁免移除由 W7 task 关账强制）；3.0-W4 NEW-4 表行语义判（评审文 §4 定稿 · 范围④）——
+        双命中上加两层：①词锚（剥 \|\s* 行首锚后 cell 域形态）须落命中行 cells[0] 主键列；
+        ②命中行所属表（表头行+分隔行+连续表行）首表头格须匹配宿主表签名 /^(Host|宿主)$/（双语 ·
+        与现行两 README 实测表头一致）；全表誊抄伪造可通过 = 诚实边界（机械判据防机会式单行注入 ·
+        全表誊抄不造成信息失真）；存量双 README 各 10 表 · 宿主签名表各恰 1 · 13 宿主词锚全落
+        cells[0] · 26/26 零误伤（评审文 §4 实测）
       readmes: [README.md, README.zh-CN.md]
       # F-W2-04 逐宿主核对 @2026-09-12：四存量宿主取双语表行锚（README.md:26-29 /
       # README.zh-CN.md:26-29 实测命中 · 普通单词误伤免疫）；三新宿主取官方名词锚。

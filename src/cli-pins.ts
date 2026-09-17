@@ -218,7 +218,10 @@ function evaluatePin(root: string, pin: Pin, truth: string): PinResult {
   // 行合格 ⟺ 状态列（cells[2] · 列序约定 cells[0]=slug/cells[1]=路径/cells[2]=状态）含当前版本
   // 点式 X.Y.Z，且 slug 列（B）行身份辅助判成立（含版本串或以 X_Y- 前缀开头 · minor 主题夹行）。
   // 下划线式 X_Y/X_Y_Z 一律不计入版本串（slug/文件名/归档链接顶包排除 · §3.J 两类顶包杀伤）；
-  // 「X.Y.Z 规划中」类非发布态行：状态列含点式串即算行身份合格（F-W1-05 定稿 · 发布态归 pin-10）。
+  // 3.0-W4 发布态绑定（评审文 w4_semantic_criteria_review_20260917 §5 定稿）：状态格点式串须与
+  // 发布态措辞集 S_mid（published/已发/released/CLOSED/规划中/planned）同格共现（非同行非跨格）——
+  // 裸版本串无态词 → 不放行并点名缺发布态措辞；S_narrow 弃用（实测伤 L10 CLOSED 行 1/15）·
+  // 规划中/planned 入集（F-W1-05 既定行形态）· 规划中伪装已发行归 pin-10 tag 闸分工（分工保持）。
   // 2.4.1 NEW-9/N9（验收报告-SpecWave-2.4.0 §3 + §2 N9 · R1 §3-2 定稿）：hitA 由裸子串
   // includes 改边界正则 (?<![0-9A-Za-z._-])X\.Y\.Z(?![0-9A-Za-z._-]) —— 左/右边界排除
   // 数字/字母/点/下划线/连字符（拦 `v2.4.0` 的 v 前缀 · `2.4.0-beta` 修饰 · `12.4.0` /
@@ -232,6 +235,9 @@ function evaluatePin(root: string, pin: Pin, truth: string): PinResult {
     )
     const lines = content.split('\n')
     const suspects: number[] = []
+    const noState: number[] = []
+    // 3.0-W4 S_mid 发布态措辞集（评审文 §5 定稿 · 语义数据声明见 release-pins.yaml pin-08 semantics）
+    const STATE_MID_RE = /published|已发|released|CLOSED|规划中|planned/i
     for (let i = 0; i < lines.length; i++) {
       const t = lines[i]! // i < lines.length 循环界内（E5 收窄）
       if (!t.startsWith('|')) continue
@@ -242,14 +248,17 @@ function evaluatePin(root: string, pin: Pin, truth: string): PinResult {
       const hitA = dottedExactRe.test(statusCell)
       const hitB =
         slugCell.includes(dotted) || slugCell.includes(under) || slugCell.startsWith(minorUnder + '-')
-      if (hitA && hitB) {
+      const hitState = STATE_MID_RE.test(statusCell) // 同格共现：版本串 ∧ 发布态措辞同落 cells[2]
+      if (hitA && hitB && hitState) {
         return {
           ...base,
-          actual: 'L' + (i + 1) + ' 索引行存在（语义格位口径 D-24-PIN08-SEMCELL）',
+          actual: 'L' + (i + 1) + ' 索引行存在（语义格位口径 D-24-PIN08-SEMCELL · 发布态同格绑定 3.0-W4）',
           line: i + 1,
           status: 'ok',
         }
       }
+      // 状态格含边界版本串但无发布态措辞 → 裸版本串嫌疑（S_mid 同格共现绑定 · 3.0-W4）
+      if (hitA && hitB && !hitState) noState.push(i + 1)
       // 兜底嫌疑：行内其他位置（描述列/prose/归档链接）含版本形态串但状态格无点式串
       if (!hitA && (t.includes(dotted) || t.includes(under))) suspects.push(i + 1)
     }
@@ -259,6 +268,9 @@ function evaluatePin(root: string, pin: Pin, truth: string): PinResult {
       status: 'mismatch',
       detail:
         (pin.extract.semantics ?? '索引表存在当前 minor 对应行或标注行') +
+        (noState.length
+          ? ' · 状态格含边界版本串但无发布态措辞（S_mid 同格共现绑定 · 3.0-W4 pin-08）: L' + noState.join(', L')
+          : '') +
         (suspects.length
           ? ' · 兜底嫌疑行（行内含版本形态串但状态格无点式版本串 · D-24-PIN08-SEMCELL）: L' + suspects.join(', L')
           : ''),
@@ -418,11 +430,46 @@ function evaluatePin(root: string, pin: Pin, truth: string): PinResult {
     }
     // D-24-PIN17-TABLEROW（2.4-W1 · 验收报告 §3.I）：词锚限定表格行内匹配 —— 命中 ⟺ 存在表行
     // （^\s*\| 宽松起首 · F-W1-02）使 host_hits 至少一 pattern 命中该行；tagline/prose 裸词命中不计入。
+    // 3.0-W4 NEW-4（评审文 w4_semantic_criteria_review_20260917 §4 定稿）：双命中上加两层 ——
+    // ① 主键列判：词锚（剥 \|\s* 行首锚后的 cell 域形态）须对命中行 cells[0] 复判命中（落任意其他格不计）；
+    // ② 表头结构判：命中行所属表（表头行 + 分隔行 + 连续表行）首表头格须匹配宿主表签名 /^(Host|宿主)$/（双语）。
+    // 诚实边界（评审文 §4 对抗分析③）：全表誊抄伪造可通过 —— 机械判据防机会式单行注入，
+    // 全表誊抄不造成信息失真（fixture 固化该职责边界）；存量双 README 各 10 表 · 签名表各恰 1 · 26/26 零误伤。
     const TABLE_ROW_RE = /^\s*\|/
-    const hitInTableRow = (body: string, res: RegExp[]): boolean =>
-      body.split('\n').some((l) => TABLE_ROW_RE.test(l) && res.some((re) => re.test(l)))
+    const TABLE_SEP_RE = /^\s*\|[\s:\-|]+\|?\s*$/
+    const HOST_HEADER_RE = /^(Host|宿主)$/
+    // 剥词锚行首锚（\|\s* 前缀）得 cell 域形态（D-24-PIN17-TABLEROW 词锚既有形态约定）
+    const cellForm = (p: string): string => {
+      const anchor = '\\|\\s*' // 行首锚字面量（5 字符）· 用 anchor.length 防手数 off-by-one
+      return p.startsWith(anchor) ? p.slice(anchor.length) : p
+    }
+    const parseTables = (body: string): { headerCells: string[]; rows: string[][] }[] => {
+      const lines = body.split('\n')
+      const tables: { headerCells: string[]; rows: string[][] }[] = []
+      for (let i = 0; i + 1 < lines.length; i++) {
+        if (!TABLE_ROW_RE.test(lines[i]!)) continue // i+1 < lines.length 循环界内（E5 收窄）
+        if (!TABLE_SEP_RE.test(lines[i + 1]!)) continue
+        const headerCells = lines[i]!.split('|').slice(1, -1).map((c) => c.trim())
+        const rows: string[][] = []
+        let j = i + 2
+        while (j < lines.length && TABLE_ROW_RE.test(lines[j]!)) {
+          rows.push(lines[j]!.split('|').slice(1, -1).map((c) => c.trim()))
+          j++
+        }
+        tables.push({ headerCells, rows })
+        i = j - 1
+      }
+      return tables
+    }
+    // 命中 ⟺ 存在宿主签名表（首表头格 Host|宿主）内某数据行 cells[0] 命中至少一 cell 域词锚
+    const hitInTableRow = (body: string, cellRes: RegExp[]): boolean =>
+      parseTables(body).some(
+        (t) =>
+          HOST_HEADER_RE.test(t.headerCells[0] ?? '') &&
+          t.rows.some((cells) => cellRes.some((re) => re.test(cells[0] ?? ''))),
+      )
     const hitsAll = (id: string): boolean | null => {
-      const res = compileAll(hostHits[id] ?? [])
+      const res = compileAll((hostHits[id] ?? []).map(cellForm))
       if (res === null || res.length === 0) return null
       return readmeBodies.every((b) => hitInTableRow(b, res))
     }
@@ -434,13 +481,22 @@ function evaluatePin(root: string, pin: Pin, truth: string): PinResult {
         dataDebts.push('host ' + id + ' 无 host_hits 映射数据（F-W2-06 failClosed · 新宿主落地即受约束）')
         continue
       }
-      const res = compileAll(patterns)
-      if (res === null) {
+      const res = compileAll(patterns.map(cellForm))
+      const rawRes = compileAll(patterns) // 旧口径（任意表行裸命中）· 仅用于 NEW-4 诊断附注
+      if (res === null || rawRes === null) {
         return { ...base, status: 'extract_error', detail: 'host_hits 正则非法（failClosed）: ' + id }
       }
       readmes.forEach((r, i) => {
         if (!hitInTableRow(readmeBodies[i]!, res)) { // readmeBodies 与 readmes 等长（E5 收窄）
-          misses.push(id + ' · 缺 ' + r + '（' + sideOf(r) + ' 侧适配表行）')
+          const body = readmeBodies[i]!
+          // 诊断附注：词锚在宽松口径（任意表行）下裸见但双判不过 → 点名 NEW-4 维度（failClosed 方向不变）
+          const loose =
+            body.split('\n').some((l) => TABLE_ROW_RE.test(l) && rawRes.some((re) => re.test(l))) ||
+            parseTables(body).some((t) => t.rows.some((cells) => cells.some((c) => rawRes.some((re) => re.test(c)))))
+          misses.push(
+            id + ' · 缺 ' + r + '（' + sideOf(r) + ' 侧适配表行）' +
+              (loose ? ' · 词锚裸见表行但主键列/表头签名判不过（3.0-W4 NEW-4）' : ''),
+          )
         }
       })
     }

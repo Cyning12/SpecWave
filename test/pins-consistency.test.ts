@@ -826,7 +826,8 @@ describe('2.3-W2 钉面维度扩展 · pin-16 文档↔files / pin-17 宿主↔�
       assert.match(bad.combined, /beta · 缺 README\.md（EN 侧适配表行）/)
       assert.match(bad.combined, /beta · 缺 README\.zh-CN\.md（ZH 侧适配表行）/)
       // 仅 EN 补行 → 仍 exit 2 且只剩 ZH 侧缺失
-      await writeRel(dir, 'README.md', W2_README_EN + '| **Beta** | .b/ |\n')
+      // 3.0-W4 登记（验收 #11）：补行由文末脱表追加改为表内插入（NEW-4 表头签名+主键列双判下脱表行不构成表成员）
+      await writeRel(dir, 'README.md', W2_README_EN.replace('| **Alpha** | .a/ |\n', '| **Alpha** | .a/ |\n| **Beta** | .b/ |\n'))
       const half = runCli(['pins', 'check'], dir)
       assert.equal(half.status, 2, half.combined)
       assert.doesNotMatch(half.combined, /beta · 缺 README\.md（EN 侧适配表行）/)
@@ -862,7 +863,8 @@ describe('2.3-W2 钉面维度扩展 · pin-16 文档↔files / pin-17 宿主↔�
       await writeRel(dir, 'assets/release-pins.yaml', W2_PINS_YAML_HOSTS)
       // (a) 豁免宿主已双双命中（W7① 落地模拟）→ 失陈债
       await writeRel(dir, 'assets/hosts.yaml', 'version: "1"\nhosts:\n  - host_id: alpha\n  - host_id: delta\n')
-      await writeRel(dir, 'README.md', W2_README_EN + '| **Delta** | .d/ |\n')
+      // 3.0-W4 登记（验收 #11）：EN 侧补行同改为表内插入（NEW-4 双判下脱表行不计 · ZH 侧原文末即连表）
+      await writeRel(dir, 'README.md', W2_README_EN.replace('| **Alpha** | .a/ |\n', '| **Alpha** | .a/ |\n| **Delta** | .d/ |\n'))
       await writeRel(dir, 'README.zh-CN.md', W2_README_ZH + '| **Delta** | .d/ |\n')
       const stale = runCli(['pins', 'check'], dir)
       assert.equal(stale.status, 2, stale.combined)
@@ -1222,6 +1224,90 @@ describe('2.4.1 NEW-9/N9 [P2] · pin-08 状态格精确版本锁定（边界正�
   })
 })
 
+describe('3.0-W4 NEW-4 pin-17 表行语义判 + pin-08 发布态绑定 [范围④⑤]（评审文 §4/§5 定稿 · 验收 #1/#3）', { concurrency: 1 }, () => {
+  // 红测先行（硬约束 6）：修复前（2.4.2+阶段一二码）—— pin-17 两构造（词锚落非签名表 / 落签名表第二格）
+  // 与 pin-08 两构造（裸版本串无态词 / 版本串与发布态不同格）全部 exit 0 顶包漏网（真红证据见 30 invoke 留档）；
+  // 修复后全 exit 2。全表誊抄 = 诚实边界（机械判据防机会式单行注入 · 全表誊抄不造成信息失真 ·
+  // 评审文 §4 对抗分析③ · fixture 固化为职责边界声明）。
+  const HOST_TABLE = '| Host | X |\n| --- | --- |\n'
+  it('NEW-4① 词锚落非签名表（「Topic」表注入 | **Alpha** | 行）→ exit 2（表头签名不符 · 修复前 PASS 真红）', async () => {
+    await withTemp(async (dir) => {
+      await make24W1Fixture(dir)
+      await writeRel(dir, 'README.md',
+        W1_24_README_EN.replace('| **Alpha** | .a/ |\n', '') +
+          '\n| Topic | Y |\n| --- | --- |\n| **Alpha** | .a/ |\n')
+      const r = runCli(['pins', 'check'], dir)
+      assert.equal(r.status, 2, r.combined)
+      assert.match(r.combined, /\[mismatch\] pin-17/)
+      assert.match(r.combined, /alpha · 缺 README\.md（EN 侧适配表行）/)
+      assert.match(r.combined, /3\.0-W4 NEW-4/)
+    })
+  })
+
+  it('NEW-4② 签名表内词锚落第二格（| .a/ | **Alpha** |）→ exit 2（主键列判 · 修复前 PASS 真红）', async () => {
+    await withTemp(async (dir) => {
+      await make24W1Fixture(dir)
+      await writeRel(dir, 'README.md', W1_24_README_EN.replace('| **Alpha** | .a/ |', '| .a/ | **Alpha** |'))
+      const r = runCli(['pins', 'check'], dir)
+      assert.equal(r.status, 2, r.combined)
+      assert.match(r.combined, /alpha · 缺 README\.md（EN 侧适配表行）/)
+    })
+  })
+
+  it('NEW-4③ 全表誊抄诚实边界：伪造整张建签名表（Host 表头+分隔+双行）替代原行 → 维持 PASS（职责边界登记 · 不防誊抄）', async () => {
+    await withTemp(async (dir) => {
+      await make24W1Fixture(dir)
+      // 原 Host 表删双行 · 文末伪造一张完整签名表（誊抄形态 · 评审文 §4：不造成信息失真 → 过闸属设计内）
+      await writeRel(dir, 'README.md',
+        W1_24_README_EN.replace('| **Alpha** | .a/ |\n', '').replace('| **Beta** | .b/ |\n', '') +
+          '\n' + HOST_TABLE + '| **Alpha** | .a/ |\n| **Beta** | .b/ |\n')
+      const r = runCli(['pins', 'check'], dir)
+      assert.equal(r.status, 0, r.combined)
+      assert.match(r.combined, /\[ok\] pin-17 /)
+    })
+  })
+
+  const SPEC8 = (statusCell: string, desc = 'z'): string =>
+    '| slug | 路径 | 状态 | 一句话 |' + '\n' +
+    '| --- | --- | --- | --- |' + '\n' +
+    '| `' + FIXTURE_VERSION + '`（patch 收尾行） | — | ' + statusCell + ' | ' + desc + ' |' + '\n'
+
+  it('pin-08① 裸版本串状态格（边界完整但无发布态措辞）→ exit 2 点名缺发布态（S_mid 同格共现 · 修复前 ok 真红）', async () => {
+    await withTemp(async (dir) => {
+      await makeFixture(dir)
+      await writeRel(dir, 'docs/spec/README.md', SPEC8('**`' + FIXTURE_VERSION + '`**'))
+      const r = runCli(['pins', 'check'], dir)
+      assert.equal(r.status, 2, r.combined)
+      assert.match(r.combined, /\[mismatch\] pin-08 docs\/spec\/README\.md/)
+      assert.match(r.combined, /无发布态措辞/)
+    })
+  })
+
+  it('pin-08② 版本串与发布态不同格（published 落描述格）→ exit 2（同格共现绑定 · 修复前 ok 真红）', async () => {
+    await withTemp(async (dir) => {
+      await makeFixture(dir)
+      await writeRel(dir, 'docs/spec/README.md', SPEC8('**`' + FIXTURE_VERSION + '`**', 'published 见描述格'))
+      const r = runCli(['pins', 'check'], dir)
+      assert.equal(r.status, 2, r.combined)
+      assert.match(r.combined, /\[mismatch\] pin-08/)
+      assert.match(r.combined, /无发布态措辞/)
+    })
+  })
+
+  it('pin-08 正向 S_mid 三态对照：published / CLOSED / 规划中 同格共现 → 全 ok（规划中入集 = F-W1-05 既定行形态）', async () => {
+    await withTemp(async (dir) => {
+      await makeFixture(dir)
+      for (const cell of ['**`' + FIXTURE_VERSION + '` published**', '**`' + FIXTURE_VERSION + '`** · **CLOSED**', '**`' + FIXTURE_VERSION + '`** · 规划中']) {
+        await writeRel(dir, 'docs/spec/README.md', SPEC8(cell))
+        const r = runCli(['pins', 'check'], dir)
+        assert.equal(r.status, 0, 'S_mid 态「' + cell + '」须合规: ' + r.combined)
+        assert.match(r.combined, /\[ok\] pin-08 /)
+      }
+    })
+  })
+})
+
+
 describe('W1-A1 release pins · C组 声明源数据形态（SPEC 01 §5 · D-PINS-SCOPE-8）', { concurrency: 1 }, () => {
   type PinRow = {
     id: string
@@ -1307,8 +1393,11 @@ describe('W1-A1 release pins · C组 声明源数据形态（SPEC 01 §5 · D-PI
     assert.match(p8.extract.semantics ?? '', /点式 X\.Y\.Z/)
     assert.match(p8.extract.semantics ?? '', /X_Y \/ X_Y_Z 一律不计入版本串/)
     assert.match(p8.extract.semantics ?? '', /兜底嫌疑行/)
-    // F-W1-05 定稿（2.4-W1 task 定稿位回填）：「规划中」类非发布态行口径入数据
-    assert.match(p8.extract.semantics ?? '', /规划中.*行身份合格|行身份合格.*规划中/s)
+    // 3.0-W4 S5.5 改写（20 审 advisory A2 同 commit 登记）：旧句「规划中…即算行身份合格」由
+    // S_mid 同格共现绑定替换（裸版本串无态词 → mismatch）· S_narrow 弃用理由入数据
+    assert.match(p8.extract.semantics ?? '', /发布态措辞集 S_mid/)
+    assert.match(p8.extract.semantics ?? '', /规划中\/planned 入集/)
+    assert.match(p8.extract.semantics ?? '', /S_narrow（published\/已发\/released）弃用/)
   })
 
   it('2.3 W1 新增 pin-13/14/15：CHANGELOG 发布头 / MIGRATION spec-wave@X / AGENTS npx spec-wave@X 三面入钉（纯数据 · [A]#8）', () => {
