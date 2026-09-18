@@ -375,7 +375,7 @@ Three surfaces, not interchangeable: **System/Re-anchor** = short identity; **fu
 
 ## Releasing (maintainers)
 
-**Current package**: **`spec-wave@3.0.0`** — **pending release** (bump 2026-09-17 · tag `v3.0.0` pending · registry `latest` remains `2.4.2` until human publish). Prior published: **`2.4.2`** (acceptance-fixes patch) · **`2.4.1`** (acceptance-fixes patch) · **`2.4.0`** (gate strength) · **`2.3.1`** (acceptance-fixes patch) · **`2.3.0`** (wiring completion) · **`2.2.1`** (acceptance-fixes patch) · **`2.2.0`** (closed-loop start).
+**Current package**: **`spec-wave@3.0.0`** — **published 2026-09-18** (human publish · tag `v3.0.0` ↔ `895b975` · registry `latest=3.0.0`). Prior published: **`2.4.2`** (acceptance-fixes patch) · **`2.4.1`** (acceptance-fixes patch) · **`2.4.0`** (gate strength) · **`2.3.1`** (acceptance-fixes patch) · **`2.3.0`** (wiring completion) · **`2.2.1`** (acceptance-fixes patch) · **`2.2.0`** (closed-loop start).
 
 Release process: see [RELEASING.md](RELEASING.md) — hard pre-publish checklist (commit-before-publish · four green gates · version pins · Agent may bump/tag · **human-only `npm publish`**; institutionalizes the DEF-001 lesson).
 

@@ -7,7 +7,7 @@
 ## [3.0.0] - 2026-09-17
 
 > 主题：**major** —— **架构跃迁（architecture leap）**：**首次 schema breaking**（host-adapt 适配表 v1 → v2 **可选**跃迁 · 旧表零改动兼容）· 门禁随包内置 + 可多宿主物化 + 本体/图谱/可观测/审计全接线 · W7 收尾与对外口径统一。
-> **发布状态**：**待发版**（tag `v3.0.0` / `npm publish` **仅人** · `HG-RELEASE=pending` · 发布前探针 6 项见 [`docs/harness/reviews/w7_release_probe_3_0_0_20260917.md`](docs/harness/reviews/w7_release_probe_3_0_0_20260917.md) · 打 tag 后 `pins` 复跑须 17/17）。
+> **发布状态**：**已发布 2026-09-18**（人执行 publish · tag **`v3.0.0`** ↔ `895b975` · registry `latest=3.0.0` · `time.3.0.0`=2026-09-18T00:17:55Z · 发布前探针 6 项见 [`docs/harness/reviews/w7_release_probe_3_0_0_20260917.md`](docs/harness/reviews/w7_release_probe_3_0_0_20260917.md) · 打 tag 后 `pins` 复跑 **17/17**）。
 
 ### Breaking
 

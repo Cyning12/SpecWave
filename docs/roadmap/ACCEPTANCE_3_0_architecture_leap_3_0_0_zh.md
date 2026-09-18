@@ -1,10 +1,10 @@
 # ACCEPTANCE · SpecWave 3.0.0 · 架构跃迁（architecture leap）
 
-> **状态**：**待发版**（**PENDING PUBLISH** · 2026-09-17 bump · tag `v3.0.0` **待人打** · `npm publish` **仅人** · `HG-RELEASE=pending`）
+> **状态**：**published**（**已发布** · 2026-09-18 · 人执行 publish · tag **`v3.0.0`** ↔ commit `895b975` · registry `latest=3.0.0` · `time.3.0.0`=2026-09-18T00:17:55Z · CI main run `35290167676` / tag run `35290167788` 双 success · 探针/回填由 00+回填棒代核）
 > **SPEC**：[3_0-architecture-leap SPEC 系列](../spec/3_0-architecture-leap/) · 规划 [`PLAN_3_0_architecture_leap_v1_zh.md`](PLAN_3_0_architecture_leap_v1_zh.md)
 > **task**：[`docs/tasks/done/task_3_0_w7_closeout_external.md`](../tasks/done/task_3_0_w7_closeout_external.md)（W7 收尾与对外 · **CLOSED** · 双闸 approved · 40 复核 PASS-with-issues）
 > **探针**：[`docs/harness/reviews/w7_release_probe_3_0_0_20260917.md`](../harness/reviews/w7_release_probe_3_0_0_20260917.md)（6 项）
-> **发布边界（诚实红线）**：**tag / push / publish / deprecate 四动作全仅人** —— 本档与探针**不代打 tag、不 publish**；`pin-10`（git tag `v3.0.0`）**打 tag 前为设计红**，打 tag 后须 17/17。
+> **发布边界（诚实红线）**：**tag / push / publish / deprecate 四动作全仅人**（本波 tag `v3.0.0` / push / publish 均人执行）—— 本档与探针**不代打 tag、不 publish**；`pin-10`（git tag `v3.0.0`）**打 tag 前为设计红**（历史 16/17），**打 tag 后已 17/17 转绿**。
 
 ## 一、八波汇总（W0–W7）
 
@@ -57,8 +57,8 @@
 
 ## 四、已知残余 / 待人项（诚实登记）
 
-1. **tag `v3.0.0` 待人打**（HG-RELEASE 仅人）：打 tag 后 `pin-10` 转绿 → `pins 17/17` · `release-tag-identity` 转绿。
-2. **`npm publish` 仅人**（`HG-RELEASE=pending`）：publish 后回填本档 / RELEASING / README / spec 索引为已 published（checklist ⑨）。
+1. **[已转绿]** tag `v3.0.0`（人打 · 2026-09-18）：`pin-10` 已转绿 → `pins 17/17 PASS` · `release-tag-identity` / `pins-consistency` A 组转绿（`npm test` 864 tests / 863 pass / 0 fail / 1 skip）。
+2. **[已完成]** `npm publish` 仅人（`HG-RELEASE=pending`）：2026-09-18 人执行 publish（registry `latest=3.0.0` · `time.3.0.0`=2026-09-18T00:17:55Z）；本档 / RELEASING / README / spec 索引 / CHANGELOG 已回填为 published（checklist ⑨）。
 3. **SPEC 范围②「<50」spawn**：按 00 重定基裁定不可达 · 实现 671→270（≤300 规范下限）· 余量归 3.x/后续波次。
 4. **链接 S2 域冻结基线 34**：S2 永不覆写（硬约束 1）· 历史 stale 链接不可修 · 非 S2 硬判 0（旧 23 系 FS 存在性假绿口径 · 34 为入库状态重建值）。
 5. **`docs/feedback` 历史断链**：目标 `02_agent_host_plan_v0.md` 不存在 ⇒ 就地登记「历史本地件 · 未入库 · 不在仓」。
@@ -70,3 +70,4 @@
 | 日期 | 摘要 |
 |------|------|
 | 2026-09-17 | 初版 · 3.0 W7 S7.10（八波汇总 + 四阶段锁 + 验收 14 条 + 待人项 · 待 tag/publish 仅人） |
+| 2026-09-18 | 发布回填 · **3.0.0 published**（tag `v3.0.0` ↔ `895b975` · registry `latest=3.0.0` · CI 双绿 · `pins` 17/17 · 残余 ①/② 转绿注记） |
