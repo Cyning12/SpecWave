@@ -1,6 +1,6 @@
 # Task：3.0 W7 hotfix · 测试子进程继承 FORCE_COLOR 致 TTY 发布链假红（spawn env 钉死 + 回归锁）（CI hotfix · bugfix · mini）
 
-> **状态**：`pending`（2026-09-18 10-task 起草 · **HG-TASK-DRAFT = approved**（2026-09-17 00 代签 · task lint PASS）· **HG-AUDIT-R1 = approved**（2026-09-18 00 代签 · 依据 R1 BLOCKED→B1 回填 + R2 PASS · blocking 0 · advisory R2-A1 带入 30）⇒ **双闸 approved · 30 可开工**；本棒不实现 test/src · 不 tag/push/publish）
+> **状态**：`done`（2026-09-18 10-task 起草 · **HG-TASK-DRAFT = approved**（2026-09-17 00 代签 · task lint PASS）· **HG-AUDIT-R1 = approved**（2026-09-18 00 代签 · 依据 R1 BLOCKED→B1 回填 + R2 PASS · blocking 0 · advisory R2-A1 带入 30）⇒ **双闸 approved · 30 可开工**；本棒不实现 test/src · 不 tag/push/publish · 2026-09-18 30 修复交付（`0e1f165` + `62b0811` · 验收 6/6 · 锁 864/165/863/0/1 · clone/pty 双态 0 fail）+ 40 复核 **PASS**（blocking 0 · advisory 4 · 40 留档 `b0a2fb1`）+ 00 裁定 **Task_KPI%: 95** · task close 归档 `done/`）
 > **缺陷真值（已查实 · 本棒 pty/隔离双实测）**：维护者本机 **TTY** 终端跑 `prepublishOnly` 链（`typecheck && npm test && …`）稳定红于 `test/scan-human-gates-baseline.test.ts:64`（`stdout.includes('文件数: 0')` 假）；本机 **非 TTY**（agent shell · `TERM=dumb`）与 **CI（非 TTY）** 全绿。**发布阻断**。
 > **SPEC**：bugfix · **双轨可跳独立 SPEC**（HG-SPEC-SIGNOFF 上行 approved 继承 · 范围/验收/failure_paths 由本 task 承载）
 > **根因（本棒复现确证 · 双机制 · 详见「根因与修法」节）**：**A** `FORCE_COLOR=1` 下 Node `console.log('文件数:', <number>)` 对**数字实参**走 `util.inspect` 着色 ⇒ stdout = `文件数: \u001b[33m0\u001b[39m` ⇒ `includes` 假（pty 下 `node --test` 向测试子进程注入 `FORCE_COLOR=1` 已被本棒探针实证）；**B** `FORCE_COLOR=1` 与 `NO_COLOR=1` 并存时子进程 Node 向 **stderr** 打警告，被 `runCli` 的 `stdout+'\n'+stderr` 拼接 ⇒ `JSON.parse` 抛错。
@@ -123,10 +123,10 @@
 
 ## 范围（唯一 · 全测试侧 · 不改产品输出）
 
-- [ ] **1. 新增 `test/_helpers/plain-env.ts`**：导出 `plainEnv()`（`{ ...process.env, FORCE_COLOR: '0', NO_COLOR: '1' }`）+ `stripAnsi(s)`（防御性 · 仅断言用）。纯函数 · 零产品 import · 不被 `test/*.test.ts` glob 收集。
-- [ ] **2. 两处 spawn 改 `plainEnv()`**：`test/scan-human-gates-baseline.test.ts`（`runScanner` :42-49 补 `env: plainEnv()`）· `test/cli-discipline-coverage.test.ts`（`runCli` :41-45 `env: { ...process.env }` → `env: plainEnv()`）。
-- [ ] **3. 同族 spawn 面全仓扫描 + 逐处登记**：`grep -rn "env: { ...process.env }" test/`（本棒：**37 命中 / 32 文件**）+ **隐式继承面**（无 `env` 键的 `runScanner`、`pack-hygiene` 等）；对「断言子进程 stdout 含 `label: <number>`」的面逐处判定。**实测无额外真红面**（FORCE_COLOR=1 全量仅 2 红）⇒ 表登记即可；若 30 复跑发现新真红面则同式纳入并登记。
-- [ ] **4. 回归锁测（关键）**：`test/plain-env.test.ts`（或等价）—— 现象锁（显式 `FORCE_COLOR=1` spawn ⇒ 有 ANSI · `stripAnsi` 还原 `文件数: 0`）+ 修复锁（`plainEnv()` spawn ⇒ 零 ANSI · 含 `文件数: 0`）+ 契约锁（`plainEnv` 字段 · `stripAnsi` 单测）。红测先行。
+- [x] **1. 新增 `test/_helpers/plain-env.ts`**：导出 `plainEnv()`（`{ ...process.env, FORCE_COLOR: '0', NO_COLOR: '1' }`）+ `stripAnsi(s)`（防御性 · 仅断言用）。纯函数 · 零产品 import · 不被 `test/*.test.ts` glob 收集。
+- [x] **2. 两处 spawn 改 `plainEnv()`**：`test/scan-human-gates-baseline.test.ts`（`runScanner` :42-49 补 `env: plainEnv()`）· `test/cli-discipline-coverage.test.ts`（`runCli` :41-45 `env: { ...process.env }` → `env: plainEnv()`）。
+- [x] **3. 同族 spawn 面全仓扫描 + 逐处登记**：`grep -rn "env: { ...process.env }" test/`（本棒：**37 命中 / 32 文件**）+ **隐式继承面**（无 `env` 键的 `runScanner`、`pack-hygiene` 等）；对「断言子进程 stdout 含 `label: <number>`」的面逐处判定。**实测无额外真红面**（FORCE_COLOR=1 全量仅 2 红）⇒ 表登记即可；若 30 复跑发现新真红面则同式纳入并登记。
+- [x] **4. 回归锁测（关键）**：`test/plain-env.test.ts`（或等价）—— 现象锁（显式 `FORCE_COLOR=1` spawn ⇒ 有 ANSI · `stripAnsi` 还原 `文件数: 0`）+ 修复锁（`plainEnv()` spawn ⇒ 零 ANSI · 含 `文件数: 0`）+ 契约锁（`plainEnv` 字段 · `stripAnsi` 单测）。红测先行。
 
 ## 非范围
 
@@ -162,12 +162,12 @@
 > **计数口径**：本 task 验收 = **6 条（#1–#6）** · failure_paths = **8 条（F-TC-00–04 + 双环境基线 + 产品越改 + 越权）**。本 task 为 bugfix · 双轨可跳独立 SPEC。
 > **发布临门判据**：#1（`FORCE_COLOR=1 npm test` 全绿）是本 hotfix 的**唯一**放行条件。
 
-- [ ] **#1 发布临门：`FORCE_COLOR=1 npm test` 全绿（0 fail）**（F-TC-01/03）：仓根 `FORCE_COLOR=1 npm test` → **860+N tests / 859+N pass / 0 fail / 1 skip**（N=新增锁测数 · 与 #2 同式 · = 普通基线的 pass 全数）。**对照**：修复前同命令 **2 fail**（`:52` + `:81` · 本 task R0 已实测钉死）。留证：命令 + 两端 summary 写入 30 invoke。
-- [ ] **#2 普通 `npm test` 全绿（零回退）**：`npm test` → **860 / 164 / 859 pass / 0 fail / 1 skip**（或 +N 新锁测后 `860+N / 859+N pass / 0 fail`）；exit 0。
-- [ ] **#3 回归锁测真红→绿（F-TC-01/02）**：新锁测在未接入 helper 前**红**（现象锁在 `FORCE_COLOR=1` 下断言失败 / import 失败）；接入后绿：现象锁（`FORCE_COLOR=1` spawn ⇒ stdout 含 ANSI · `stripAnsi` 还原 `文件数: 0`）+ 修复锁（`plainEnv()` spawn ⇒ 零 ANSI · 含 `文件数: 0`）+ 契约锁。留证：先红后绿的两次命令 + 输出。
-- [ ] **#4 定向两测 `FORCE_COLOR=0/1` 双环境均绿**（F-TC-01）：`node --test --experimental-strip-types test/scan-human-gates-baseline.test.ts test/cli-discipline-coverage.test.ts` 于 `FORCE_COLOR=0` 与 `FORCE_COLOR=1` **均 0 fail**（修复前：`FORCE_COLOR=1` = 2 fail / `FORCE_COLOR=0` = 0 fail）。附 pty 复跑：`env -u NO_COLOR TERM=xterm-256color script -q /dev/null node --test …` 两文件 **0 fail**（修复前 1 fail）。
-- [ ] **#5 typecheck / pins（tag `v3.0.0` 在 ⇒ 全绿）**：`npm run typecheck` **0 错** · `node bin/specgate.js pins check` **17/17 PASS** · 依赖零新增。
-- [ ] **#6 结构闸**：`npx spec-wave task lint --file docs/tasks/active/task_3_0_w7_tty_color_hotfix.md` PASS（E1–E8 / W5–W7：R0–R5 槽位 + 控制表齐）。
+- [x] **#1 发布临门：`FORCE_COLOR=1 npm test` 全绿（0 fail）**（F-TC-01/03）：仓根 `FORCE_COLOR=1 npm test` → **860+N tests / 859+N pass / 0 fail / 1 skip**（N=新增锁测数 · 与 #2 同式 · = 普通基线的 pass 全数）。**对照**：修复前同命令 **2 fail**（`:52` + `:81` · 本 task R0 已实测钉死）。留证：命令 + 两端 summary 写入 30 invoke。
+- [x] **#2 普通 `npm test` 全绿（零回退）**：`npm test` → **860 / 164 / 859 pass / 0 fail / 1 skip**（或 +N 新锁测后 `860+N / 859+N pass / 0 fail`）；exit 0。
+- [x] **#3 回归锁测真红→绿（F-TC-01/02）**：新锁测在未接入 helper 前**红**（现象锁在 `FORCE_COLOR=1` 下断言失败 / import 失败）；接入后绿：现象锁（`FORCE_COLOR=1` spawn ⇒ stdout 含 ANSI · `stripAnsi` 还原 `文件数: 0`）+ 修复锁（`plainEnv()` spawn ⇒ 零 ANSI · 含 `文件数: 0`）+ 契约锁。留证：先红后绿的两次命令 + 输出。
+- [x] **#4 定向两测 `FORCE_COLOR=0/1` 双环境均绿**（F-TC-01）：`node --test --experimental-strip-types test/scan-human-gates-baseline.test.ts test/cli-discipline-coverage.test.ts` 于 `FORCE_COLOR=0` 与 `FORCE_COLOR=1` **均 0 fail**（修复前：`FORCE_COLOR=1` = 2 fail / `FORCE_COLOR=0` = 0 fail）。附 pty 复跑：`env -u NO_COLOR TERM=xterm-256color script -q /dev/null node --test …` 两文件 **0 fail**（修复前 1 fail）。
+- [x] **#5 typecheck / pins（tag `v3.0.0` 在 ⇒ 全绿）**：`npm run typecheck` **0 错** · `node bin/specgate.js pins check` **17/17 PASS** · 依赖零新增。
+- [x] **#6 结构闸**：`npx spec-wave task lint --file docs/tasks/active/task_3_0_w7_tty_color_hotfix.md` PASS（E1–E8 / W5–W7：R0–R5 槽位 + 控制表齐）。
 
 ---
 
@@ -285,11 +285,17 @@
 
 **偏差登记**：① 开工 HEAD `3ceb42c` ≠ task 起草期 `fad0637`（+1 docs 提交）· 复跑重建基线与 task 表逐字吻合；② `FORCE_COLOR='0'+NO_COLOR='1'` 实测 stderr **0 bytes**（零告警），`FORCE_COLOR='1'+NO_COLOR='1'` 164 bytes 互斥警告（B 机制）—— B1 单一取值确证；③ 修复锁 stderr 判据取「不含互斥警告」而非「stderr 为空」（防未来无关告警耦合 · 语义满足 task :95）；④ clone 取修复 commit `0e1f165`（代码终态），其后的 invoke docs 提交对测试面零影响；⑤ pty/定向数字以复跑实测为准（与 task 表一致）。详见 30 invoke `docs/harness/invokes/by-task/3-0-w7-tty-color-hotfix/invoke_20260918_30_3-0-w7-tty-color-hotfix.md`。
 
+**40 复核登记（PASS · blocking 0 · advisory 4 · 40 留档 `b0a2fb1`）**：① **A1 clone 复跑口径** —— 新鲜 clone 无 `node_modules`，复跑前须先 `npm ci`（40 实跑 `npm ci` 后双态方绿；本棒首次 clone 复跑以 node_modules 符号链接等价满足 · 后续 clone 复跑留档补齐 `npm ci` 步）；② **A2 commit 前缀偏差登记** —— 修复 commit `0e1f165` 用 `fix(3.0-W7):` 而 task「提交信息约定」建议 `test(3.0-W7-hotfix):`，scope 正确、内容吻合，仅前缀/scope 标签偏差，不影响验收；③ **A3 stderr 判据语义等价** —— 修复锁断言「不含互斥警告」而非「stderr 为空」，40 实测 `plainEnv()` 下 scanner stderr = **0 bytes** ⇒ 语义等价成立（仅提示未来无关告警不被锁捕获）；④ **A4 顶层警告** —— `FORCE_COLOR=1`/pty 全量运行顶层 `node --test` 自身打印一次 NO_COLOR/FORCE_COLOR 互斥警告（ambient `NO_COLOR=1`），**不影响测试结果**（0 fail）。以上四条均非阻断。
+
 ---
 
 ### KPI（00）
 
-（`kpi_aggregator: CLOSE` · 关账回溯填写）
+**00 收官裁定**（rubric `KPI_RUBRIC_v1_2` · 40 复核 PASS（blocking 0 · advisory 4 · 40 留档 `b0a2fb1`）· close_kpi 存在性口径）：**Task_KPI%: 95**
+
+- **修复三件套质量高**：`plainEnv()` 单一取值 `FORCE_COLOR:'0'+NO_COLOR:'1'` 钉死 spawn 采样环境 + 两处真红面（scan `runScanner` 隐式继承 / cli-discipline `runCli` 显式继承）同式收口 + 回归锁三连（契约/现象/修复 + env 探针）；`FORCE_COLOR=1 npm test` 发布临门 **864 / 165 / 863 pass / 0 fail / 1 skip**（修前 2 fail）· TTY pty 全量 0 fail · 干净 clone 双态同值 —— 环境确定性硬判据兑现。
+- **质量门**：锁纯加性零回退（860/164/859/0/1 → **864/165/863/0/1**）· typecheck 0 错 · pins 17/17 · assets 113/113 · terminology/claims/doc-links PASS（S2=34/34）· test:lib 6/6 · 零越权（仅 `test/` + `docs/` · 禁 `add -A` 遵守 · 未 push/tag/publish）。
+- **扣 5**：缺陷在**发布准备期**（维护者 TTY 跑 `prepublishOnly`）才被发现且需**第二轮 hotfix**（W7 内第二例），测试侧环境确定化仍存遗漏面；40 advisory 4（A1 clone 须先 `npm ci` · A2 commit 前缀偏差 · A3 stderr 判据语义等价 · A4 顶层自打警告）均非阻断且已登记。
 
 ---
 
