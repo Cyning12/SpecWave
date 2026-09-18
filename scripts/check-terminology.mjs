@@ -3,7 +3,7 @@
 //
 // 判据（00 最终裁定 2026-09-17 · 数据源 assets/harness/terminology.yaml）：
 //   ① canonical 保留词存在性正向断言（GLOSSARY 五词在位）——任何位置不判红（含 `人闸`/`人工闸` 全形态）；
-//   ② 唯一判红对象 = 变体词 `门控`（应为 `门禁`）· 判红面 = 六目标闭集（闭集外不扫）；
+//   ② 唯一判红对象 = 变体词 `门控`（应为 `门禁`）· 判红面 = 七目标闭集（闭集外不扫；3.0.1 W6 追加 CHANGELOG.md）；
 //   ③ 豁免面逐条枚举（research_report/安全设计/系统设计/docs/spec/docs/roadmap/.workbuddy）+ `门控 skip`；
 //   ④ 词边界排除 `后门控制`；命中 → exit 2 点名 文件:行:列。
 // 接线：npm test（test/check-terminology.test.ts 正负 fixture）。

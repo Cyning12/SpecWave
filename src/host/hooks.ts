@@ -16,9 +16,26 @@ import { isPlainObject } from './schema.ts'
 
 export type ConfigHookTrigger = 'pre-commit' | 'pre-archive'
 
-/** hook-guard 分发入口命令串（本包管理条目的识别 marker） */
-export function hookGuardCommand(trigger: ConfigHookTrigger): string {
-  return `npx spec-wave hook-guard --trigger ${trigger}`
+/**
+ * hook-guard 分发入口命令串（本包管理条目的识别 marker）。
+ * `pinVersion` 缺省 → 与 3.0.0 逐字节一致（无 `@semver`）；有值 → `npx spec-wave@<semver> …`
+ * （3.0.1 W5 · 实验性可选钉版 · 缺省关闭）。
+ */
+export function hookGuardCommand(trigger: ConfigHookTrigger, pinVersion?: string): string {
+  const pkg = pinVersion ? `spec-wave@${pinVersion}` : 'spec-wave'
+  return `npx ${pkg} hook-guard --trigger ${trigger}`
+}
+
+/** 从文本提取本包 hook-guard 命令中的 `@semver`（无钉版 → undefined） */
+export function extractHookPinVersionFromText(
+  text: string,
+  trigger: ConfigHookTrigger,
+): string | undefined {
+  const re = new RegExp(
+    String.raw`npx spec-wave@([0-9A-Za-z][0-9A-Za-z._-]*) hook-guard --trigger ${trigger}(?:\s|"|]|$)`,
+  )
+  const m = text.match(re)
+  return m?.[1]
 }
 
 type ConfigHookHostSpec = {
@@ -26,17 +43,17 @@ type ConfigHookHostSpec = {
   destRel: string
   /** 事件数组路径（root 起 · 末段为数组键） */
   eventPath: string[]
-  /** 单 trigger 的产品条目形态（语义规格 S3.3 · 字面 30 定稿） */
-  entryFor: (trigger: ConfigHookTrigger) => Record<string, unknown>
+  /** 单 trigger 的产品条目形态（语义规格 S3.3 · 字面 30 定稿；可选钉版） */
+  entryFor: (trigger: ConfigHookTrigger, pinVersion?: string) => Record<string, unknown>
   /** 新文件根骨架（既有文件深合并保用户键 · 不强制） */
   skeleton: () => Record<string, unknown>
 }
 
 const matcherEntry =
   (matcher: string) =>
-  (trigger: ConfigHookTrigger): Record<string, unknown> => ({
+  (trigger: ConfigHookTrigger, pinVersion?: string): Record<string, unknown> => ({
     matcher,
-    hooks: [{ type: 'command', command: hookGuardCommand(trigger) }],
+    hooks: [{ type: 'command', command: hookGuardCommand(trigger, pinVersion) }],
   })
 
 /** config-hook 族宿主落点映射（S3.3 表 · 族内数据驱动） */
@@ -50,7 +67,7 @@ export const CONFIG_HOOK_HOSTS: Record<string, ConfigHookHostSpec> = {
   cursor: {
     destRel: '.cursor/hooks.json',
     eventPath: ['hooks', 'beforeShellExecution'],
-    entryFor: (trigger) => ({ command: hookGuardCommand(trigger) }),
+    entryFor: (trigger, pinVersion) => ({ command: hookGuardCommand(trigger, pinVersion) }),
     skeleton: () => ({ version: 1 }),
   },
   gemini: {
@@ -75,13 +92,12 @@ export function jsonDeepEqual(a: unknown, b: unknown): boolean {
   return false
 }
 
-/** 本包管理条目识别（hook-guard 命令串 marker · F-W2-10「可识别标记」口径） */
+/** 本包管理条目识别（hook-guard 命令串 marker · F-W2-10；未钉版与 `@semver` 钉版双形态） */
 export function isPackageManagedHookEntry(entry: unknown, trigger: ConfigHookTrigger): boolean {
-  return (
-    entry !== null &&
-    typeof entry === 'object' &&
-    JSON.stringify(entry).includes(hookGuardCommand(trigger))
-  )
+  if (entry === null || typeof entry !== 'object') return false
+  const s = JSON.stringify(entry)
+  if (s.includes(hookGuardCommand(trigger))) return true
+  return extractHookPinVersionFromText(s, trigger) !== undefined
 }
 
 /** 宿主 config-hook 落点描述符（无映射 → undefined · 调用方 fail-closed） */
@@ -89,14 +105,26 @@ export function configHookSpecOf(hostId: string): ConfigHookHostSpec | undefined
   return CONFIG_HOOK_HOSTS[hostId]
 }
 
-/** 产品条目列表（声明 triggers → 条目 · 顺序 = triggers 声明序） */
+/** 产品条目列表（声明 triggers → 条目 · 顺序 = triggers 声明序；可选钉版） */
 export function productHookEntries(
   hostId: string,
   triggers: ConfigHookTrigger[],
+  pinVersion?: string,
 ): Record<string, unknown>[] {
   const spec = CONFIG_HOOK_HOSTS[hostId]
   if (!spec) return []
-  return triggers.map((t) => spec.entryFor(t))
+  return triggers.map((t) => spec.entryFor(t, pinVersion))
+}
+
+/** 条目是否满足产品声明（未钉版逐字 · 或同结构钉版形态） */
+function entrySatisfiesProduct(
+  entry: unknown,
+  spec: ConfigHookHostSpec,
+  trigger: ConfigHookTrigger,
+): boolean {
+  if (jsonDeepEqual(entry, spec.entryFor(trigger))) return true
+  const pin = extractHookPinVersionFromText(JSON.stringify(entry), trigger)
+  return pin !== undefined && jsonDeepEqual(entry, spec.entryFor(trigger, pin))
 }
 
 export type HookMergeResult =
@@ -111,6 +139,7 @@ export function mergeHookConfig(
   existingText: string | null,
   hostId: string,
   triggers: ConfigHookTrigger[],
+  pinVersion?: string,
 ): HookMergeResult {
   const spec = CONFIG_HOOK_HOSTS[hostId]
   if (!spec) return { ok: false, reason: `config-hook 宿主无物化落点映射: ${hostId}` }
@@ -153,7 +182,7 @@ export function mergeHookConfig(
     arr = [...curArr]
   }
   for (const trigger of triggers) {
-    const entry = spec.entryFor(trigger)
+    const entry = spec.entryFor(trigger, pinVersion)
     const managedIdx = arr.findIndex(
       (e) => jsonDeepEqual(e, entry) || isPackageManagedHookEntry(e, trigger),
     )
@@ -180,7 +209,10 @@ export const SHELL_HOOK_PRE_COMMIT_REL = path.join('.git', 'hooks', 'pre-commit'
  * pre-commit 脚本（注入 hook-guard 调用 · pre-archive 不物化降级留痕 = 脚本头注记 ·
  * S3.1 族×触发表：无宿主原生事件锚点 · 不静默）。
  */
-export function buildShellHookScript(triggers: ConfigHookTrigger[]): string {
+export function buildShellHookScript(
+  triggers: ConfigHookTrigger[],
+  pinVersion?: string,
+): string {
   const lines = [
     '#!/bin/sh',
     `# ${SHELL_HOOK_MARKER}: pre-commit hook（3.0 W2 · 门禁随包物化 · 勿手改 · host apply/update 幂等管理）`,
@@ -190,8 +222,18 @@ export function buildShellHookScript(triggers: ConfigHookTrigger[]): string {
       '# pre-archive: not-materialized（无宿主原生事件锚点 · spec-wave 降级留痕 · S3.1 族×触发表）',
     )
   }
-  lines.push('exec npx spec-wave hook-guard --trigger pre-commit', '')
+  lines.push(`exec ${hookGuardCommand('pre-commit', pinVersion)}`, '')
   return lines.join('\n')
+}
+
+/** shell-hook 脚本是否等于产品声明（未钉版或同 triggers 钉版形态） */
+export function shellHookMatchesProduct(
+  text: string,
+  triggers: ConfigHookTrigger[],
+): boolean {
+  if (text === buildShellHookScript(triggers)) return true
+  const pin = extractHookPinVersionFromText(text, 'pre-commit')
+  return pin !== undefined && text === buildShellHookScript(triggers, pin)
 }
 
 export function isShellHookManaged(text: string): boolean {
@@ -231,7 +273,7 @@ export function hookConfigContains(
     return { ok: false, missing: [...triggers], reason: `缺 ${eventKey} 数组` }
   }
   const missing = triggers.filter(
-    (t) => !arr.some((e) => jsonDeepEqual(e, spec.entryFor(t))),
+    (t) => !arr.some((e) => entrySatisfiesProduct(e, spec, t)),
   )
   return missing.length > 0 ? { ok: false, missing } : { ok: true }
 }

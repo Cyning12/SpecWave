@@ -2,8 +2,9 @@
 #
 # 00 最终裁定（2026-09-17 · 基于 GLOSSARY 真值亲读）：
 #   canonical 保留词 = 门禁 / 过程轨 / 帽制 / 人闸 / 真值源（GLOSSARY 五词）——任何位置一律不判红；
-#   唯一判红对象 = 变体词 `门控`（应为 `门禁`）· 判红面 = 六目标闭集（闭集外不扫）；
+#   唯一判红对象 = 变体词 `门控`（应为 `门禁`）· 判红面 = 七目标闭集（闭集外不扫）；
 #   豁免面逐条枚举；词边界排除 `后门控制`；`门控 skip` / gated-test 语义不计残留。
+#   3.0.1 W6：追加 CHANGELOG.md（全量扫 · HG-W6-REVIEW 裁定 · 禁只扫现行节）。
 # 数据驱动：新增/调整落点只改本文件，不改脚本（与 release-pins.yaml 同风格）。
 version: "1"
 
@@ -17,7 +18,7 @@ canonical:
   - 人闸
   - 真值源
 
-# ② 唯一判红对象 = 变体词；判红面 = 六目标闭集（闭集外不扫）
+# ② 唯一判红对象 = 变体词；判红面 = 七目标闭集（闭集外不扫）
 variants:
   - variant: 门控
     canonical: 门禁
@@ -27,6 +28,7 @@ variants:
       - GLOSSARY.md
       - RELEASING.md
       - MIGRATION.md
+      - CHANGELOG.md
       - delivery/promotion/**
     # ③ 豁免面（逐条枚举 · 与 canonical 正名无冲突 · 不计残留）
     exempt_patterns:

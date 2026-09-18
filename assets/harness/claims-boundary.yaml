@@ -66,6 +66,8 @@ expired_wording:
   - "四宿主"
   - "406 用例"
 
+# 3.0.1 W6 评估：CHANGELOG.md 本波不入 scan_targets（历史节合法复述旧口径 ≠ 宣称主面 ·
+# 纳入会因「四宿主」/「406 用例」等史实叙述真红）· 真值见 HG-W6-REVIEW 扫描面评审文（S-CLAIMS）。
 scan_targets:
   - delivery/promotion/**
   - README.md

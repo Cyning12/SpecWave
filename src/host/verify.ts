@@ -1,5 +1,10 @@
 import { readFileSync } from 'node:fs'
-import { hookConfigContains, type ConfigHookTrigger } from './hooks.ts'
+import {
+  hookConfigContains,
+  isShellHookManaged,
+  shellHookMatchesProduct,
+  type ConfigHookTrigger,
+} from './hooks.ts'
 import {
   isMarkdownMergeTarget,
   verifyMarkdownProductBlock,
@@ -62,9 +67,14 @@ export function checkPlannedItem(item: PlannedItem): HostVerifyCheck {
     }
   }
   // shell-hook 落点（独立 hook 脚本）→ 全文件管理逐字比对（S3.4 形态① · 验收 #10）
+  // 3.0.1 W5：亦认可选 `@semver` 钉版形态（与未钉版产品声明等价 · 防 verify 假红）
   if (item.kind === 'hook' && item.hookMechanism === 'shell-hook') {
     if (got.text === item.nextText) {
       return { ...base, status: 'ok', detail: 'shell-hook 脚本逐字一致' }
+    }
+    const triggers = (item.hooksTriggers ?? []) as ConfigHookTrigger[]
+    if (isShellHookManaged(got.text) && shellHookMatchesProduct(got.text, triggers)) {
+      return { ...base, status: 'ok', detail: 'shell-hook 脚本与产品声明一致（含可选钉版）' }
     }
     return { ...base, status: 'mismatch', detail: 'shell-hook 脚本内容与声明不符（篡改或未物化）' }
   }

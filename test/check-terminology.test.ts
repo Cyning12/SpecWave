@@ -6,7 +6,7 @@ import path from 'node:path'
 import { describe, it } from 'node:test'
 import { fileURLToPath } from 'node:url'
 
-// 3.0 W7 · S7.3 术语机检（验收 #1）：canonical 正名判据 + 六目标闭集 + 豁免/词边界正负 fixture。
+// 3.0 W7 · S7.3 术语机检（验收 #1）：canonical 正名判据 + 七目标闭集 + 豁免/词边界正负 fixture。
 // 红测先行锚点：脚本不存在时 spawn 失败（ENOENT status null）→ 本文件真红。
 const KIT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const SCRIPT = path.join(KIT, 'scripts', 'check-terminology.mjs')
@@ -41,7 +41,7 @@ async function seedClean(root: string): Promise<void> {
   await writeRel(root, 'GLOSSARY.md', `# G\n\n${CANON.join(' / ')}\n`)
 }
 
-describe('3.0-W7 S7.3 · check-terminology（canonical 正名 · 六目标闭集）', { concurrency: 1 }, () => {
+describe('3.0-W7 S7.3 · check-terminology（canonical 正名 · 七目标闭集）', { concurrency: 1 }, () => {
   it('正向：真实仓判红面 门控 残留 0 · canonical 5/5 在位 · exit 0', () => {
     const r = run(KIT)
     assert.equal(r.status, 0, r.combined)

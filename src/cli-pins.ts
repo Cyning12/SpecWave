@@ -84,8 +84,23 @@ function loadPins(root: string): Pin[] {
 
 function readTruthVersion(root: string): string {
   const abs = path.join(root, 'package.json')
-  if (!existsSync(abs)) fail('PINS: BLOCKED · 真值源缺失: package.json（exit 2）', 2)
-  const pkg = JSON.parse(readFileSync(abs, 'utf8')) as { version?: string }
+  // 3.0.1 W3 · P3-8：先读再判，收敛 existsSync↔read TOCTOU；ENOENT 保留缺文件原文案
+  let raw: string
+  try {
+    raw = readFileSync(abs, 'utf8')
+  } catch (e) {
+    const err = e as NodeJS.ErrnoException
+    if (err.code === 'ENOENT') {
+      fail('PINS: BLOCKED · 真值源缺失: package.json（exit 2）', 2)
+    }
+    fail('PINS: BLOCKED · 真值源 package.json 不可解析或不可读: ' + err.message, 2)
+  }
+  let pkg: { version?: string }
+  try {
+    pkg = JSON.parse(raw) as { version?: string }
+  } catch (e) {
+    fail('PINS: BLOCKED · 真值源 package.json 不可解析或不可读: ' + (e as Error).message, 2)
+  }
   if (!pkg.version) fail('PINS: BLOCKED · package.json 缺 version 字段', 2)
   return pkg.version
 }

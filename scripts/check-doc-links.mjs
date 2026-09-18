@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 // 3.0 W7 · S7.7 文档链接两级机检（task_3_0_w7_closeout_external · 验收 #4 · 硬约束 1/14）
 // 3.0 W7 CI hotfix（task_3_0_w7_ci_hotfix · 验收 #1/#2 · 硬约束 6/10）：(i) 判据改「入库状态而非文件系统状态」——
-//   本机 `.workbuddy/`（.gitignore 忽略但实体在）曾使 11 处冻结坏链被 existsSync 掩盖（本地 23 假绿 / CI 干净 clone 34 真红）。
+//   本机 `.workbuddy/`（.gitignore 忽略）除 **9 件显式 tracked**（判据：`git ls-files .workbuddy/`）外均忽略；未入库实体曾使
+//   11 处冻结坏链被 existsSync 掩盖（本地 23 假绿 / CI 干净 clone 34 真红）。
 //   inRepo 目标 = tracked 文件 ∪ tracked 目录前缀（git 不跟踪目录 · 目录链须命中）；仓外目标维持 existsSync。
 //   tracked 集合以 `-z` 原样读取（避免非 ASCII 路径 quotePath 八进制转义）。冻结基线按修后本地/干净 clone 双跑实测重建 23 → 34。
 //
@@ -21,7 +22,7 @@ import { pathToFileURL } from 'node:url'
 // S2 过程域前缀（与 src/cli-shared.ts S2_TRUTH_PREFIXES 同口径的 docs/ 视角）
 export const S2_PREFIXES = ['docs/tasks/', 'docs/harness/reviews/', 'docs/harness/invokes/by-task/']
 // 冻结基线（F-W0-05 式复跑重建）：2026-09-17 CI hotfix 复跑实测 = 34（参数化排除 current task 路径后）。
-// 历史值 23 系「文件系统存在性」判据下的本机假绿口径（本机 .workbuddy/ 实体在 ⇒ 少计 11 · CI 干净 clone 34 真红）；
+// 历史值 23 系「文件系统存在性」判据下的本机假绿口径（`.workbuddy/` 除 9 件 tracked 外的未入库实体 ⇒ 少计 11 · CI 干净 clone 34 真红）；
 // 判据改入库状态后本地/干净 clone 双跑同值 34（S2 (i) 集合逐条 IDENTICAL）· 环境无关。新增 S2 坏链使计数 >34 即红。
 export const S2_FROZEN_BASELINE = 34
 // 参数化排除 current task 路径（本 W7 CI hotfix task · 其自身坏链不计入冻结基线 · 防 in-flight 过程件增链）

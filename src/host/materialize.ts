@@ -249,6 +249,11 @@ export function planApply(opts: {
    * （内置 → pkgRoot · 用户表宿主 → 表文件所在目录 · 缺省 = 全量 pkgRoot 逐字现状 · compat 零影响）。
    */
   sourceRootOf?: (hostId: string) => string
+  /**
+   * 3.0.1 W5（实验性 · 缺省关闭）：物化 hooks 命令钉 `npx spec-wave@<semver> hook-guard …`；
+   * 缺省 undefined → 与 3.0.0 逐字节一致（无 `@semver`）。
+   */
+  hookPinVersion?: string
 }): { items: PlannedItem[]; s2: string[] } {
   const items: PlannedItem[] = []
   const s2: string[] = []
@@ -463,7 +468,7 @@ export function planApply(opts: {
       if (hooksDecl.triggers.includes('pre-commit') && existsSync(path.join(opts.target, '.git'))) {
         const destAbs = path.resolve(opts.target, SHELL_HOOK_PRE_COMMIT_REL)
         const destRel = pushDest(toRel(opts.target, destAbs), destAbs)
-        const script = buildShellHookScript(hooksDecl.triggers)
+        const script = buildShellHookScript(hooksDecl.triggers, opts.hookPinVersion)
         const exists = existsSync(destAbs)
         const existingText = readDestText(destAbs)
         if (exists && existingText !== null && !isShellHookManaged(existingText)) {
@@ -509,7 +514,7 @@ export function planApply(opts: {
       const destRel = pushDest(toRel(opts.target, destAbs), destAbs)
       const exists = existsSync(destAbs)
       const existingText = readDestText(destAbs)
-      const merged = mergeHookConfig(existingText, hostId, hooksDecl.triggers)
+      const merged = mergeHookConfig(existingText, hostId, hooksDecl.triggers, opts.hookPinVersion)
       if (!merged.ok) {
         items.push({
           hostId,

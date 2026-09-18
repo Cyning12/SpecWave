@@ -57,9 +57,14 @@ export async function cmdCheck(args: string[], pkgVersion: string): Promise<void
  * 「→ 30 不可开工」文案语义）：渲染 = 既有三闸行（格式逐字保留 · 缺行占位不变）+ 全部白名单外
  * blocks_hats 含 30 的命中行（声明序追加 · 不再只列 3 行）。阻断行：三闸既有文案逐字 + 泛化行
  * `→ 30 不可开工: <ID> pending 且 blocks 30`（与 HG-TASK-DRAFT 同式）。
+ * 3.0.1 W2：附带空解析 warnings（C1–C2 · 不改 blocked / exit）。
  */
-export function formatGateCheck(taskFile: string, content: string): { text: string; blocked: boolean } {
-  const gates = parseHumanGates(content)
+export function formatGateCheck(
+  taskFile: string,
+  content: string,
+): { text: string; blocked: boolean; warnings: string[] } {
+  const warnings: string[] = []
+  const gates = parseHumanGates(content, { warnings })
   const draft = findGate(gates, 'HG-TASK-DRAFT')
   const audit = findGate(gates, 'HG-AUDIT-R1')
   const graph = findGate(gates, 'HG-GRAPH-MODULES')
@@ -118,7 +123,7 @@ export function formatGateCheck(taskFile: string, content: string): { text: stri
     lines.push(`→ 30 不可开工: ${may.reason}`)
   }
   lines.push('')
-  return { text: lines.join('\n'), blocked }
+  return { text: lines.join('\n'), blocked, warnings }
 }
 
 export async function cmdGateCheck(args: string[]): Promise<void> {
@@ -152,6 +157,8 @@ export async function cmdGateCheck(args: string[]): Promise<void> {
   // C3 补漏（2.3-W3 · D-23-W3-REL-BASE）：错误文案相对化（target 归卡基）
   if (!existsSync(abs)) fail(`错误: 未找到 --task 文件 ${toRel(target, abs)}`)
   const formatted = formatGateCheck(abs, await readFile(abs, 'utf8'))
+  // 3.0.1 W2 C1–C2：告警 stderr（人读）+ --json 只增 warnings[]；不改 exit（C8）
+  for (const w of formatted.warnings) console.error(`WARN: ${w}`)
   if (json) {
     printJson(target, {
       command: 'gate-check',
@@ -160,6 +167,7 @@ export async function cmdGateCheck(args: string[]): Promise<void> {
       task: taskFile,
       blocked: formatted.blocked,
       verdict: formatted.blocked ? 'BLOCKED' : 'PASS',
+      ...(formatted.warnings.length > 0 ? { warnings: formatted.warnings } : {}),
     })
   } else {
     process.stdout.write(formatted.text)

@@ -4,6 +4,23 @@
 
 ## [Unreleased]
 
+## [3.0.1] - 2026-09-18
+
+> 主题：**patch** —— 3.0.0 验收后信号质量收口（W1–W6 · PLAN [`docs/roadmap/PLAN_3_0_1_patch_v1_zh.md`](docs/roadmap/PLAN_3_0_1_patch_v1_zh.md) · 无独立 SPEC 夹）。
+> **发布状态**：**待发版（tag/push/publish 仅人）**（工作树 bump 已落 · registry `latest` 仍为 `3.0.0` 直至人 publish · pin-10 git tag `v3.0.1` 缺失为设计红）。
+
+### Fixed
+
+- **W1（粘性表源）**：`.coding-kit/host-tools.json` 可选 `table_source`；默认 `host verify` 取表与 `apply` 同源（`--file` 仍最高优先）；非内置表源不可用 **fail-closed**（点名路径 · **不**静默退回内置表）。粘性 `version` 保持 `1`（双向兼容）。
+- **W2（闸表契约）**：README 双语最小骨架补第 4 列 `说明`；`parseHumanGates` 对「`### 人工闸` 存在但 0 行」输出空解析告警（含 id 内嵌粗体子形态提示）；**不**放宽 `GATE_ROW_RE` · 退出码语义不变。
+- **W3（pins IO）**：`readTruthVersion` 坏 `package.json`（截断 / 不可读 / 冲突标记）→ **exit 2** + `PINS: BLOCKED`（与 `loadPins` 同形态）。
+- **W4（口径）**：`MIGRATION.md` §① 改为「默认落点不变；内置表升级为 v2 并**新增** hooks 物化（additive）」；CHANGELOG `[3.0.0]` Tests 回填 **864（863 pass + 1 skip）**；`package.json#files` 列 `README.zh-CN.md`；研究文作者数区间化（`as_of 2026-09`）；`check-doc-links` 注释改为「除 9 件显式 tracked 外均忽略」。
+
+### Added
+
+- **W5（实验性 · 缺省关闭）**：`host apply` / `host update` 可选旗标 `--pin-hook-version[=SEMVER]`，使物化 hooks 命令写为 `npx spec-wave@<semver> hook-guard …`（裸旗标缺省 = 当前 `package.json#version`）。**不带旗标时物化输出与 3.0.0 逐字节一致**。`RELEASING.md` 与《使用手册》§7.3 补确定性 CI 建议。
+- **W6（可见性 / 覆盖面）**：`check-terminology` 判红面追加 `CHANGELOG.md`（全量扫）；`host validate` 对「非 `CONFIG_HOOK_HOSTS` + `mechanism: config-hook`」输出 **PASS + WARN**（stderr / `--json#warnings` · exit 0 不变），`host apply` 仍 fail-closed。**未**扩落点映射 · **未**改 apply 松紧 · **未**将 CHANGELOG 纳入 `check-claims`。
+
 ## [3.0.0] - 2026-09-17
 
 > 主题：**major** —— **架构跃迁（architecture leap）**：**首次 schema breaking**（host-adapt 适配表 v1 → v2 **可选**跃迁 · 旧表零改动兼容）· 门禁随包内置 + 可多宿主物化 + 本体/图谱/可观测/审计全接线 · W7 收尾与对外口径统一。
@@ -26,7 +43,7 @@
 
 ### Tests
 
-- 测试基线 **841 → 859**（all pass + 1 环境 skip）；**tag-gated 设计红 ×2**（`release-tag-identity` / `pins-consistency` 真实仓 pin-10 = git tag `v3.0.0`）· **打 tag 后须全绿**。
+- 测试基线 **841 → 864**（863 pass + 1 skip · 打 tag 后全绿）；TTY 色彩 hotfix（`0e1f165`）其后 +5。发布过程中曾出现 **tag-gated 设计红 ×2**（`release-tag-identity` / `pins-consistency` 真实仓 pin-10 = git tag `v3.0.0`）作为过程留痕。
 - 新增机械锁：`check-terminology` / `check-claims` / `check-doc-links`（各含正负 fixture）· F3 wiki fixture 三能力 · E3 计数脚本。
 
 ## [2.4.2] - 2026-09-15
@@ -127,7 +144,7 @@
 
 ### Added
 
-- **2.3-W7（SPEC 07 · DX 与工程健康收官）**：① 根 README 双语宿主表 4 → 13 行（tagline 扩为 13 宿主概括表述 · 既有四行行首锚形态不变、新增九行逐字命中 pin-17 词锚 · aider 行「注入层支持」口径写明须 `--read`/`.aider.conf.yml`、不暗示自动加载 · roo 行注明官方仓 merged PR 证据 · `spec-wave@2.2.1` 钉点串不动）；② GLOSSARY 两处措辞与实现一致化（「four gates」按 task 文件级 / SPEC 级 / 发版级三层表述 · 「每帽一 prompt 文件」修正为「sync prompts 物化 7 具名帽 · `50-independent-reinspect` 暂无物化 prompt 文件」）；③ E2 `cli-peer-optional` 去网络绑定（默认离线 fixture 伪造已安装布局 + 运行时依赖闭包直拷 · 原真实 pnpm 链路保留为 `SPEC_WAVE_E2E_NETWORK=1` 门控手动测试 · 默认 skip）；④ E5 tsconfig 开 `noUncheckedIndexedAccess`（62 存量类型错逐一机械收窄 · 运行时语义零变更 · 熔断阈值内）；pin-17 九条过渡豁免全摘关账（`13 宿主校验 · 13 双语命中` 零豁免 · 失陈债机检中间态 exit 2 留痕）。
+- **2.3-W7（SPEC 07 · DX 与工程健康收官）**：① 根 README 双语宿主表 4 → 13 行（tagline 扩为 13 宿主概括表述 · 既有四行行首锚形态不变、新增九行逐字命中 pin-17 词锚 · aider 行「注入层支持」口径写明须 `--read`/`.aider.conf.yml`、不暗示自动加载 · roo 行注明官方仓 merged PR 证据 · `spec-wave@2.2.1` 钉点串不动）；② GLOSSARY 两处措辞与实现一致化（「four gates」按 task 文件级 / SPEC 级 / 发版级三层表述 · 「每帽一 prompt 文件」修正为「sync prompts 物化 7 具名帽 · `50-independent-reinspect` 暂无物化 prompt 文件」）；③ E2 `cli-peer-optional` 去网络绑定（默认离线 fixture 伪造已安装布局 + 运行时依赖闭包直拷 · 原真实 pnpm 链路保留为 `SPEC_WAVE_E2E_NETWORK=1` 门禁手动测试 · 默认 skip）；④ E5 tsconfig 开 `noUncheckedIndexedAccess`（62 存量类型错逐一机械收窄 · 运行时语义零变更 · 熔断阈值内）；pin-17 九条过渡豁免全摘关账（`13 宿主校验 · 13 双语命中` 零豁免 · 失陈债机检中间态 exit 2 留痕）。
 - **2.3-W6（B4 · SPEC 06）host-adapt 六宿主补齐**：适配表新增 `gemini` / `opencode` / `roo` / `zed` / `cline` / `aider`（7 → 13）· 落点逐宿主官方文档取证（2026-09-13）：gemini=GEMINI.md+`.gemini/skills` · opencode/zed=AGENTS.md+`.agents/skills` · cline=AGENTS.md+`.cline/skills` · roo=AGENTS.md（官方仓 merged PR #10446 · skills 无官方约定不物化）· aider=**降级** AGENTS.md 注入层（官方约定为 CONVENTIONS.md 显式 `--read`，无自动加载 · 如实标注）；全量复用 agents 资产面（**零新资产 · 零 src 改动**）· `commands: []` 不暗示 P0 门禁在新宿主内生效；pin-17 host_hits/known_gaps 数据面同步（六新豁免 until_wave: W7 · W7① 统一关账）。注：根 README 双语宿主表更新归 W7①，对外宣称口径归维护者（事实卡 §11）。
 - **2.3-W5（A2 · SPEC 05）assets 资产完整性校验**：新增 `assets/sha256.manifest`（构建声明：assets/ 全量文件 sha256 · posix 路径确定性排序 · sha256sum 行格式）+ 新子命令 `spec-wave assets verify [--target PATH] [--json]`（逐文件比对：ok/mismatch/missing/extra 四态 · 任一偏差 failClosed **exit 2** · 与 pins 同门禁语义）与 `spec-wave assets manifest rebuild [--target PATH] [--yes]`（默认 dry-run · `--yes` 重生成 manifest · 幂等 · **修复对象=manifest 声明，资产为真值永不反向改**）；CI test job 与 `prepublishOnly` 链尾与 pins 同点位接线（改 assets 未重生成即红）。注：根 README 等对外文档口径更新归维护者（事实卡 §11 解禁不属本波）。
 - **2.3-W3（[A]W3-P2）exit 1 JSON 信封**：用法错误档（exit 1）且传 `--json` 时，stdout 输出结构化信封 `{ command, exitCode: 1, error: { message } }`（message 已相对化）；不传 `--json` 时人类错误输出不变；exit 码语义不变。

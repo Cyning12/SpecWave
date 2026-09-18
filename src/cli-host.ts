@@ -14,8 +14,13 @@
  */
 export { sniffHostContract } from './host-contract.ts'
 export { listKnownHostIds } from './host/table.ts'
-export { loadHostToolsSticky, parseHostToolsSticky, writeHostToolsSticky } from './host/sticky.ts'
-export type { HostToolsSticky } from './host/sticky.ts'
+export type { HostToolsSticky, HostToolsTableSource } from './host/sticky.ts'
+export {
+  buildTableSourceForSticky,
+  loadHostToolsSticky,
+  parseHostToolsSticky,
+  writeHostToolsSticky,
+} from './host/sticky.ts'
 export { validateHostAdaptDoc } from './host/schema.ts'
 export type { HostValidateIssue } from './host/schema.ts'
 export { cmdHost } from './host/cmd.ts'

@@ -267,7 +267,16 @@ export function findWikiDeltaOutsideMetaSection(
   return null
 }
 
-export function parseHumanGates(content: string): HumanGate[] {
+/** 3.0.1 W2：空解析告警文案（C3 · 4 列 + id 内嵌 ** 并列 · 避「门控」变体词） */
+export const EMPTY_GATE_TABLE_WARNING =
+  '### 人工闸 节存在但解析到 0 行闸：请确认闸表为 4 列（末列为「说明」）；另请确认 id 单元格内未内嵌粗体 **（整格包裹 **HG-…** 仍可解析）'
+
+export type ParseHumanGatesOptions = {
+  /** 收集空解析告警（只增；调用方负责 stderr / --json#warnings） */
+  warnings?: string[]
+}
+
+export function parseHumanGates(content: string, options?: ParseHumanGatesOptions): HumanGate[] {
   const section = extractSection(content, '### 人工闸', '\n##')
   if (!section) return []
   const gates: HumanGate[] = []
@@ -281,6 +290,10 @@ export function parseHumanGates(content: string): HumanGate[] {
       status: normalizeCell(match[2]!), // GATE_ROW_RE 捕获组必参与（E5 收窄）
       blocksHats: normalizeCell(match[3]!),
     })
+  }
+  // 3.0.1 W2（硬约束 5）：有节无行 ⇒ 显式告警；不改 exit / may_start_30（C7–C8）
+  if (gates.length === 0) {
+    options?.warnings?.push(EMPTY_GATE_TABLE_WARNING)
   }
   return gates
 }

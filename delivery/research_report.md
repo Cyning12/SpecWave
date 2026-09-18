@@ -167,7 +167,7 @@
 | 架构特点 | 模板四层解析优先级：项目本地覆盖（`.specify/templates/overrides/`）> 预设 Presets > 扩展 Extensions > 内核 Core；命令文件在安装时写入各 agent 目录，多个 preset/extension 提供同名命令时高优先级胜出，移除后自动回退次高 | 已核实（SR-06） |
 | 部署形态 | 以 `uvx --from git+… specify init` 加 `--integration` 参数（取值为 copilot / claude / codex 等宿主名）初始化；明确声明可离线、在防火墙内、跨 Windows/macOS/Linux 运行；组织可自建 extension 与 preset catalog | 已核实（SR-06, SR-07） |
 | 集成方式 | 35–38 AI 编码 agent 集成（as_of 2026-09）（Copilot、Gemini、Codex、Windsurf、Claude、Forge、Kiro 等）；对支持 skills mode 的集成可用 `--integration-options="--skills"` 改为安装 Agent Skills 而非斜杠命令文件 | 已核实（SR-06, SR-07） |
-| 定价模式 | 开源（MIT），零许可成本；社区扩展 138–157（作者 90+）、presets 25–33、贡献者 240–270+、stars 121K–130K+（as_of 2026-09 · 各镜像快照不同步，取区间） | 已核实（SR-07） |
+| 定价模式 | 开源（MIT），零许可成本；社区扩展 138–157（作者 90–110+）、presets 25–33、贡献者 240–270+、stars 121K–130K+（as_of 2026-09 · 各镜像快照不同步，取区间） | 已核实（SR-07） |
 | 优势 | 「分层覆盖 + 安装期物化 + 优先级回退」三件套，让一套方法论内核能同时服务 30 个宿主而不分叉；且完全离线可用，无云依赖 | 综合归纳（SR-06, SR-07） |
 | 局限 | 内核 SDD 门控为流程性（阶段产物存在性与一致性检查）；但扩展生态已含机械门禁类（CI Guard / Architecture Guard / plan-review-gate / DocGuard / Verify 系列），可对接 CI 做拦截。kit 差异化落点为「门禁随包内置（零装配）+ 可多宿主物化（W2）」（as_of 2026-09 复核） | 推断（依据 SR-06 命令语义） |
 | 对本项目的参考价值 | 与 kit 的「过程轨（tasks/reviews/invokes）永不覆写 + 模板资产 + 命令族 G1–G7」高度同构；其四层模板优先级正是 kit 治理 X7（S2 过程域前缀四份硬编码互不统一）所需的「单一真值源 + 分层覆盖」范式的现成答案 | 推断（依据 SR-06 + material_digest X7） |
@@ -392,7 +392,7 @@
 | SR-04 | 官方文档 | Rules — Cursor Docs（`.cursor/rules/` 与 `.mdc` 格式、`description`/`globs`/`alwaysApply` 三字段、四种激活模式、`.cursorrules` legacy 措辞、Team > Project > User 优先级、规则不作用于 Tab/Inline Edit/Bugbot、500 行上限） | https://docs.cursor.com/context/rules | B2, §2.2.2, §2.3 | 2026-09-04 |
 | SR-05 | 官方文档 | Hooks — Cursor Docs（`.cursor/hooks.json` schema `version: 1`、事件清单、退出码 2 阻断、`failClosed` 默认 false 与语义、`loop_limit` 默认 5、Enterprise > Team > Project > User 四层优先级与工作目录规则、matcher 规则） | https://cursor.com/en-US/docs/hooks | B2, §2.2.2, §2.3, §3.1 | 2026-09-04 |
 | SR-06 | 开源仓库 | github/spec-kit · README（斜杠命令全表、Extensions/Presets/项目本地覆盖四层模板优先级与运行时解析、安装期写入 agent 目录、同名命令优先级与移除回退、`--integration-options="--skills"`） | https://github.com/github/spec-kit | B3, §2.2.3, §2.3 | 2026-09-04 |
-| SR-07 | 官方站点 | GitHub Spec Kit（SDD 定位、Spec→Plan→Tasks→Implement 内核、35–38 integrations、138–157 community extensions / 90+ authors、25–33 presets、240–270+ contributors、stars 121K–130K+（as_of 2026-09 · 各镜像快照不同步，取区间）、离线与防火墙内可用、可自建 catalog） | https://github.github.com/spec-kit/ | B3, §2.2.3, §2.3, §5.1 | 2026-09-04 |
+| SR-07 | 官方站点 | GitHub Spec Kit（SDD 定位、Spec→Plan→Tasks→Implement 内核、35–38 integrations、138–157 community extensions / 90–110+ authors、25–33 presets、240–270+ contributors、stars 121K–130K+（as_of 2026-09 · 各镜像快照不同步，取区间）、离线与防火墙内可用、可自建 catalog） | https://github.github.com/spec-kit/ | B3, §2.2.3, §2.3, §5.1 | 2026-09-04 |
 | SR-08 | 官方标准站 | AGENTS.md（定位为「面向 agent 的 README」、60k+ 开源项目采用、嵌套 AGENTS.md 就近优先） | https://agents.md/ | §2.3, §4.1, §4.3 | 2026-09-04 |
 | SR-09 | 基金会新闻稿 | Linux Foundation Announces the Formation of the Agentic AI Foundation (AAIF)（2025-12-09；MCP / goose / AGENTS.md 三项创始捐赠；AGENTS.md 由 OpenAI 于 2025 年 8 月发布、60,000+ 项目采用、采用方列举 Amp/Codex/Cursor/Devin/Factory/Gemini CLI/GitHub Copilot/Jules/VS Code；白金成员名单） | https://www.linuxfoundation.org/press/linux-foundation-announces-the-formation-of-the-agentic-ai-foundation | §2.3, §4.3 | 2026-09-04 |
 | SR-10 | 开放标准规范 | Agent Skills Specification（SKILL.md 结构、frontmatter 字段、三级渐进加载模型、各平台项目/全局目录约定、平台兼容矩阵） | https://agentskills.io/ ；规范仓 https://github.com/agentskills/agentskills | §2.3, §4.3 | 2026-09-04 |

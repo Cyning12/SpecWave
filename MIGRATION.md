@@ -1,10 +1,10 @@
 # Migration · `@cyning/harness` / `dsh-coding-kit` → **SpecWave**（`spec-wave`）
 
-> **⚠️ `dsh-coding-kit` 已 deprecate** —— 请**直接**安装正式包：`npm i spec-wave@3.0.0`（**major · 架构跃迁**：适配表 schema v1→v2 **可选跃迁**（旧表零改动兼容）+ 门禁随包内置 + 多宿主物化；**tag/npm 同 commit 发版**后以 registry `latest` 为准）。**勿再**把废弃中间包当作迁移终点。  
-> **现行包**：**`spec-wave@3.0.0`**（正式包名 / 正式 bin；曾用名 `dsh-coding-kit`）  
+> **⚠️ `dsh-coding-kit` 已 deprecate** —— 请**直接**安装正式包：`npm i spec-wave@3.0.1`（**patch · 待发版** · W1–W6 信号质量收口 · 粘性向后兼容 · **无强制迁移**；registry `latest` 仍为 `3.0.0` 直至人 publish。`3.0.0` 为 **major · 架构跃迁**，见下方「2.4.2 → 3.0.0」节）。**勿再**把废弃中间包当作迁移终点。  
+> **现行包**：**`spec-wave@3.0.1`**（**待发版** · 正式包名 / 正式 bin；曾用名 `dsh-coding-kit`）  
 > **过渡 bin（同入口 · 非终点）**：`specgate` · `dsh-coding-kit`（仍可调用，**不要**再 `npm i dsh-coding-kit` 当终点）  
 > **状态**：1.12 收口 **DONE** · kit **`2.0.0` published** · `@cyning/harness` **已 deprecate**（2026-09-10）· **`dsh-coding-kit` 已 deprecate**（文案指向 `spec-wave`）  
-> **包钉**：请钉 `spec-wave@3.0.0`（本文件不代替 `package.json`）  
+> **包钉**：请钉 `spec-wave@3.0.1`（**待发版** · 本文件不代替 `package.json`）  
 > **布局真值（F4 方案 B）**：新落盘根 = **`.coding-kit/`**；**`.cyning-harness/`** = legacy **只读**（探测 / 升级源；**不删除**）  
 > **人闸**：`HG-EOS-DATE` / `HG-PUBLISH` = **approved**（人实操 · 2026-09-10）· **禁止** Agent 执行 `npm deprecate` / `npm publish`  
 > **F6 归档**：[`docs/roadmap/ACCEPTANCE_2x_host_adapt_2_0_0_zh.md`](docs/roadmap/ACCEPTANCE_2x_host_adapt_2_0_0_zh.md) · 规划 [`docs/roadmap/PLAN_2x_host_adapt_v1_zh.md`](docs/roadmap/PLAN_2x_host_adapt_v1_zh.md)  
@@ -14,7 +14,7 @@
 
 ## SpecWave 最短路径（现行）
 
-1. **依赖**：`package.json` 将 `dsh-coding-kit`（或 `@cyning/harness`）改为 **`spec-wave`**（钉 `3.0.0`；CHANGELOG 见 `[3.0.0]` 节）。  
+1. **依赖**：`package.json` 将 `dsh-coding-kit`（或 `@cyning/harness`）改为 **`spec-wave`**（钉 `3.0.1`；CHANGELOG 见 `[3.0.1]` 节）。  
 2. **升级**：`npx spec-wave upgrade --yes`  
 3. **字面**：CI / 脚本 `npx dsh-coding-kit` / `npx @cyning/harness` → **`npx spec-wave`**  
 4. **推荐**：`npx spec-wave refresh-ide-blocks --yes`（默认 dry-run；含 B-REFRESH：旧 `npx dsh-coding-kit` / `npx specgate` → `npx spec-wave`）
@@ -82,7 +82,7 @@
 DEPRECATED: use dsh-coding-kit instead. See https://github.com/Cyning12/SpecWave/blob/main/MIGRATION.md — pin dsh-coding-kit@1.12.0 and run: npx spec-wave upgrade --yes
 ```
 
-> **链式风险**：上列 harness 文案仍指向已 deprecate 的 `dsh-coding-kit`。**请忽略该钉点**，直接 `npm i spec-wave@3.0.0`。registry 改文案仅人（`HG-DEPRECATE-HARNESS`）。
+> **链式风险**：上列 harness 文案仍指向已 deprecate 的 `dsh-coding-kit`。**请忽略该钉点**，直接 `npm i spec-wave@3.0.1`。registry 改文案仅人（`HG-DEPRECATE-HARNESS`）。
 
 ### 过渡窗规则
 
@@ -130,7 +130,7 @@ DEPRECATED: use dsh-coding-kit instead. See https://github.com/Cyning12/SpecWave
 
 ### ① 默认路径：什么都不用做
 
-- 仅用内置 13 宿主的消费者：升级 `spec-wave` 3.0.0 后 `host validate / host apply / host update` 行为不变（v1 表面逐字锁 = 既有 11 件宿主测试 + 2.4.2 表 planned writes 快照逐字一致断言）。
+- 仅用内置 13 宿主的消费者：升级 `spec-wave` 3.0.0 后 `host validate / host apply / host update` **默认落点不变**；内置表升级为 v2 并**新增** hooks 物化（additive）（v1 表面逐字锁 = 既有 11 件宿主测试 + 2.4.2 表 planned writes 快照逐字一致断言）。
 - 旧格式适配表（含 `--file` 自定义表）**零改动继续可读**：无 `schema_version` 键即按 v1 旧扁平语义解析（缺省 = v1 · 语义等价映射入新内部模型：注入内建 command_sets 目录（= 2.4.2 常量现值逐字）+ hooks 缺省 `{mechanism: none}`）。
 
 ### ② 自定义表作者：可选迁移（欲用新能力时）
@@ -139,6 +139,7 @@ DEPRECATED: use dsh-coding-kit instead. See https://github.com/Cyning12/SpecWave
 2. **可选**：把多行重复的 `verify` / `skills` 等提入根级 `defaults`，或改用行级 `extends: <host_id | "defaults">` 消重复（合并语义：标量子覆盖父 · 对象逐键深合并 · **数组整体替换**；循环继承/未知目标/链深 >8 拒绝）。
 3. **必做**：声明根级 `command_sets`（v2 表缺此节 fail-closed · 不回退硬编码默认；`core` / `expanded` 非空数组 · `forbidden` 可选追加自定义禁词）。
 4. **可选**：声明 `surfaces.hooks`（`mechanism: shell-hook | config-hook | none` + `triggers: [pre-commit | pre-archive]` + `command`）。**注意**：W1 只做声明与校验 —— hooks/verify 的**物化与运行时归后续波次（W2）**，当前声明不产生任何钩子行为。
+5. **边界（3.0.1 W6 · P3-7）**：`config-hook` 落点映射表仅 `claude` / `cursor` / `gemini`（`CONFIG_HOOK_HOSTS` · **不扩表**）。非映射宿主若声明 `mechanism: config-hook`：`host validate` → **PASS + WARN**（stderr / `--json#warnings` · exit 0）；同表 `host apply` → **fail-closed exit 2**（行为正确 · 不静默）。自定义宿主请用 `mechanism: none`（仅 L1+L2）。
 
 ### ③ 禁止事项
 
@@ -156,6 +157,15 @@ DEPRECATED: use dsh-coding-kit instead. See https://github.com/Cyning12/SpecWave
 - ② **新能力可选启用**：最小 v2 表（`schema_version: 2` + 根级 `command_sets` + `defaults`/`extends` + `surfaces.hooks`）→ `host validate` **PASS**；`host apply --dry-run` **PASS**（cursor `config-hook` 物化 `.cursor/hooks.json`；dsh `mechanism: none` 显式降级 L1+L2）。
 - **结论：未发现 schema 兼容洞**（F-W7-01 未触发 · 回退 W1 通道未启用）。逐步骤命令与输出见演练记录。
 
+## 3.0.0 → 3.0.1（patch）· 无强制动作项
+
+> **状态：无强制迁移**（2026-09-18 · release bump）—— 3.0.1 为 patch；核心改动（粘性 `table_source`）**向后兼容**（`version` 仍为 `1` · 未知字段忽略 · 缺省回落内置表）。
+
+- **不必做**：改适配表 schema、改粘性 `version`、重跑 `host apply`、改 CI 默认 hooks 命令。
+- **粘性**：`3.0.0` 写入的粘性（无 `table_source`）仍可被 3.0.1 读取；3.0.1 写入的粘性仍可被 `3.0.0` 读取。
+- **可选了解**（非动作项）：W5 `--pin-hook-version` 实验性且**缺省关闭**（不带旗标时物化与 `3.0.0` 逐字节一致）；W6 对非映射宿主 `config-hook` 的 `host validate` 增加 **PASS + WARN**（`apply` 仍 fail-closed · 行为未松）。
+- `3.0.0` 的 breaking 迁移仍见上一节「2.4.2 → 3.0.0」。
+
 ---
 ## 修订记录
 
@@ -172,3 +182,5 @@ DEPRECATED: use dsh-coding-kit instead. See https://github.com/Cyning12/SpecWave
 | 2026-09-10 | **W1 收口**：终点改 SpecWave；`spec-wave` 非过渡 bin；醒目声明 `dsh-coding-kit` deprecated；钉点仅推荐 `spec-wave` |
 | 2026-09-16 | **3.0 W1 草案节**：增「2.4.2 → 3.0.0（breaking）」适配表 schema 跃迁迁移节（草案 · W7 定稿 + 真实 2.4.1 仓演练后转正）· 只追加不动既有行（pin-14 钉点行未触） |
 | 2026-09-17 | **3.0 W7 定稿**：适配表 schema 跃迁节草案 → 定稿（经真实 v2.4.1 仓演练 · 旧格式零改动 + 新能力可选启用均 PASS · 无兼容洞）· 演练记录 [`docs/harness/reviews/w7_migration_rehearsal_2_4_1_20260917.md`](docs/harness/reviews/w7_migration_rehearsal_2_4_1_20260917.md) |
+| 2026-09-18 | **3.0.1 W6**：§② 补「非映射宿主 `config-hook`：validate PASS+WARN · apply fail-closed · 自定义用 `none`」（映射键 = claude/cursor/gemini · 不扩表） |
+| 2026-09-18 | **3.0.1 patch**：增「3.0.0 → 3.0.1 无强制动作项」（粘性向后兼容 · 无强制迁移 · 可选了解 W5 旗标 / W6 WARN） |

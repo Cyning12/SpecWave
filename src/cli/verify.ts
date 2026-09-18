@@ -307,6 +307,7 @@ export async function cmdVerify(args: string[]): Promise<void> {
   const label = path.basename(abs)
   const exempted: string[] = [] // U1：exempt.reviews 命中留痕（done 面 · OQ-3 命名对齐裸 verify · emitJson 闭包消费故须先声明）
   const waived: string[] = [] // 豁免/降级留痕（emitJson 闭包消费 · 3.0-W6 G4 done warn 降级同通道故须先声明）
+  let gateParseWarnings: string[] = [] // 3.0.1 W2：空解析告警（C1–C2 · 只增 warnings[]）
   const emitJson = (blocked: boolean, waived?: string[], wikiLint?: WikiLintGateResult | null): void => {
     // obs 恒非空：emitJson 全部调用点均在 if (json) 守卫内（obs 仅 --json 时计算）
     const o = obs as VerifyObservability
@@ -325,6 +326,8 @@ export async function cmdVerify(args: string[]): Promise<void> {
       // U1/OQ-3（3.0-W4 · 评审文 §6.2）：exempt 命中留痕键名与裸 verify 面对齐（exempted）· 契约只增不改（条件键）
       ...(exempted.length > 0 ? { exempted } : {}),
       ...(wikiLint ? { wiki_lint: wikiLintJson(wikiLint) } : {}),
+      // 3.0.1 W2 C1–C2：只增 warnings[] · 不改既有键
+      ...(gateParseWarnings.length > 0 ? { warnings: gateParseWarnings } : {}),
     })
   }
   try {
@@ -336,6 +339,9 @@ export async function cmdVerify(args: string[]): Promise<void> {
   const content = await readFile(abs, 'utf8')
   auditGates = parseHumanGates(content).map((g) => ({ id: g.id, status: g.status }))
   const formatted = formatGateCheck(abs, content)
+  gateParseWarnings = formatted.warnings
+  // 3.0.1 W2 C1–C2：人读 stderr；--json 机读真值在信封 warnings（可同时镜像）
+  for (const w of gateParseWarnings) console.error(`WARN: ${w}`)
   if (!json) process.stdout.write(formatted.text)
   if (formatted.blocked) {
     const gates = parseHumanGates(content)

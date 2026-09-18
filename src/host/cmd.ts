@@ -19,7 +19,13 @@ import {
   resolvedHostRows,
 } from './table.ts'
 import { validateHostAdaptDocDispatch } from './schema.ts'
-import { loadHostToolsSticky, uniqueKeepOrder, writeHostToolsSticky } from './sticky.ts'
+import {
+  buildTableSourceForSticky,
+  loadHostToolsSticky,
+  uniqueKeepOrder,
+  writeHostToolsSticky,
+  type HostToolsSticky,
+} from './sticky.ts'
 import { assertHostProfile, findLegacyClaudeFlatCommands } from './commands.ts'
 import { commitPlannedWrites, planApply, remapUpdateConflicts } from './materialize.ts'
 import { checkPlannedItem, isVerifyRed, type HostVerifyCheck } from './verify.ts'
@@ -32,7 +38,8 @@ import {
   userHostsDirOf,
   type MergedHostTables,
 } from './load.ts'
-import { asHostRows } from './table.ts'
+import { asHostRows, kitPackageSemver } from './table.ts'
+import { configHookSpecOf } from './hooks.ts'
 import {
   emitHostFail,
   emitU01Degraded,
@@ -41,14 +48,29 @@ import {
   type HostWriteReport,
 } from './report.ts'
 
+/** 3.0.1 W6：非映射宿主 + config-hook → 可见性 WARN（不改 exit / PASS） */
+const CONFIG_HOOK_MAPPED_HOSTS_LABEL = 'claude/cursor/gemini'
+
+export function collectConfigHookUnmappedWarnings(data: unknown): string[] {
+  const warnings: string[] = []
+  for (const row of resolvedHostRows(data)) {
+    if (row.surfaces.hooks.mechanism !== 'config-hook') continue
+    if (configHookSpecOf(row.host_id)) continue
+    warnings.push(
+      `宿主 ${row.host_id} 声明 mechanism: config-hook 但不在 config-hook 落点映射表内（${CONFIG_HOOK_MAPPED_HOSTS_LABEL}）⇒ host apply 将 fail-closed；如需仅 L1+L2 请用 mechanism: none`,
+    )
+  }
+  return warnings
+}
+
 const HOST_USAGE =
-  'host validate [--file PATH] [--target PATH] [--json]\n  host apply --tools LIST|all [--profile core|expanded] [--target PATH] [--file PATH] [--json] [--dry-run|--yes]\n  host update [--tools LIST|all] [--profile core|expanded] [--target PATH] [--file PATH] [--json] [--dry-run|--yes] [--force]\n  host verify [--tools LIST|all] [--profile core|expanded] [--target PATH] [--file PATH] [--json]\n  host catalog list [--target PATH] [--json]'
+  'host validate [--file PATH] [--target PATH] [--json]\n  host apply --tools LIST|all [--profile core|expanded] [--target PATH] [--file PATH] [--json] [--dry-run|--yes] [--pin-hook-version[=SEMVER]]（实验性 · 缺省关闭）\n  host update [--tools LIST|all] [--profile core|expanded] [--target PATH] [--file PATH] [--json] [--dry-run|--yes] [--force] [--pin-hook-version[=SEMVER]]（实验性 · 缺省关闭）\n  host verify [--tools LIST|all] [--profile core|expanded] [--target PATH] [--file PATH] [--json]\n  host catalog list [--target PATH] [--json]'
 
 const APPLY_USAGE =
-  'host apply --tools cursor,claude|all [--profile core|expanded] [--target PATH] [--file PATH] [--json] [--dry-run|--yes]'
+  'host apply --tools cursor,claude|all [--profile core|expanded] [--target PATH] [--file PATH] [--json] [--dry-run|--yes] [--pin-hook-version[=SEMVER]]（实验性 · 缺省关闭）'
 
 const UPDATE_USAGE =
-  'host update [--tools LIST|all] [--profile core|expanded] [--target PATH] [--file PATH] [--json] [--dry-run|--yes] [--force]'
+  'host update [--tools LIST|all] [--profile core|expanded] [--target PATH] [--file PATH] [--json] [--dry-run|--yes] [--force] [--pin-hook-version[=SEMVER]]（实验性 · 缺省关闭）'
 
 const VERIFY_USAGE =
   'host verify [--tools LIST|all] [--profile core|expanded] [--target PATH] [--file PATH] [--json]'
@@ -134,6 +156,62 @@ function takeOptionalFlag(
   return takeOption(args, name)
 }
 
+/** 宽松 SEMVER（MAJOR.MINOR.PATCH 可选 pre/build · 非法 → 用法错误 exit 1） */
+const PIN_HOOK_SEMVER_RE =
+  /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?$/
+
+/**
+ * 解析 `--pin-hook-version[=SEMVER]`（3.0.1 W5 · 实验性 · 缺省关闭）。
+ * 裸旗标 / 无值 → 缺省 = package.json#version（kit_semver 同源）；空 `=` / 非法 → exit 1。
+ * 不可复用 takeOptionalFlag（后者强制跟值 · 无法表达裸旗标）。
+ */
+function takePinHookVersionFlag(
+  args: string[],
+  usage: string,
+  cmd: string,
+): { pinVersion: string | undefined; rest: string[] } {
+  const rest: string[] = []
+  let raw: string | undefined
+  let present = false
+  for (let i = 0; i < args.length; i++) {
+    const a = args[i]!
+    if (a === '--pin-hook-version') {
+      present = true
+      const next = args[i + 1]
+      if (next !== undefined && !next.startsWith('-')) {
+        raw = next
+        i++
+      } else {
+        raw = undefined
+      }
+      continue
+    }
+    if (a.startsWith('--pin-hook-version=')) {
+      present = true
+      raw = a.slice('--pin-hook-version='.length)
+      continue
+    }
+    rest.push(a)
+  }
+  if (!present) return { pinVersion: undefined, rest: args }
+  if (raw === '') {
+    fail(
+      `${cmd} --pin-hook-version= 须为非空 SEMVER（实验性 · 缺省关闭）\n用法: ${usage}`,
+    )
+  }
+  const resolved = raw ?? kitPackageSemver()
+  if (resolved === undefined || resolved.trim().length < 1) {
+    fail(
+      `${cmd} --pin-hook-version 无法解析缺省 kit_semver（package.json#version）\n用法: ${usage}`,
+    )
+  }
+  const semver = resolved.trim()
+  if (!PIN_HOOK_SEMVER_RE.test(semver)) {
+    fail(`${cmd} --pin-hook-version 非法 SEMVER: ${semver}\n用法: ${usage}`)
+  }
+  return { pinVersion: semver, rest }
+}
+
 async function cmdHostValidate(args: string[]): Promise<void> {
   if (args.includes('--help') || args.includes('-h')) {
     console.log(`用法: npx spec-wave ${HOST_USAGE}`)
@@ -211,6 +289,9 @@ async function cmdHostValidate(args: string[]): Promise<void> {
     fail('', 2)
   }
 
+  // 3.0.1 W6（P3-7）：非映射 + config-hook → WARN；exit/PASS 不变（硬约束 5 · 与 W2 告警契约同源）
+  const warnings = collectConfigHookUnmappedWarnings(data)
+
   if (json) {
     printJson(base, {
       command: 'host validate',
@@ -218,9 +299,11 @@ async function cmdHostValidate(args: string[]): Promise<void> {
       ...outsideField,
       ok: true,
       verdict: 'PASS',
+      ...(warnings.length > 0 ? { warnings } : {}),
     })
     return
   }
+  for (const w of warnings) console.error(`WARN: ${w}`)
   // 2.4-W3 + 2.4.2 R-1：人类输出路径值同口径相对化（基与 JSON 面同一 · 仓外占位不打印绝对路径）
   console.log(`file: ${outsideRepo ? fileOut + '（仓外文件 · outside_repo · 不打印绝对路径）' : toRel(base, abs)}`)
   console.log('HOST VALIDATE: PASS')
@@ -253,6 +336,12 @@ async function cmdHostApply(args: string[]): Promise<void> {
   rest = rTarget
   const { value: fileArg, rest: rFile } = takeOptionalFlag(rest, '--file', APPLY_USAGE)
   rest = rFile
+  const { pinVersion: hookPinVersion, rest: rPin } = takePinHookVersionFlag(
+    rest,
+    APPLY_USAGE,
+    'host apply',
+  )
+  rest = rPin
   if (rest.length > 0) fail(`host apply 未知参数: ${rest.join(' ')}\n用法: ${APPLY_USAGE}`)
 
   const profile = profileArg ?? 'core'
@@ -325,6 +414,7 @@ async function cmdHostApply(args: string[]): Promise<void> {
     pkgRoot: packageRoot(),
     commandSets,
     sourceRootOf: merged.sourceRootOf,
+    hookPinVersion,
   })
   if (s2.length > 0) {
     const uniq = uniqueKeepOrder(s2)
@@ -360,7 +450,12 @@ async function cmdHostApply(args: string[]): Promise<void> {
     written = committed.written
     removed = committed.removed
     backup = committed.backup
-    writeHostToolsSticky(target, toolIds, profile)
+    writeHostToolsSticky(
+      target,
+      toolIds,
+      profile,
+      buildTableSourceForSticky(target, fileAbs, fileArg),
+    )
   }
 
   const report: HostWriteReport = {
@@ -423,6 +518,12 @@ async function cmdHostUpdate(args: string[]): Promise<void> {
   rest = rTarget
   const { value: fileArg, rest: rFile } = takeOptionalFlag(rest, '--file', UPDATE_USAGE, 'host update')
   rest = rFile
+  const { pinVersion: hookPinVersion, rest: rPin } = takePinHookVersionFlag(
+    rest,
+    UPDATE_USAGE,
+    'host update',
+  )
+  rest = rPin
   if (rest.length > 0) fail(`host update 未知参数: ${rest.join(' ')}\n用法: ${UPDATE_USAGE}`)
 
   const profile = profileArg ?? 'core'
@@ -510,6 +611,7 @@ async function cmdHostUpdate(args: string[]): Promise<void> {
     pkgRoot: packageRoot(),
     commandSets,
     sourceRootOf: merged.sourceRootOf,
+    hookPinVersion,
   })
   remapUpdateConflicts(items, force)
   if (s2.length > 0) {
@@ -545,7 +647,12 @@ async function cmdHostUpdate(args: string[]): Promise<void> {
     written = committed.written
     removed = committed.removed
     backup = committed.backup
-    writeHostToolsSticky(target, toolIds, profile)
+    writeHostToolsSticky(
+      target,
+      toolIds,
+      profile,
+      buildTableSourceForSticky(target, fileAbs, fileArg),
+    )
   }
 
   const report: HostWriteReport = {
@@ -565,6 +672,66 @@ async function cmdHostUpdate(args: string[]): Promise<void> {
   }
   if (json) printJson(target, report)
   else printHostHuman(report)
+}
+
+/**
+ * host verify 取表优先级（3.0.1 W1 · P1-1）：
+ * `--file` 显式 > 粘性 `table_source` > 内置。
+ * 相对路径基准 = 仓根（`--target`）。
+ * file 表源不可用 → exit 2 点名路径 + 可操作提示（严禁静默退回内置）；
+ * sha256 不符 → 仅 WARN，不硬红（审查文 §3.1）。
+ */
+function resolveVerifyTableFile(
+  target: string,
+  fileArg: string | undefined,
+  sticky: HostToolsSticky | null,
+  json: boolean,
+): { fileAbs: string; mergeFileArg: string | undefined } {
+  if (fileArg !== undefined) {
+    const fileAbs = resolveValidateFile(fileArg)
+    if (!existsSync(fileAbs)) fail(`host verify 文件不存在: ${fileAbs}`)
+    return { fileAbs, mergeFileArg: fileArg }
+  }
+
+  const ts = sticky?.table_source
+  if (ts?.kind === 'file') {
+    const fileAbs = path.isAbsolute(ts.path) ? path.normalize(ts.path) : path.resolve(target, ts.path)
+    if (!existsSync(fileAbs)) {
+      emitVerifyFail(
+        json,
+        target,
+        [
+          `host verify 粘性表源不可用: 记录路径 ${ts.path}（解析=${fileAbs}）不存在。`,
+          '请带同一 --file 复跑，或重新 host apply / update 刷新粘性。',
+          '（严禁静默退回内置表 · 3.0.1 W1）',
+        ].join('\n'),
+      )
+    }
+    let actualSha: string
+    try {
+      actualSha = sha256OfFile(fileAbs)
+    } catch (err) {
+      emitVerifyFail(
+        json,
+        target,
+        [
+          `host verify 粘性表源不可读: ${ts.path}（${fileAbs}）: ${(err as Error).message}`,
+          '请带 --file 或重新 host apply / update。',
+        ].join('\n'),
+      )
+    }
+    if (actualSha !== ts.sha256.toLowerCase()) {
+      console.error(
+        `WARN: 粘性 table_source.sha256 不符（记录=${ts.sha256} 实际=${actualSha} · 路径=${ts.path}）；本波仅 WARN，仍用该表继续 verify。建议重新 host apply 刷新哈希。`,
+      )
+    }
+    // mergeFileArg 非 undefined → 单表语义（与显式 --file 同）
+    return { fileAbs, mergeFileArg: fileAbs }
+  }
+
+  const fileAbs = resolveValidateFile(undefined)
+  if (!existsSync(fileAbs)) fail(`host verify 文件不存在: ${fileAbs}`)
+  return { fileAbs, mergeFileArg: undefined }
 }
 
 /**
@@ -631,14 +798,20 @@ async function cmdHostVerify(args: string[]): Promise<void> {
   if (!existsSync(target) || !statSync(target).isDirectory()) {
     fail(`host verify target 不存在或不是目录: ${target}`)
   }
-  const fileAbs = resolveValidateFile(fileArg)
-  if (!existsSync(fileAbs)) fail(`host verify 文件不存在: ${fileAbs}`)
+
+  // 先读粘性：取表优先级依赖 table_source；--tools/--profile 缺省亦依赖粘性
+  const sticky = loadHostToolsSticky(target)
+  const { fileAbs, mergeFileArg } = resolveVerifyTableFile(target, fileArg, sticky, json)
 
   let data: unknown
   try {
     data = yamlLoad(readFileSync(fileAbs, 'utf8'))
   } catch (err) {
-    emitVerifyFail(json, target, `YAML 解析失败: ${(err as Error).message}`)
+    const hint =
+      mergeFileArg !== undefined && fileArg === undefined
+        ? `\n粘性表源: ${sticky?.table_source && sticky.table_source.kind === 'file' ? sticky.table_source.path : fileAbs}\n请带 --file 或重新 host apply / update。`
+        : ''
+    emitVerifyFail(json, target, `YAML 解析失败: ${(err as Error).message}${hint}`)
   }
   const issues = validateHostAdaptDocDispatch(data)
   if (issues.length > 0) {
@@ -649,11 +822,10 @@ async function cmdHostVerify(args: string[]): Promise<void> {
     )
   }
 
-  const merged = loadMergedTables(data, fileArg)
+  const merged = loadMergedTables(data, mergeFileArg)
   const rows = merged.rows
   const knownIds = rows.map((r) => r.host_id)
   const known = new Set(knownIds)
-  const sticky = loadHostToolsSticky(target)
   let toolIds: string[]
   if (toolsArg !== undefined) {
     toolIds = resolveToolsList(toolsArg, knownIds, 'host verify', VERIFY_USAGE)
