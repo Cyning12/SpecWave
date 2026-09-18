@@ -96,4 +96,17 @@ describe('3.0-W7 S7.7 · check-doc-links（两级机检 failClosed）', { concur
       assert.equal(miss.status, 2, miss.combined)
     })
   })
+
+  it('索引仍有、工作区已搬走 → (i) 坏链（rename 不刷新 index 不再假绿）', async () => {
+    await withTemp(async (dir) => {
+      await writeRel(dir, 'docs/roadmap/a.md', '# a\n\n[t](./b.md)\n')
+      await writeRel(dir, 'docs/roadmap/b.md', '# b\n')
+      execGit(dir, ['init', '-q'])
+      execGit(dir, ['add', 'docs/roadmap/a.md', 'docs/roadmap/b.md'])
+      await rm(path.join(dir, 'docs', 'roadmap', 'b.md'))
+      const gone = run(dir, ['--s2-baseline', '0'])
+      assert.equal(gone.status, 2, gone.combined)
+      assert.match(gone.combined, /docs\/roadmap\/a\.md/)
+    })
+  })
 })

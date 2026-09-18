@@ -5,6 +5,7 @@ import { appendAuditEvent, resolveAuditFile, stampAuditEvent } from '../audit/lo
 import { buildDoneSnapshot, extractTaskSlug, fail, findGitRoot, parseHarnessMeta, printJson, takeOption, toRel } from '../cli-shared.ts'
 import { evalCloseExecEvidence, evalCloseGuard, lintTaskFile } from '../cli-checks.ts'
 import { cmdTaskCheck, cmdTaskLintDone, cmdTaskLintWikiDelta } from '../cli-task-extra.ts'
+import { retargetClosedTaskLinks } from './close-retarget.ts'
 import { CLOSE_GUARD_ORDER, TASK_USAGE } from './usage.ts'
 
 async function cmdTaskLint(args: string[]): Promise<void> {
@@ -169,6 +170,10 @@ async function cmdTaskClose(args: string[]): Promise<void> {
   if (!dest) fail('无法解析归档目标', 2)
   mkdirSync(path.dirname(dest), { recursive: true })
   renameSync(abs, dest)
+  // 归档使 active/ 路径失效。同一次 --yes 改写 docs 里正好指向该文件的 Markdown 链接，
+  // 不依赖 30 事后手改。dry-run 不执行。历史指向其它文件的坏链不动。
+  const retargeted = retargetClosedTaskLinks(closeJsonBase, abs, dest)
+  traces.push(`close: retarget · ${retargeted}`)
   // K5：真归档（renameSync 执行）后构建 done 片段快照 —— 摘录归档文件内
   // HARNESS_META_HEADING 节原文（extractSection · 归档真值防模板漂移）；快照存在性
   // 唯绑归档事件，与豁免旗标无关（20 审 R2 口径裁决：豁免 + --yes → 快照照打）
@@ -191,6 +196,7 @@ async function cmdTaskClose(args: string[]): Promise<void> {
   // 2.4-W3（D-24-OUTPUT-REL-EXIT）：人类输出路径值同口径相对化（冻结文案 CLOSE: PASS 不动）
   console.log(`moved: ${toRel(process.cwd(), abs)} → ${toRel(process.cwd(), dest)}`)
   console.log(`CLOSE: PASS · ${slug}`)
+  console.log(`retarget: ${retargeted}`)
   // K5（W1）：PASS 分支 stdout 追加快照块 —— 归档后路径 + 元信息节摘录 + 禁手写提示；
   // 取不到元信息节（异常态）打 canonical 模板占位 + WARN 行；不改 CLOSE: PASS 冻结文案，仅追加
   console.log(`done_snapshot · path: ${toRel(process.cwd(), snapshot.path)}`)

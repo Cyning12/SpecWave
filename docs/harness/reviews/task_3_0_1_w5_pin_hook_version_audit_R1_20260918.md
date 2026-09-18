@@ -2,7 +2,7 @@
 
 > **hat**：20-task-audit（书面审查 · R1 · 独立上下文 · 非起草者）  
 > **日期**：2026-09-18  
-> **被审对象**：[`docs/tasks/active/task_3_0_1_w5_pin_hook_version.md`](../../tasks/active/task_3_0_1_w5_pin_hook_version.md)（slug `3-0-1-w5-pin-hook-version` · `draft` · 无独立 SPEC · HG-SPEC-SIGNOFF=N/A）  
+> **被审对象**：[`docs/tasks/done/task_3_0_1_w5_pin_hook_version.md`](../../tasks/done/task_3_0_1_w5_pin_hook_version.md)（slug `3-0-1-w5-pin-hook-version` · `draft` · 无独立 SPEC · HG-SPEC-SIGNOFF=N/A）  
 > **对照基准**：[`docs/roadmap/PLAN_3_0_1_patch_v1_zh.md`](../../roadmap/PLAN_3_0_1_patch_v1_zh.md)（HG-NEXT-PLAN=approved · **W5 节** + 硬约束 **3/5** · 及 7/8/10）· [`acceptance_3_0_0_specwave_20260918.md`](./acceptance_3_0_0_specwave_20260918.md) **§6.2 P2-2**（`:367-372`）· 10 invoke `docs/harness/invokes/by-task/3-0-1-w5-pin-hook-version/invoke_20260918_10_3-0-1-w5-pin-hook-version.md` · 先例形态 [`task_3_0_1_w4_docs_precision_audit_R1_20260918.md`](./task_3_0_1_w4_docs_precision_audit_R1_20260918.md)  
 > **审查方式**：只读通读 task + PLAN W5/硬约束 3·5（及 7/8/10）+ 验收 §6.2 P2-2；**独立再钉** `hooks.ts` / `materialize.ts` / `cmd.ts` / 手册 §7.3 / `package.json#version` / `RELEASING.md`；`node bin/specgate.js task lint` → **LINT: PASS**；**未改被审 task 任何字节 · 未改 `src/`**。
 
