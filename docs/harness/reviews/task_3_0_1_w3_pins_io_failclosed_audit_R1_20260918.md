@@ -2,7 +2,7 @@
 
 > **hat**：20-task-audit（书面审查 · R1 · 独立上下文 · 非起草者）  
 > **日期**：2026-09-18  
-> **被审对象**：[`docs/tasks/active/task_3_0_1_w3_pins_io_failclosed.md`](../../tasks/active/task_3_0_1_w3_pins_io_failclosed.md)（slug `3-0-1-w3-pins-io-failclosed` · `draft` · 无独立 SPEC · HG-SPEC-SIGNOFF=N/A）  
+> **被审对象**：[`docs/tasks/done/task_3_0_1_w3_pins_io_failclosed.md`](../../tasks/done/task_3_0_1_w3_pins_io_failclosed.md)（slug `3-0-1-w3-pins-io-failclosed` · `draft` · 无独立 SPEC · HG-SPEC-SIGNOFF=N/A）  
 > **对照基准**：[`docs/roadmap/PLAN_3_0_1_patch_v1_zh.md`](../../roadmap/PLAN_3_0_1_patch_v1_zh.md)（HG-NEXT-PLAN=approved · **W3 节** + 硬约束 **3/5**）· [`acceptance_3_0_0_specwave_20260918.md`](./acceptance_3_0_0_specwave_20260918.md) **§6.3 P3-8** · 10 invoke `docs/harness/invokes/by-task/3-0-1-w3-pins-io-failclosed/invoke_20260918_10_3-0-1-w3-pins-io-failclosed.md` · 先例形态 [`task_3_0_1_w2_gate_table_contract_audit_R1_20260918.md`](./task_3_0_1_w2_gate_table_contract_audit_R1_20260918.md)  
 > **审查方式**：只读通读 task + PLAN W3/硬约束 3·5 + §6.3 P3-8；**独立再钉** `src/cli-pins.ts` `loadPins` / `readTruthVersion` 行号；`node bin/specgate.js task lint` → **LINT: PASS**；**未改被审 task 任何字节 · 未改 `src/`**。
 

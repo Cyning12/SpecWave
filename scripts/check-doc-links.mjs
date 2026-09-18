@@ -3,11 +3,12 @@
 // 3.0 W7 CI hotfix（task_3_0_w7_ci_hotfix · 验收 #1/#2 · 硬约束 6/10）：(i) 判据改「入库状态而非文件系统状态」——
 //   本机 `.workbuddy/`（.gitignore 忽略）除 **9 件显式 tracked**（判据：`git ls-files .workbuddy/`）外均忽略；未入库实体曾使
 //   11 处冻结坏链被 existsSync 掩盖（本地 23 假绿 / CI 干净 clone 34 真红）。
-//   inRepo 目标 = tracked 文件 ∪ tracked 目录前缀（git 不跟踪目录 · 目录链须命中）；仓外目标维持 existsSync。
+//   inRepo 目标 = （tracked 文件 ∪ tracked 目录前缀）且工作区仍在。仅索引（rename 后未刷新）不算可解析；
+//   仅磁盘（.workbuddy 未入库）也不算。仓外目标维持 existsSync。
 //   tracked 集合以 `-z` 原样读取（避免非 ASCII 路径 quotePath 八进制转义）。冻结基线按修后本地/干净 clone 双跑实测重建 23 → 34。
 //
 // 两级判据（SPEC 08 §5.2）：
-//   (i)  可解析：docs/**/*.md 的 Markdown 相对链接（inline + reference-definition + <a href>）解析后目标须**已入库**（仓外目标须存在）。
+//   (i)  可解析：docs/**/*.md 的 Markdown 相对链接（inline + reference-definition + <a href>）解析后，仓内目标须已入库且工作区仍在（仓外目标须存在）。
 //   (ii) 目标已入库：docs/ 内指向 `.workbuddy/…` 的链接目标须 `git ls-files` 命中（可解析但未入库 = 坏链）。
 // S2 域（docs/tasks/ · docs/harness/reviews/ · docs/harness/invokes/by-task/）整体豁免 + 冻结基线
 //   （永不覆写 · 历史 stale 链接不可修 · 硬约束 1）：S2 (i) 处数须 == 冻结基线（参数化排除 current task 路径）
@@ -112,8 +113,10 @@ export function checkDocLinks({ root, gitTracked, s2Baseline = S2_FROZEN_BASELIN
       const targetRel = path.relative(root, targetAbs).split(path.sep).join('/')
       const inRepo = !targetRel.startsWith('..') && !path.isAbsolute(targetRel)
       const isWorkbuddy = /(^|\/)\.workbuddy\//.test(targetRel) || clean.includes('.workbuddy/')
-      // (i) 可解析 = 入库状态：inRepo 须 tracked 文件或 tracked 目录前缀；仓外才看文件系统（F-HOT2-02）
-      const exists = inRepo ? gitTracked.has(targetRel) || trackedDirs.has(targetRel) : existsSync(targetAbs)
+      // (i) 可解析 = 入库且工作区仍在。仅索引（task close 的 renameSync 不更新 index）不算；
+      // 仅磁盘不算（.workbuddy 假绿 · F-HOT2-02）。目录链仍用 tracked 祖先前缀。
+      const trackedHit = gitTracked.has(targetRel) || trackedDirs.has(targetRel)
+      const exists = inRepo ? trackedHit && existsSync(targetAbs) : existsSync(targetAbs)
       const entry = { file: rel, line, target: clean, resolve: targetRel }
       const bucket = isS2(rel) ? broken.s2 : broken.nonS2
       if (!exists) bucket.i.push(entry)

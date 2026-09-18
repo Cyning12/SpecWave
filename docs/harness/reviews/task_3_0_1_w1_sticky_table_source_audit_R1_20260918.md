@@ -2,7 +2,7 @@
 
 > **hat**：20-task-audit（书面审查 · R1 · 独立上下文 · 非起草者）  
 > **日期**：2026-09-18  
-> **被审对象**：[`docs/tasks/active/task_3_0_1_w1_sticky_table_source.md`](../../tasks/active/task_3_0_1_w1_sticky_table_source.md)（slug `3-0-1-w1-sticky-table-source` · `draft` · 无独立 SPEC · HG-SPEC-SIGNOFF=N/A）  
+> **被审对象**：[`docs/tasks/done/task_3_0_1_w1_sticky_table_source.md`](../../tasks/done/task_3_0_1_w1_sticky_table_source.md)（slug `3-0-1-w1-sticky-table-source` · `draft` · 无独立 SPEC · HG-SPEC-SIGNOFF=N/A）  
 > **对照基准**：[`docs/roadmap/PLAN_3_0_1_patch_v1_zh.md`](../../roadmap/PLAN_3_0_1_patch_v1_zh.md)（HG-NEXT-PLAN=approved · **W1 节** + 硬约束 **3/4/5**）· [`docs/harness/reviews/acceptance_3_0_0_specwave_20260918.md`](./acceptance_3_0_0_specwave_20260918.md) **§6.1 P1-1** · 10 invoke `docs/harness/invokes/by-task/3-0-1-w1-sticky-table-source/invoke_20260918_10_3-0-1-w1-sticky-table-source.md` · 先例形态 [`task_2_4_2_patch_audit_R1_20260915.md`](./task_2_4_2_patch_audit_R1_20260915.md)  
 > **审查方式**：只读通读 task + PLAN W1/硬约束 + §6.1 P1-1；**独立再钉** `sticky.ts` / `cmd.ts` / `table.ts` 行号现值；可选跑 `node bin/specgate.js task lint`（**LINT: PASS**）；**未改被审 task 任何字节 · 未改 `src/`**。
 
