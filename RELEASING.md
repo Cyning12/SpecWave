@@ -84,8 +84,8 @@
 > 内容：**patch** —— 消费侧（ops-desk-api）3.0.1 反馈收口（W1 tech-graph 词汇登记档补 `branches`/`triggers` · W2 `pins check/fix --consumer` 消费侧钉版保鲜闸）。task `3-0-2-release-bump`。
 > **验收素材**：[`docs/roadmap/ACCEPTANCE_3_0_2_patch_3_0_2_zh.md`](docs/roadmap/ACCEPTANCE_3_0_2_patch_3_0_2_zh.md)。
 
-1. [x] 确认工作树已 commit（W1 `3358eaa` · W2 `297f881` · release 簿记 `<hash 回填位>` · CHANGELOG `## [3.0.2] - 2026-09-23` + `[3.0.1]` 回填已发布 · 钉面同步 · **pins 打 tag 前 16/17**（pin-10 tag-gated 设计红 · 打 tag 后须 17/17）· 四门绿）
-2. [x] `git tag v3.0.2`（annotated · **00 按维护者 2026-09-23 授权代打**）+ push（**原子推** `git push origin main v3.0.2` 单条 · 禁「先 main 后 tag」竞态）· tag ↔ `<hash 回填位>`
+1. [x] 确认工作树已 commit（W1 `3358eaa` · W2 `297f881` · release 簿记 **`3d71b90`** · CHANGELOG `## [3.0.2] - 2026-09-23` + `[3.0.1]` 回填已发布 · 钉面同步 · **pins 打 tag 前 16/17**（pin-10 tag-gated 设计红 · 打 tag 后须 17/17）· 四门绿）
+2. [x] `git tag v3.0.2`（annotated · **00 按维护者 2026-09-23 授权代打**）+ push（**原子推** `git push origin main v3.0.2` 单条 · 禁「先 main 后 tag」竞态）· tag ↔ **`3d71b90`**（tag object `06a9320` · `ls-remote` 一致 · 2026-09-23）
 3. [ ] `npm publish`（包名 `spec-wave` · 版本 `3.0.2` · **仅人**；`prepublishOnly` 自动重跑四门 + 包内容卫生断言 · ⚠️ 本机 `~/.npm-local` 缓存含 root-owned 文件：须先 `sudo chown -R 501:20 ~/.npm-local` 或设 `npm_config_cache=/tmp/...` 否则 `npm pack` EPERM）
 4. [ ] 探针（人 publish 后 · Agent 可代核）：`npm view spec-wave version`（及 `dist-tags` · 绕缓存）→ `3.0.2`；`git show v3.0.2:package.json` → `version=3.0.2`；真 tarball `spec-wave@3.0.2` 无 `.bak` / `*~` / `.DS_Store`
 5. [x] 打 tag 后复跑（00 代打后执行并入 ACCEPTANCE）：`pins check` **17/17 PASS · exit 0**（设计红全转绿）· `npm test` 全绿（`release-tag-identity` / `pins-consistency` A 组转绿）

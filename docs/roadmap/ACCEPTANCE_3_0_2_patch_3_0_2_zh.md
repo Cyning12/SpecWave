@@ -29,7 +29,7 @@
 
 - **登记**：bump 后 `pins check` 唯一偏差 = pin-10（tag `v3.0.2` 不存在 · 打 tag 前必经态 · 同 2.4.x/3.0.x 先例）。
 - **清偿**：00 按 HG-RELEASE-TAG-PUSH=approved 执行 `git tag -a v3.0.2` → 复跑 `pins check` **17/17** + 全量 `npm test` 全绿 → `git push origin main v3.0.2` 原子推 → 探针代核（`git show v3.0.2:package.json` · `npm view` 仍 3.0.1 · `git ls-remote` 一致）。
-- **回填位**：tag ↔ `<hash 由 00 回填>` · 17/17 复跑时间 `<由 00 回填>`。
+- **已清偿（00 代跑 · 2026-09-23）**：tag `v3.0.2`（annotated · tag object `06a9320`）↔ bump commit **`3d71b90`** · `git push origin main v3.0.2` 原子推（`0e6d861..3d71b90` + new tag · `ls-remote` 与本地一致）· `pins check` 复跑 **17/17 PASS**（pin-10 设计红清偿）· 全量 `npm test` 复跑 **929 · 928 pass + 1 skip · 0 fail** · 探针三项代核全过（`git show v3.0.2:package.json` → 3.0.2 · `npm view`（绕缓存）仍 `3.0.1` = publish 待人真值）。
 
 ## 3.0.1 回填清偿（本波顺带）
 
