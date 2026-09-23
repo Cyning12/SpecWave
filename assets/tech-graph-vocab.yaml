@@ -16,9 +16,13 @@ kinds:
   - id: external
     class: infra
 
-# 边型四条（edgeToGraphV2 推断/显式共用的登记词表）
+# 边型六条（edgeToGraphV2 推断/显式共用的登记词表）
+# 3.0.2 W1 增补 branches/triggers：来源 ops-desk-api 反馈 F-1（消费仓 6 个 flow yaml 共用 branches 37 处 / triggers 16 处 · 永不可行动 warning 告警疲劳）；
+#       LangGraph 系普适边型（条件分支 / 触发子图）· 「登记 ≠ 封闭」原则不变（::label 派生自定义边型仍合法 · 未登记显式 type 仍 Warning 不咬 exit）。
 edge_types:
   - depends_on
   - async_calls
   - condition
   - has_metadata
+  - branches
+  - triggers

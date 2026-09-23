@@ -200,7 +200,7 @@ describe('3.0-W3 S4.5 · F1 受限统一（HGM 全量适配 + tech-graph 浅登�
     assert.equal(ontoSrc.split('\n').filter((l) => l.includes('export const HGM_EDGE_TO_TBOX')).length, 1, '定义点须唯一')
   })
 
-  it('tech-graph 登记档内容钉：version/namespace/kinds 三类+class 映射/edge_types 四条/头注释非产品本体类', () => {
+  it('tech-graph 登记档内容钉：version/namespace/kinds 三类+class 映射/edge_types 六条/头注释非产品本体类', () => {
     const body = readFileSync(VOCAB, 'utf8')
     const doc = yamlLoad(body) as { version: string; namespace: string; kinds: { id: string; class: string }[]; edge_types: string[] }
     assert.equal(doc.version, '1')
@@ -210,7 +210,8 @@ describe('3.0-W3 S4.5 · F1 受限统一（HGM 全量适配 + tech-graph 浅登�
       { id: 'struct', class: 'doc' },
       { id: 'external', class: 'infra' },
     ])
-    assert.deepEqual(doc.edge_types, ['depends_on', 'async_calls', 'condition', 'has_metadata'])
+    // 3.0.2 W1（F-1① · ops-desk-api 反馈）：补登记 branches/triggers（LangGraph 系普适边型）· 四条 → 六条
+    assert.deepEqual(doc.edge_types, ['depends_on', 'async_calls', 'condition', 'has_metadata', 'branches', 'triggers'])
     assert.match(body, /非产品本体类/)
     assert.match(body, /表现层词汇登记/)
   })
@@ -288,10 +289,38 @@ describe('3.0-W3 S4.5 · F1 受限统一（HGM 全量适配 + tech-graph 浅登�
     })
   })
 
-  it('仓内语料浅登记可见性钉：compile 00_main → stderr Warning 点名 triggers（::label 开放惯例显式化 · 设计内新增面）', async () => {
+  it('边型钩②·3.0.2 W1 登记面：显式 type: branches / type: triggers ⇒ compile exit 0 · stderr 零「未在 tech-graph 词汇登记档」告警（F-1① 告警疲劳清零 · 未登记仍告警由钩② bogus_edge 覆盖）', async () => {
+    await withTemp(async (dir) => {
+      const input = path.join(dir, 'docs', '_tech_graph')
+      await mkdir(input, { recursive: true })
+      await writeFile(
+        path.join(input, 'g3.graph.yaml'),
+        [
+          'graph_id: "g3"',
+          'title: "fixture3"',
+          'nodes: [{ id: "A", label: "Alpha" }, { id: "B", label: "Beta" }, { id: "C", label: "Gamma" }]',
+          'edges:',
+          '  - from: "A"',
+          '    to: "B"',
+          '    type: "branches"',
+          '  - from: "B"',
+          '    to: "C"',
+          '    type: "triggers"',
+          '',
+        ].join('\n'),
+      )
+      const r = await runGraph(['yaml', 'compile', '--graph-id', 'g3', '--input', input, '--target', dir])
+      assert.equal(r.status, 0, r.combined)
+      assert.doesNotMatch(r.stderr, /未在 tech-graph 词汇登记档/)
+      assert.match(r.stdout, /Generated:/)
+    })
+  })
+
+  // 3.0.2 W1：triggers 已登记 ⇒ 本钉翻转。30 实测仓内语料 stderr 除 triggers 外无其他未登记边型告警（审查 N1 口径成立），故断言零 [warning]
+  it('仓内语料浅登记可见性钉（3.0.2 W1 翻转）：compile 00_main → stderr 零「未在 tech-graph 词汇登记档」告警（branches/triggers 已登记 · 告警疲劳清零）', async () => {
     const r = await runGraph(['yaml', 'compile', '--graph-id', '00_main', '--input', TECH_GRAPH_DIR, '--output', path.join(os.tmpdir(), 'f1-00_main.md')])
     assert.equal(r.status, 0, r.combined)
-    assert.match(r.stderr, /\[warning\] .*triggers/)
+    assert.doesNotMatch(r.stderr, /\[warning\]/)
   })
 
   it('单源 grep 断言（验收 #6 · A3 口径）：src 内 flow/struct/external 字面量零残留（唯一真值源 = tech-graph-vocab.yaml）', () => {

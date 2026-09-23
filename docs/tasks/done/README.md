@@ -8,6 +8,7 @@
 ## harness
 
 | 关账日 | task | 摘要 |
+| 2026-09-23 | [`task_3_0_2_w1_tech_graph_vocab.md`](./task_3_0_2_w1_tech_graph_vocab.md) | 3.0.2 W1 · tech-graph 词汇登记档补登记 branches/triggers（F-1① · ops-desk 反馈）：edge_types 四条→六条（version "1" 不变 · 「登记≠封闭」声明）· f1-unify 三处设计内红同提交（六条钉 / 新增 g3 双向 fixture / 00_main 可见性钉翻转零 [warning]）· sha256.manifest 联动重建 113 条 · src 零改动硬边界（diff --stat 机械断言）· 红→绿 3/3 闭环 · 四门 910 · 909 pass+1 skip · 0 fail · 未 bump/发版/commit · 40 机械步 00 接管（子 Agent 空转 · 例外句入 invoke）· Task_KPI%: 92 |
 | 2026-09-18 | [`task_3_0_1_release_bump.md`](./task_3_0_1_release_bump.md) | 3.0.1 release bump 簿记：package.json 3.0.0→3.0.1 · CHANGELOG W1–W6 待发版 · pins 16/17（仅 pin-10）· ACCEPTANCE/RELEASING/手册钉/MIGRATION 无强制动作项 · 四门 906/903 pass/2 设计红/1 skip · 未 tag/push/publish/commit · Task_KPI%: 94 |
 | 2026-09-18 | [`task_3_0_1_w6_mech_coverage.md`](./task_3_0_1_w6_mech_coverage.md) | 3.0.1 W6 · 机检覆盖面与校验一致性（P3-2/P3-7）：terminology 全量扫 CHANGELOG + `:134` 改措辞 · claims 显式不纳入 · validate 非映射 config-hook PASS+WARN · apply 仍 fail-closed · B5/MIGRATION 明写 · 红测 10/10 · 四门绿 · 未 bump/发版/commit · Task_KPI%: 96 |
 | 2026-09-18 | [`task_3_0_1_w5_pin_hook_version.md`](./task_3_0_1_w5_pin_hook_version.md) | 3.0.1 W5 · 物化 hooks 可选钉版（P2-2）：`--pin-hook-version[=SEMVER]` 实验性·缺省关闭 · 无旗标=3.0.0 逐字节 · marker/verify 双形态 · RELEASING/手册 CI 三选一 · 红测 8/8 · 四门 895+6 · 未 bump/发版/commit · Task_KPI%: 95 |
