@@ -1,6 +1,6 @@
 # ACCEPTANCE · 3.0.1 patch（W1–W6 信号质量收口）台账
 
-> **版本**：`spec-wave@3.0.1`（**待发版** · 2026-09-18 bump 已落 · tag `v3.0.1` **待人打** · registry `latest` 仍为 `3.0.0` 直至人 publish · **未**执行 tag / push / publish / deprecate）
+> **版本**：`spec-wave@3.0.1`（**已发布 2026-09-18** · 人执行 tag/push/publish · tag `v3.0.1` ↔ `0e6d861` · registry `latest=3.0.1` · `time.3.0.1`=2026-09-18T07:42:30Z · **00 代核回填 2026-09-23** · 下文「待发版/设计红」表述为 bump 当日实录 · 保留不改写）
 > **task**：[`docs/tasks/done/task_3_0_1_release_bump.md`](../tasks/done/task_3_0_1_release_bump.md)（slug `3-0-1-release-bump` · 无独立 SPEC 夹 · 属 3.0.0 验收后 patch · **CLOSE: PASS** · 2026-09-18）
 > **规划**：[`PLAN_3_0_1_patch_v1_zh.md`](PLAN_3_0_1_patch_v1_zh.md)（HG-NEXT-PLAN=approved）
 > **依据**：W1–W6 done tasks + R1 审查文（各波 PASS · blocking 0）

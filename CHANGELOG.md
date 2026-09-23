@@ -4,10 +4,23 @@
 
 ## [Unreleased]
 
+## [3.0.2] - 2026-09-23
+
+> 主题：**patch** —— 消费侧（ops-desk-api）3.0.1 反馈收口（W1–W2 · PLAN [`docs/roadmap/PLAN_3_0_2_patch_v1_zh.md`](docs/roadmap/PLAN_3_0_2_patch_v1_zh.md) · 无独立 SPEC 夹 · F-2 图谱漂移闸 / F-1② 仓级词汇扩展档延 3.1.0）。
+> **发布状态**：**待发版（publish 仅人）**（工作树 bump 已落 · tag `v3.0.2` 由 00 按维护者 2026-09-23 授权代打并随 `main` 原子推 · registry `latest` 仍为 `3.0.1` 直至人 publish · pin-10 git tag `v3.0.2` 打 tag 前缺失为设计红）。
+
+### Fixed
+
+- **W1（tech-graph 词汇登记档）**：`assets/tech-graph-vocab.yaml` `edge_types` 补登记 `branches` / `triggers`（LangGraph 系普适边型 · ops-desk 反馈 F-1① · `version: "1"` 不变 · 「登记 ≠ 封闭」开放惯例不回退）——消费仓 37+16 处永不可行动 warning 清零（本仓 `docs/_tech_graph/00_main` 同款 4 处 dogfood 噪音同步清零）。纯数据波 · `src/` 零改动 · 渲染零漂移（恒等 fixture 机械证明）。
+
+### Added
+
+- **W2（pins consumer 模式 · F-3/F-4）**：`pins check --consumer [--json] [--truth <path#jsonpath>]` / `pins fix --consumer [--yes]` —— 消费仓钉版保鲜闸。真值源回退链 `devDependencies["spec-wave"]` → `dependencies["spec-wave"]` → `package.json#version`（`--truth` 显式指定跳过链条 · 包名可经声明源 `package_name` 覆盖）；`^/~` 前缀归一 + 可见 WARN（`--json#warnings`）· 非精确版本 exit 2；可选声明源 `.spec-wave/pins-consumer.yaml`（显式 > 缺省 · 存在且坏 failClosed 不回落）；缺省内置默认钉面 = `.github/workflows/*.{yml,yaml}` 全部 `<pkg>@X.Y.Z` 字面（数字锚内容预筛 · 无字面 workflow 合法跳过）；`^` 归一/零落点/坏声明源全部可见不静默；fix 共享 release 修复体（默认 dry-run · S2 机械拒写 · 备份两级避让）。**release 模式（无 `--consumer`）行为与输出逐字不变**（pins-consistency 64/64 机械钉死）。
+
 ## [3.0.1] - 2026-09-18
 
 > 主题：**patch** —— 3.0.0 验收后信号质量收口（W1–W6 · PLAN [`docs/roadmap/PLAN_3_0_1_patch_v1_zh.md`](docs/roadmap/PLAN_3_0_1_patch_v1_zh.md) · 无独立 SPEC 夹）。
-> **发布状态**：**待发版（tag/push/publish 仅人）**（工作树 bump 已落 · registry `latest` 仍为 `3.0.0` 直至人 publish · pin-10 git tag `v3.0.1` 缺失为设计红）。
+> **发布状态**：**已发布 2026-09-18**（人执行 tag/push/publish · tag `v3.0.1` ↔ `0e6d861` · registry `latest=3.0.1` · `time.3.0.1`=2026-09-18T07:42:30Z · 00 代核回填 2026-09-23 · 打 tag 后 pins 17/17）。
 
 ### Fixed
 

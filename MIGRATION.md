@@ -1,10 +1,10 @@
 # Migration · `@cyning/harness` / `dsh-coding-kit` → **SpecWave**（`spec-wave`）
 
-> **⚠️ `dsh-coding-kit` 已 deprecate** —— 请**直接**安装正式包：`npm i spec-wave@3.0.1`（**patch · 待发版** · W1–W6 信号质量收口 · 粘性向后兼容 · **无强制迁移**；registry `latest` 仍为 `3.0.0` 直至人 publish。`3.0.0` 为 **major · 架构跃迁**，见下方「2.4.2 → 3.0.0」节）。**勿再**把废弃中间包当作迁移终点。  
-> **现行包**：**`spec-wave@3.0.1`**（**待发版** · 正式包名 / 正式 bin；曾用名 `dsh-coding-kit`）  
+> **⚠️ `dsh-coding-kit` 已 deprecate** —— 请**直接**安装正式包：`npm i spec-wave@3.0.2`（**patch · 待发版** · W1–W6 信号质量收口 · 粘性向后兼容 · **无强制迁移**；registry `latest` 仍为 `3.0.0` 直至人 publish。`3.0.0` 为 **major · 架构跃迁**，见下方「2.4.2 → 3.0.0」节）。**勿再**把废弃中间包当作迁移终点。  
+> **现行包**：**`spec-wave@3.0.2`**（**待发版** · 正式包名 / 正式 bin；曾用名 `dsh-coding-kit`）  
 > **过渡 bin（同入口 · 非终点）**：`specgate` · `dsh-coding-kit`（仍可调用，**不要**再 `npm i dsh-coding-kit` 当终点）  
 > **状态**：1.12 收口 **DONE** · kit **`2.0.0` published** · `@cyning/harness` **已 deprecate**（2026-09-10）· **`dsh-coding-kit` 已 deprecate**（文案指向 `spec-wave`）  
-> **包钉**：请钉 `spec-wave@3.0.1`（**待发版** · 本文件不代替 `package.json`）  
+> **包钉**：请钉 `spec-wave@3.0.2`（**待发版** · 本文件不代替 `package.json`）  
 > **布局真值（F4 方案 B）**：新落盘根 = **`.coding-kit/`**；**`.cyning-harness/`** = legacy **只读**（探测 / 升级源；**不删除**）  
 > **人闸**：`HG-EOS-DATE` / `HG-PUBLISH` = **approved**（人实操 · 2026-09-10）· **禁止** Agent 执行 `npm deprecate` / `npm publish`  
 > **F6 归档**：[`docs/roadmap/ACCEPTANCE_2x_host_adapt_2_0_0_zh.md`](docs/roadmap/ACCEPTANCE_2x_host_adapt_2_0_0_zh.md) · 规划 [`docs/roadmap/PLAN_2x_host_adapt_v1_zh.md`](docs/roadmap/PLAN_2x_host_adapt_v1_zh.md)  
@@ -82,7 +82,7 @@
 DEPRECATED: use dsh-coding-kit instead. See https://github.com/Cyning12/SpecWave/blob/main/MIGRATION.md — pin dsh-coding-kit@1.12.0 and run: npx spec-wave upgrade --yes
 ```
 
-> **链式风险**：上列 harness 文案仍指向已 deprecate 的 `dsh-coding-kit`。**请忽略该钉点**，直接 `npm i spec-wave@3.0.1`。registry 改文案仅人（`HG-DEPRECATE-HARNESS`）。
+> **链式风险**：上列 harness 文案仍指向已 deprecate 的 `dsh-coding-kit`。**请忽略该钉点**，直接 `npm i spec-wave@3.0.2`。registry 改文案仅人（`HG-DEPRECATE-HARNESS`）。
 
 ### 过渡窗规则
 

@@ -23,7 +23,7 @@ describe('DEF-001 T5 · RELEASING.md 发版 checklist 制度化', { concurrency:
       ['① 工作树干净且全部已提交（禁止从未提交工作树 publish）', /工作树干净/],
       ['② typecheck/test/build/test:lib 全绿', /npm run typecheck[\s\S]{0,80}npm test[\s\S]{0,80}npm run build[\s\S]{0,80}npm run test:lib/],
       ['③ CHANGELOG 版本节归拢（日期+版本号）', /CHANGELOG[\s\S]{0,120}版本节|版本节[\s\S]{0,120}CHANGELOG/],
-      ['④ 版本钉 pins 同步（README 双文件/测试/ontology/discipline-coverage）', /版本钉|pins/],
+      ['④ 版本钉 pins 同步（README 双文件/测试/ontology/discipline-coverage）', /版本钉（pins）已同步/],  // 3.0.2：题面精确化（台账正当含 `pins check` 命令名 · 宽正则 /版本钉|pins/ 误中致顺序假红）
       ['⑤ npm version + tag', /npm version/],
       ['⑥ PR 合并 + CI 绿', /CI[\s\S]{0,40}绿|绿[\s\S]{0,40}CI/],
       ['⑦ npm pack --dry-run 检查', /npm pack --dry-run/],
