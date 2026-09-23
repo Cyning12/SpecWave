@@ -166,6 +166,15 @@ DEPRECATED: use dsh-coding-kit instead. See https://github.com/Cyning12/SpecWave
 - **可选了解**（非动作项）：W5 `--pin-hook-version` 实验性且**缺省关闭**（不带旗标时物化与 `3.0.0` 逐字节一致）；W6 对非映射宿主 `config-hook` 的 `host validate` 增加 **PASS + WARN**（`apply` 仍 fail-closed · 行为未松）。
 - `3.0.0` 的 breaking 迁移仍见上一节「2.4.2 → 3.0.0」。
 
+## 3.0.1 → 3.0.2（patch）· 无强制动作项
+
+> **状态：无强制迁移**（2026-09-23 · release bump · **待发版 · publish 仅人**）—— 3.0.2 为 patch（消费侧反馈收口）；全部改动为 **additive**（新旗标 / 新可选声明档），不带 `--consumer` 旗标时全部既有行为逐字不变。
+
+- **不必做**：改适配表 schema、改粘性、改 CI 既有命令、改 `pins check`（release 模式）用法。
+- **F-1（词汇登记档）**：`graph yaml check/compile` 对 `branches` / `triggers` 两类边型不再产生「未在词汇登记档」告警（LangGraph 系普适边型内置登记 · **仅减告警** · 无行为与产物变化）。
+- **可选启用**（非动作项）：F-3/F-4 `pins check/fix --consumer` —— 消费仓钉版保鲜闸（真值回退链 `devDependencies→dependencies→version` + `--truth <path#jsonpath>` + 可选声明源 `.spec-wave/pins-consumer.yaml` + 缺省 CI workflow 字面钉面 · 漂移 exit 2 · fix 默认 dry-run）。用法见 [`README.zh-CN.md`](./README.zh-CN.md)「pins consumer 模式」节（英文见 [`README.md`](./README.md) 对应节）。
+- `3.0.0` 的 breaking 迁移仍见「2.4.2 → 3.0.0」节。
+
 ---
 ## 修订记录
 
@@ -184,3 +193,4 @@ DEPRECATED: use dsh-coding-kit instead. See https://github.com/Cyning12/SpecWave
 | 2026-09-17 | **3.0 W7 定稿**：适配表 schema 跃迁节草案 → 定稿（经真实 v2.4.1 仓演练 · 旧格式零改动 + 新能力可选启用均 PASS · 无兼容洞）· 演练记录 [`docs/harness/reviews/w7_migration_rehearsal_2_4_1_20260917.md`](docs/harness/reviews/w7_migration_rehearsal_2_4_1_20260917.md) |
 | 2026-09-18 | **3.0.1 W6**：§② 补「非映射宿主 `config-hook`：validate PASS+WARN · apply fail-closed · 自定义用 `none`」（映射键 = claude/cursor/gemini · 不扩表） |
 | 2026-09-18 | **3.0.1 patch**：增「3.0.0 → 3.0.1 无强制动作项」（粘性向后兼容 · 无强制迁移 · 可选了解 W5 旗标 / W6 WARN） |
+| 2026-09-23 | **3.0.2 patch**：增「3.0.1 → 3.0.2 无强制动作项」（additive 能力面 · F-1 词汇登记仅减告警 · consumer pins 可选启用 · 待发版 publish 仅人） |

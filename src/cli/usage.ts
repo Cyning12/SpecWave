@@ -86,6 +86,9 @@ export function usage(version: string): void {
   npx spec-wave wiki export --json [--target PATH] [--root DIR] [--out FILE|-] [--backlinks|--no-backlinks] [--incremental] [--check-conflicts]
   npx spec-wave pins check [--target PATH] [--json]
   npx spec-wave pins fix [--target PATH] [--yes]  （默认 dry-run · S2 机械拒写）
+  npx spec-wave pins check --consumer [--target PATH] [--json] [--truth <path#jsonpath>]
+  npx spec-wave pins fix --consumer [--target PATH] [--yes] [--truth <path#jsonpath>]
+    分工: release 模式（无 --consumer）= 发布仓自身（assets/release-pins.yaml）· --consumer = 消费仓钉版保鲜（回退链 devDependencies→dependencies→version · 声明源 .spec-wave/pins-consumer.yaml 可选 · 缺省钉 CI workflow 字面）
   npx spec-wave assets verify [--target PATH] [--json]  （assets sha256 完整性 · 偏差 exit 2）
   npx spec-wave assets manifest rebuild [--target PATH] [--yes]  （默认 dry-run · 修复对象=manifest · 资产永不反向改）
   npx spec-wave task lint-done [--target PATH]

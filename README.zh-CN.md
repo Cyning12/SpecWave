@@ -286,6 +286,31 @@ kit **源码仓**以 `docs/_tech_graph/` 做 `graph yaml compile|check|export` �
 3. kit P0 **不依赖**宿主 hooks——判定在进程内 CLI 完成。
 
 
+### pins consumer 模式（消费仓钉版保鲜 · 3.0.2+）
+
+面向**消费** spec-wave 的仓。以往每次升级要手工对齐多个面（`package.json` 精确钉版、CI workflow 里的 `spec-wave@<x.y.z>` 字面、测试 mock 版本字面），任一面漏改即静默漂移。`pins check --consumer` 把它收成一条 CI 机械门禁（漂移 → exit 2）：
+
+- **真值源（回退链）**：`package.json#devDependencies.spec-wave` → `#dependencies.spec-wave` → `#version`，首个字符串胜；三处皆缺 → exit 2 点名完整链。可用 `--truth <path#jsonpath>` 显式指定（如 `--truth package.json#devDependencies.spec-wave`；绝对路径与 `../` 拒绝）。
+- **精确版本**：`X.Y.Z` 直接采用；`^`/`~` 前缀归一并给出可见 WARN（`--json` 下入 `warnings`）；其余形态（`*`、`workspace:*`、范围表达式）→ exit 2 并建议改精确钉版。
+- **默认钉面**（零配置）：`.github/workflows/*.{yml,yaml}` 中凡字面含 `<pkg>@X.Y.Z` 的文件逐文件合成钉；不含该字面的 workflow 跳过（不误 BLOCKED 无关文件）。
+- **可选声明源** `.spec-wave/pins-consumer.yaml`——存在即替代默认钉面；文件损坏 → exit 2 failClosed（坏的声明源绝不静默当作不存在）：
+
+```yaml
+version: "1"
+package_name: spec-wave   # 可选，缺省 spec-wave
+pins:
+  - id: consumer-test-mocks
+    path: tests/test_capability_harness_cli.py
+    extract: { kind: regex-all, pattern: 'spec-wave@(\d+\.\d+\.\d+)', flags: g }
+    expected: { kind: package-version }   # = consumer 真值版本
+    required: true
+    fixable: true
+```
+
+- `pins fix --consumer` 默认 dry-run；`--yes` 才写盘（S2 过程目录机械拒写不变）。
+- **分工**：release 模式（无旗标）面向 spec-wave 发布仓自身（`assets/release-pins.yaml`）；`--consumer` 面向消费仓。
+
+
 ## 从 @cyning/harness 迁移
 
 完整清单、F4 方案 B 布局与 **已公布** EOS / deprecate 日历：见 [`MIGRATION.md`](./MIGRATION.md)。

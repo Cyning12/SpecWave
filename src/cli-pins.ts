@@ -14,7 +14,10 @@ import { yamlLoad } from './yaml.ts'
 const PINS_REL = 'assets/release-pins.yaml'
 const PINS_USAGE =
   'npx spec-wave pins check [--target PATH] [--json]' + '\n' +
-  '  npx spec-wave pins fix [--target PATH] [--yes]'
+  '  npx spec-wave pins fix [--target PATH] [--yes]' + '\n' +
+  '  npx spec-wave pins check --consumer [--target PATH] [--json] [--truth <path#jsonpath>]' + '\n' +
+  '  npx spec-wave pins fix --consumer [--target PATH] [--yes] [--truth <path#jsonpath>]'
+const CONSUMER_PINS_REL = '.spec-wave/pins-consumer.yaml'
 
 type PinExtract = {
   kind: string
@@ -103,6 +106,170 @@ function readTruthVersion(root: string): string {
   }
   if (!pkg.version) fail('PINS: BLOCKED · package.json 缺 version 字段', 2)
   return pkg.version
+}
+
+// ── 3.0.2 W2 · pins consumer 模式（F-3/F-4 · 消费侧钉版保鲜闸 · additive · release 路径不触）──
+
+type ConsumerTruth = { version: string; source: string; warnings: string[] }
+
+// consumer 声明源（可选）：.spec-wave/pins-consumer.yaml（version:"1" · package_name 可选 · pins 复用 Pin schema）。
+// 档缺 ⇒ null（走内置默认钉面）；存在且坏 ⇒ failClosed exit 2（存在且坏 ≠ 缺失 · F-W2-05）。
+function loadConsumerDeclaration(root: string): { pins: Pin[]; packageName: string } | null {
+  const abs = path.join(root, CONSUMER_PINS_REL)
+  if (!existsSync(abs)) return null
+  let data: unknown
+  try {
+    data = yamlLoad(readFileSync(abs, 'utf8'))
+  } catch (e) {
+    fail('PINS: BLOCKED · 声明源语法错误: ' + CONSUMER_PINS_REL + ' · ' + (e as Error).message + '（failClosed · 存在且坏 ≠ 缺失）', 2)
+  }
+  const d = (data ?? {}) as { pins?: unknown; package_name?: unknown }
+  if (!Array.isArray(d.pins) || d.pins.length === 0) {
+    fail('PINS: BLOCKED · 声明源缺 pins 列表: ' + CONSUMER_PINS_REL + '（failClosed · 存在且坏 ≠ 缺失）', 2)
+  }
+  for (const p of d.pins as Pin[]) {
+    if (!p || typeof p.id !== 'string' || typeof p.path !== 'string' || !p.extract || !p.expected) {
+      fail('PINS: BLOCKED · 声明源行缺 id/path/extract/expected: ' + CONSUMER_PINS_REL, 2)
+    }
+  }
+  if (d.package_name !== undefined && typeof d.package_name !== 'string') {
+    fail('PINS: BLOCKED · 声明源 package_name 非字符串: ' + CONSUMER_PINS_REL, 2)
+  }
+  return { pins: d.pins as Pin[], packageName: (d.package_name as string | undefined) ?? 'spec-wave' }
+}
+
+// 取值口径（「不要静默」总则 · 硬约束 4）：精确 X.Y.Z 直返；^/~ 剥前缀归一 + stderr WARN（--json 入 warnings）；
+// 其余形态（* / latest / workspace:* / 范围表达式）⇒ exit 2 + 建议 exact。
+function normalizeConsumerVersion(raw: string, source: string, warnings: string[]): string {
+  if (/^\d+\.\d+\.\d+$/.test(raw)) return raw
+  const m = /^[~^](\d+\.\d+\.\d+)$/.exec(raw)
+  if (m) {
+    const msg =
+      'consumer 真值源 ' + source + ' = ' + JSON.stringify(raw) +
+      ' 含范围前缀 · 已归一为 ' + m[1]! + '（建议改 exact 精确钉版）'
+    console.error('[warning] ' + msg)
+    warnings.push(msg)
+    return m[1]!
+  }
+  fail(
+    'PINS: BLOCKED · consumer 真值非精确版本: ' + source + ' = ' + JSON.stringify(raw) +
+      '（仅支持精确 X.Y.Z 或 ^/~ 前缀归一 · 建议改 exact）',
+    2,
+  )
+}
+
+// consumer 真值源（F-4）：--truth <path#jsonpath> 显式指定（跳过回退链）；
+// 回退链 devDependencies[pkg] → dependencies[pkg] → version 首个 string 胜；三处皆缺 ⇒ exit 2 点名完整链。
+function readConsumerTruth(root: string, packageName: string, truthOpt?: string): ConsumerTruth {
+  const warnings: string[] = []
+  if (truthOpt !== undefined) {
+    const hash = truthOpt.indexOf('#')
+    if (hash <= 0 || hash === truthOpt.length - 1) {
+      fail('PINS: BLOCKED · --truth 须为 <path#jsonpath> 形态: ' + truthOpt, 2)
+    }
+    const rawRel = truthOpt.slice(0, hash)
+    const jsonPath = truthOpt.slice(hash + 1)
+    const rel = normalizeSlashPath(rawRel)
+    if (path.isAbsolute(rawRel) || rel.split('/').includes('..')) {
+      fail('PINS: BLOCKED · --truth 路径越界（禁绝对路径与 ../）: ' + rawRel, 2)
+    }
+    const abs = path.resolve(root, rel)
+    let raw: string
+    try {
+      raw = readFileSync(abs, 'utf8')
+    } catch (e) {
+      fail('PINS: BLOCKED · --truth 文件缺失或不可读: ' + rel + ' · ' + (e as Error).message, 2)
+    }
+    let obj: unknown
+    try {
+      obj = JSON.parse(raw)
+    } catch (e) {
+      fail('PINS: BLOCKED · --truth 文件不可解析: ' + rel + ' · ' + (e as Error).message, 2)
+    }
+    let cur: unknown = obj
+    for (const key of jsonPath.split('.')) {
+      if (cur == null || typeof cur !== 'object' || !(key in (cur as Record<string, unknown>))) {
+        fail('PINS: BLOCKED · --truth 键缺失: ' + rel + '#' + jsonPath + '（断于 ' + key + '）', 2)
+      }
+      cur = (cur as Record<string, unknown>)[key]
+    }
+    if (typeof cur !== 'string') {
+      fail('PINS: BLOCKED · --truth 值非字符串: ' + rel + '#' + jsonPath, 2)
+    }
+    const source = rel + '#' + jsonPath
+    return { version: normalizeConsumerVersion(cur, source, warnings), source, warnings }
+  }
+  const s1 = 'package.json#devDependencies.' + packageName
+  const s2 = 'package.json#dependencies.' + packageName
+  const s3 = 'package.json#version'
+  let pkg: { devDependencies?: Record<string, unknown>; dependencies?: Record<string, unknown>; version?: unknown } = {}
+  const abs = path.join(root, 'package.json')
+  let raw: string | null = null
+  try {
+    raw = readFileSync(abs, 'utf8')
+  } catch (e) {
+    const err = e as NodeJS.ErrnoException
+    if (err.code !== 'ENOENT') {
+      fail('PINS: BLOCKED · 真值源 package.json 不可解析或不可读: ' + err.message, 2)
+    }
+    // ENOENT 视同空对象（三处皆缺走统一点名完整链 · consumer 链需点名三档 · 与 readTruthVersion 缺文件文案分工）
+  }
+  if (raw !== null) {
+    try {
+      pkg = JSON.parse(raw)
+    } catch (e) {
+      fail('PINS: BLOCKED · 真值源 package.json 不可解析或不可读: ' + (e as Error).message, 2)
+    }
+  }
+  const candidates: Array<{ source: string; value: unknown }> = [
+    { source: s1, value: pkg.devDependencies?.[packageName] },
+    { source: s2, value: pkg.dependencies?.[packageName] },
+    { source: s3, value: pkg.version },
+  ]
+  for (const c of candidates) {
+    if (typeof c.value === 'string' && c.value !== '') {
+      return { version: normalizeConsumerVersion(c.value, c.source, warnings), source: c.source, warnings }
+    }
+  }
+  fail('PINS: BLOCKED · consumer 真值源三处皆缺（完整回退链: ' + s1 + ' → ' + s2 + ' → ' + s3 + '）', 2)
+}
+
+function escapeRegExpLit(s: string): string {
+  return s.replace(/[.*+?^${}()|[]\]/g, '\$&')
+}
+
+// 内置默认钉面（声明源缺失时逐文件合成 · 显式 > 缺省）：枚举 .github/workflows/*.{yml,yaml}。
+// R-1 裁决（00）：合成前内容预筛 —— 仅当文件含 <pkg>@X.Y.Z 数字锚定字面才合成（无关 workflow 合法无钉面 ·
+// 防 F-A1-06 零命中 extract_error 误 BLOCKED · @<x.y.z> 占位无数字锚自然跳过）。
+function synthDefaultConsumerPins(root: string, packageName: string): Pin[] {
+  const wfAbs = path.join(root, '.github', 'workflows')
+  if (!existsSync(wfAbs)) return []
+  const pattern = escapeRegExpLit(packageName) + '@(\\d+\\.\\d+\\.\\d+)'
+  const anchor = new RegExp(pattern)
+  const pins: Pin[] = []
+  const files = readdirSync(wfAbs, { withFileTypes: true })
+    .filter((e) => e.isFile() && /\.(yml|yaml)$/.test(e.name))
+    .map((e) => e.name)
+    .sort()
+  for (const f of files) {
+    let body: string
+    try {
+      body = readFileSync(path.join(wfAbs, f), 'utf8')
+    } catch {
+      continue // 不可读文件不入默认钉面（显式钉面归声明源 required 语义）
+    }
+    if (!anchor.test(body)) continue
+    pins.push({
+      id: 'consumer-wf-' + f.replace(/\.(yml|yaml)$/, ''),
+      path: '.github/workflows/' + f,
+      extract: { kind: 'regex-all', pattern, flags: 'g' },
+      expected: { kind: 'package-version' },
+      required: true,
+      fixable: true,
+      note: '3.0.2 W2 内置默认钉面（声明源缺失时逐文件合成 · 显式 > 缺省 · 无字面文件预筛跳过）',
+    })
+  }
+  return pins
 }
 
 function expectedString(pin: Pin, truth: string): string {
@@ -651,8 +818,8 @@ function unfixableReason(pin: Pin, result: PinResult): string {
   return 'fixable=false · 不可修（须人工）'
 }
 
-function printCheckHuman(truth: string, results: PinResult[]): void {
-  console.log('pins check · 真值源 package.json#version = ' + truth + ' · 落点 ' + results.length)
+function printCheckHuman(truth: string, results: PinResult[], header?: string): void {
+  console.log(header ?? 'pins check · 真值源 package.json#version = ' + truth + ' · 落点 ' + results.length)
   for (const r of results) {
     const where = r.line != null ? r.path + ':' + r.line : r.path
     if (r.status === 'ok') {
@@ -688,9 +855,42 @@ function cmdPinsCheck(root: string, json: boolean): void {
   if (bad.length > 0) fail('PINS: BLOCKED · ' + bad.length + ' 偏差（详见上方）', 2)
 }
 
+// 3.0.2 W2：consumer 模式 check（声明源存在 ⇒ 显式 > 缺省；缺省 ⇒ 内置默认钉面 · 零落点显式提示不静默 · F-W2-04）
+function cmdPinsCheckConsumer(root: string, json: boolean, truthOpt?: string): void {
+  const decl = loadConsumerDeclaration(root)
+  const packageName = decl?.packageName ?? 'spec-wave'
+  const pins = decl ? decl.pins : synthDefaultConsumerPins(root, packageName)
+  const truth = readConsumerTruth(root, packageName, truthOpt)
+  const results = pins.map((p) => evaluatePin(root, p, truth.version))
+  const bad = results.filter((r) => r.status !== 'ok')
+  if (json) {
+    printJson(root, {
+      mode: 'consumer',
+      truth_version: truth.version,
+      truth_source: truth.source,
+      status: bad.length === 0 ? 'pass' : 'blocked',
+      pins: results,
+      ...(truth.warnings.length > 0 ? { warnings: truth.warnings } : {}),
+    })
+  } else {
+    printCheckHuman(
+      truth.version,
+      results,
+      'pins check [consumer] · 真值源 ' + truth.source + ' = ' + truth.version + ' · 落点 ' + results.length,
+    )
+    if (!decl && pins.length === 0) {
+      console.log('未声明 ' + CONSUMER_PINS_REL + ' 且未发现 CI workflow 钉面 · 0 落点')
+    }
+  }
+  if (bad.length > 0) fail('PINS: BLOCKED · ' + bad.length + ' 偏差（详见上方）', 2)
+}
+
 function cmdPinsFix(root: string, yes: boolean): void {
-  const pins = loadPins(root)
-  const truth = readTruthVersion(root)
+  runPinsFixBody(root, yes, loadPins(root), readTruthVersion(root))
+}
+
+// 3.0.2 W2（微批② · 段6）：fix 共享体（release/consumer 同走 · S2 拒写与 NEW-8 备份避让单源 · release 输出逐字不变）
+function runPinsFixBody(root: string, yes: boolean, pins: Pin[], truth: string): void {
   const results = pins.map((p) => evaluatePin(root, p, truth))
   const deviations = results.filter((r) => r.status !== 'ok')
   if (deviations.length === 0) {
@@ -777,22 +977,45 @@ function cmdPinsFix(root: string, yes: boolean): void {
   if (unfixable.length > 0) fail('PINS FIX: ' + unfixable.length + ' 处不可修（须人工 · 真值源/git 永不反向改）', 2)
 }
 
+// 3.0.2 W2：consumer 模式 fix（声明源存在 ⇒ 显式 > 缺省 · 零落点显式提示 · 修复体共享 runPinsFixBody）
+function cmdPinsFixConsumer(root: string, yes: boolean, truthOpt?: string): void {
+  const decl = loadConsumerDeclaration(root)
+  const packageName = decl?.packageName ?? 'spec-wave'
+  const pins = decl ? decl.pins : synthDefaultConsumerPins(root, packageName)
+  const truth = readConsumerTruth(root, packageName, truthOpt)
+  console.log('pins fix [consumer] · 真值源 ' + truth.source + ' = ' + truth.version + ' · 落点 ' + pins.length)
+  if (!decl && pins.length === 0) {
+    console.log('未声明 ' + CONSUMER_PINS_REL + ' 且未发现 CI workflow 钉面 · 0 落点')
+  }
+  runPinsFixBody(root, yes, pins, truth.version)
+}
+
 export async function cmdPins(args: string[]): Promise<void> {
   const [sub, ...rest0] = args
   if (sub !== 'check' && sub !== 'fix') {
     fail('pins 子命令未知: ' + (sub ?? '(空)') + '\n用法: ' + PINS_USAGE, 1)
   }
   const t = takeOption(rest0, '--target')
+  const t2 = takeOption(t.rest, '--truth')
   const rest: string[] = []
   let json = false
   let yes = false
-  for (const a of t.rest) {
+  let consumer = false
+  for (const a of t2.rest) {
     if (a === '--json' && sub === 'check') { json = true; continue }
     if (a === '--yes' && sub === 'fix') { yes = true; continue }
+    if (a === '--consumer') { consumer = true; continue }
     rest.push(a)
   }
   if (rest.length > 0) fail('pins 未知参数: ' + rest.join(' ') + '\n用法: ' + PINS_USAGE, 1)
+  // 3.0.2 W2：--truth 仅 consumer 域合法（防 release 模式语义混淆 · R2 取舍④）
+  if (t2.value !== undefined && !consumer) fail('pins --truth 仅在 --consumer 下合法\n用法: ' + PINS_USAGE, 1)
   const root = path.resolve(t.value ?? process.cwd())
-  if (sub === 'check') cmdPinsCheck(root, json)
-  else cmdPinsFix(root, yes)
+  if (sub === 'check') {
+    if (consumer) cmdPinsCheckConsumer(root, json, t2.value)
+    else cmdPinsCheck(root, json)
+  } else {
+    if (consumer) cmdPinsFixConsumer(root, yes, t2.value)
+    else cmdPinsFix(root, yes)
+  }
 }

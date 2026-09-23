@@ -286,6 +286,31 @@ When a task declares `test_strategy=required`, `audit` / `verify` run the D5 har
 3. Host hooks are **not** required for kit P0 — judgment is in-process CLI logic.
 
 
+### pins consumer mode (consumer-repo version-pin freshness · 3.0.2+)
+
+For repos that **consume** spec-wave. Upgrading used to mean hand-aligning several surfaces (exact pin in `package.json`, `spec-wave@<x.y.z>` literals in CI workflows, version literals in test mocks); any missed surface drifts silently. `pins check --consumer` turns that into one mechanical CI gate (drift → exit 2):
+
+- **Truth source (fallback chain)**: `package.json#devDependencies.spec-wave` → `#dependencies.spec-wave` → `#version`; first string wins. All three missing → exit 2 naming the full chain. Override explicitly with `--truth <path#jsonpath>` (e.g. `--truth package.json#devDependencies.spec-wave`; absolute paths and `../` are refused).
+- **Exact versions**: `X.Y.Z` accepted as-is; `^`/`~` prefixes are normalized with a visible WARN (also in `--json` `warnings`); anything else (`*`, `workspace:*`, ranges) → exit 2 recommending an exact pin.
+- **Default pin surface** (zero config): every `.github/workflows/*.{yml,yaml}` file that literally contains `<pkg>@X.Y.Z` gets a synthesized pin; files without the literal are skipped (no false BLOCKED on unrelated workflows).
+- **Optional declaration** `.spec-wave/pins-consumer.yaml` — replaces the default surface when present; malformed file → exit 2 failClosed (a broken declaration is never silently treated as absent):
+
+```yaml
+version: "1"
+package_name: spec-wave   # optional, default spec-wave
+pins:
+  - id: consumer-test-mocks
+    path: tests/test_capability_harness_cli.py
+    extract: { kind: regex-all, pattern: 'spec-wave@(\d+\.\d+\.\d+)', flags: g }
+    expected: { kind: package-version }   # = consumer truth version
+    required: true
+    fixable: true
+```
+
+- `pins fix --consumer` is dry-run by default; `--yes` writes (S2 process dirs stay mechanically write-refused).
+- **Division of labor**: release mode (no flag) serves the spec-wave release repo itself (`assets/release-pins.yaml`); `--consumer` serves consumer repos.
+
+
 ## Migrating from @cyning/harness
 
 Full checklist, layout rules (F4 scheme B), and **published** EOS / deprecate calendar: see [`MIGRATION.md`](./MIGRATION.md).
