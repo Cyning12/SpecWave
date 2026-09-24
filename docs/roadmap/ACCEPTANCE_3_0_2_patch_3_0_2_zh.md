@@ -1,7 +1,7 @@
 # ACCEPTANCE · 3.0.2 patch（消费侧反馈收口 W1–W2）台账
 
-> **版本**：`spec-wave@3.0.2`（**待发版（publish 仅人）** · 2026-09-23 bump 已落 · tag `v3.0.2` **由 00 按维护者 2026-09-23 授权代打并随 `main` 原子推** · registry `latest` 真值 `3.0.1` 直至人 publish · **未**执行 npm publish / deprecate）
-> **task**：[`docs/tasks/done/task_3_0_2_release_bump.md`](../tasks/done/task_3_0_2_release_bump.md)（slug `3-0-2-release-bump` · 无独立 SPEC 夹 · 属消费侧反馈 patch · 2026-09-23）
+> **版本**：`spec-wave@3.0.2`（**已 published** · 人 publish · registry `latest=3.0.2` · `time.3.0.2`=2026-09-24T00:55:45.386Z · tag `v3.0.2` ↔ tip `3d71b90` · tag object `06a9320` · 30 代核回填 2026-09-24 · task slug `3-0-2-postpublish-dx` · **禁再** npm publish / deprecate）
+> **task**：[`docs/tasks/done/task_3_0_2_release_bump.md`](../tasks/done/task_3_0_2_release_bump.md)（slug `3-0-2-release-bump` · 无独立 SPEC 夹 · 属消费侧反馈 patch · 2026-09-23）· ⑨ 回填 task [`docs/tasks/done/task_3_0_2_postpublish_dx.md`](../tasks/done/task_3_0_2_postpublish_dx.md)（slug `3-0-2-postpublish-dx` · **CLOSED** · 40 关账 2026-09-24）
 > **规划**：[`PLAN_3_0_2_patch_v1_zh.md`](PLAN_3_0_2_patch_v1_zh.md)（HG-NEXT-PLAN=approved · 授权 00 代签过程闸 + 验收后 tag/push 代跑）
 > **范围主源**：ops-desk-api 反馈文 `FEEDBACK_spec_wave_3_0_1_from_ops_desk_api_20260923.md`（F-1~F-4 · 仓外 `docs/harness/evidence/`）
 > **依据**：W1 / W2 done tasks + R1 审查文（各波 PASS · blocking 0）
@@ -29,7 +29,7 @@
 
 - **登记**：bump 后 `pins check` 唯一偏差 = pin-10（tag `v3.0.2` 不存在 · 打 tag 前必经态 · 同 2.4.x/3.0.x 先例）。
 - **清偿**：00 按 HG-RELEASE-TAG-PUSH=approved 执行 `git tag -a v3.0.2` → 复跑 `pins check` **17/17** + 全量 `npm test` 全绿 → `git push origin main v3.0.2` 原子推 → 探针代核（`git show v3.0.2:package.json` · `npm view` 仍 3.0.1 · `git ls-remote` 一致）。
-- **已清偿（00 代跑 · 2026-09-23）**：tag `v3.0.2`（annotated · tag object `06a9320`）↔ bump commit **`3d71b90`** · `git push origin main v3.0.2` 原子推（`0e6d861..3d71b90` + new tag · `ls-remote` 与本地一致）· `pins check` 复跑 **17/17 PASS**（pin-10 设计红清偿）· 全量 `npm test` 复跑 **929 · 928 pass + 1 skip · 0 fail** · 探针三项代核全过（`git show v3.0.2:package.json` → 3.0.2 · `npm view`（绕缓存）仍 `3.0.1` = publish 待人真值）。
+- **已清偿（00 代跑 · 2026-09-23）**：tag `v3.0.2`（annotated · tag object `06a9320`）↔ bump commit **`3d71b90`** · `git push origin main v3.0.2` 原子推（`0e6d861..3d71b90` + new tag · `ls-remote` 与本地一致）· `pins check` 复跑 **17/17 PASS**（pin-10 设计红清偿）· 全量 `npm test` 复跑 **929 · 928 pass + 1 skip · 0 fail** · 探针三项代核全过（`git show v3.0.2:package.json` → 3.0.2 · `npm view`（绕缓存）仍 `3.0.1` = **当时** publish 待人真值）。
 
 ## 3.0.1 回填清偿（本波顺带）
 
@@ -37,14 +37,16 @@
 
 ## 已知残余
 
-- pin-10 / `release-tag-identity` 在 00 代打 `v3.0.2` 前为**设计红**（F-REL-07）· 不记为产品回归。
-- registry `latest` 与「3.0.2 已 published」叙事回填归人 publish 后 ⑨ · 本档与全仓文档**不冒充已发布**（registry 真值一律写 `3.0.1`）。
-- 本机 `~/.npm-local` 缓存含 root-owned 文件 ⇒ `npm pack` EPERM（环境问题 · `npm_config_cache=/tmp` 可绕过）· **人 publish 前须 `sudo chown -R 501:20 ~/.npm-local` 或设 `npm_config_cache`**（已入 RELEASING 人 checklist 3.0.2 节第 3 项）。
+- pin-10 / `release-tag-identity` 在 00 代打 `v3.0.2` 前为**设计红**（F-REL-07）· 不记为产品回归 · **已清偿**。
+- ~~registry `latest` 与「3.0.2 已 published」叙事回填归人 publish 后 ⑨~~ → **已清偿（2026-09-24 · 30 · task `3-0-2-postpublish-dx`）**：registry `latest=3.0.2` · `time.3.0.2`=2026-09-24T00:55:45.386Z · 对外面按 published 回填。
+- 本机 `~/.npm-local` 缓存含 root-owned 文件 ⇒ `npm pack` EPERM（环境问题 · `npm_config_cache=/tmp` 可绕过）——史实提醒；publish 已完成。
+- GitHub Releases 页补建归同波 `HG-GH-RELEASE`（至少 `v3.0.2` · 建议 `v3.0.0`/`v3.0.1`）· **不**新建 tag。
 
 ## 发布边界
 
-- 本棒只做 bump 簿记（①–⑨）。**未**执行 `git tag` / `git push`（归 00 按 HG-RELEASE-TAG-PUSH 授权执行 · 前置 = 验收全绿）· **未**执行 `npm publish` / `npm deprecate`（仅人 · HG-RELEASE-PUBLISH 不在授权面）· **未**用 `npm version` · **未**改 W1–W2 产品行为 · **未**触 host-adapt schema · **未**动 `eval/` 分支搭车档。
-- RELEASING 人 checklist `3.0.2` 节已备（tag/push 预勾留哈希回填位 · publish 及之后全未勾）· 3.0.1 节标已完成。
-- 使用手册保留文件名 `docs/guides/使用手册-v3.0.0-zh.md`；头栏钉 `spec-wave@3.0.2`（待发版 · publish 待人）。
+- **已 published**：人已执行 `npm publish`（registry `latest=3.0.2` · `time.3.0.2`=2026-09-24T00:55:45.386Z）。本档 **不再** 授权或暗示再 publish。
+- 史实：bump 棒未执行 tag/push/publish；tag/push = 00（2026-09-23 · HG-RELEASE-TAG-PUSH）；publish = 人；⑨ 回填 = 30（2026-09-24 · `3-0-2-postpublish-dx`）。
+- RELEASING 人 checklist `3.0.2` 节标 **已完成**（探针 + ⑨ 勾选留实测）。
+- 使用手册保留文件名 `docs/guides/使用手册-v3.0.0-zh.md`；头栏钉 `spec-wave@3.0.2`（**已发布**）。
 - MIGRATION「3.0.1 → 3.0.2 无强制动作项」在档（W2 段7 已写）。
-- spec 索引 `3.0.2`（patch 收尾行）经 pin-08 语义格位机检合格（行文本 10-task 棒探针预验证 PASS）。
+- spec 索引 `3.0.2`（patch 收尾行）状态格 → **published**（pin-08 语义格位合格）。

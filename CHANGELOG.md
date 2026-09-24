@@ -7,7 +7,7 @@
 ## [3.0.2] - 2026-09-23
 
 > 主题：**patch** —— 消费侧（ops-desk-api）3.0.1 反馈收口（W1–W2 · PLAN [`docs/roadmap/PLAN_3_0_2_patch_v1_zh.md`](docs/roadmap/PLAN_3_0_2_patch_v1_zh.md) · 无独立 SPEC 夹 · F-2 图谱漂移闸 / F-1② 仓级词汇扩展档延 3.1.0）。
-> **发布状态**：**待发版（publish 仅人）**（工作树 bump 已落 · tag `v3.0.2` 由 00 按维护者 2026-09-23 授权代打并随 `main` 原子推 · registry `latest` 仍为 `3.0.1` 直至人 publish · pin-10 git tag `v3.0.2` 打 tag 前缺失为设计红）。
+> **发布状态**：**已发布 2026-09-24**（人 publish · tag `v3.0.2` ↔ tip `3d71b90` · tag object `06a9320` · registry `latest=3.0.2` · `time.3.0.2`=2026-09-24T00:55:45.386Z · 30 代核回填 2026-09-24 · task `3-0-2-postpublish-dx`）。
 
 ### Fixed
 

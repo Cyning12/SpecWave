@@ -2,11 +2,60 @@
 
 [简体中文](README.zh-CN.md) | English
 
-**SpecWave** (`spec-wave@3.0.2`) is a **multi-host coding CLI** — one declarative adapt table lands natively on 13 hosts (Cursor · Claude Code · optional DSH · agents · Copilot · Codex · Windsurf · Gemini CLI · opencode · Roo Code · Zed · Cline · aider) — with **P0 gate / Harness process commands** and IDE landing. Formerly **SpecGate** / **dsh-coding-kit**. Discipline assets remain ICVO (Inform · Constrain · Verify · Orchestrate).
+**SpecWave** (`spec-wave@3.0.2`) is a **multi-host coding CLI** — one declarative adapt table lands natively on Cursor, Claude Code, optional DSH, agents, and more — with **P0 gate / Harness process commands** and IDE landing. Discipline assets remain ICVO (Inform · Constrain · Verify · Orchestrate).
 
 > **Loading ≠ injecting.** Installing or loading the optional DSH plugin does **not** automatically rewrite the system prompt. `apply()` only registers tools. Only after you or the model calls `apply_coding_standards` will later turns' runtime context contain `# Coding Standards`.
 >
 > **New here?** First-hour terms — `task.md` / Harness / hats / `kit-*` — are defined in [GLOSSARY.md](GLOSSARY.md) (bilingual).
+>
+> <sub>Formerly SpecGate / `dsh-coding-kit` — rename history and migration: [MIGRATION.md](MIGRATION.md).</sub>
+
+## Prerequisites
+
+| Requirement | Notes |
+|-------------|-------|
+| **Node.js** | **`^22.19.0` or `>=24.0.0`** (see `package.json#engines`) |
+| **Not supported** | **Node 20** (and earlier) — engines will fail; upgrade before `npx` / install |
+
+```bash
+node -v   # expect v22.19+ or v24+
+```
+
+## Quick start (5 steps)
+
+Primary entry is **`npx spec-wave`** from npm **`spec-wave@3.0.2`**. Plugin surface and CLI surface do not replace each other.
+
+```bash
+# 1) Confirm package (pin recommended)
+npx spec-wave@3.0.2 --version
+
+# 2) Validate adapt table (dry)
+npx spec-wave@3.0.2 host validate
+
+# 3) Materialize hosts (dry-run, then write)
+npx spec-wave@3.0.2 host apply --tools cursor,claude,dsh --profile core
+npx spec-wave@3.0.2 host apply --tools cursor,claude,dsh --profile core --yes
+
+# 4) Or first-time init (process root + host select)
+npx spec-wave@3.0.2 init --preset harness-only --tools cursor,claude,dsh --yes
+
+# 5) After you have a task.md — mechanical gate (exit 2 = hard stop)
+npx spec-wave@3.0.2 verify --task docs/tasks/active/task_<slug>.md
+```
+
+After `--yes`, Cursor should see `kit-verify` / …; Claude Code `/kit:verify`; DSH `.dsh/skills/kit-*`. Full host matrix and Entry A/B encyclopedia: [Multi-host matrix](#multi-host-matrix) · [Entry A · DSH plugin](#entry-a--dsh-plugin) · [Entry B · CLI](#entry-b--cli-cursor--claude-code--ci). Concepts: [Core objects](#core-objects) · [GLOSSARY.md](GLOSSARY.md).
+
+### Empty repo: minimal green when `test_strategy=required`
+
+CLI **never** writes example tasks into your `docs/tasks/` (S2). You copy the template yourself:
+
+1. `npx spec-wave@3.0.2 sync prompts --yes` (materializes `docs/harness/templates/TASK_TEMPLATE.md` among prompts).
+2. Copy the template → `docs/tasks/active/task_<slug>.md` (your action).
+3. If meta sets **`test_strategy=required`**: add a **failing** automated test for the critical path **before** hat 30 changes implementation; then implement until green.
+4. Human-gate table must be **4 columns**; `HG-AUDIT-R1` → `approved` before hat 30 may change code.
+5. `npx spec-wave@3.0.2 task lint --file docs/tasks/active/task_<slug>.md` then `verify --task …`.
+
+Details: template path above · [Core objects](#core-objects) · [GLOSSARY.md](GLOSSARY.md).
 
 ## Which entry to choose
 
@@ -15,9 +64,9 @@
 | Cursor / Claude Code / CI on existing repos | `npx spec-wave` (+ optional `host apply`) | Don't treat the plugin `init_coding_kit` and the CLI `init` as the same entry |
 | DSH session / model calling tools (optional) | `dsh plugin add spec-wave` (`dsh-coding-kit` **deprecated** — do not add the old name) | Don't just `npm install` (without the bundle layer the tools won't appear) |
 
-Primary entry is **`npx spec-wave`** from npm package **`spec-wave@3.0.2`**. Transition bins `specgate` and `dsh-coding-kit` still work. The plugin surface and the CLI surface do not replace each other.
+Transition bins `specgate` and `dsh-coding-kit` still work; new scripts should use `npx spec-wave`.
 
-### Multi-host in one package (F6 · 2.0 + skills/orch · 2.1 · tools UX · 2.1.1 · hosts ×13 · 2.2/2.3)
+### Multi-host matrix
 
 One declarative table → native landing on several hosts (always_on + skills + **commands**). Verify truth stays in the CLI (`failClosed` exit **2**); IDE slash/commands only orchestrate. **Installing the npm package does not materialize IDE files** (no postinstall); run `init --tools` / `host apply` explicitly.
 
@@ -50,23 +99,12 @@ One declarative table → native landing on several hosts (always_on + skills + 
 | `host update` (scheme **A**) | Resolve order: CLI `--tools` → sticky → else **exit 1**. With sticky, `host update --yes` refreshes **only** selected hosts. **BREAKING (small)** vs 2.1.0 “omit `--tools` = full table”. |
 | `init` | TTY without `--tools` → **asks** (multi-select / all / none). Non-TTY / CI without `--tools` → **exit 1**. `tools≠none` and not `--no-host-adapt` → in-process `host apply` + sticky. `--no-host-adapt` → no apply and **no** sticky. |
 
-Shortest path (dry-run first, then write):
-
 ```bash
-npx spec-wave@3.0.2 host validate
-npx spec-wave@3.0.2 host apply --tools cursor,claude,dsh --profile core
-npx spec-wave@3.0.2 host apply --tools cursor,claude,dsh --profile core --yes
-# optional: --profile expanded   # kit-hat-* thin shells
-# optional: --tools all
-
 # After upgrading the package: refresh sticky hosts (no need to re-list --tools)
 npx spec-wave@3.0.2 host update --yes
-
-# First-time / CI: init + host selection (process-root only: --tools none)
-npx spec-wave@3.0.2 init --preset harness-only --tools cursor,claude,dsh --yes
 ```
 
-After `--yes`, Cursor Command Palette should see `kit-verify` / `kit-gate-status` / …; Claude Code should see `/kit:verify` etc.; DSH should list matching `.dsh/skills/kit-*`. Full matrix: [`assets/ide/host-adapt/README.md`](assets/ide/host-adapt/README.md) · dogfood/recording: [`docs/guides/DOGFOOD_host_adapt_cursor_claude_录屏清单_v1_zh.md`](docs/guides/DOGFOOD_host_adapt_cursor_claude_录屏清单_v1_zh.md) · plan: [`docs/roadmap/PLAN_2_1_1_host_tools_ux_v1_zh.md`](docs/roadmap/PLAN_2_1_1_host_tools_ux_v1_zh.md).
+Full matrix: [`assets/ide/host-adapt/README.md`](assets/ide/host-adapt/README.md) · dogfood/recording: [`docs/guides/DOGFOOD_host_adapt_cursor_claude_录屏清单_v1_zh.md`](docs/guides/DOGFOOD_host_adapt_cursor_claude_录屏清单_v1_zh.md) · plan: [`docs/roadmap/PLAN_2_1_1_host_tools_ux_v1_zh.md`](docs/roadmap/PLAN_2_1_1_host_tools_ux_v1_zh.md).
 
 The `@deepseek-ai/cordis` and `@deepseek-ai/dsh-tools` entries in `peerDependencies` are the **DSH host plugin contract** (needed only when the host loads this package as a plugin; not needed for CLI-only use), and are marked **optional** in `peerDependenciesMeta`.
 
@@ -403,7 +441,7 @@ Three surfaces, not interchangeable: **System/Re-anchor** = short identity; **fu
 
 ## Releasing (maintainers)
 
-**Current package**: **`spec-wave@3.0.2`** — **pending release** (bump 2026-09-23 · tag `v3.0.2` to be created by 00 under maintainer authorization · registry `latest` remains `3.0.1` until human publish). Prior published: **`3.0.1`** (signal-quality patch) · **`3.0.0`** (architecture leap) · **`2.4.2`** (acceptance-fixes patch) · **`2.4.1`** (acceptance-fixes patch) · **`2.4.0`** (gate strength) · **`2.3.1`** (acceptance-fixes patch) · **`2.3.0`** (wiring completion) · **`2.2.1`** (acceptance-fixes patch) · **`2.2.0`** (closed-loop start).
+**Current package**: **`spec-wave@3.0.2`** — **published** (registry `latest=3.0.2` · `time.3.0.2`=2026-09-24T00:55:45.386Z · tag `v3.0.2` ↔ tip `3d71b90` · verified 2026-09-24). Prior published: **`3.0.1`** (signal-quality patch) · **`3.0.0`** (architecture leap) · **`2.4.2`** (acceptance-fixes patch) · **`2.4.1`** (acceptance-fixes patch) · **`2.4.0`** (gate strength) · **`2.3.1`** (acceptance-fixes patch) · **`2.3.0`** (wiring completion) · **`2.2.1`** (acceptance-fixes patch) · **`2.2.0`** (closed-loop start).
 
 Release process: see [RELEASING.md](RELEASING.md) — hard pre-publish checklist (commit-before-publish · four green gates · version pins · Agent may bump/tag · **human-only `npm publish`**; institutionalizes the DEF-001 lesson).
 

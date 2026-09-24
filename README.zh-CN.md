@@ -2,11 +2,60 @@
 
 简体中文 | [English](README.md)
 
-**SpecWave**（`spec-wave@3.0.2`）是 **多宿主编码 CLI**——单一声明式适配表原生落点 13 个宿主（Cursor · Claude Code · 可选 DSH · agents · Copilot · Codex · Windsurf · Gemini CLI · opencode · Roo Code · Zed · Cline · aider）——带 **P0 闸 / Harness 过程命令** 与 IDE 物化。曾用名 **SpecGate** / **dsh-coding-kit**。纪律资产仍是 ICVO（Inform · Constrain · Verify · Orchestrate）。
+**SpecWave**（`spec-wave@3.0.2`）是 **多宿主编码 CLI**——单一声明式适配表原生落点 Cursor · Claude Code · 可选 DSH · agents 等——带 **P0 闸 / Harness 过程命令** 与 IDE 物化。纪律资产仍是 ICVO（Inform · Constrain · Verify · Orchestrate）。
 
 > **加载 ≠ 注入。** 安装或加载可选 DSH 插件 **不会** 自动改写 system prompt。`apply()` 只注册工具。必须由你或模型调用 `apply_coding_standards` 之后，后续回合的 runtime context 才会含 `# Coding Standards`。
 >
 > **初见？** 首小时必懂术语——`task.md` / Harness / 帽制 / `kit-*`——见 [GLOSSARY.md](GLOSSARY.md)（双语术语表）。
+>
+> <sub>曾用名 SpecGate / `dsh-coding-kit`——改名史与迁移见 [MIGRATION.md](MIGRATION.md)。</sub>
+
+## Prerequisites（前置）
+
+| 要求 | 说明 |
+|------|------|
+| **Node.js** | **`^22.19.0` 或 `>=24.0.0`**（对齐 `package.json#engines`） |
+| **不支持** | **Node 20**（及更早）会踩坑——engines 拒跑；装包 / `npx` 前请先升级 |
+
+```bash
+node -v   # 期望 v22.19+ 或 v24+
+```
+
+## 最小上手（5 步）
+
+主入口是 npm 包 **`spec-wave@3.0.2`** 的 **`npx spec-wave`**。插件面与 CLI 面互不替代。
+
+```bash
+# 1）确认包版本（推荐钉版）
+npx spec-wave@3.0.2 --version
+
+# 2）校验适配表（dry）
+npx spec-wave@3.0.2 host validate
+
+# 3）物化宿主（先 dry-run，再写盘）
+npx spec-wave@3.0.2 host apply --tools cursor,claude,dsh --profile core
+npx spec-wave@3.0.2 host apply --tools cursor,claude,dsh --profile core --yes
+
+# 4）或首次 init（过程根 + 宿主选型）
+npx spec-wave@3.0.2 init --preset harness-only --tools cursor,claude,dsh --yes
+
+# 5）有 task.md 后跑机械闸（exit 2 = 硬停）
+npx spec-wave@3.0.2 verify --task docs/tasks/active/task_<slug>.md
+```
+
+`--yes` 后：Cursor 可见 `kit-verify` 等；Claude Code `/kit:verify`；DSH `.dsh/skills/kit-*`。完整宿主矩阵与入口百科见 [一包多宿主矩阵](#一包多宿主矩阵) · [入口 A · DSH 插件](#入口-a--dsh-插件) · [入口 B · CLI](#入口-b--clicursor--claude-code--ci)。概念：[核心对象](#核心对象) · [GLOSSARY.md](GLOSSARY.md)。
+
+### 空仓：`test_strategy=required` 时如何最小可绿
+
+CLI **永不**向你的 `docs/tasks/` 写入示例 task（S2）。模板须你自己复制：
+
+1. `npx spec-wave@3.0.2 sync prompts --yes`（物化含 `docs/harness/templates/TASK_TEMPLATE.md`）。
+2. 复制模板 → `docs/tasks/active/task_<slug>.md`（你的显式动作）。
+3. 若元信息 **`test_strategy=required`**：帽 30 改实现**前**须先有关键路径的**可失败**自动化测试，再改实现至绿。
+4. 人工闸表须 **4 列**；`HG-AUDIT-R1` → `approved` 后帽 30 才可改码。
+5. `npx spec-wave@3.0.2 task lint --file docs/tasks/active/task_<slug>.md`，再 `verify --task …`。
+
+详见模板路径 · [核心对象](#核心对象) · [GLOSSARY.md](GLOSSARY.md)。
 
 ## 选哪条入口
 
@@ -15,9 +64,9 @@
 | Cursor / Claude Code / CI · 存量仓 | `npx spec-wave`（可选 `host apply`） | 不要把插件 `init_coding_kit` 与 CLI `init` 当成同一入口 |
 | DSH 会话 / 模型调工具（可选） | `dsh plugin add spec-wave`（旧包 `dsh-coding-kit` **已 deprecate**，勿再 add 旧名） | 不要只 `npm install`（缺 bundle 层则工具不出现） |
 
-主入口是 npm 包 **`spec-wave@3.0.2`** 的 **`npx spec-wave`**。过渡 bin `specgate` / `dsh-coding-kit` 仍可用。插件面与 CLI 面互不替代。
+过渡 bin `specgate` / `dsh-coding-kit` 仍可用；新脚本请一律 `npx spec-wave`。
 
-### 一包多宿主（F6 · 2.0 + 技能/编排 · 2.1 · tools UX · 2.1.1 · 宿主 ×13 · 2.2/2.3）
+### 一包多宿主矩阵
 
 单一声明式适配表 → 多个宿主原生落点（always_on + skills + **commands**）。Verify 真值仍在 CLI（`failClosed` exit **2**）；IDE slash/command 只编排。**装 npm 包不会自动物化 IDE 文件**（无 postinstall）；须显式跑 `init --tools` / `host apply`。
 
@@ -50,23 +99,12 @@
 | `host update`（方案 **A**） | 解析序：CLI `--tools` → 粘性 → 否则 **exit 1**。有粘性时 `host update --yes` **只**刷已选宿主。相对 2.1.0「省略 `--tools` = 全表」为 **BREAKING（小）**。 |
 | `init` | TTY 无 `--tools` → **询问**（多选 / all / none）。非 TTY / CI 无 `--tools` → **exit 1**。`tools≠none` 且未 `--no-host-adapt` → 同进程 `host apply` + 写粘性。`--no-host-adapt` → 不 apply **亦不**写粘性。 |
 
-最短路径（先 dry-run，再写盘）：
-
 ```bash
-npx spec-wave@3.0.2 host validate
-npx spec-wave@3.0.2 host apply --tools cursor,claude,dsh --profile core
-npx spec-wave@3.0.2 host apply --tools cursor,claude,dsh --profile core --yes
-# 可选：--profile expanded   # kit-hat-* 薄壳
-# 可选：--tools all
-
 # 升包后：刷粘性已选宿主（不必再抄 --tools）
 npx spec-wave@3.0.2 host update --yes
-
-# 首次 / CI：init 选型（仅过程根：--tools none）
-npx spec-wave@3.0.2 init --preset harness-only --tools cursor,claude,dsh --yes
 ```
 
-`--yes` 后：Cursor 命令面板应可见 `kit-verify` / `kit-gate-status` 等；Claude Code 应对应出现 `/kit:verify` 等；DSH 应列出 `.dsh/skills/kit-*`。完整矩阵见 [`assets/ide/host-adapt/README.md`](assets/ide/host-adapt/README.md)；录屏清单见 [`docs/guides/DOGFOOD_host_adapt_cursor_claude_录屏清单_v1_zh.md`](docs/guides/DOGFOOD_host_adapt_cursor_claude_录屏清单_v1_zh.md)；规划见 [`docs/roadmap/PLAN_2_1_1_host_tools_ux_v1_zh.md`](docs/roadmap/PLAN_2_1_1_host_tools_ux_v1_zh.md)。
+完整矩阵见 [`assets/ide/host-adapt/README.md`](assets/ide/host-adapt/README.md)；录屏清单见 [`docs/guides/DOGFOOD_host_adapt_cursor_claude_录屏清单_v1_zh.md`](docs/guides/DOGFOOD_host_adapt_cursor_claude_录屏清单_v1_zh.md)；规划见 [`docs/roadmap/PLAN_2_1_1_host_tools_ux_v1_zh.md`](docs/roadmap/PLAN_2_1_1_host_tools_ux_v1_zh.md)。
 
 `peerDependencies` 中的 `@deepseek-ai/cordis` 与 `@deepseek-ai/dsh-tools` 是 **DSH 宿主插件契约**（仅宿主加载本包为插件时需要；CLI-only 不需要），已在 `peerDependenciesMeta` 标为 **optional**。
 
@@ -403,7 +441,7 @@ Skills **不能**覆盖全部过程能力。Host 要嵌套 Harness 过程，须�
 
 ## 发版（维护者）
 
-**现行包**：**`spec-wave@3.0.2`** — **待发版**（bump 2026-09-23 · tag `v3.0.2` 由 00 按维护者授权代打 · registry `latest` 仍为 `3.0.1` 直至人 publish）。前一已发：**`3.0.1`**（信号质量 patch）· **`3.0.0`**（架构跃迁）· **`2.4.2`**（验收修复 patch）· **`2.4.1`**（验收修复 patch）· **`2.4.0`**（门禁强度补全）· **`2.3.1`**（验收修复 patch）· **`2.3.0`**（接线补全）· **`2.2.1`**（验收修复 patch）· **`2.2.0`**（闭环起步）。
+**现行包**：**`spec-wave@3.0.2`** — **已发布**（registry `latest=3.0.2` · `time.3.0.2`=2026-09-24T00:55:45.386Z · tag `v3.0.2` ↔ tip `3d71b90` · 2026-09-24 实测）。前一已发：**`3.0.1`**（信号质量 patch）· **`3.0.0`**（架构跃迁）· **`2.4.2`**（验收修复 patch）· **`2.4.1`**（验收修复 patch）· **`2.4.0`**（门禁强度补全）· **`2.3.1`**（验收修复 patch）· **`2.3.0`**（接线补全）· **`2.2.1`**（验收修复 patch）· **`2.2.0`**（闭环起步）。
 
 发布流程见 [RELEASING.md](RELEASING.md) —— publish 前硬步骤 checklist（先 commit 后 publish · 四门全绿 · 版本钉同步 · **Agent 可 bump/tag** · **`npm publish` 仅人**；DEF-001 教训制度化）。
 

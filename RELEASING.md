@@ -10,11 +10,11 @@
 
 | 项 | 值 |
 |----|-----|
-| **工作树 / registry `latest`** | **`spec-wave@3.0.2`**（**bump 已落 · 待发版（publish 仅人）** · 2026-09-23 · **tag `v3.0.2` 由 00 按维护者 2026-09-23 授权代打并随 `main` 原子推** · registry `latest` 真值 `3.0.1` 直至人 publish · 打 tag 前 17 落点 **16/17**（pin-10 设计红 · 00 代打后须 17/17）） |
-| **前一 latest（已 published）** | **`spec-wave@3.0.1`**（信号质量收口 patch · 2026-09-18 · 人执行 tag/push/publish · tag **`v3.0.1`** ↔ `0e6d861` · dist-tags `latest=3.0.1` · `time.3.0.1`=2026-09-18T07:42:30Z · 00 代核回填 2026-09-23） |
+| **工作树 / registry `latest`** | **`spec-wave@3.0.2`**（**已 published** · 人 publish · registry `latest=3.0.2` · `time.3.0.2`=2026-09-24T00:55:45.386Z · tag `v3.0.2` ↔ tip `3d71b90` · tag object `06a9320` · 30 代核回填 2026-09-24 · registry/git 实测） |
+| **前一 latest（已 published）** | **`spec-wave@3.0.1`**（信号质量收口 patch · 2026-09-18 · 人执行 tag/push/publish · tag **`v3.0.1`** ↔ `0e6d861` · 当时 dist-tags `latest=3.0.1` · `time.3.0.1`=2026-09-18T07:42:30Z · 00 代核回填 2026-09-23） |
 | **旧包名** | **`dsh-coding-kit`** · **已 deprecate**（文案 → `spec-wave`） |
 | **git（史实 · 2.1.1）** | tag **`v2.1.1`** · 改名前身份；**`v2.1.2` / `v2.1.3` / `v2.2.0` / `v2.2.1` / `v2.3.0`** 为 SpecWave 身份可溯源点（**禁止** `git tag -f`） |
-| **主题（待发 · 3.0.2）** | 消费侧（ops-desk-api）3.0.1 反馈收口：W1 tech-graph 词汇登记档补 `branches`/`triggers`（F-1① · 不可行动告警清零 · 纯数据 · src 零改动）· W2 `pins check/fix --consumer`（F-3/F-4 · 真值回退链 + `--truth` + `.spec-wave/pins-consumer.yaml` 声明源 + 内置 CI workflow 字面钉面 · release 模式逐字不变） |
+| **主题（已发 · 3.0.2）** | 消费侧（ops-desk-api）3.0.1 反馈收口：W1 tech-graph 词汇登记档补 `branches`/`triggers`（F-1① · 不可行动告警清零 · 纯数据 · src 零改动）· W2 `pins check/fix --consumer`（F-3/F-4 · 真值回退链 + `--truth` + `.spec-wave/pins-consumer.yaml` 声明源 + 内置 CI workflow 字面钉面 · release 模式逐字不变） |
 | **主题（已发 · 3.0.1）** | 3.0.0 验收后信号质量收口：W1 粘性可选 `table_source`（默认 verify 与 apply 同源 · 非内置不可用 fail-closed）· W2 闸表 4 列 + 空解析告警 · W3 坏 `package.json` exit 2 + `PINS: BLOCKED` · W4 文档口径精确化 · W5 可选 `--pin-hook-version`（缺省关闭）· W6 terminology 扫 CHANGELOG + validate config-hook WARN |
 | **主题（已发 · 2.4.2）** | 2.4.1 验收报告三条 P2 修复：R-1 `host validate` 缺省基改取 `--file` 所在仓根（findGitRoot 上溯 · 仓外文件 `outside_repo` 占位不打绝对路径）+ R-2 否定词表补 `not\s*pass` + 同句共现窗口（G/I/J 封堵 · K 换行漏网维持登记 · 存量 67+77 份误伤实测 0 翻转）+ R-3 钉面 pin-16 HTML 锚点无引号属性值（三选一捕获组） |
 | **主题（已发 · 2.4.1）** | 2.4.0 验收报告四项修复：NEW-1 结论门禁否定守卫语义放宽（B/D/E 断链封堵 · 存量 76 份零误伤）+ NEW-2 printJson 基参统一命令 target + realpath 双侧归一（host validate 补 `--target`）+ NEW-3 钉面 pin-16 HTML 锚点入扫描面 + NEW-9/N9 钉面 pin-08 状态格边界正则精确锁定（同族弱点「裸子串判定」收口） |
@@ -29,7 +29,7 @@
 | **更早旧包** | `@cyning/harness` **已 deprecate**（文案指 **`spec-wave`**） |
 | **1.x** | **CLOSED** |
 | **下一主线** | **3.0 评估**（2.4.2 **已 published** · 2026-09-15 · 门禁强度补全 W1–W6 + 两轮验收修复全 CLOSE）；候选 = 机制债残余（叙事行语义盲区 等）+ workspaces / onboard 观察项 + D5 roadmap 改名评估（归 3.0）+ 路线研究 §5 3.0 候选集（A3 hooks surface 等）+ 2.4.x 验收 §6.2 归 3.0 清单（NEW-4..12 · N5 · R-5/R-6 · pin-08 版本↔发布态绑定）· PLAN_3_0 已启动 · 另闸 |
-| **验收（3.0.2）** | [`docs/roadmap/ACCEPTANCE_3_0_2_patch_3_0_2_zh.md`](docs/roadmap/ACCEPTANCE_3_0_2_patch_3_0_2_zh.md) · **待发版（publish 仅人）**（bump 已落 · tag `v3.0.2` 00 按授权代打 · pin-10 打 tag 前设计红） |
+| **验收（3.0.2）** | [`docs/roadmap/ACCEPTANCE_3_0_2_patch_3_0_2_zh.md`](docs/roadmap/ACCEPTANCE_3_0_2_patch_3_0_2_zh.md) · **CLOSED**（**已 published** · 人 publish · registry `latest=3.0.2` · `time.3.0.2`=2026-09-24T00:55:45.386Z · tag `v3.0.2` ↔ `3d71b90` · 30 代核回填 2026-09-24） |
 | **验收（3.0.1）** | [`docs/roadmap/ACCEPTANCE_3_0_1_patch_3_0_1_zh.md`](docs/roadmap/ACCEPTANCE_3_0_1_patch_3_0_1_zh.md) · **CLOSED**（**已 published** · 2026-09-18 · 人执行 tag/push/publish · tag `v3.0.1` ↔ `0e6d861` · 00 代核回填 2026-09-23） |
 | **验收（2.4.2）** | [`docs/roadmap/ACCEPTANCE_2_4_2_patch_2_4_2_zh.md`](docs/roadmap/ACCEPTANCE_2_4_2_patch_2_4_2_zh.md) · **CLOSED**（**已 published** · 2026-09-15 · 人 publish · tag `v2.4.2` ↔ `2557119`（00 原子推代跑 · 维护者本窗授权）· ⑨ 探针全过） |
 | **验收（2.4.1）** | [`docs/roadmap/ACCEPTANCE_2_4_1_patch_2_4_1_zh.md`](docs/roadmap/ACCEPTANCE_2_4_1_patch_2_4_1_zh.md) · **CLOSED**（**已 published** · 2026-09-14 · 人 publish · tag `v2.4.1` ↔ `c89f92d` · ⑨ 探针全过） |
@@ -79,19 +79,19 @@
 - [ ] **⑧ npm publish（仅人）**：`npm publish`（`prepublishOnly` 会自动重跑②四门；⑦已核对清单）。**Agent 不得执行本步。**
 - [ ] **⑨ publish 后核验 + 过程档状态更新**：`npm view spec-wave version`（及 `dist-tags`）确认新版本已生效；抽样验证；更新过程档状态为已发布。（人 publish 后 · Agent 可代核）
 
-### 人 checklist · `3.0.2` 发版（**进行中** · 2026-09-23 bump · **tag/push 由 00 按维护者授权代跑** · publish / deprecate **仅人**）
+### 人 checklist · `3.0.2` 发版（**已完成** · 2026-09-23 bump/tag · 人 publish · dist-tags `latest=3.0.2` · `time.3.0.2`=2026-09-24T00:55:45.386Z · tag ↔ `3d71b90` · 探针/⑨ 回填由 30 代核 2026-09-24 · task `3-0-2-postpublish-dx`）
 
-> 内容：**patch** —— 消费侧（ops-desk-api）3.0.1 反馈收口（W1 tech-graph 词汇登记档补 `branches`/`triggers` · W2 `pins check/fix --consumer` 消费侧钉版保鲜闸）。task `3-0-2-release-bump`。
+> 内容：**patch** —— 消费侧（ops-desk-api）3.0.1 反馈收口（W1 tech-graph 词汇登记档补 `branches`/`triggers` · W2 `pins check/fix --consumer` 消费侧钉版保鲜闸）。task `3-0-2-release-bump`（发版）· `3-0-2-postpublish-dx`（⑨ 回填）。
 > **验收素材**：[`docs/roadmap/ACCEPTANCE_3_0_2_patch_3_0_2_zh.md`](docs/roadmap/ACCEPTANCE_3_0_2_patch_3_0_2_zh.md)。
 
 1. [x] 确认工作树已 commit（W1 `3358eaa` · W2 `297f881` · release 簿记 **`3d71b90`** · CHANGELOG `## [3.0.2] - 2026-09-23` + `[3.0.1]` 回填已发布 · 钉面同步 · **pins 打 tag 前 16/17**（pin-10 tag-gated 设计红 · 打 tag 后须 17/17）· 四门绿）
 2. [x] `git tag v3.0.2`（annotated · **00 按维护者 2026-09-23 授权代打**）+ push（**原子推** `git push origin main v3.0.2` 单条 · 禁「先 main 后 tag」竞态）· tag ↔ **`3d71b90`**（tag object `06a9320` · `ls-remote` 一致 · 2026-09-23）
-3. [ ] `npm publish`（包名 `spec-wave` · 版本 `3.0.2` · **仅人**；`prepublishOnly` 自动重跑四门 + 包内容卫生断言 · ⚠️ 本机 `~/.npm-local` 缓存含 root-owned 文件：须先 `sudo chown -R 501:20 ~/.npm-local` 或设 `npm_config_cache=/tmp/...` 否则 `npm pack` EPERM）
-4. [ ] 探针（人 publish 后 · Agent 可代核）：`npm view spec-wave version`（及 `dist-tags` · 绕缓存）→ `3.0.2`；`git show v3.0.2:package.json` → `version=3.0.2`；真 tarball `spec-wave@3.0.2` 无 `.bak` / `*~` / `.DS_Store`
+3. [x] `npm publish`（包名 `spec-wave` · 版本 `3.0.2` · **仅人**；`prepublishOnly` 自动重跑四门 + 包内容卫生断言 · ⚠️ 本机 `~/.npm-local` 缓存含 root-owned 文件：须先 `sudo chown -R 501:20 ~/.npm-local` 或设 `npm_config_cache=/tmp/...` 否则 `npm pack` EPERM）
+4. [x] 探针（30 代核 2026-09-24）：registry `version=3.0.2` · `dist-tags.latest=3.0.2` · `time.3.0.2`=2026-09-24T00:55:45.386Z · `git rev-parse v3.0.2^{commit}` → `3d71b90d3c6e6070fcdb7eceeea8d506043f9934` · `git show v3.0.2:package.json` → `version=3.0.2`
 5. [x] 打 tag 后复跑（00 代打后执行并入 ACCEPTANCE）：`pins check` **17/17 PASS · exit 0**（设计红全转绿）· `npm test` 全绿（`release-tag-identity` / `pins-consistency` A 组转绿）
-6. [ ] 回填 ACCEPTANCE / 过程档为已 published（本表勾选 · RELEASING「最近一次发版」表 · README 双语现行包行 · spec 索引行状态 `待发版 → published`）
+6. [x] 回填 ACCEPTANCE / 过程档为已 published（本表勾选 · RELEASING「最近一次发版」表 · README 双语现行包行 · spec 索引行状态 → published · 30 代核 2026-09-24 · post-publish DX 波）
 
-> **⚠️ 本波 tag/push = 00 代跑**（维护者 2026-09-23 本窗授权「验收完成后进行tag + push」· 原子推 · 前置 = 验收全绿）· **npm publish / deprecate 仍仅人**（HG-RELEASE-PUBLISH 不在授权面）。
+> **⚠️ 史实**：tag/push = 00 代跑（维护者 2026-09-23 授权）· **npm publish 仅人** · ⑨ 回填 = 30（task `3-0-2-postpublish-dx` · HG-RELEASE-PUBLISH=N/A · **禁再 publish**）。
 
 ### 人 checklist · `3.0.1` 发版（**已完成** · 2026-09-18 · 人执行 tag/push/publish · dist-tags `latest=3.0.1` · `time.3.0.1`=2026-09-18T07:42:30Z · tag ↔ `0e6d861` · 探针/回填由 00 代核 2026-09-23）
 
