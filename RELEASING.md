@@ -10,12 +10,12 @@
 
 | 项 | 值 |
 |----|-----|
-| **工作树 / registry `latest`** | **`spec-wave@3.3.0`**（**bump 已落 · 待发版** · tag/push/publish 仅人 · registry `latest` 真值仍为 `3.2.0` 直至人 publish · pin-10 打 tag 前设计红 · 缺 `v3.3.0`） |
+| **工作树 / registry `latest`** | **`spec-wave@3.3.0`**（**bump + tag/push 已落 · 待 publish** · registry `latest` 真值仍为 `3.2.0` 直至人 publish · HG-RELEASE-TAG-PUSH=approved · HG-RELEASE-PUBLISH=pending） |
 | **前一 latest（已 published）** | **`spec-wave@3.2.0`**（图谱 IB / struct_rel / indexes epic · **已 published** · 人 publish · registry `latest=3.2.0` · `time.3.2.0`=2026-10-10T17:13:06.382Z · tag `v3.2.0` ↔ `8ab40d1` · 3.3 W4 簿记棒实测） |
 | **再前 latest（已 published）** | **`spec-wave@3.1.0`**（技术图谱脚手架 epic · **已 published** · 人 publish · registry `latest` 当时 `3.1.0` · `time.3.1.0`=2026-10-10T09:39:57.549Z · tag `v3.1.0` ↔ `7d96c9e`） |
 | **旧包名** | **`dsh-coding-kit`** · **已 deprecate**（文案 → `spec-wave`） |
 | **git（史实 · 2.1.1）** | tag **`v2.1.1`** · 改名前身份；**`v2.1.2` / `v2.1.3` / `v2.2.0` / `v2.2.1` / `v2.3.0`** 为 SpecWave 身份可溯源点（**禁止** `git tag -f`） |
-| **主题（待发 · 3.3.0）** | 图谱 AST 闸（opt-in · symbol / 有界 call）epic（minor）：W1 CLI 面 · W2 AST 实装 · W3 文档分责 · **不**进默认 verify · **tag/push/publish 仅人** |
+| **主题（待 publish · 3.3.0）** | 图谱 AST 闸（opt-in · symbol / 有界 call）epic（minor）：W1 CLI 面 · W2 AST 实装 · W3 文档分责 · **不**进默认 verify · **tag/push 已落 · publish 仅人** |
 | **主题（已发 · 3.2.0）** | 图谱 IB / struct_rel / indexes / yaml 双栈迁移 epic（minor）：W1 `graph ib check` · W2 `struct_rel` · W3 `graph indexes check`（opt-in）· W4 迁移与保真分责文档 |
 | **主题（已发 · 3.1.0）** | 技术图谱脚手架 epic（minor）：W1 `graph scaffold` 可审草稿 · W2 入手链 DX · W3 `graph drift`（F-2）· W4 仓级 `.spec-wave/graph-vocab.yaml`（F-1②） |
 | **主题（已发 · 3.0.2）** | 消费侧（ops-desk-api）3.0.1 反馈收口：W1 tech-graph 词汇登记档补 `branches`/`triggers`（F-1① · 不可行动告警清零 · 纯数据 · src 零改动）· W2 `pins check/fix --consumer`（F-3/F-4 · 真值回退链 + `--truth` + `.spec-wave/pins-consumer.yaml` 声明源 + 内置 CI workflow 字面钉面 · release 模式逐字不变） |
@@ -33,7 +33,7 @@
 | **更早旧包** | `@cyning/harness` **已 deprecate**（文案指 **`spec-wave`**） |
 | **1.x** | **CLOSED** |
 | **下一主线** | **3.0 评估**（2.4.2 **已 published** · 2026-09-15 · 门禁强度补全 W1–W6 + 两轮验收修复全 CLOSE）；候选 = 机制债残余（叙事行语义盲区 等）+ workspaces / onboard 观察项 + D5 roadmap 改名评估（归 3.0）+ 路线研究 §5 3.0 候选集（A3 hooks surface 等）+ 2.4.x 验收 §6.2 归 3.0 清单（NEW-4..12 · N5 · R-5/R-6 · pin-08 版本↔发布态绑定）· PLAN_3_0 已启动 · 另闸 |
-| **验收（3.3.0）** | [`docs/roadmap/ACCEPTANCE_3_3_graph_ast_opt_in_3_3_0_zh.md`](docs/roadmap/ACCEPTANCE_3_3_graph_ast_opt_in_3_3_0_zh.md) · **bump 已落 · 待发版**（tag/push/publish 仅人 · registry `latest` 仍 `3.2.0`） |
+| **验收（3.3.0）** | [`docs/roadmap/ACCEPTANCE_3_3_graph_ast_opt_in_3_3_0_zh.md`](docs/roadmap/ACCEPTANCE_3_3_graph_ast_opt_in_3_3_0_zh.md) · **bump + tag/push 已落 · 待 publish**（registry `latest` 仍 `3.2.0`） |
 | **验收（3.2.0）** | [`docs/roadmap/ACCEPTANCE_3_2_graph_ib_and_indexes_3_2_0_zh.md`](docs/roadmap/ACCEPTANCE_3_2_graph_ib_and_indexes_3_2_0_zh.md) · **CLOSED**（**已 published** · registry `latest=3.2.0` · `time.3.2.0`=2026-10-10T17:13:06.382Z · tag `v3.2.0` ↔ `8ab40d1`） |
 | **验收（3.1.0）** | [`docs/roadmap/ACCEPTANCE_3_1_tech_graph_scaffold_3_1_0_zh.md`](docs/roadmap/ACCEPTANCE_3_1_tech_graph_scaffold_3_1_0_zh.md) · **CLOSED**（**已 published** · registry `latest` 当时 `3.1.0` · `time.3.1.0`=2026-10-10T09:39:57.549Z · tag `v3.1.0` ↔ `7d96c9e`） |
 | **验收（3.0.2）** | [`docs/roadmap/ACCEPTANCE_3_0_2_patch_3_0_2_zh.md`](docs/roadmap/ACCEPTANCE_3_0_2_patch_3_0_2_zh.md) · **CLOSED**（**已 published** · 人 publish · registry `latest` 当时 `3.0.2` · `time.3.0.2`=2026-09-24T00:55:45.386Z · tag `v3.0.2` ↔ `3d71b90` · 30 代核回填 2026-09-24） |

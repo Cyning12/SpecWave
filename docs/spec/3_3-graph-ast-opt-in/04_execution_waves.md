@@ -43,7 +43,8 @@
 
 - [x] CHANGELOG / ACCEPTANCE / `docs/spec/README.md` 本行状态  
 - [x] bump `3.3.0` · pins 对齐（pin-10 缺 `v3.3.0` 设计红 · 清偿路径见 ACCEPTANCE）  
-- [ ] **tag/push/publish 按当次授权**（publish 默认仅人 · **本棒未执行** · HG-RELEASE-* pending）  
+- [x] **tag/push**（2026-10-11 维护者「授权push+tag」· 00 代跑 · HG-RELEASE-TAG-PUSH=approved）  
+- [ ] **publish**（HG-RELEASE-PUBLISH=pending · 仅人 · 本棒未执行）  
 
 ## 编排理由
 

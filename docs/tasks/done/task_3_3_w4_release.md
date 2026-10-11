@@ -1,6 +1,6 @@
 # Task：3.3 W4 · release 收尾（3.2.0 → 3.3.0 · W1–W3 CLOSE 后发版簿记）
 
-> **状态**：`done` · **00 验收关账** 2026-10-11（A1–A9）· HG-RELEASE-* **pending**（tag/push/publish 待人）  
+> **状态**：`done` · **00 验收关账** 2026-10-11（A1–A9）· **HG-RELEASE-TAG-PUSH=approved**（2026-10-11 维护者本窗「授权push+tag」）· **HG-RELEASE-PUBLISH=pending**（publish 仍仅人）  
  
 > **上游 SPEC/PLAN**：[`3_3-graph-ast-opt-in`](../../spec/3_3-graph-ast-opt-in/README.md) · [`04` W4](../../spec/3_3-graph-ast-opt-in/04_execution_waves.md) · [`PLAN_3_3`](../../roadmap/PLAN_3_3_graph_ast_opt_in_v1_zh.md)  
 > **结构模板**：[`task_3_2_w5_release.md`](../done/task_3_2_w5_release.md) · ACCEPTANCE 样板 [`ACCEPTANCE_3_2_graph_ib_and_indexes_3_2_0_zh.md`](../../roadmap/ACCEPTANCE_3_2_graph_ib_and_indexes_3_2_0_zh.md)  
@@ -39,8 +39,8 @@
 | HG-SPEC-SIGNOFF | approved | — | epic · 2026-10-11 维护者（继承） |
 | HG-NEXT-PLAN | approved | — | epic · 同窗（继承） |
 | HG-TASK-DRAFT | approved | 20, 30 | 2026-10-11 **00 签收** · lint + [`task_3_3_w4_release_audit_R1_20261011.md`](../../harness/reviews/task_3_3_w4_release_audit_R1_20261011.md) PASS |
-| HG-AUDIT-R1 | approved | **30** | 2026-10-11 **00 签收** · **可 30 簿记** · HG-RELEASE-* 仍 pending |
-| HG-RELEASE-TAG-PUSH | **pending** | — | tag/push **仅人** · 不拦 30 簿记 |
+| HG-AUDIT-R1 | approved | **30** | 2026-10-11 **00 签收** · **可 30 簿记** |
+| HG-RELEASE-TAG-PUSH | **approved** | — | 2026-10-11 维护者本窗「授权push+tag」· 00 代跑 `git tag -a v3.3.0` + `git push`（支路 + tag） |
 | HG-RELEASE-PUBLISH | **pending** | — | `npm publish` **仅人** · Agent 永禁 |
 
 ---

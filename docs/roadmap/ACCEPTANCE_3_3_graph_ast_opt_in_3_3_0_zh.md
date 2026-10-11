@@ -1,6 +1,6 @@
 # ACCEPTANCE · 3.3.0 minor（图谱 AST 闸 opt-in · symbol / 有界 call epic · W1–W3）台账
 
-> **版本**：`spec-wave@3.3.0`（**待发版** · bump 已落 · tag/push/publish **仅人** · registry `latest` 仍为 `3.2.0` 直至人 publish · task slug `3-3-w4-release`）
+> **版本**：`spec-wave@3.3.0`（**待 publish** · bump + **tag/push 已落** · registry `latest` 仍为 `3.2.0` 直至人 publish · task slug `3-3-w4-release`）
 > **task**：[`docs/tasks/done/task_3_3_w4_release.md`](../tasks/done/task_3_3_w4_release.md)（slug `3-3-w4-release` · epic SPEC [`../spec/3_3-graph-ast-opt-in/`](../spec/3_3-graph-ast-opt-in/)）
 > **规划**：[`PLAN_3_3_graph_ast_opt_in_v1_zh.md`](PLAN_3_3_graph_ast_opt_in_v1_zh.md)（HG-NEXT-PLAN=approved · 2026-10-11）
 > **SPEC**：[`../spec/3_3-graph-ast-opt-in/`](../spec/3_3-graph-ast-opt-in/)（HG-SPEC-SIGNOFF=approved · 2026-10-11）
@@ -38,17 +38,16 @@
 ## pin-10 设计红登记与清偿路径
 
 - **登记**：bump 后 `pins check` 唯一预期偏差 = pin-10（tag `v3.3.0` 不存在 · 打 tag 前必经态 · 同 3.2.0 先例）。
-- **清偿路径**：**人**按 HG-RELEASE-TAG-PUSH（仍 pending）执行 `git tag -a v3.3.0` → 复跑 `pins check` **17/17** + 全量 `npm test` 全绿 → `git push`（原子推）→ 人 `npm publish` → ⑨ 回填「已 published」。
-- **本棒未清偿**：未执行 `git tag` / `git push` / `npm publish` / `npm deprecate`。
+- **清偿（tag/push）**：2026-10-11 维护者「授权push+tag」· 00 代跑 `git tag -a v3.3.0` + push 支路/tag · **HG-RELEASE-TAG-PUSH=approved** · 打 tag 后须 `pins check` **17/17**。
+- **仍待人**：`npm publish`（HG-RELEASE-PUBLISH=pending）→ ⑨ 回填「已 published」。
 
 ## 已知残余
 
-- pin-10 / `release-tag-identity` 在人打 `v3.3.0` 前为**设计红** · 不记为产品回归。
-- registry `latest=3.2.0`（已 published）· 「3.3.0 已 published」叙事回填归人 publish 后 ⑨ · **本棒禁假 published**。
+- registry `latest=3.2.0`（已 published）· 「3.3.0 已 published」叙事回填归人 publish 后 ⑨ · **禁假 published**。
 - AST **不**进默认 `verify` · indexes schema v2 **不**并入本 epic。
 
 ## 发布边界
 
-- **bump 已落 · tag/push/publish 待人**（HG-RELEASE-TAG-PUSH / HG-RELEASE-PUBLISH = pending · Agent 永禁 publish）。
-- RELEASING 人 checklist `3.3.0` 节：簿记就绪项可预勾 · **tag / push / publish / 打 tag 后 pins 17/17 / ⑨ 回填** 全未勾。
-- spec 索引 `3_3-graph-ast-opt-in` 行 → **IMPLEMENTED** · `` `3.3.0` 待发版（planned） ``（**非** published）。
+- **bump + tag/push 已落 · publish 待人**（HG-RELEASE-TAG-PUSH=approved · HG-RELEASE-PUBLISH=pending · Agent 永禁 publish）。
+- RELEASING 人 checklist `3.3.0`：tag/push 可勾 · **publish / ⑨ 回填** 仍待人。
+- spec 索引 `3_3-graph-ast-opt-in` 行 → **IMPLEMENTED** · `` `3.3.0` 待 publish ``（**非** published）。
