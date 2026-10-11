@@ -31,6 +31,7 @@ import { cmdGraphScaffold } from './cli-graph-scaffold.ts'
 import { cmdGraphDrift } from './cli-graph-drift.ts'
 import { cmdGraphIb } from './cli-graph-ib.ts'
 import { cmdGraphIndexes } from './cli-graph-indexes.ts'
+import { cmdGraphAst } from './cli-graph-ast.ts'
 
 export async function cmdGraph(args: string[]): Promise<void> {
   if (args.includes('--help') || args.includes('-h')) {
@@ -56,6 +57,8 @@ export async function cmdGraph(args: string[]): Promise<void> {
                  （点路径闸 · nodes[].implementedBy.path 存在性 · 无 AST）
   graph indexes check [--target PATH] [--input DIR] [--json]
                  （opt-in · IB ↔ indexes 双向 · 须 .spec-wave/graph-indexes.yaml）
+  graph ast check [--target PATH] [--input DIR] [--json]
+                 （opt-in · symbol/有界 call · W1 stub/skip · 不进默认 verify）
   graph vocab show [--target PATH] [--json]
                  （诊断合并后词表 · 内置 + 可选 .spec-wave/graph-vocab.yaml）
 `)
@@ -80,6 +83,10 @@ export async function cmdGraph(args: string[]): Promise<void> {
   }
   if (sub === 'indexes') {
     await cmdGraphIndexes(subRest)
+    return
+  }
+  if (sub === 'ast') {
+    await cmdGraphAst(subRest)
     return
   }
   if (sub === 'vocab') {
