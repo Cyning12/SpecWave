@@ -1,8 +1,9 @@
 # SPEC：3.3 · 图谱 AST 闸（opt-in · symbol / 有界 call）
 
-> **状态**：`signed` · **HG-SPEC-SIGNOFF=approved**（2026-10-11 维护者 · 「授权00签收后续所有文档」）· **HG-NEXT-PLAN=approved**（同窗）  
+> **状态**：`IMPLEMENTED` · **待发版**（W1–W4 簿记已落 · bump `3.3.0` · tag/push/publish **仅人**）· **HG-SPEC-SIGNOFF=approved**（2026-10-11 维护者 · 「授权00签收后续所有文档」）· **HG-NEXT-PLAN=approved**（同窗）  
 > **track**：`epic`  
-> **拟发版**：`spec-wave@3.3.0`（**minor** · 消费者可观察新能力：opt-in `graph ast check`；**tag/push/publish 仅人**）  
+> **拟发版**：`spec-wave@3.3.0`（**minor** · 消费者可观察新能力：opt-in `graph ast check`；**tag/push/publish 仅人** · registry `latest` 仍为 `3.2.0`）  
+ 
 > **基线**：`spec-wave@3.2.0`（graph ib check / struct_rel / graph indexes check MVP · **AST 未交付**；3.2 政策钉「AST 另 Epic」）  
 > **规划**：[`../../roadmap/PLAN_3_3_graph_ast_opt_in_v1_zh.md`](../../roadmap/PLAN_3_3_graph_ast_opt_in_v1_zh.md)（**HG-NEXT-PLAN=approved** · 同窗）  
 > **布局公约**：[`../doc-health/03_spec_layout_convention.md`](../doc-health/03_spec_layout_convention.md)  
@@ -68,3 +69,4 @@ docs/spec/3_3-graph-ast-opt-in/
 |------|------|
 | 2026-10-11 | draft · 10-spec · 据 00 S0 派发 + 反哺 P4 / §11 + 3.2 政策先例落盘 SPEC + PLAN |
 | 2026-10-11 | signed · HG-SPEC-SIGNOFF / HG-NEXT-PLAN=approved（维护者「授权00签收后续所有文档」）· 开拆 W1–W4 |
+| 2026-10-11 | IMPLEMENTED · 待发版 · W1–W3 CLOSE · W4 bump 3.3.0 簿记（ACCEPTANCE / CHANGELOG / pins）· HG-RELEASE-* pending |

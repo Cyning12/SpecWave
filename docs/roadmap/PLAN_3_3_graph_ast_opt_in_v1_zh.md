@@ -1,8 +1,9 @@
 # 规划 · 3.3.0 · 图谱 AST 闸（opt-in · symbol / 有界 call）
 
-> **状态**：`approved` · **HG-NEXT-PLAN=approved**（2026-10-11 维护者本窗签收 · 原文「授权00签收后续所有文档」）  
-> **目标发版**：`spec-wave@3.3.0`（**minor** · 消费者可观察新能力）  
-> **基线**：`spec-wave@3.2.0`（ib check / struct_rel / indexes check MVP · AST 未交付）  
+> **状态**：`approved` · **IMPLEMENTED · 待发版**（W1–W4 簿记已落 · bump `3.3.0` · tag/push/publish 仅人）· **HG-NEXT-PLAN=approved**（2026-10-11 维护者本窗签收 · 原文「授权00签收后续所有文档」）  
+> **目标发版**：`spec-wave@3.3.0`（**minor** · 消费者可观察新能力 · registry `latest` 仍为 `3.2.0` 直至人 publish）  
+> **基线**：`spec-wave@3.2.0`（ib check / struct_rel / indexes check MVP · **已 published**）  
+ 
 > **配套 SPEC**：[`../spec/3_3-graph-ast-opt-in/`](../spec/3_3-graph-ast-opt-in/README.md)（**HG-SPEC-SIGNOFF=approved** · 同窗）  
 > **格式模板**：[`PLAN_3_2_graph_ib_and_indexes_v1_zh.md`](./PLAN_3_2_graph_ib_and_indexes_v1_zh.md)（结构骨架沿用）  
 > **反哺来源**：kimi-code-meta · `BACKPORT_tech_graph_tools_to_specwave_v1_zh.md`（§5 P4 · §11）  
@@ -125,3 +126,4 @@
 |------|------|
 | 2026-10-11 | draft · 与 SPEC `3_3-graph-ast-opt-in` 同棒落盘 · 双闸 pending |
 | 2026-10-11 | approved · HG-SPEC-SIGNOFF / HG-NEXT-PLAN=approved · 过程授权 00 签后续文档 · 开拆 W1 |
+| 2026-10-11 | IMPLEMENTED · 待发版 · W1–W3 CLOSE · W4 bump 3.3.0 · HG-RELEASE-* pending |

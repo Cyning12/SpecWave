@@ -8,6 +8,10 @@
 ## harness
 
 | 关账日 | task | 摘要 |
+| 2026-10-11 | [`task_3_3_w4_release.md`](./task_3_3_w4_release.md) | 3.3 W4 · release bump 3.3.0：CHANGELOG/ACCEPTANCE/RELEASING/spec IMPLEMENTED · pins 仅 pin-10 设计红 · **未** tag/push/publish · Task_KPI%: 96 |
+| 2026-10-11 | [`task_3_3_w3_ast_docs.md`](./task_3_3_w3_ast_docs.md) | 3.3 W3 · AST 文档分责：保真表 + 有界 call 文案 · MIGRATION/README · CI 可选注释 · 四门绿 · 未 bump/tag/push/publish · Task_KPI%: 95 |
+| 2026-10-11 | [`task_3_3_w2_graph_ast_impl.md`](./task_3_3_w2_graph_ast_impl.md) | 3.3 W2 · graph ast check 实装：symbol + 有界 call · 不进 verify · 四门绿 · 未 bump/tag/push/publish · Task_KPI%: 96 |
+| 2026-10-11 | [`task_3_3_w1_graph_ast_cli.md`](./task_3_3_w1_graph_ast_cli.md) | 3.3 W1 · graph ast check CLI 面：opt-in · peer skip0 · 不进 verify · 四门绿 · 未 bump/tag/push/publish · Task_KPI%: 96 |
 | 2026-10-11 | [`task_3_2_w5_release.md`](./task_3_2_w5_release.md) | 3.2 W5 · release bump 3.2.0：CHANGELOG/ACCEPTANCE/RELEASING/spec IMPLEMENTED · **未** tag/push/publish · Task_KPI%: 96 |
 | 2026-10-11 | [`task_3_2_w4_migration_docs.md`](./task_3_2_w4_migration_docs.md) | 3.2 W4 · 保真分责 + yaml 双栈迁移 · CI 可选 ib · 四门绿 · 未 bump/tag/push/publish · Task_KPI%: 95 |
 | 2026-10-11 | [`task_3_2_w3_graph_indexes.md`](./task_3_2_w3_graph_indexes.md) | 3.2 W3 · graph indexes check：IB↔indexes 双向 · `.spec-wave/graph-indexes.yaml` · 未配置 exit 1 · 不进 verify · 10 测 · 四门绿 · 未 bump/tag/push/publish · Task_KPI%: 96 |

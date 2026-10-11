@@ -1,6 +1,6 @@
 # 04 · 执行波次
 
-> **状态**：`signed` · 隶属 `3_3-graph-ast-opt-in`  
+> **状态**：`IMPLEMENTED` · 待发版 · 隶属 `3_3-graph-ast-opt-in`  
 > 每波独立 task · 独立提交（`feat(3.3-W<n>): …`）· 禁 `git add -A` · 波末 `gate-check`
 
 ---
@@ -41,9 +41,9 @@
 
 ## W4 · bump / ACCEPTANCE（release 簿记）
 
-- [ ] CHANGELOG / ACCEPTANCE / `docs/spec/README.md` 本行状态  
-- [ ] bump `3.3.0` · pins 对齐  
-- [ ] **tag/push/publish 按当次授权**（publish 默认仅人）  
+- [x] CHANGELOG / ACCEPTANCE / `docs/spec/README.md` 本行状态  
+- [x] bump `3.3.0` · pins 对齐（pin-10 缺 `v3.3.0` 设计红 · 清偿路径见 ACCEPTANCE）  
+- [ ] **tag/push/publish 按当次授权**（publish 默认仅人 · **本棒未执行** · HG-RELEASE-* pending）  
 
 ## 编排理由
 
@@ -57,15 +57,16 @@
 
 ## 验收总表（epic 级）
 
-- [ ] fixture：假 symbol → ast check exit 2；真 symbol → exit 0  
-- [ ] fixture：同 path 有界 call 缺失 → exit 2；跨 path → 不红  
-- [ ] 无 peer / 无 IB → 零强迫、行为与契约一致  
-- [ ] `verify` 默认链无 AST 步  
-- [ ] 既有 drift / ib / indexes / yaml / scaffold 零回归  
-- [ ] 对外无「完整 callgraph / 默认 verify 已含 AST」违纪表述  
+- [x] fixture：假 symbol → ast check exit 2；真 symbol → exit 0  
+- [x] fixture：同 path 有界 call 缺失 → exit 2；跨 path → 不红  
+- [x] 无 peer / 无 IB → 零强迫、行为与契约一致  
+- [x] `verify` 默认链无 AST 步  
+- [x] 既有 drift / ib / indexes / yaml / scaffold 零回归  
+- [x] 对外无「完整 callgraph / 默认 verify 已含 AST」违纪表述  
 
 ## 修订
 
 | 日期 | 摘要 |
 |------|------|
 | 2026-10-11 | draft · 10-spec · W0–W4（相对 3.2 的 W0–W5，本版无独立 struct_rel/indexes 波） |
+| 2026-10-11 | W1–W3 CLOSE · W4 簿记 bump 3.3.0 · 验收总表勾选 · tag/push/publish 待人 |
