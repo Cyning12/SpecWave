@@ -381,7 +381,7 @@ describe('3.3 W2 · graph ast check', { concurrency: 1 }, () => {
 
   it('A11 · verify 不强制跑 graph ast check', async () => {
     const r = await runCore(
-      ['verify', '--target', '.', '--task', 'docs/tasks/active/task_3_3_w2_graph_ast_impl.md'],
+      ['verify', '--target', '.', '--task', 'docs/tasks/done/task_3_3_w2_graph_ast_impl.md'],
       KIT,
     )
     assert.equal(r.status, 0, r.combined)

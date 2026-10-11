@@ -74,7 +74,7 @@ export function usage(version: string): void {
   npx spec-wave graph scaffold [--target PATH] [--yes] …  （可审草稿 · 非权威真值）
   npx spec-wave graph drift [--target PATH] [--input DIR] [--json]  （漂移闸 · 边锚点+模块表 · 只报告不重画）
   npx spec-wave graph ib check [--target PATH] [--input DIR] [--json]  （点路径闸 · implementedBy.path · 无 AST）
-  npx spec-wave graph ast check [--target PATH] [--input DIR] [--json]  （opt-in · AST stub/skip · 不进默认 verify）
+  npx spec-wave graph ast check [--target PATH] [--input DIR] [--json]  （opt-in · symbol/有界 call · 非 callgraph · 不进默认 verify）
   npx spec-wave graph ingest|snapshot|axioms …
   npx spec-wave sync index [--target PATH]
   npx spec-wave sync prompts [--target PATH] [--yes] [--force] [--json]

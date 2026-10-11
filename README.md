@@ -234,7 +234,8 @@ npx spec-wave graph yaml compile|check|export
 npx spec-wave graph scaffold [--target PATH] [--yes] …   # draft tech-graph under docs/_tech_graph (reviewable, not signed truth)
 npx spec-wave graph drift [--target PATH] [--input DIR] [--json]   # drift gate: module coverage + edge anchors (report only · no redraw)
 npx spec-wave graph ib check [--target PATH] [--input DIR] [--json]   # node IB path gate: nodes[].implementedBy.path (no AST)
-npx spec-wave graph indexes check [--target PATH] [--input DIR] [--json]   # opt-in IB ↔ indexes bidirectional (needs .spec-wave/graph-indexes.yaml · not in default verify)
+npx spec-wave graph indexes check [--target PATH] [--input DIR] [--json]   # opt-in · IB ↔ indexes bidirectional (needs .spec-wave/graph-indexes.yaml · not in default verify)
+npx spec-wave graph ast check [--target PATH] [--input DIR] [--json]   # opt-in · symbol + bounded call (not a full callgraph · not in default verify)
 npx spec-wave graph ingest|snapshot|axioms
 npx spec-wave graph ontology check [--file PATH] [--json]   # + --hgm: instance check of the event-sourced graph against the bundled ontology
 npx spec-wave sync index
@@ -263,7 +264,9 @@ This **source repo** dogfoods `graph yaml compile|check|export` against `docs/_t
 
 **Indexes gate (`graph indexes check`, 3.2 W3 · opt-in)**: bidirectional IB ↔ indexes consistency when `.spec-wave/graph-indexes.yaml` is present (`flow_globs` / `index_globs`). Missing config → usage (**exit 1**). **Not** wired into default `verify`. Do **not** treat as a hard CI gate in Starter samples.
 
-**Fidelity split (drift / ib / indexes / AST)**: drift = edges + module table · ib = node paths · indexes = inverted-index opt-in · symbol/AST = **not delivered** (separate epic — do not claim this release includes AST deep checks). Full table: [`docs/guides/使用手册-v3.0.0-zh.md`](docs/guides/使用手册-v3.0.0-zh.md) §10. Consumer `graph:ci` / Python yaml → SpecWave CLI dual-stack (optional · no forced script deletion): [`MIGRATION.md`](MIGRATION.md).
+**Symbol / bounded-call gate (`graph ast check`, 3.3 · opt-in)**: checks `implementedBy.symbol` presence plus **same-path** bounded references; cross-path edges stay non-red. **Bounded call ≠ full callgraph**. **Not** in default `verify`. Missing `typescript` peer → skip exit 0 (`no_ts_peer`). Does **not** replace a consumer-local full-dialect `graph:ast-check`. Starter CI samples may only add a commented optional step.
+
+**Fidelity split (drift / ib / indexes / ast)**: drift = edges + module table · ib = node paths · indexes = inverted-index opt-in · ast = symbol + bounded call opt-in (do **not** claim a full callgraph or that default `verify` already includes AST). Full table: [`docs/guides/使用手册-v3.0.0-zh.md`](docs/guides/使用手册-v3.0.0-zh.md) §10. Consumer `graph:ci` / Python yaml → SpecWave CLI dual-stack (optional · no forced script deletion): [`MIGRATION.md`](MIGRATION.md).
 
 **Repo vocab extension (`.spec-wave/graph-vocab.yaml`, 3.1 W4)**: optional consumer file merged with the bundled `assets/tech-graph-vocab.yaml` on `graph yaml compile|check|export`. Declare extra `edge_types` (and/or `kinds`) so custom explicit edge types stop emitting the “未在 tech-graph 词汇登记档” Warning. Missing file = 3.0.2 builtin-only behavior. Bad YAML / schema / kind `id`+`class` conflicts with builtin → **exit 2** (fail-loud, names the path/key). Registration is not a closed world: unregistered explicit types still Warning and do **not** fail the exit code. Diagnose with `graph vocab show [--target PATH] [--json]`.
 

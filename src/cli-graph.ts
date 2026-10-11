@@ -58,7 +58,7 @@ export async function cmdGraph(args: string[]): Promise<void> {
   graph indexes check [--target PATH] [--input DIR] [--json]
                  （opt-in · IB ↔ indexes 双向 · 须 .spec-wave/graph-indexes.yaml）
   graph ast check [--target PATH] [--input DIR] [--json]
-                 （opt-in · symbol/有界 call · W1 stub/skip · 不进默认 verify）
+                 （opt-in · symbol/有界 call · 非 callgraph · 不进默认 verify）
   graph vocab show [--target PATH] [--json]
                  （诊断合并后词表 · 内置 + 可选 .spec-wave/graph-vocab.yaml）
 `)

@@ -234,6 +234,7 @@ npx spec-wave graph scaffold [--target PATH] [--yes] …   # 生成 docs/_tech_g
 npx spec-wave graph drift [--target PATH] [--input DIR] [--json]   # 漂移闸：模块覆盖 + 边锚点消失（只报告 · 不重画）
 npx spec-wave graph ib check [--target PATH] [--input DIR] [--json]   # 点路径闸：nodes[].implementedBy.path 存在性（无 AST）
 npx spec-wave graph indexes check [--target PATH] [--input DIR] [--json]   # opt-in · IB ↔ indexes 双向（须 .spec-wave/graph-indexes.yaml · 不进默认 verify）
+npx spec-wave graph ast check [--target PATH] [--input DIR] [--json]   # opt-in · symbol + 有界 call（非完整 callgraph · 不进默认 verify）
 npx spec-wave graph ingest|snapshot|axioms
 npx spec-wave graph ontology check [--file PATH] [--json]   # 另支持 --hgm：事件轨图谱实例 ⊆ 随包本体词汇校验
 npx spec-wave sync index
@@ -262,7 +263,9 @@ kit **源码仓**以 `docs/_tech_graph/` 做 `graph yaml compile|check|export` �
 
 **倒排闸（`graph indexes check` · 3.2 W3 · opt-in）**：配置 `.spec-wave/graph-indexes.yaml`（`flow_globs` / `index_globs`）后做 IB ↔ indexes 双向一致；未配置 → usage（**exit 1**）。**不**进默认 `verify`。Starter CI 样例**勿**写成硬门禁。
 
-**保真分责（drift / ib / indexes / AST）**：drift=边+模块表 · ib=点 path · indexes=倒排 opt-in · 符号/AST=**未交付**（另 Epic · **禁止**宣称本版已含 AST 深闸）。完整表见 [`docs/guides/使用手册-v3.0.0-zh.md`](docs/guides/使用手册-v3.0.0-zh.md) §10。消费仓 `graph:ci` / Python yaml → SpecWave CLI 双栈（可选 · 不强制删脚本）：[`MIGRATION.md`](MIGRATION.md)。
+**符号 / 有界 call 闸（`graph ast check` · 3.3 · opt-in）**：核对 `implementedBy.symbol` 存在性 + **同 path** 有界引用；跨 path **不红**。**有界 call ≠ 完整 callgraph**。**不**进默认 `verify`。无 `typescript` peer → skip exit 0（`no_ts_peer`）。**不**替代消费仓本地全量方言 `graph:ast-check`。Starter CI 样例仅可选注释。
+
+**保真分责（drift / ib / indexes / ast）**：drift=边+模块表 · ib=点 path · indexes=倒排 opt-in · ast=symbol+有界 call opt-in（**禁止**宣称完整 callgraph 或「默认 verify 已含 AST」）。完整表见 [`docs/guides/使用手册-v3.0.0-zh.md`](docs/guides/使用手册-v3.0.0-zh.md) §10。消费仓 `graph:ci` / Python yaml → SpecWave CLI 双栈（可选 · 不强制删脚本）：[`MIGRATION.md`](MIGRATION.md)。
 
 **图能力与本体的边界（3.0 ONTO-OPEN 裁决）**：图能力已开放 —— `graph yaml compile|check|export` 与消费者自建图今天可用，`graph ontology check [--file PATH]` 可校验随包本体或你指定的漂移副本；但随包本体（`assets/ontology.yaml`）是 SpecWave 自用元模型，**不提供自定义本体能力**（本体层不开放 · 消费者不可自定义类/关系 · 校验器开放 ≠ 本体内容开放）。复议触发（研究文 §7.3）：真实消费者请求 · ontology-check 面稳定一个 minor 后重估 · B5 后生态拉取 —— 走 HG-SCHEMA-CHANGE 式人闸。
 

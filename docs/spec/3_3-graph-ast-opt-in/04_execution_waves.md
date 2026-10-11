@@ -33,11 +33,11 @@
 
 ## W3 · 文档分责
 
-- [ ] 手册保真分责表扩至含 `graph ast check`  
-- [ ] 专节：有界 call ≠ callgraph；opt-in；不进默认 verify  
-- [ ] MIGRATION / 消费仓指引：与本地 `graph:ast-check` 分工（SW 不替代业务方言全量）  
-- [ ] 可选：CI 样例**注释**步骤；无强制硬门  
-- [ ] 对外无违纪夸大表述 · gate-check  
+- [x] 手册保真分责表扩至含 `graph ast check`  
+- [x] 专节：有界 call ≠ callgraph；opt-in；不进默认 verify  
+- [x] MIGRATION / 消费仓指引：与本地 `graph:ast-check` 分工（SW 不替代业务方言全量）  
+- [x] 可选：CI 样例**注释**步骤；无强制硬门  
+- [x] 对外无违纪夸大表述 · gate-check  
 
 ## W4 · bump / ACCEPTANCE（release 簿记）
 
