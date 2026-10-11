@@ -61,6 +61,12 @@ jobs:
       #   continue-on-error: true
       # 注意：graph indexes check 为 opt-in（须 .spec-wave/graph-indexes.yaml）· 默认不写硬门禁样例
 
+      # 可选（3.3 · 符号/有界 call · 非硬门禁）：symbol + 同 path 有界引用；非完整 callgraph；不进默认 verify
+      # - name: graph ast check（可选）
+      #   run: npx --yes spec-wave graph ast check --target .
+      #   continue-on-error: true
+      # 注意：无 typescript peer → skip exit 0；勿写成无说明的默认硬门禁
+
       - name: Graph compile
         run: ./scripts/graph-compile.sh
         # 业务仓须自备该脚本；也可逐步切到 npx spec-wave graph yaml compile|check|export（见仓根 MIGRATION.md 双栈节）

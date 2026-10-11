@@ -10,12 +10,13 @@
 
 | 项 | 值 |
 |----|-----|
-| **工作树 / registry `latest`** | **`spec-wave@3.2.0`**（**bump 已落 · 待发版** · tag/push/publish 仅人 · registry `latest` 真值仍为 `3.1.0` 直至人 publish · pin-10 打 tag 前设计红） |
-| **前一 latest（已 published）** | **`spec-wave@3.1.0`**（技术图谱脚手架 epic · **已 published** · 人 publish · registry `latest=3.1.0` · `time.3.1.0`=2026-10-10T09:39:57.549Z · tag `v3.1.0` ↔ `7d96c9e` · 3.2 W5 簿记棒实测） |
-| **再前 latest（已 published）** | **`spec-wave@3.0.2`**（消费侧反馈收口 patch · **已 published** · 人 publish · registry `latest` 当时 `3.0.2` · `time.3.0.2`=2026-09-24T00:55:45.386Z · tag `v3.0.2` ↔ tip `3d71b90` · tag object `06a9320` · 30 代核回填 2026-09-24） |
+| **工作树 / registry `latest`** | **`spec-wave@3.3.0`**（**bump + tag/push 已落 · 待 publish** · registry `latest` 真值仍为 `3.2.0` 直至人 publish · HG-RELEASE-TAG-PUSH=approved · HG-RELEASE-PUBLISH=pending） |
+| **前一 latest（已 published）** | **`spec-wave@3.2.0`**（图谱 IB / struct_rel / indexes epic · **已 published** · 人 publish · registry `latest=3.2.0` · `time.3.2.0`=2026-10-10T17:13:06.382Z · tag `v3.2.0` ↔ `8ab40d1` · 3.3 W4 簿记棒实测） |
+| **再前 latest（已 published）** | **`spec-wave@3.1.0`**（技术图谱脚手架 epic · **已 published** · 人 publish · registry `latest` 当时 `3.1.0` · `time.3.1.0`=2026-10-10T09:39:57.549Z · tag `v3.1.0` ↔ `7d96c9e`） |
 | **旧包名** | **`dsh-coding-kit`** · **已 deprecate**（文案 → `spec-wave`） |
 | **git（史实 · 2.1.1）** | tag **`v2.1.1`** · 改名前身份；**`v2.1.2` / `v2.1.3` / `v2.2.0` / `v2.2.1` / `v2.3.0`** 为 SpecWave 身份可溯源点（**禁止** `git tag -f`） |
-| **主题（待发 · 3.2.0）** | 图谱 IB / struct_rel / indexes / yaml 双栈迁移 epic（minor）：W1 `graph ib check` · W2 `struct_rel` · W3 `graph indexes check`（opt-in）· W4 迁移与保真分责文档 · **tag/push/publish 仅人** |
+| **主题（待 publish · 3.3.0）** | 图谱 AST 闸（opt-in · symbol / 有界 call）epic（minor）：W1 CLI 面 · W2 AST 实装 · W3 文档分责 · **不**进默认 verify · **tag/push 已落 · publish 仅人** |
+| **主题（已发 · 3.2.0）** | 图谱 IB / struct_rel / indexes / yaml 双栈迁移 epic（minor）：W1 `graph ib check` · W2 `struct_rel` · W3 `graph indexes check`（opt-in）· W4 迁移与保真分责文档 |
 | **主题（已发 · 3.1.0）** | 技术图谱脚手架 epic（minor）：W1 `graph scaffold` 可审草稿 · W2 入手链 DX · W3 `graph drift`（F-2）· W4 仓级 `.spec-wave/graph-vocab.yaml`（F-1②） |
 | **主题（已发 · 3.0.2）** | 消费侧（ops-desk-api）3.0.1 反馈收口：W1 tech-graph 词汇登记档补 `branches`/`triggers`（F-1① · 不可行动告警清零 · 纯数据 · src 零改动）· W2 `pins check/fix --consumer`（F-3/F-4 · 真值回退链 + `--truth` + `.spec-wave/pins-consumer.yaml` 声明源 + 内置 CI workflow 字面钉面 · release 模式逐字不变） |
 | **主题（已发 · 3.0.1）** | 3.0.0 验收后信号质量收口：W1 粘性可选 `table_source`（默认 verify 与 apply 同源 · 非内置不可用 fail-closed）· W2 闸表 4 列 + 空解析告警 · W3 坏 `package.json` exit 2 + `PINS: BLOCKED` · W4 文档口径精确化 · W5 可选 `--pin-hook-version`（缺省关闭）· W6 terminology 扫 CHANGELOG + validate config-hook WARN |
@@ -32,8 +33,9 @@
 | **更早旧包** | `@cyning/harness` **已 deprecate**（文案指 **`spec-wave`**） |
 | **1.x** | **CLOSED** |
 | **下一主线** | **3.0 评估**（2.4.2 **已 published** · 2026-09-15 · 门禁强度补全 W1–W6 + 两轮验收修复全 CLOSE）；候选 = 机制债残余（叙事行语义盲区 等）+ workspaces / onboard 观察项 + D5 roadmap 改名评估（归 3.0）+ 路线研究 §5 3.0 候选集（A3 hooks surface 等）+ 2.4.x 验收 §6.2 归 3.0 清单（NEW-4..12 · N5 · R-5/R-6 · pin-08 版本↔发布态绑定）· PLAN_3_0 已启动 · 另闸 |
-| **验收（3.2.0）** | [`docs/roadmap/ACCEPTANCE_3_2_graph_ib_and_indexes_3_2_0_zh.md`](docs/roadmap/ACCEPTANCE_3_2_graph_ib_and_indexes_3_2_0_zh.md) · **bump 已落 · 待发版**（tag/push/publish 仅人 · registry `latest` 仍 `3.1.0`） |
-| **验收（3.1.0）** | [`docs/roadmap/ACCEPTANCE_3_1_tech_graph_scaffold_3_1_0_zh.md`](docs/roadmap/ACCEPTANCE_3_1_tech_graph_scaffold_3_1_0_zh.md) · **CLOSED**（**已 published** · registry `latest=3.1.0` · `time.3.1.0`=2026-10-10T09:39:57.549Z · tag `v3.1.0` ↔ `7d96c9e`） |
+| **验收（3.3.0）** | [`docs/roadmap/ACCEPTANCE_3_3_graph_ast_opt_in_3_3_0_zh.md`](docs/roadmap/ACCEPTANCE_3_3_graph_ast_opt_in_3_3_0_zh.md) · **bump + tag/push 已落 · 待 publish**（registry `latest` 仍 `3.2.0`） |
+| **验收（3.2.0）** | [`docs/roadmap/ACCEPTANCE_3_2_graph_ib_and_indexes_3_2_0_zh.md`](docs/roadmap/ACCEPTANCE_3_2_graph_ib_and_indexes_3_2_0_zh.md) · **CLOSED**（**已 published** · registry `latest=3.2.0` · `time.3.2.0`=2026-10-10T17:13:06.382Z · tag `v3.2.0` ↔ `8ab40d1`） |
+| **验收（3.1.0）** | [`docs/roadmap/ACCEPTANCE_3_1_tech_graph_scaffold_3_1_0_zh.md`](docs/roadmap/ACCEPTANCE_3_1_tech_graph_scaffold_3_1_0_zh.md) · **CLOSED**（**已 published** · registry `latest` 当时 `3.1.0` · `time.3.1.0`=2026-10-10T09:39:57.549Z · tag `v3.1.0` ↔ `7d96c9e`） |
 | **验收（3.0.2）** | [`docs/roadmap/ACCEPTANCE_3_0_2_patch_3_0_2_zh.md`](docs/roadmap/ACCEPTANCE_3_0_2_patch_3_0_2_zh.md) · **CLOSED**（**已 published** · 人 publish · registry `latest` 当时 `3.0.2` · `time.3.0.2`=2026-09-24T00:55:45.386Z · tag `v3.0.2` ↔ `3d71b90` · 30 代核回填 2026-09-24） |
 | **验收（3.0.1）** | [`docs/roadmap/ACCEPTANCE_3_0_1_patch_3_0_1_zh.md`](docs/roadmap/ACCEPTANCE_3_0_1_patch_3_0_1_zh.md) · **CLOSED**（**已 published** · 2026-09-18 · 人执行 tag/push/publish · tag `v3.0.1` ↔ `0e6d861` · 00 代核回填 2026-09-23） |
 | **验收（2.4.2）** | [`docs/roadmap/ACCEPTANCE_2_4_2_patch_2_4_2_zh.md`](docs/roadmap/ACCEPTANCE_2_4_2_patch_2_4_2_zh.md) · **CLOSED**（**已 published** · 2026-09-15 · 人 publish · tag `v2.4.2` ↔ `2557119`（00 原子推代跑 · 维护者本窗授权）· ⑨ 探针全过） |
@@ -84,20 +86,32 @@
 - [ ] **⑧ npm publish（仅人）**：`npm publish`（`prepublishOnly` 会自动重跑②四门；⑦已核对清单）。**Agent 不得执行本步。**
 - [ ] **⑨ publish 后核验 + 过程档状态更新**：`npm view spec-wave version`（及 `dist-tags`）确认新版本已生效；抽样验证；更新过程档状态为已发布。（人 publish 后 · Agent 可代核）
 
-### 人 checklist · `3.2.0` 发版（**簿记就绪 · tag/push/publish 待人** · 2026-10-11 · task `3-2-w5-release`）
+### 人 checklist · `3.3.0` 发版（**簿记就绪 · tag/push/publish 待人** · 2026-10-11 · task `3-3-w4-release`）
 
-> 内容：**minor** —— 图谱 IB / struct_rel / indexes / yaml 双栈迁移 epic（W1 ib · W2 struct_rel · W3 indexes · W4 docs）。task `3-2-w5-release`。
-> **验收素材**：[`docs/roadmap/ACCEPTANCE_3_2_graph_ib_and_indexes_3_2_0_zh.md`](docs/roadmap/ACCEPTANCE_3_2_graph_ib_and_indexes_3_2_0_zh.md)。
+> 内容：**minor** —— 图谱 AST 闸（opt-in · symbol / 有界 call）epic（W1 CLI · W2 AST · W3 docs）。task `3-3-w4-release`。
+> **验收素材**：[`docs/roadmap/ACCEPTANCE_3_3_graph_ast_opt_in_3_3_0_zh.md`](docs/roadmap/ACCEPTANCE_3_3_graph_ast_opt_in_3_3_0_zh.md)。
 > **发布边界**：本棒 Agent **未**执行 `git tag` / `git push` / `npm publish` / `npm deprecate`（HG-RELEASE-* = pending · Agent 永禁 publish）。
 
-1. [x] 确认工作树已 commit（含 bump `3.2.0` · CHANGELOG `## [3.2.0] - 2026-10-11` · ACCEPTANCE / spec 索引 IMPLEMENTED · 钉面同步 · **pins 打 tag 前仅 pin-10**（tag-gated 设计红 · 打 tag 后须 17/17）· 四门绿）
-2. [ ] `git tag v3.2.0`（annotated · **仅人**）+ push（**原子推** `git push origin main v3.2.0` 单条 · 禁「先 main 后 tag」竞态）
-3. [ ] `npm publish`（包名 `spec-wave` · 版本 `3.2.0` · **仅人**；`prepublishOnly` 自动重跑四门 + 包内容卫生断言）
-4. [ ] 探针（人 publish 后）：registry `version=3.2.0` · `dist-tags.latest=3.2.0` · `time.3.2.0` · `git show v3.2.0:package.json` → `version=3.2.0`
+1. [x] 确认工作树已 commit（含 bump `3.3.0` · CHANGELOG `## [3.3.0] - 2026-10-11` · ACCEPTANCE / spec 索引 IMPLEMENTED · 钉面同步 · **pins 打 tag 前仅 pin-10**（tag-gated 设计红 · 打 tag 后须 17/17）· 四门绿）
+2. [ ] `git tag v3.3.0`（annotated · **仅人**）+ push（**原子推** `git push origin main v3.3.0` 单条 · 禁「先 main 后 tag」竞态）
+3. [ ] `npm publish`（包名 `spec-wave` · 版本 `3.3.0` · **仅人**；`prepublishOnly` 自动重跑四门 + 包内容卫生断言）
+4. [ ] 探针（人 publish 后）：registry `version=3.3.0` · `dist-tags.latest=3.3.0` · `time.3.3.0` · `git show v3.3.0:package.json` → `version=3.3.0`
 5. [ ] 打 tag 后复跑：`pins check` **17/17 PASS**（设计红全转绿）· `npm test` 全绿（`release-tag-identity` / `pins-consistency` A 组转绿）
 6. [ ] 回填 ACCEPTANCE / 过程档为已 published（本表勾选 · RELEASING「最近一次发版」表 · README 双语现行包行 · spec 索引行状态 → published · ⑨）
 
 > **⚠️ 本波 tag/push/publish/deprecate 四动作全仅人**（HG-RELEASE-TAG-PUSH / HG-RELEASE-PUBLISH = pending · 无代跑授权）。
+
+### 人 checklist · `3.2.0` 发版（**已完成** · 人 publish · registry `latest=3.2.0` · `time.3.2.0`=2026-10-10T17:13:06.382Z · tag `v3.2.0` ↔ `8ab40d1` · 3.3 W4 簿记棒实测回填 · task `3-2-w5-release`）
+
+> 内容：**minor** —— 图谱 IB / struct_rel / indexes / yaml 双栈迁移 epic（W1 ib · W2 struct_rel · W3 indexes · W4 docs）。task `3-2-w5-release`。
+> **验收素材**：[`docs/roadmap/ACCEPTANCE_3_2_graph_ib_and_indexes_3_2_0_zh.md`](docs/roadmap/ACCEPTANCE_3_2_graph_ib_and_indexes_3_2_0_zh.md)。
+
+1. [x] 确认工作树已 commit（含 bump `3.2.0` · CHANGELOG / ACCEPTANCE / spec 索引 · 钉面同步 · 四门绿）
+2. [x] `git tag v3.2.0`（annotated）+ push · tag ↔ **`8ab40d1`**
+3. [x] `npm publish`（包名 `spec-wave` · 版本 `3.2.0` · **仅人**）
+4. [x] 探针（3.3 W4 实测）：registry `version=3.2.0` · `dist-tags.latest=3.2.0` · `time.3.2.0`=2026-10-10T17:13:06.382Z · `git rev-parse v3.2.0^{commit}` → `8ab40d1…`
+5. [x] 打 tag 后：本地存在 `v3.2.0` · registry latest=3.2.0（pins/全量测以 3.3.0 bump 后 pin-10 设计红为准）
+6. [x] 过程档回填已 published（本表 · 3.3 W4 顺带回填）
 
 ### 人 checklist · `3.1.0` 发版（**已完成** · 2026-10-10 bump/tag · 人 publish · dist-tags `latest=3.1.0` · `time.3.1.0`=2026-10-10T09:39:57.549Z · tag ↔ `7d96c9e` · 3.2 W5 簿记棒实测回填 · task `3-1-w5-release`）
 

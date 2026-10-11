@@ -4,10 +4,21 @@
 
 ## [Unreleased]
 
+## [3.3.0] - 2026-10-11
+
+> 主题：**minor** —— 图谱 AST 闸（opt-in · symbol / 有界 call）epic（W1–W3 · PLAN [`docs/roadmap/PLAN_3_3_graph_ast_opt_in_v1_zh.md`](docs/roadmap/PLAN_3_3_graph_ast_opt_in_v1_zh.md) · SPEC [`docs/spec/3_3-graph-ast-opt-in/`](docs/spec/3_3-graph-ast-opt-in/) · 反哺 meta P4 · 拒整包/完整 callgraph/indexes v2）。
+> **发布状态**：**待发版（tag/push/publish 仅人）**（bump 已落 · registry `latest` 仍为 `3.2.0` 直至人 publish · pin-10 打 tag 前设计红 · 缺 `v3.3.0`）。
+
+### Added
+
+- **W1（`graph ast check` CLI 面）**：opt-in 子命令 `graph ast check [--target] [--input] [--json]` · 无 TS peer → skip exit 0 + `skipped_reason=no_ts_peer`（禁 usage=1）· **不**进默认 `verify`。
+- **W2（AST 实现）**：symbol 核对（缺失 → exit 2 / `missing_ib_symbol`）· **有界 call**（同 path 缺失引用 → exit 2；跨 path 不红 · 非完整 callgraph）。
+- **W3（文档分责）**：手册保真分责表含 `graph ast check` · 专节钉死有界 ≠ callgraph / opt-in / 不进默认 verify · MIGRATION 与消费仓本地 `graph:ast-check` 分工（SW 不替代全量方言）· 可选 CI 注释步。
+
 ## [3.2.0] - 2026-10-11
 
 > 主题：**minor** —— 图谱点路径（IB）· 可配置模块表 · indexes 闸 epic（W1–W4 · PLAN [`docs/roadmap/PLAN_3_2_graph_ib_and_indexes_v1_zh.md`](docs/roadmap/PLAN_3_2_graph_ib_and_indexes_v1_zh.md) · SPEC [`docs/spec/3_2-graph-ib-and-indexes/`](docs/spec/3_2-graph-ib-and-indexes/) · 反哺 meta `tools/tech_graph` 缺口 · 拒整包/AST/issue-sync）。
-> **发布状态**：**待发版（tag/push/publish 仅人）**（bump 已落 · registry `latest` 仍为 `3.1.0` 直至人 publish · pin-10 打 tag 前设计红）。
+> **发布状态**：**已发布 2026-10-10**（人 publish · registry `latest=3.2.0` · `time.3.2.0`=2026-10-10T17:13:06.382Z · tag `v3.2.0` ↔ `8ab40d1` · 3.3 W4 簿记棒实测回填）。
 
 ### Added
 
