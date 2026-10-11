@@ -5,6 +5,7 @@ import os from 'node:os'
 import path from 'node:path'
 import { describe, it } from 'node:test'
 import { fileURLToPath } from 'node:url'
+import { findLatestReview } from '../src/checks/review-gates.ts'
 
 const KIT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const CLI_TS = path.join(KIT, 'src', 'cli.ts')
@@ -172,6 +173,57 @@ describe('DEF-003 T4 · verify 查 R<n> 审查文存在性', { concurrency: 1 },
       assert.equal(r.status, 2, r.combined)
       assert.match(r.combined, /D5: test_strategy=required/)
       assert.equal(/missing R<n> review/.test(r.combined), false, 'D5 BLOCKED 时不应同时报审查文缺失')
+    })
+  })
+})
+
+// verify-upstream-dual-address（ops-desk-api 仓 CONVENTION_review_gate_dual_address_v1_zh.md 上游根治）：
+// findLatestReview 扩第三扫描址 docs/audits/task-review/（址B）+ 第二命名口径 YYYYMMDD_<slug>_r<n>.md。
+// 址B slug 为 dash 形（hitl-auto-resume-claim-race）· task slug 为 underscore 形（task_hitl_auto_resume_claim_race）
+// → 匹配须过 normalizeSlug 归一且去 task_ 前缀；跨址合并沿用「最高 R 轮取最新」语义。
+// 红→绿钉死：修复前址B 完全不入扫描面（址B 单落 verify 误报 missing R<n> review BLOCKED · 误报两起在案）。
+describe('verify-upstream-dual-address · 址B docs/audits/task-review/ 扫描与命名口径', { concurrency: 1 }, () => {
+  const REVIEW_BODY = '# R1 fixture\n\n## 结论\n\nPASS · 零内容阻塞（fixture）\n\n审查结论：fixture 范围与验收全项合规，无阻塞遗留，准予关账。\n'
+
+  it('址B 单落（不落址A）→ VERIFY: PASS · exit 0（命名 YYYYMMDD_<slug>_r<n>.md · dash slug）', async () => {
+    await withTemp(async (dir) => {
+      await seedTask(dir)
+      await writeRel(dir, 'docs/audits/task-review/20260820_vr-ok_r1.md', REVIEW_BODY)
+      const r = runCli(['verify', '--task', TASK_REL, '--target', dir])
+      assert.equal(r.status, 0, r.combined)
+      assert.match(r.combined, /VERIFY: PASS/)
+    })
+  })
+
+  it('址B 落址A 式命名（task_*_audit_R1_*）不认 → 仍 BLOCKED（址B 命名口径不串址）', async () => {
+    await withTemp(async (dir) => {
+      await seedTask(dir)
+      await writeRel(dir, 'docs/audits/task-review/task_vr_ok_audit_R1_2026-08-20.md', REVIEW_BODY)
+      const r = runCli(['verify', '--task', TASK_REL, '--target', dir])
+      assert.equal(r.status, 2, r.combined)
+      assert.match(r.combined, /VERIFY: BLOCKED · missing R<n> review/)
+    })
+  })
+
+  it('findLatestReview 跨址合并取最高 R 轮：址A R1 + 址B r2 → round=2 命中址B 档', async () => {
+    await withTemp(async (dir) => {
+      await seedTask(dir)
+      await writeRel(dir, REVIEW_REL, REVIEW_BODY)
+      await writeRel(dir, 'docs/audits/task-review/20260821_vr-ok_r2.md', REVIEW_BODY)
+      const latest = findLatestReview(dir, path.join(dir, TASK_REL))
+      assert.ok(latest, '址A+址B 双落须有命中')
+      assert.equal(latest.round, 2)
+      assert.match(latest.name, /^20260821_vr-ok_r2\.md$/)
+    })
+  })
+
+  it('findLatestReview 址B slug 去 _v<n> 版本后缀生效（task 文件 task_vr_suff_v3.md ↔ 址B vr-suff_r1）', async () => {
+    await withTemp(async (dir) => {
+      await seedTask(dir, 'docs/tasks/active/task_vr_suff_v3.md', 'vr_suff')
+      await writeRel(dir, 'docs/audits/task-review/20260820_vr-suff_r1.md', REVIEW_BODY)
+      const latest = findLatestReview(dir, path.join(dir, 'docs/tasks/active/task_vr_suff_v3.md'))
+      assert.ok(latest, '址B 档须命中 _v<n> 后缀 task')
+      assert.equal(latest.round, 1)
     })
   })
 })
