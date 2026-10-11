@@ -6,14 +6,14 @@
 | **日期** | 2026-10-11 |
 | **触发** | 维护者本窗：「授权push+tag」 |
 | **分支** | `task/specwave-3-3-graph-ast` |
-| **tag** | `v3.3.0`（annotated · 对准 bump 后 tip · `package.json#version=3.3.0`） |
+| **tag** | `v3.3.0` ↔ `197b337`（annotated · `package.json#version=3.3.0`） |
 
-## 已办 / 将办
+## 已办
 
-1. 回填 **HG-RELEASE-TAG-PUSH=approved**（task W4 · ACCEPTANCE · SPEC `04`）  
+1. 回填 **HG-RELEASE-TAG-PUSH=approved**（task W4 · ACCEPTANCE · SPEC `04`）· commit `197b337`  
 2. `git tag -a v3.3.0`  
-3. `git push -u origin HEAD` + `git push origin v3.3.0`  
-4. 复跑 `pins check` 期望 **17/17**  
+3. `git push -u origin HEAD` + `git push origin v3.3.0`（已上 remote）  
+4. `pins check` **17/17** PASS  
 
 ## 未办（仅人）
 
