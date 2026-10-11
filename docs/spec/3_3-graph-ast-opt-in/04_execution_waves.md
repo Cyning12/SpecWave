@@ -24,12 +24,12 @@
 
 ## W2 · AST 实现 + 测（symbol + 有界 call）
 
-- [ ] symbol 核对：正（符号存在 → 0）· 负（缺失 → 2 · `missing_ib_symbol`）  
-- [ ] 有界 call：同 path 缺失引用 → 2；跨 path → 不红（inform 可选）  
-- [ ] 无 IB → 0；无 peer → 与 W1 契约一致  
-- [ ] 抽最小语义；禁整包 cp；禁七域硬编码  
-- [ ] 回归：既有 drift / ib / indexes / yaml / scaffold 测试全绿  
-- [ ] 四门绿 · HG-AUDIT-R1 · gate-check  
+- [x] symbol 核对：正（符号存在 → 0）· 负（缺失 → 2 · `missing_ib_symbol`）  
+- [x] 有界 call：同 path 缺失引用 → 2；跨 path → 不红（inform 可选）  
+- [x] 无 IB → 0；无 peer → 与 W1 契约一致  
+- [x] 抽最小语义；禁整包 cp；禁七域硬编码  
+- [x] 回归：既有 drift / ib / indexes / yaml / scaffold 测试全绿  
+- [x] 四门绿 · HG-AUDIT-R1 · gate-check  
 
 ## W3 · 文档分责
 
