@@ -1,6 +1,6 @@
 # ACCEPTANCE · 3.3.0 minor（图谱 AST 闸 opt-in · symbol / 有界 call epic · W1–W3）台账
 
-> **版本**：`spec-wave@3.3.0`（**待 publish** · bump + **tag/push 已落** · registry `latest` 仍为 `3.2.0` 直至人 publish · task slug `3-3-w4-release`）
+> **版本**：`spec-wave@3.3.0`（**已 published** · 人 publish 2026-10-11 · registry `latest=3.3.0` · `time.3.3.0`=2026-10-11T06:33:10.216Z · tag `v3.3.0` ↔ `197b337` · 00 代核回填 2026-10-15 · task `3-4-0-release-bump` · task slug `3-3-w4-release`）
 > **task**：[`docs/tasks/done/task_3_3_w4_release.md`](../tasks/done/task_3_3_w4_release.md)（slug `3-3-w4-release` · epic SPEC [`../spec/3_3-graph-ast-opt-in/`](../spec/3_3-graph-ast-opt-in/)）
 > **规划**：[`PLAN_3_3_graph_ast_opt_in_v1_zh.md`](PLAN_3_3_graph_ast_opt_in_v1_zh.md)（HG-NEXT-PLAN=approved · 2026-10-11）
 > **SPEC**：[`../spec/3_3-graph-ast-opt-in/`](../spec/3_3-graph-ast-opt-in/)（HG-SPEC-SIGNOFF=approved · 2026-10-11）

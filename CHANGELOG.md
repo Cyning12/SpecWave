@@ -4,10 +4,19 @@
 
 ## [Unreleased]
 
+## [3.4.0] - 2026-10-15
+
+> 主题：**minor** —— review-gates 址B 双址扫描（`findLatestReview` 扩 `docs/audits/task-review/` · PR [#36](https://github.com/Cyning12/SpecWave/pull/36) · issue [#35](https://github.com/Cyning12/SpecWave/issues/35) · 下游 ops-desk-api 双址规约 `CONVENTION_review_gate_dual_address_v1_zh.md` 的上游根治 · 无独立 SPEC 夹）。
+> **发布状态**：**待发版（tag/push/publish 仅人）**（bump 已落 · registry `latest` 仍为 `3.3.0` 直至人 publish · pin-10 打 tag 前设计红 · 缺 `v3.4.0`）。
+
+### Added
+
+- **review-gates 址B 扫描与命名口径**（`src/checks/review-gates.ts`）：`findLatestReview` 扫描面扩第三址 `docs/audits/task-review/`（址B · 不存在时 `existsSync` continue 零噪音 · 同址A 口径）；址B 命名口径 `YYYYMMDD_<slug>_r<n>.md` 可机读（slug 过 `normalizeSlug` 归一 dash ↔ underscore + 去 `task_` 前缀 + `_v<n>` 后缀剥离 · 同址A 口径）；命名口径**按址绑定不串址**（址A 两目录只认 `task_*_audit_R<n>_*` · 址B 只认 `YYYYMMDD_<slug>_r<n>`）；跨址合并沿用「最高 R 轮取最新」语义（同轮冲突按文件名序 · 确定性）；`findReview` 布尔投影同源同治（status / dry-run / verify 消费面自动获益 · 零调用点改动）。单测 +4（址B 单落 PASS · 址A 式命名落址B 不认反向钉死 · 跨址取最高 R 轮 · `_v<n>` 后缀剥离）。**非范围**（登记 follow-up）：spec 审查扫描面（`findSpecReview`）不扩址。
+
 ## [3.3.0] - 2026-10-11
 
 > 主题：**minor** —— 图谱 AST 闸（opt-in · symbol / 有界 call）epic（W1–W3 · PLAN [`docs/roadmap/PLAN_3_3_graph_ast_opt_in_v1_zh.md`](docs/roadmap/PLAN_3_3_graph_ast_opt_in_v1_zh.md) · SPEC [`docs/spec/3_3-graph-ast-opt-in/`](docs/spec/3_3-graph-ast-opt-in/) · 反哺 meta P4 · 拒整包/完整 callgraph/indexes v2）。
-> **发布状态**：**待发版（tag/push/publish 仅人）**（bump 已落 · registry `latest` 仍为 `3.2.0` 直至人 publish · pin-10 打 tag 前设计红 · 缺 `v3.3.0`）。
+> **发布状态**：**已发布 2026-10-11**（人 publish · registry `latest=3.3.0` · `time.3.3.0`=2026-10-11T06:33:10.216Z · tag `v3.3.0` ↔ `197b337` · 00 代核回填 2026-10-15 · task `3-4-0-release-bump`）。
 
 ### Added
 
