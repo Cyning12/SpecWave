@@ -6,7 +6,7 @@
 
 ## 产出
 
-- [`docs/tasks/active/task_3_4_0_release_bump.md`](../../../../tasks/active/task_3_4_0_release_bump.md)（初稿 · 闸表 4 列 · 双 release 闸 pending · R0–R5 预置 · A1–A11）
+- [`docs/tasks/done/task_3_4_0_release_bump.md`](../../../../tasks/done/task_3_4_0_release_bump.md)（初稿 · 闸表 4 列 · 双 release 闸 pending · R0–R5 预置 · A1–A11）
 
 ## 两差异（相对 3.0.2 release task）
 

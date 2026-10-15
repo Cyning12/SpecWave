@@ -1,6 +1,6 @@
 # 审查：task_3_4_0_release_bump（R1 · 20-task-audit）
 
-> **帽**：20-task-audit · **日期**：2026-10-15 · **对象**：[`docs/tasks/active/task_3_4_0_release_bump.md`](../../tasks/active/task_3_4_0_release_bump.md)  
+> **帽**：20-task-audit · **日期**：2026-10-15 · **对象**：[`docs/tasks/done/task_3_4_0_release_bump.md`](../../tasks/done/task_3_4_0_release_bump.md)  
 > **结论**：**PASS · blocking 0**（内容零阻塞 · 流程闸 HG-TASK-DRAFT / HG-AUDIT-R1 由 00 按维护者本窗授权代签）  
 > **授权真值**：维护者本窗 2026-10-15「好的，全部完成我来操作发版」—— 授权完成发版前全部簿记（含 00 代签过程文档闸）；tag/push/publish 维护者自留（「我来操作发版」）。
 

@@ -1,6 +1,6 @@
 # Migration · `@cyning/harness` / `dsh-coding-kit` → **SpecWave**（`spec-wave`）
 
-> **⚠️ `dsh-coding-kit` 已 deprecate** —— 请**直接**安装正式包：`npm i spec-wave@3.4.0`（**minor · 待发版** · review-gates 址B 双址扫描（`docs/audits/task-review/`）· **无强制迁移**；registry `latest` 仍为 `3.3.0` 直至人 publish。`3.0.0` 为 **major · 架构跃迁**，见下方「2.4.2 → 3.0.0」节）。**勿再**把废弃中间包当作迁移终点。  
+> **⚠️ `dsh-coding-kit` 已 deprecate** —— 请**直接**安装正式包：`npm i spec-wave@3.4.0`（**minor · 已发布 2026-10-15** · review-gates 址B 双址扫描（`docs/audits/task-review/`）· **无强制迁移**；registry `latest=3.4.0` · `time.3.4.0`=2026-10-15T07:09:13.832Z。`3.0.0` 为 **major · 架构跃迁**，见下方「2.4.2 → 3.0.0」节）。**勿再**把废弃中间包当作迁移终点。  
 > **现行包**：**`spec-wave@3.4.0`**（**待发版** · 正式包名 / 正式 bin；曾用名 `dsh-coding-kit`）  
 > **过渡 bin（同入口 · 非终点）**：`specgate` · `dsh-coding-kit`（仍可调用，**不要**再 `npm i dsh-coding-kit` 当终点）  
 > **状态**：1.12 收口 **DONE** · kit **`2.0.0` published** · `@cyning/harness` **已 deprecate**（2026-09-10）· **`dsh-coding-kit` 已 deprecate**（文案指向 `spec-wave`）  
@@ -14,7 +14,7 @@
 
 ## SpecWave 最短路径（现行）
 
-1. **依赖**：`package.json` 将 `dsh-coding-kit`（或 `@cyning/harness`）改为 **`spec-wave`**（钉 `3.4.0`；CHANGELOG 见 `[3.4.0]` 节 · **待发版** · registry `latest` 仍 `3.3.0` 直至人 publish）。  
+1. **依赖**：`package.json` 将 `dsh-coding-kit`（或 `@cyning/harness`）改为 **`spec-wave`**（钉 `3.4.0`；CHANGELOG 见 `[3.4.0]` 节 · **已发布** · registry `latest=3.4.0`）。  
 2. **升级**：`npx spec-wave upgrade --yes`  
 3. **字面**：CI / 脚本 `npx dsh-coding-kit` / `npx @cyning/harness` → **`npx spec-wave`**  
 4. **推荐**：`npx spec-wave refresh-ide-blocks --yes`（默认 dry-run；含 B-REFRESH：旧 `npx dsh-coding-kit` / `npx specgate` → `npx spec-wave`）
@@ -208,7 +208,7 @@ DEPRECATED: use dsh-coding-kit instead. See https://github.com/Cyning12/SpecWave
 
 ### ② 推荐步骤（可双栈并行）
 
-1. **钉包**：`package.json` 使用 `spec-wave`（版本以仓内 `package.json` / CHANGELOG 为准；现行工作树 `3.4.0` 待发版 · registry `latest` 仍为 `3.3.0` 直至人 publish）。  
+1. **钉包**：`package.json` 使用 `spec-wave`（版本以仓内 `package.json` / CHANGELOG 为准；现行 `3.4.0` **已发布** · registry `latest=3.4.0`）。  
 2. **编译链对照**（与自备脚本同输入目录，常见 `docs/_tech_graph`）：
 
    ```bash
@@ -262,3 +262,4 @@ DEPRECATED: use dsh-coding-kit instead. See https://github.com/Cyning12/SpecWave
 | 2026-10-11 | **3.2 W4**：增「消费仓 graph:ci / Python yaml → SpecWave graph yaml」双栈可选迁移节 · 保真分责指针 · 禁 AST 已交付宣称 · indexes 不进硬门禁 |
 | 2026-10-11 | **3.3 W3**：保真闸补 `graph ast check` · 与本地 `graph:ast-check` 分工 · 禁「完整 callgraph / 默认 verify 已含 AST」夸大 · CI 可选注释 |
 | 2026-10-15 | **3.4.0 minor**：增「3.3.0 → 3.4.0 无强制动作项」（址B 扫描 additive · 址A 行为逐字不变 · 存量审查文零挪零改 · 待发版 tag/push/publish 仅人）· 头栏包钉对齐 `3.4.0`（registry `latest` 真值 `3.3.0`） |
+| 2026-10-15 | **3.4.0 已 published**：头栏 / §2 / 「3.3.0 → 3.4.0」节钉行 → 已发布（registry `latest=3.4.0` · `time.3.4.0`=2026-10-15T07:09:13.832Z · tag `v3.4.0` ↔ `c4d027b` · 00 代核回填） |

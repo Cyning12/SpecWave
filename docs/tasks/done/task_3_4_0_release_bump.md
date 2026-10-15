@@ -1,6 +1,6 @@
 # Task：3.4.0 release · 收尾 bump（3.3.0 → 3.4.0 · PR #36 合入后发版簿记 + 3.3.0 回填清偿）
 
-> **状态**：`active` · **HG-TASK-DRAFT=approved** · **HG-AUDIT-R1=approved**（均 2026-10-15 00 代签 · 授权真值：维护者本窗「好的，全部完成我来操作发版」—— 授权 00 代签过程文档闸 + 完成发版前全部簿记；**tag/push/publish 归人**）  
+> **状态**：`done` · **00 验收关账** 2026-10-15（A1–A11 全 PASS）· **HG-TASK-DRAFT=approved** · **HG-AUDIT-R1=approved**（均 2026-10-15 00 代签 · 授权真值：维护者本窗「好的，全部完成我来操作发版」）· **HG-RELEASE-TAG-PUSH / HG-RELEASE-PUBLISH**：人 2026-10-15 已执行（tag `v3.4.0` object `25a4686` ↔ `c4d027b` · publish registry `latest=3.4.0` 端点实测）  
 > **wave**：release（3.4.0 minor · 单 feature 收尾 bump · 沿 3.0.1/3.0.2 先例 · **本版差异：tag/push/publish 三动作全仅人**）  
 > **范围主源**：PR [#36](https://github.com/Cyning12/SpecWave/pull/36)（feat(review-gates) 址B 双址扫描 · merge commit `008fb6f` · Closes issue [#35](https://github.com/Cyning12/SpecWave/issues/35)）+ **3.3.0 发布回填缺**（人 2026-10-11 publish 后未回填 · registry `latest=3.3.0` · `time.3.3.0`=2026-10-11T06:33:10.216Z · tag `v3.3.0` ↔ `197b337` · 均 2026-10-15 实测）  
 > **基线**：`spec-wave@3.3.0` published（npm `latest`=3.3.0 · tag `v3.3.0`）· `package.json#version`=`3.3.0` · pins 17/17  
@@ -75,7 +75,7 @@ PR #36（review-gates 址B `docs/audits/task-review/` 扫描 + 命名口径 · �
   - 新增 `### 人 checklist · 3.4.0 发版` 节：tag/push/publish 项全未勾（仅人 · 留哈希回填位）
 - [x] **⑨ MIGRATION**：头栏包钉 `spec-wave@3.4.0`（待发版）· 补「3.3.0 → 3.4.0 无强制动作项」（址B 扫描为新增能力 · 既有址A 行为不变 · 消费仓审查文落址B 后上游 verify 直认 · 不暗示 breaking）
 - [x] **⑩ 禁** tag / push / publish / deprecate（本棒）· **禁** `npm version` · **禁** `git add -A` · **禁** 改 PR #36 已交付行为
-- [ ] **⑪ 四门 + 关账**：波末四门绿 + `pins check`（仅 pin-10 设计红）→ PR 合 main（CI 绿）→ `task close --yes`；提交约定：簿记 `chore(release): bump to 3.4.0`（逐文件显式 add）
+- [x] **⑪ 四门 + 关账**：波末四门绿 + `pins check`（打 tag 后 **17/17** 实测清偿）→ PR [#38](https://github.com/Cyning12/SpecWave/pull/38) 合 main（合并提交 `4680965` · main CI 4/4 绿）→ `task close --yes`；提交约定：簿记 `chore(release): bump to 3.4.0`（逐文件显式 add）· ⑨ 回填棒（publish 后）以 docs PR 收口
 
 ## 非范围
 
@@ -122,7 +122,7 @@ PR #36（review-gates 址B `docs/audits/task-review/` 扫描 + 命名口径 · �
 - [x] **A8 RELEASING**：台账三处更新（latest 行 / 3.3.0 下沉行 / 主题与验收行）· 3.3.0 checklist 标已完成 · 3.4.0 checklist tag/push/publish 全未勾 · 改后全量 npm test 绿
 - [x] **A9 MIGRATION**：「3.3.0 → 3.4.0 无强制动作项」在档 · 包钉 `3.4.0` 待发版 · 不暗示 breaking
 - [x] **A10 四门**：typecheck · test · build · test:lib 全绿
-- [ ] **A11 关账**：PR 合 main（CI 绿）· 提交逐文件显式 add · **未**执行 tag/push/publish/deprecate
+- [x] **A11 关账**：PR #38 合 main（`4680965` · main CI 4/4 绿 · tag-gated 设计红随人打 tag 清偿）· 提交逐文件显式 add · Agent **未**执行 tag/push/publish/deprecate（人 2026-10-15 全执行 · registry `latest=3.4.0` 端点实测）
 
 ---
 
@@ -179,22 +179,40 @@ A1–A11 全机检（grep 叙事 · pins 设计红口径 · 索引行 pin-08 · 
 
 ### 自检结论（执行者）
 
-**30 簿记棒自检：PASS（⑪/A11 待 PR 合 main 后勾）**（2026-10-15 · 00 代签授权 = 维护者本窗「全部完成我来操作发版」）
+**30 簿记棒自检：PASS（⑪/A11 已勾 · 全项终态）**（2026-10-15 · 00 代签授权 = 维护者本窗「全部完成我来操作发版」· 人 tag/push/publish 已执行 · ⑨ 回填 00 代核）
 
 | 项 | 结果 |
 |----|------|
 | ① bump | `package.json` + `package-lock.json` 各仅 version 行 `3.3.0`→`3.4.0` · 未用 `npm version`（lock 改动前先 `git checkout -- package-lock.json` 复位防 npm install 带入 peer 写入） |
 | ② CHANGELOG | `[3.4.0] - 2026-10-15` 节齐（先于 pins fix 落盘 · F-REL-03 遵守）· `[3.3.0]` 回填已发布（registry 实测：`latest=3.3.0` · `time.3.3.0`=2026-10-11T06:33:10.216Z · tag `v3.3.0` ↔ `197b337`） |
 | ③ pins | `pins fix --yes` 写 9 处 · 复跑 **16/17 · 唯一偏差 pin-10**（tag `v3.4.0` 缺失 · 设计红 · 清偿归人打 tag） |
-| ④ 叙事巡检 | pins fix 漂移全修回真值（README 双语现行包行 / MIGRATION 头栏+L17+L211 / 手册头栏+§2 五处 / RELEASING 台账）· 全仓 grep 无「3.4.0 已 published」假叙事 · registry latest 一律 `3.3.0` |
+| ④ 叙事巡检 | pins fix 漂移全修回真值（README 双语现行包行 / MIGRATION 头栏+L17+L211 / 手册头栏+§2 五处 / RELEASING 台账）· 簿记时点全仓 grep 无「3.4.0 已 published」假叙事 · publish 后 ⑨ 回填棒已把全叙事翻真（registry `latest=3.4.0` 端点实测 · `time.3.4.0`=2026-10-15T07:09:13.832Z · tag `v3.4.0` ↔ `c4d027b` · 含手册命令示例钉 30 处 + README 迁移节钉版漂移 6 处修齐） |
 | ⑤ ACCEPTANCE | `ACCEPTANCE_3_4_review_gates_dual_address_3_4_0_zh.md` 落盘（门禁基线已回填实测）· ACCEPTANCE_3_3_0 头栏补 published 回填注 |
 | ⑥ spec 索引 | 3.4.0 行入表（pin-08 ok）· 3.3.0 行回填 published |
-| ⑦ 手册 | 头栏钉 `spec-wave@3.4.0`（待发版）· 基线行续写 · §2 五处钉版同步 |
-| ⑧ RELEASING | 「最近一次发版」表 + 主题/验收行 + 3.3.0 checklist 标已完成（按实勾 · 00 代核）· 新增 3.4.0 checklist（tag/push/publish 全未勾仅人 · 留哈希回填位）· 改后全量 npm test 已跑 |
-| ⑨ MIGRATION | 头栏包钉 3.4.0 · 「3.3.0 → 3.4.0 无强制动作项」节在档 · 末尾变更表加行 |
+| ⑦ 手册 | 头栏钉 `spec-wave@3.4.0`（⑨ 回填后 = **已发布** · registry `latest=3.4.0`）· 基线行续写 · §2 事实行翻真 · 命令示例钉 3.3.0→3.4.0 共 30 处 · 变更表加行 |
+| ⑧ RELEASING | 「最近一次发版」表 + 主题/验收行（3.4.0 → CLOSED 已 published）+ 3.3.0 checklist 标已完成（按实勾 · 00 代核）· 3.4.0 checklist **标已完成按实勾**（tag object `25a4686` · 探针 00 代核）· 改后全量 npm test 已跑（双重敏感遵守 · 含 DEF-001 T5 步骤⑥正则「CI…绿」首命中顺序假红修复：L13 措辞改 success） |
+| ⑨ MIGRATION | 头栏包钉 3.4.0（⑨ 回填后 = 已发布 · `latest=3.4.0`）· 「3.3.0 → 3.4.0 无强制动作项」节在档 · 末尾变更表加行（簿记行 + published 回填行） |
 | ⑩ 禁区 | 本棒**未**执行 tag/push/publish/deprecate · 未用 `npm version` · 逐文件显式 add（无 `-A`）· PR #36 行为零改动 |
 | ⑪ 四门 | `typecheck` 0 错 · `npm test` **1003 · 1000 pass + 2 tag-gated 设计红**（`release-tag-identity` / `pins-consistency` A 组 pin-10 · F-REL-06 登记 · 非产品回归）+ 1 skip · `build` exit 0 · `test:lib` **6/6** · `assets verify` **113/113**（rebuild ~3：ontology/discipline-coverage/host-adapt README）· `check-doc-links` PASS（S2 冻结基线 34 未动 · 新文件入库后复绿） |
 
 **断言联改留痕**（F-REL-07）：7 个测试文件 `3.3.0`→`3.4.0` 字面钉随 bump 例行更新（cli-discipline-coverage / cli-docs-121 / cli-docs-122 / cli-p0 / cli-refresh-ide-blocks / cli-upgrade-compat / cli-validation · 含转义 `3\.3\.0` 双模式 · D28-1 断言改钉 `spec-wave 3.4.0`）+ README.md L399 Prompt「version pinned at 3.4.0」。历史标题与红测留证注释未动。
 
-**结论**：①–⑩ 全 CLOSE · A1–A10 全 PASS（A3/A10 以 tag-gated 设计红登记为前提 · 人打 tag 后复跑须 pins 17/17 + 全量测全绿）· ⑪/A11 关账待 PR CI 绿 + 合 main。
+**结论**：①–⑪ 全 CLOSE · A1–A11 全 PASS。打 tag 后复跑实证：`pins check` **17/17** · `release-tag-identity` 转绿 · 全量测设计红清偿 · main CI（`4680965`）4/4 绿 · registry `latest=3.4.0`（端点实测 2026-10-15）。**task 可 close。**
+
+---
+
+### KPI（00）
+
+Task_KPI%: 100（A1–A11 全 PASS · bump 3.4.0 + 3.3.0 ⑨ 清偿 + 3.4.0 ⑨ 回填全落 · 发布三动作边界守住（Agent 零 tag/push/publish/deprecate）· 打 tag 后 pins 17/17 · 全量测 1002 pass / 0 fail / 1 skip）
+
+- rubric：`KPI_RUBRIC_v1_2`
+
+---
+
+## 修订记录
+
+| 日期 | 摘要 |
+|------|------|
+| 2026-10-15 | 10-task 初稿 · 00 代签过程闸（维护者授权「全部完成我来操作发版」）· 20 审 R1 PASS · blocking 0 |
+| 2026-10-15 | 30 簿记 bump 3.4.0 全档（①–⑩）· PR [#38](https://github.com/Cyning12/SpecWave/pull/38) 合 main（`4680965`）· 人 tag `v3.4.0` + publish |
+| 2026-10-15 | ⑨ 回填棒：全叙事翻 published（registry 端点实测 `latest=3.4.0` · `time.3.4.0`=2026-10-15T07:09:13.832Z）· ⑪/A11 勾 · **00 close** |

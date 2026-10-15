@@ -374,8 +374,8 @@ Full checklist, layout rules (F4 scheme B), and **published** EOS / deprecate ca
 
 After pinning **spec-wave@3.4.0** you can drop `@cyning/harness`. Minimal path, three steps (required, in order):
 
-1. Replace the `devDependency` `@cyning/harness` with `spec-wave` (pin `3.3.0`; formerly `dsh-coding-kit`).
-2. Run `npx spec-wave upgrade --yes` at the repo root (reads `.coding-kit/manifest.json` if present, else legacy `.cyning-harness/manifest.json`; **writes** `.coding-kit/manifest.json` with `version` pinned at 3.3.0 and `from_version` recording the old number; **does not delete** `.cyning-harness/`).
+1. Replace the `devDependency` `@cyning/harness` with `spec-wave` (pin `3.4.0`; formerly `dsh-coding-kit`).
+2. Run `npx spec-wave upgrade --yes` at the repo root (reads `.coding-kit/manifest.json` if present, else legacy `.cyning-harness/manifest.json`; **writes** `.coding-kit/manifest.json` with `version` pinned at 3.4.0 and `from_version` recording the old number; **does not delete** `.cyning-harness/`).
 3. In CI / scripts, replace `npx @cyning/harness` / `npx dsh-coding-kit` with `npx spec-wave`.
 
 **Layout**: new kit process files land under **`.coding-kit/`**. `.cyning-harness/` remains **legacy read-only**. Do not treat `.cyning-harness` as the new standard root.
@@ -394,7 +394,7 @@ Paste the whole block:
 You = the maintenance agent of this repository. Migrate this repo from @cyning/harness to spec-wave@3.4.0.
 
 Minimal path (required, in order):
-1. package.json devDependency: delete @cyning/harness, replace with spec-wave (pinned at 3.3.0; formerly dsh-coding-kit).
+1. package.json devDependency: delete @cyning/harness, replace with spec-wave (pinned at 3.4.0; formerly dsh-coding-kit).
 2. Run at the repo root: npx spec-wave upgrade --yes
    (reads .coding-kit/manifest.json or legacy .cyning-harness/manifest.json; writes .coding-kit/manifest.json; version pinned at 3.4.0, from_version records the old number; never deletes .cyning-harness/; never overwrites docs/tasks, reviews, invokes/by-task.)
 3. Replace every npx @cyning/harness and npx dsh-coding-kit in CI and scripts with npx spec-wave.
@@ -460,7 +460,7 @@ Three surfaces, not interchangeable: **System/Re-anchor** = short identity; **fu
 
 ## Releasing (maintainers)
 
-**Current package**: **`spec-wave@3.4.0`** — **pending release** (bump landed · tag/push/publish human-only · registry `latest` still **`3.3.0`** until human publish). Prior published: **`3.3.0`** (graph AST gate opt-in · registry `latest=3.3.0` · `time.3.3.0`=2026-10-11T06:33:10.216Z · tag `v3.3.0` ↔ `197b337`) · **`3.2.0`** (graph IB / struct_rel / indexes · registry `latest=3.2.0` · `time.3.2.0`=2026-10-10T17:13:06.382Z · tag `v3.2.0` ↔ `8ab40d1`) · **`3.1.0`** (tech-graph scaffold · tag `v3.1.0` ↔ `7d96c9e`) · **`3.0.2`** (consumer-feedback patch · tag `v3.0.2` ↔ tip `3d71b90`) · **`3.0.1`** (signal-quality patch) · **`3.0.0`** (architecture leap) · **`2.4.2`** (acceptance-fixes patch) · **`2.4.1`** (acceptance-fixes patch) · **`2.4.0`** (gate strength) · **`2.3.1`** (acceptance-fixes patch) · **`2.3.0`** (wiring completion) · **`2.2.1`** (acceptance-fixes patch) · **`2.2.0`** (closed-loop start).
+**Current package**: **`spec-wave@3.4.0`** — **published 2026-10-15** (review-gates dual-address scan · registry `latest=3.4.0` · `time.3.4.0`=2026-10-15T07:09:13.832Z · tag `v3.4.0` ↔ `c4d027b`). Prior published: **`3.3.0`** (graph AST gate opt-in · registry `latest=3.3.0` · `time.3.3.0`=2026-10-11T06:33:10.216Z · tag `v3.3.0` ↔ `197b337`) · **`3.2.0`** (graph IB / struct_rel / indexes · registry `latest=3.2.0` · `time.3.2.0`=2026-10-10T17:13:06.382Z · tag `v3.2.0` ↔ `8ab40d1`) · **`3.1.0`** (tech-graph scaffold · tag `v3.1.0` ↔ `7d96c9e`) · **`3.0.2`** (consumer-feedback patch · tag `v3.0.2` ↔ tip `3d71b90`) · **`3.0.1`** (signal-quality patch) · **`3.0.0`** (architecture leap) · **`2.4.2`** (acceptance-fixes patch) · **`2.4.1`** (acceptance-fixes patch) · **`2.4.0`** (gate strength) · **`2.3.1`** (acceptance-fixes patch) · **`2.3.0`** (wiring completion) · **`2.2.1`** (acceptance-fixes patch) · **`2.2.0`** (closed-loop start).
 
 Release process: see [RELEASING.md](RELEASING.md) — hard pre-publish checklist (commit-before-publish · four green gates · version pins · Agent may bump/tag · **human-only `npm publish`**; institutionalizes the DEF-001 lesson).
 
