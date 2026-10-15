@@ -86,25 +86,45 @@ export function evalSpecReviewsRetention(
       }
 }
 
-// R<n> 审查文扫描（DEF-003 T4 真值源 · 2.3-W4 升级为最新轮返回）：扫描 docs/harness/reviews 与
-// reviews/ 双路径，文件名口径 task_<slug>_audit_R<n>_*.md（slug 去 _v<n> 版本后缀）；
-// 返回最高 R 轮文件（终轮结论为真值 · R2 通过覆盖 R1 退回）；无命中 → null。
+// R<n> 审查文扫描（DEF-003 T4 真值源 · 2.3-W4 升级为最新轮返回）：扫描 docs/harness/reviews、
+// reviews/ 与 docs/audits/task-review/ 三址（址B = verify-upstream-dual-address · 下游仓
+// CONVENTION_review_gate_dual_address_v1_zh.md 双址规约的上游根治面）。
+// 命名口径两种（按址匹配 · 不串址）：
+//   址A（docs/harness/reviews · reviews/）：task_<slug>_audit_R<n>_*.md（slug 含 task_ 前缀 · underscore 形）
+//   址B（docs/audits/task-review/）：YYYYMMDD_<slug>_r<n>.md（slug 无 task_ 前缀 · dash 形 · 小写 _r<n>）
+// slug 去 _v<n> 版本后缀；址B 匹配过 normalizeSlug 归一（dash ↔ underscore）并去 task_ 前缀。
+// 返回最高 R 轮文件（终轮结论为真值 · R2 通过覆盖 R1 退回 · 跨址合并同一语义）；无命中 → null。
 export function findLatestReview(
   target: string,
   taskFile: string,
 ): { path: string; name: string; round: number } | null {
-  const dirs = [path.join(target, 'docs/harness/reviews'), path.join(target, 'reviews')]
+  // 命名口径按址绑定（不串址）：址A 两目录只认 task_*_audit_R<n>_* · 址B 只认 YYYYMMDD_<slug>_r<n>
+  const dirs: { dir: string; addrB: boolean }[] = [
+    { dir: path.join(target, 'docs/harness/reviews'), addrB: false },
+    { dir: path.join(target, 'reviews'), addrB: false },
+    { dir: path.join(target, 'docs/audits/task-review'), addrB: true },
+  ]
   const stripVer = (s: string) => s.replace(/_v\d+$/, '')
   const base = stripVer(path.basename(taskFile, '.md'))
   const RE = /^(task_.+?)_audit_R(\d+)_.*\.md$/i
+  const RE_ADDR_B = /^\d{8}_(.+?)_r(\d+)\.md$/i
+  const slugNormB = normalizeSlug(stripVer(base.replace(/^task_/i, '')))
   let best: { path: string; name: string; round: number } | null = null
-  for (const reviewsDir of dirs) {
+  for (const { dir: reviewsDir, addrB } of dirs) {
     if (!existsSync(reviewsDir)) continue
     for (const name of readdirSync(reviewsDir)) {
-      const m = name.match(RE)
-      if (!m) continue
-      if (stripVer(m[1]!) !== base) continue // 捕获组必参与（E5 收窄）
-      const round = parseInt(m[2]!, 10)
+      let round: number | null = null
+      if (!addrB) {
+        const m = name.match(RE)
+        if (!m) continue
+        if (stripVer(m[1]!) !== base) continue // 捕获组必参与（E5 收窄）
+        round = parseInt(m[2]!, 10)
+      } else {
+        const mb = name.match(RE_ADDR_B)
+        if (!mb) continue
+        if (normalizeSlug(stripVer(mb[1]!)) !== slugNormB) continue // 捕获组必参与（E5 收窄同口径）
+        round = parseInt(mb[2]!, 10)
+      }
       if (!best || round > best.round || (round === best.round && name > best.name)) {
         best = { path: path.join(reviewsDir, name), name, round }
       }
