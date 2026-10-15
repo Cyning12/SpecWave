@@ -7,7 +7,7 @@
 ## [3.4.0] - 2026-10-15
 
 > 主题：**minor** —— review-gates 址B 双址扫描（`findLatestReview` 扩 `docs/audits/task-review/` · PR [#36](https://github.com/Cyning12/SpecWave/pull/36) · issue [#35](https://github.com/Cyning12/SpecWave/issues/35) · 下游 ops-desk-api 双址规约 `CONVENTION_review_gate_dual_address_v1_zh.md` 的上游根治 · 无独立 SPEC 夹）。
-> **发布状态**：**待发版（tag/push/publish 仅人）**（bump 已落 · registry `latest` 仍为 `3.3.0` 直至人 publish · pin-10 打 tag 前设计红 · 缺 `v3.4.0`）。
+> **发布状态**：**已发布 2026-10-15**（人 publish · registry `latest=3.4.0` · `time.3.4.0`=2026-10-15T07:09:13.832Z · tag `v3.4.0` ↔ `c4d027b`（tag object `25a4686` · 发版分支 tip · 同 v3.3.0 先例）· 合并提交 `4680965` · 打 tag 后 pins **17/17** + main CI 4/4 绿 · 00 代核回填 2026-10-15 · task `3-4-0-release-bump`）。
 
 ### Added
 

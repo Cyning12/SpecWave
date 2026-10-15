@@ -8,6 +8,7 @@
 ## harness
 
 | 关账日 | task | 摘要 |
+| 2026-10-15 | [`task_3_4_0_release_bump.md`](./task_3_4_0_release_bump.md) | 3.4.0 release bump + ⑨ 回填：review-gates 址B 簿记全档 · 3.3.0 ⑨ 清偿 · 人 tag/push/publish（registry `latest=3.4.0`）· 打 tag 后 pins 17/17 · 全量测 0 fail · Task_KPI%: 100 |
 | 2026-10-11 | [`task_3_3_w4_release.md`](./task_3_3_w4_release.md) | 3.3 W4 · release bump 3.3.0：CHANGELOG/ACCEPTANCE/RELEASING/spec IMPLEMENTED · pins 仅 pin-10 设计红 · **未** tag/push/publish · Task_KPI%: 96 |
 | 2026-10-11 | [`task_3_3_w3_ast_docs.md`](./task_3_3_w3_ast_docs.md) | 3.3 W3 · AST 文档分责：保真表 + 有界 call 文案 · MIGRATION/README · CI 可选注释 · 四门绿 · 未 bump/tag/push/publish · Task_KPI%: 95 |
 | 2026-10-11 | [`task_3_3_w2_graph_ast_impl.md`](./task_3_3_w2_graph_ast_impl.md) | 3.3 W2 · graph ast check 实装：symbol + 有界 call · 不进 verify · 四门绿 · 未 bump/tag/push/publish · Task_KPI%: 96 |

@@ -371,8 +371,8 @@ pins:
 
 钉 **spec-wave@3.4.0** 后可去掉 `@cyning/harness`。最小路径三步（必须，按序）：
 
-1. 把 `devDependency` `@cyning/harness` 换成 `spec-wave`（钉 `3.3.0`；曾用名 `dsh-coding-kit`）。
-2. 在仓根执行 `npx spec-wave upgrade --yes`（读优先 `.coding-kit/manifest.json`，否则 legacy `.cyning-harness/manifest.json`；**写入** `.coding-kit/manifest.json`，`version` 钉 3.3.0，`from_version` 记旧号；**不删除** `.cyning-harness/`）。
+1. 把 `devDependency` `@cyning/harness` 换成 `spec-wave`（钉 `3.4.0`；曾用名 `dsh-coding-kit`）。
+2. 在仓根执行 `npx spec-wave upgrade --yes`（读优先 `.coding-kit/manifest.json`，否则 legacy `.cyning-harness/manifest.json`；**写入** `.coding-kit/manifest.json`，`version` 钉 3.4.0，`from_version` 记旧号；**不删除** `.cyning-harness/`）。
 3. CI / 脚本里把 `npx @cyning/harness` / `npx dsh-coding-kit` 换成 `npx spec-wave`。
 
 **布局**：过程落盘现行根为 **`.coding-kit/`**；`.cyning-harness/` 为 **legacy 只读**。勿再把 `.cyning-harness` 当新标准目录。
@@ -391,9 +391,9 @@ Skill 安装为 **推荐、非必须**（最小路径不依赖 DSH 扫 skill）�
 你 = 本仓库维护 Agent。把本仓从 @cyning/harness 迁到 spec-wave@3.4.0。
 
 最小路径（必须，按序）：
-1. package.json 的 devDependency：删除 @cyning/harness，改为 spec-wave（钉 3.3.0；曾用名 dsh-coding-kit）。
+1. package.json 的 devDependency：删除 @cyning/harness，改为 spec-wave（钉 3.4.0；曾用名 dsh-coding-kit）。
 2. 在仓根执行：npx spec-wave upgrade --yes
-   （读 .coding-kit/manifest.json 或 legacy .cyning-harness/manifest.json；写入 .coding-kit/manifest.json；version 钉 3.3.0，from_version 记旧号；不删除 .cyning-harness/；不覆盖 docs/tasks、reviews、invokes/by-task。）
+   （读 .coding-kit/manifest.json 或 legacy .cyning-harness/manifest.json；写入 .coding-kit/manifest.json；version 钉 3.4.0，from_version 记旧号；不删除 .cyning-harness/；不覆盖 docs/tasks、reviews、invokes/by-task。）
 3. CI 与脚本里所有 npx @cyning/harness 与 npx dsh-coding-kit 换成 npx spec-wave。
 命令一律 npx spec-wave。禁止再写 npx @cyning/harness skills build。
 布局与 EOS 日历见 MIGRATION.md（人闸未批前不得宣称已 deprecate）。
@@ -457,7 +457,7 @@ Skills **不能**覆盖全部过程能力。Host 要嵌套 Harness 过程，须�
 
 ## 发版（维护者）
 
-**现行包**：**`spec-wave@3.4.0`** — **待发版**（bump 已落 · tag/push/publish 仅人 · registry `latest` 仍为 **`3.3.0`** 直至人 publish）。前一已发：**`3.3.0`**（图谱 AST 闸 opt-in · registry `latest=3.3.0` · `time.3.3.0`=2026-10-11T06:33:10.216Z · tag `v3.3.0` ↔ `197b337`）· **`3.2.0`**（图谱 IB / struct_rel / indexes · registry `latest=3.2.0` · `time.3.2.0`=2026-10-10T17:13:06.382Z · tag `v3.2.0` ↔ `8ab40d1`）· **`3.1.0`**（技术图谱脚手架 · tag `v3.1.0` ↔ `7d96c9e`）· **`3.0.2`**（消费侧反馈 patch · tag `v3.0.2` ↔ tip `3d71b90`）· **`3.0.1`**（信号质量 patch）· **`3.0.0`**（架构跃迁）· **`2.4.2`**（验收修复 patch）· **`2.4.1`**（验收修复 patch）· **`2.4.0`**（门禁强度补全）· **`2.3.1`**（验收修复 patch）· **`2.3.0`**（接线补全）· **`2.2.1`**（验收修复 patch）· **`2.2.0`**（闭环起步）。
+**现行包**：**`spec-wave@3.4.0`** — **已发布 2026-10-15**（review-gates 址B 双址扫描 · registry `latest=3.4.0` · `time.3.4.0`=2026-10-15T07:09:13.832Z · tag `v3.4.0` ↔ `c4d027b`）。前一已发：**`3.3.0`**（图谱 AST 闸 opt-in · registry `latest=3.3.0` · `time.3.3.0`=2026-10-11T06:33:10.216Z · tag `v3.3.0` ↔ `197b337`）· **`3.2.0`**（图谱 IB / struct_rel / indexes · registry `latest=3.2.0` · `time.3.2.0`=2026-10-10T17:13:06.382Z · tag `v3.2.0` ↔ `8ab40d1`）· **`3.1.0`**（技术图谱脚手架 · tag `v3.1.0` ↔ `7d96c9e`）· **`3.0.2`**（消费侧反馈 patch · tag `v3.0.2` ↔ tip `3d71b90`）· **`3.0.1`**（信号质量 patch）· **`3.0.0`**（架构跃迁）· **`2.4.2`**（验收修复 patch）· **`2.4.1`**（验收修复 patch）· **`2.4.0`**（门禁强度补全）· **`2.3.1`**（验收修复 patch）· **`2.3.0`**（接线补全）· **`2.2.1`**（验收修复 patch）· **`2.2.0`**（闭环起步）。
 
 发布流程见 [RELEASING.md](RELEASING.md) —— publish 前硬步骤 checklist（先 commit 后 publish · 四门全绿 · 版本钉同步 · **Agent 可 bump/tag** · **`npm publish` 仅人**；DEF-001 教训制度化）。
 
